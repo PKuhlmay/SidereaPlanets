@@ -80,7 +80,7 @@ async function open() {
 <template>
   <main>
     <h1>SidereaPlanets</h1>
-    <button type="button" @click="chooseFiles">Open</button>
+    <button type="button" @click="chooseFiles">Select</button>
     <p v-if="paths.length > 1">{{ paths.length }} files selected</p>
     <p v-else-if="paths.length === 1">{{ paths[0] }}</p>
     <p v-if="error">{{ error }}</p>
