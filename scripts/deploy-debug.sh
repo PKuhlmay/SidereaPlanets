@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploys the debug app after a commit on main: builds the frontend and makes sure `pnpm tauri dev` is running,
+# Deploys the debug app after a commit on main: installs dependencies, builds the frontend and makes sure `pnpm tauri dev` is running,
 # so Philipp always sees the latest state (CLAUDE.md, "Deploy nach jedem Commit"). Started by .githooks/post-commit.
 #
 #   scripts/deploy-debug.sh          called by the hook: checks the commit, then re-runs itself detached
@@ -11,6 +11,9 @@ set -u
 export PATH="$HOME/.cargo/bin:$PATH"
 
 root=$(git rev-parse --show-toplevel)
+# Installs run one at a time across sessions (CLAUDE.md); the wrapper exists on Philipp's machine only.
+install=""
+[ -x "$HOME/.claude/bin/heavy-lock" ] && install="$HOME/.claude/bin/heavy-lock"
 lock="$root/.git/deploy.lock"
 log="$root/deploy-debug.log"
 
@@ -36,6 +39,8 @@ while :; do
 
   if [ "${DEPLOY_TESTS:-0}" = 1 ] && ! cargo test --workspace; then
     echo "tests failed, app not deployed"
+  elif ! (cd app && $install pnpm install --frozen-lockfile); then
+    echo "pnpm install failed, app not deployed"
   elif ! (cd app && pnpm build); then
     echo "frontend build failed, app not deployed"
   elif curl -s -o /dev/null --max-time 2 http://localhost:1420; then
