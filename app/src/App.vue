@@ -5,6 +5,7 @@ import { open as openDialog } from "@tauri-apps/plugin-dialog";
 
 interface RecordingInfo {
   format: string;
+  codec: string | null;
   width: number;
   height: number;
   bitDepth: number;
@@ -86,7 +87,7 @@ async function open() {
     <p v-if="error">{{ error }}</p>
     <template v-if="info">
       <p>
-        {{ info.format }} · {{ info.width }}×{{ info.height }} · {{ info.bitDepth }} bit · {{ info.color }} ·
+        {{ info.format }}<template v-if="info.codec"> · {{ info.codec }}</template> · {{ info.width }}×{{ info.height }} · {{ info.bitDepth }} bit · {{ info.color }} ·
         {{ info.frameCount }} frames<template v-if="info.fps"> · {{ info.fps.toFixed(2) }} fps</template>
       </p>
       <label>

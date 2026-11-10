@@ -18,6 +18,7 @@ fn jupiter_avi_has_expected_layout() {
     let mut rec = Recording::open(&path).unwrap();
     let info = rec.info();
     assert_eq!(info.format, "AVI");
+    assert_eq!(info.codec.as_deref(), Some("DIB"));
     assert_eq!((info.width, info.height, info.frame_count), (1024, 680, 10));
     assert_eq!(info.bit_depth, 8);
 

@@ -8,17 +8,35 @@ Dateitypen im Dialog „Open file(s)“ (Schaltfläche **Select**), in dieser Re
 
 | Filter im Dialog | Endungen | Stand im Klon |
 |---|---|---|
-| Video and Mpeg | `*.avi *.mpg *.mpeg` | AVI unkomprimiert fertig (RK-004); komprimierte Codecs und MPEG offen |
-| Still frame(s) | `*.bmp` | offen (RK-004) |
-| Fit frame(s) | `*.fit` | offen (RK-004) |
-| Still frame(s) | `*.jpg` | offen (RK-004) |
-| Tiff frame(s) | `*.tif` | offen (RK-004) |
-| Png frame(s) | `*.png` | offen (RK-004) |
-| LuCam recorder SER | `*.ser` | fertig (RK-004) |
+| Video and Mpeg | `*.avi *.mpg *.mpeg` | AVI fertig: unkomprimiert (`DIB`), `MJPG`, `HFYU`, `FFVH`, `LAGS`; MPEG offen |
+| Still frame(s) | `*.bmp` | fertig |
+| Fit frame(s) | `*.fit` | fertig (auch `.fits`, `.fts`) |
+| Still frame(s) | `*.jpg` | fertig |
+| Tiff frame(s) | `*.tif` | fertig |
+| Png frame(s) | `*.png` | fertig |
+| LuCam recorder SER | `*.ser` | fertig |
 | the reference program Framelist | _Endung unbekannt_ | offen, siehe `docs/offene-fragen.md` |
 
+### Was der Klon liest (RK-004)
+
+- **Einzelbilder** werden als Serie geöffnet: mehrere Dateien im Dialog wählen, jede Datei ist ein Frame, sortiert in
+  natürlicher Reihenfolge (`frame2` vor `frame10`). Alle Frames brauchen die Größe und Kanalzahl des ersten.
+  8 und 16 Bit, Mono und RGB; Alpha wird verworfen.
+- **FITS**: nur die primäre HDU. `BITPIX` 8, 16, 32, −32, −64 mit `BZERO`/`BSCALE`, 2 Achsen (Mono) oder 3 Achsen mit
+  3 Ebenen (RGB). Ganzzahlen werden auf den Bereich des Typs normiert. Bei Fließkomma gilt: Maximum ≤ 1 bleibt,
+  Maximum ≤ 65535 wird durch 65535 geteilt, sonst durch das Maximum des Frames (_Annahme_, nicht mit dem Original
+  verglichen). Nicht unterstützt: Erweiterungs-HDUs, komprimiertes FITS, `BITPIX` 64.
+- **AVI-Codecs**, alle eigene Dekoder ohne Systemcodecs, YUV nach BT.601 (begrenzter Bereich) in RGB umgerechnet:
+  - `MJPG`: Baseline-JPEG, Grau und Farbe, auch Frames ohne eigene Huffman-Tabellen. Interlaced MJPEG wird abgelehnt.
+  - `HFYU`/`FFVH`: YUY2 (4:2:2), RGB24, RGB32, bei FFVH auch 4:2:0 und planare Varianten mit 8 Bit; Prädiktoren
+    left, gradient, median. Alte HuffYUV-1.x-Dateien ohne Tabellen werden abgelehnt.
+  - `LAGS` (Lagarith): RGB24, RGB32/RGBA, YUY2, YV12, einfarbige und unkomprimierte Frames. „Reduced resolution“
+    wird abgelehnt.
+- **Verworfene Frames**: Leere Chunks im AVI wiederholen das vorige Frame, wie es Capture-Programme vorsehen.
+- Der Codec erscheint in der Dateiinfo (`DIB`, `MJPG` …), wie im Design der Reiterleiste vorgesehen.
+
 - Der Dateiname „Open file(s)“ und die Bilderfilter deuten darauf hin, dass mehrere Einzelbilder auf einmal als
-  Sequenz geöffnet werden können (_Vermutung_, nicht ausprobiert).
+  Sequenz geöffnet werden können (_Vermutung_ fürs Original, nicht ausprobiert; der Klon macht es so).
 - AVI liest the reference program über die Video-for-Windows-Schnittstelle. Die Titelleiste zeigt den Codec (`DIB vids` bei
   unkomprimiertem RGB). Welche Codecs gehen, hängt also von den auf dem Rechner installierten Codecs ab. Der Klon
   muss die gängigen selbst dekodieren.

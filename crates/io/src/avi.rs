@@ -41,12 +41,16 @@ pub struct AviInfo {
     pub fps: f64,
     /// `true` when the frames are returned as a single channel.
     pub mono: bool,
+    /// "DIB" for uncompressed video, otherwise the FourCC (e.g. "MJPG").
+    pub codec: String,
 }
 
 #[derive(Clone, Copy)]
 struct FrameLoc {
     offset: u64,
     len: u32,
+    /// The file has an empty chunk here; `offset` and `len` point at the previous frame.
+    repeat: bool,
 }
 
 struct Bitmap {
@@ -182,6 +186,7 @@ fn parse_chunks(
                 p.frames.push(FrameLoc {
                     offset: body,
                     len: size,
+                    repeat: false,
                 });
             }
             _ => {}
@@ -240,6 +245,22 @@ impl AviReader {
             bitmap.palette = (0..=255u8).map(|i| [i, i, i]).collect();
         }
         let mono = bitmap.bpp == 8 && bitmap.palette.iter().all(|c| c[0] == c[1] && c[1] == c[2]);
+        // Capture tools write an empty chunk for a dropped frame; it repeats the previous one.
+        let mut previous = None;
+        for frame in &mut parsed.frames {
+            match (frame.len, previous) {
+                (0, Some(p)) => *frame = FrameLoc { repeat: true, ..p },
+                (0, None) => {}
+                _ => previous = Some(*frame),
+            }
+        }
+        let codec = if compressed {
+            String::from_utf8_lossy(&bitmap.compression)
+                .trim()
+                .to_owned()
+        } else {
+            "DIB".to_owned()
+        };
         let fps = if parsed.scale > 0 && parsed.rate > 0 {
             f64::from(parsed.rate) / f64::from(parsed.scale)
         } else if parsed.us_per_frame > 0 {
@@ -257,6 +278,7 @@ impl AviReader {
                 frame_count: parsed.frames.len() as u32,
                 fps,
                 mono,
+                codec,
             },
             top_down: bitmap.top_down,
             palette: bitmap.palette,
@@ -268,6 +290,11 @@ impl AviReader {
 
     pub fn info(&self) -> &AviInfo {
         &self.info
+    }
+
+    /// Whether the frame was dropped by the capture tool and repeats the previous one.
+    pub fn is_repeat(&self, index: u32) -> bool {
+        self.frames.get(index as usize).is_some_and(|f| f.repeat)
     }
 
     /// Reads one frame as normalised RGB samples, or a single channel for grayscale palettes.
@@ -535,6 +562,23 @@ mod tests {
         let mut r = AviReader::open(&path).unwrap();
         assert_eq!(r.info().frame_count, 2);
         assert_eq!(r.read_frame(1).unwrap().data, vec![1.0]);
+    }
+
+    #[test]
+    fn empty_chunk_repeats_the_previous_frame() {
+        // Capture tools write a zero-length chunk for a dropped frame.
+        let s = spec(1, 1, 8, &[[0, 0, 0], [255, 255, 255]]);
+        let path = temp_file("dropped", &avi(&s, &[vec![1, 0, 0, 0], vec![]]));
+        let mut r = AviReader::open(&path).unwrap();
+        assert_eq!(r.info().frame_count, 2);
+        assert_eq!(r.read_frame(1).ok().map(|f| f.data), Some(vec![1.0]));
+        assert_eq!((r.is_repeat(0), r.is_repeat(1)), (false, true));
+    }
+
+    #[test]
+    fn codec_name_is_reported() {
+        let path = temp_file("codec", &avi(&spec(1, 1, 24, &[]), &[vec![0; 4]]));
+        assert_eq!(AviReader::open(&path).unwrap().info().codec, "DIB");
     }
 
     #[test]

@@ -30,6 +30,8 @@ pub enum RecordingError {
 #[derive(Debug, Clone, PartialEq)]
 pub struct RecordingInfo {
     pub format: &'static str,
+    /// Video codec of AVI files ("DIB" when uncompressed), shown next to the file name.
+    pub codec: Option<String>,
     pub width: u32,
     pub height: u32,
     pub bit_depth: u8,
@@ -92,6 +94,7 @@ impl Recording {
                 let text = |s: &str| (!s.is_empty()).then(|| s.to_owned());
                 RecordingInfo {
                     format: "SER",
+                    codec: None,
                     width: h.width,
                     height: h.height,
                     bit_depth: h.bit_depth,
@@ -107,6 +110,7 @@ impl Recording {
                 let i = r.info();
                 RecordingInfo {
                     format: "AVI",
+                    codec: Some(i.codec.clone()),
                     width: i.width,
                     height: i.height,
                     bit_depth: 8,
@@ -122,6 +126,7 @@ impl Recording {
                 let i = r.info();
                 RecordingInfo {
                     format: i.format,
+                    codec: None,
                     width: i.width,
                     height: i.height,
                     bit_depth: i.bit_depth,

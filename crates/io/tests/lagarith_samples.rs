@@ -12,10 +12,7 @@
 //! The samples are not in Git. They are looked up in `$PLANETS_TESTDATA/codecs/lagarith/`, falling
 //! back to `re-local/testdata/` of the repository. Tests pass silently when they are absent.
 
-use planets_io::{
-    avi::{AviError, AviReader},
-    codec::CodecError,
-};
+use planets_io::avi::{AviError, AviReader};
 use std::{fs, path::PathBuf};
 
 fn sample_dir() -> Option<PathBuf> {
@@ -51,15 +48,13 @@ fn check(name: &str, tolerance: u8) {
     let (mut decoded, mut null_frames, mut cut_off) = (0, 0, 0);
     let mut worst = 0u8;
     for index in 0..info.frame_count {
+        // A zero-length chunk repeats the previous frame; ffmpeg's passthrough output skips it.
+        if reader.is_repeat(index) {
+            null_frames += 1;
+            continue;
+        }
         let image = match reader.read_frame(index) {
             Ok(image) => image,
-            // A zero-length chunk repeats the previous frame; ffmpeg's passthrough output skips it.
-            Err(AviError::Codec(CodecError::Unsupported { reason, .. }))
-                if reason.starts_with("empty frame") =>
-            {
-                null_frames += 1;
-                continue;
-            }
             // Some samples are cut off in their last frame, which ffmpeg still shows damaged.
             Err(AviError::Io(e))
                 if e.kind() == std::io::ErrorKind::UnexpectedEof

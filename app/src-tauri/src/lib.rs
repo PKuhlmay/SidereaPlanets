@@ -10,6 +10,7 @@ use tauri::{State, ipc::Response};
 #[serde(rename_all = "camelCase")]
 struct RecordingInfo {
     format: &'static str,
+    codec: Option<String>,
     width: u32,
     height: u32,
     bit_depth: u8,
@@ -25,6 +26,7 @@ impl From<IoInfo> for RecordingInfo {
     fn from(i: IoInfo) -> Self {
         Self {
             format: i.format,
+            codec: i.codec,
             width: i.width,
             height: i.height,
             bit_depth: i.bit_depth,
