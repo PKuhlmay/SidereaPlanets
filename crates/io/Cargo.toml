@@ -8,6 +8,8 @@ publish.workspace = true
 image = { version = "0.25.10", default-features = false, features = ["bmp", "png", "tiff", "jpeg"] }
 planets-core = { path = "../core" }
 thiserror = "2"
+zune-core = "0.5"
+zune-jpeg = "0.5.15"
 
 [lints]
 workspace = true

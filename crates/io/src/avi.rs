@@ -104,8 +104,9 @@ fn parse_bitmap(file: &mut File, body: u64, size: u32) -> Result<Bitmap, AviErro
     let mut palette = Vec::new();
     let mut extra = Vec::new();
     if compression != [0; 4] {
-        let len = size.saturating_sub(header_size) as usize;
-        extra = read_at(file, body + u64::from(header_size), len)?;
+        // Writers like ffmpeg put the whole strf size into biSize, so the header is always 40 bytes here.
+        let len = size.saturating_sub(40) as usize;
+        extra = read_at(file, body + 40, len)?;
     } else if bpp <= 8 {
         let used = u32_at(&b, 32);
         let wanted = if used == 0 { 1u32 << bpp } else { used };
@@ -461,12 +462,12 @@ mod tests {
     #[test]
     fn rejects_compressed_video() {
         let s = Spec {
-            compression: b"MJPG",
+            compression: b"XVID",
             ..spec(2, 2, 24, &[])
         };
-        let path = temp_file("mjpg", &avi(&s, &[vec![0; 24]]));
+        let path = temp_file("xvid", &avi(&s, &[vec![0; 24]]));
         assert!(
-            matches!(AviReader::open(&path), Err(AviError::UnsupportedCompression(c)) if c == "MJPG")
+            matches!(AviReader::open(&path), Err(AviError::UnsupportedCompression(c)) if c == "XVID")
         );
     }
 

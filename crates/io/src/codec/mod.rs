@@ -1,6 +1,8 @@
 //! Decoders for compressed AVI video, selected by the FourCC in the bitmap header.
 
+mod huffyuv;
 mod lagarith;
+mod mjpeg;
 
 use planets_core::Image;
 
@@ -26,11 +28,11 @@ pub struct FrameFormat<'a> {
 /// Decodes one frame to an image with samples in `0.0..=1.0`, top row first.
 type Decoder = fn(&FrameFormat, &[u8]) -> Result<Image, CodecError>;
 
-// Stays a match so each codec only adds arms; drop the allow once the first arm exists.
-#[allow(clippy::match_single_binding)]
 fn decoder(fourcc: &[u8; 4]) -> Option<Decoder> {
-    // Each codec adds its FourCCs here (upper case).
-    match fourcc.to_ascii_uppercase().as_slice() {
+    match &fourcc.map(|c| c.to_ascii_uppercase()) {
+        b"MJPG" => Some(mjpeg::decode),
+        b"HFYU" => Some(huffyuv::decode_huffyuv),
+        b"FFVH" => Some(huffyuv::decode_ffvhuff),
         b"LAGS" => Some(lagarith::decode),
         _ => None,
     }
