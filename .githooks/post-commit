@@ -1,0 +1,3 @@
+#!/bin/sh
+# Deploys the debug app after each commit on main. Enable once per clone: git config core.hooksPath .githooks
+bash "$(git rev-parse --show-toplevel)/scripts/deploy-debug.sh" || true

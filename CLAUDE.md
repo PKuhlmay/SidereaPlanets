@@ -40,10 +40,18 @@ Rust liegt unter `~/.cargo/bin` (in Git Bash ggf. `export PATH="$HOME/.cargo/bin
 
 ## Deploy nach jedem Commit
 
-Nach **jedem** Commit stellt Claude die App bereit, damit Philipp immer den letzten Stand sieht: erst
-`cargo test --workspace` und `pnpm build` (in `app/`), dann läuft `pnpm tauri dev` im Hintergrund mit dem committeten Stand
-(läuft schon eine Sitzung, nimmt sie Änderungen selbst auf; sonst neu starten). „Deploy“ heißt hier nur lokal
-starten, kein Release-Build und kein Veröffentlichen.
+Nach **jedem** Commit auf `main` läuft die Debug-App mit dem letzten Stand, damit Philipp ihn immer sieht. Das erledigt
+der Git-Hook `.githooks/post-commit` (Skript `scripts/deploy-debug.sh`) von selbst, auch bei Commits anderer Agenten:
+`pnpm build` in `app/`, dann `pnpm tauri dev` im Hintergrund (läuft schon eine Sitzung, nimmt sie die Änderung selbst
+auf). Schlägt der Bau fehl, wird nicht deployt. Protokolle: `deploy-debug.log` und `tauri-dev.log` im Repo-Stamm, beide
+nicht in Git. „Deploy“ heißt nur lokal starten, kein Release-Build und kein Veröffentlichen.
+
+- Aktivieren, einmal je Klon: `git config core.hooksPath .githooks`
+- Nur der Haupt-Checkout auf `main` löst aus; Worktrees und andere Branches nicht. Der Squash-Merge eines Worktrees
+  deployt also genau einmal, mit dem Ticket-Commit.
+- Testläufe sind vorübergehend aus (Philipp, 2026-11-10). Mit `DEPLOY_TESTS=1` läuft vor dem Bau `cargo test --workspace`;
+  fällt die Pause weg, wird das im Skript zum Standard.
+- Von Hand deployen: `scripts/deploy-debug.sh --run`
 
 ## Doku in der App
 
@@ -59,6 +67,7 @@ Existiert die Doku-Ansicht noch nicht, legt das erste Ticket an, das Oberfläche
 crates/core/ Bildtyp und (später) Algorithmen: Ausrichtung, Stacking, Wavelets — GUI-frei
 crates/io/   Leser für Aufnahmen (SER und unkomprimiertes AVI fertig; Bildserien, FITS, komprimierte AVI-Codecs folgen)
 app/         Tauri-App: `app/src` = Vue-Frontend (hier entsteht das Design), `app/src-tauri` = Rust-Shell mit Commands
+scripts/   Skripte, z. B. `deploy-debug.sh` für den Deploy-Hook (`.githooks/post-commit`)
 tickets/   Aufgaben als Markdown-Dateien (RK-NNN-kurzer-titel.md), kein Jira
 docs/      Spezifikation, die beim Reverse Engineering entsteht (Workflow, UI, Algorithmen, Formate)
 re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, Mitschnitte
