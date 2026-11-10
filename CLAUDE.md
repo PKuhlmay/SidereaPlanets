@@ -39,7 +39,7 @@ Rust liegt unter `~/.cargo/bin` (in Git Bash ggf. `export PATH="$HOME/.cargo/bin
 
 ```
 crates/core/ Bildtyp und (später) Algorithmen: Ausrichtung, Stacking, Wavelets — GUI-frei
-crates/io/   Leser für Aufnahmen (SER fertig; AVI, Bildserien, FITS folgen)
+crates/io/   Leser für Aufnahmen (SER und unkomprimiertes AVI fertig; Bildserien, FITS, komprimierte AVI-Codecs folgen)
 app/         Tauri-App: `app/src` = Vue-Frontend (hier entsteht das Design), `app/src-tauri` = Rust-Shell mit Commands
 tickets/   Aufgaben als Markdown-Dateien (RK-NNN-kurzer-titel.md), kein Jira
 docs/      Spezifikation, die beim Reverse Engineering entsteht (Workflow, UI, Algorithmen, Formate)

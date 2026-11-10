@@ -3,14 +3,16 @@ import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 
 interface RecordingInfo {
+  format: string;
   width: number;
   height: number;
   bitDepth: number;
   frameCount: number;
   color: string;
-  observer: string;
-  instrument: string;
-  telescope: string;
+  fps: number | null;
+  observer: string | null;
+  instrument: string | null;
+  telescope: string | null;
 }
 
 // Placeholder shell: proves the Rust bridge works. The real UI is designed separately (see RK-010).
@@ -33,7 +35,7 @@ async function open() {
   <main>
     <h1>SidereaPlanets</h1>
     <form @submit.prevent="open">
-      <input v-model="path" placeholder="Path to a .ser file" />
+      <input v-model="path" placeholder="Path to a .ser or .avi file" />
       <button type="submit">Open</button>
     </form>
     <p v-if="error">{{ error }}</p>

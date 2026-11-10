@@ -1,4 +1,4 @@
-use planets_io::ser::{SerHeader, SerReader};
+use planets_io::recording::{Recording, RecordingInfo as IoInfo};
 use serde::Serialize;
 use std::path::Path;
 
@@ -6,35 +6,39 @@ use std::path::Path;
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct RecordingInfo {
+    format: &'static str,
     width: u32,
     height: u32,
     bit_depth: u8,
     frame_count: u32,
     color: String,
-    observer: String,
-    instrument: String,
-    telescope: String,
+    fps: Option<f64>,
+    observer: Option<String>,
+    instrument: Option<String>,
+    telescope: Option<String>,
 }
 
-impl From<&SerHeader> for RecordingInfo {
-    fn from(h: &SerHeader) -> Self {
+impl From<IoInfo> for RecordingInfo {
+    fn from(i: IoInfo) -> Self {
         Self {
-            width: h.width,
-            height: h.height,
-            bit_depth: h.bit_depth,
-            frame_count: h.frame_count,
-            color: format!("{:?}", h.color),
-            observer: h.observer.clone(),
-            instrument: h.instrument.clone(),
-            telescope: h.telescope.clone(),
+            format: i.format,
+            width: i.width,
+            height: i.height,
+            bit_depth: i.bit_depth,
+            frame_count: i.frame_count,
+            color: i.color,
+            fps: i.fps,
+            observer: i.observer,
+            instrument: i.instrument,
+            telescope: i.telescope,
         }
     }
 }
 
 #[tauri::command]
 fn open_recording(path: String) -> Result<RecordingInfo, String> {
-    let reader = SerReader::open(Path::new(&path)).map_err(|e| e.to_string())?;
-    Ok(RecordingInfo::from(reader.header()))
+    let recording = Recording::open(Path::new(&path)).map_err(|e| e.to_string())?;
+    Ok(recording.info().into())
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
