@@ -1,3 +1,5 @@
+mod align_commands;
+
 use planets_io::recording::{Recording, RecordingInfo as IoInfo};
 use serde::Serialize;
 use std::{path::PathBuf, sync::Mutex};
@@ -71,7 +73,17 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState::default())
-        .invoke_handler(tauri::generate_handler![open_recording, read_frame])
+        .manage(align_commands::AlignState::default())
+        .invoke_handler(tauri::generate_handler![
+            open_recording,
+            read_frame,
+            align_commands::set_alignpoints,
+            align_commands::set_alignpoint_threshold,
+            align_commands::align,
+            align_commands::cancel_processing,
+            align_commands::pause_processing,
+            align_commands::limit,
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

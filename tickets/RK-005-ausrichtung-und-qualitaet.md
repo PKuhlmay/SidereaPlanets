@@ -1,6 +1,6 @@
 # RK-005 Ausrichten und Qualitätsbewertung der Frames
 
-- Status: offen
+- Status: in Arbeit (Rechenkern fertig, Bedienung folgt mit RK-010)
 - Abhängig von: RK-004
 
 ## Ziel
@@ -8,10 +8,10 @@ Wie im Original: Referenzbereich wählen, alle Frames darauf ausrichten, Qualit�
 Frames nach Qualität sortieren und begrenzen.
 
 ## Akzeptanzkriterien
-- [ ] Ausrichtung per Korrelation auf einem wählbaren Bereich (subpixelgenau), mehrere Ausrichtungsbereiche
-- [ ] Qualitätsmaß je Frame, sortierte Liste, Auswahl über Prozentsatz/Anzahl
-- [ ] Verhalten mit dem Original an Testdaten verglichen (Reihenfolge der besten Frames, Versatzwerte)
-- [ ] Parallel über Frames (`rayon`)
+- [x] Ausrichtung per Korrelation (subpixelgenau) mit mehreren Ausrichtungsbereichen (Alignpoints), grobe Suche für Drift bis 64 px davor. Ein frei wählbarer einzelner Bereich (*R.o.Interest*, *Scan Frames*) fehlt noch: im Original unbeobachtet, siehe `docs/offene-fragen.md`
+- [x] Qualitätsmaß je Frame, sortierte Liste, Auswahl über Prozentsatz/Anzahl (*Lowest Quality %*, *Best Frames %*, *Best Frames*; *Frames/Apoint* ist unbeobachtet und fehlt)
+- [x] Verhalten mit dem Original an Testdaten verglichen (Alignpoint-Zahl, Reihenfolge, Limit); Ergebnis und Abweichungen in `docs/testdaten.md`, Test `crates/io/tests/align_reference.rs`. Versatzwerte des Originals sind nicht auslesbar, nur gegen künstliche Verschiebungen geprüft
+- [x] Parallel über Frames (`rayon`), Frames werden nacheinander gelesen und in Blöcken parallel ausgerichtet
 
 ## Design
 Soweit dieses Ticket Bedienelemente anbindet oder anzeigt, gilt `docs/design.md`. Aussehen und Anordnung werden nicht neu entschieden.

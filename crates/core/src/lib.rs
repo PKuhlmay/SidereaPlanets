@@ -1,5 +1,10 @@
 //! GUI-free image processing for the the reference program clone.
 
+pub mod align;
+
+/// Luminance weights for red, green and blue (default of *Settings ▸ Luminance Setting*, `docs/ui.md`).
+pub const LUMA_WEIGHTS: [f32; 3] = [0.299, 0.587, 0.114];
+
 /// Interleaved floating point image with samples normalised to `0.0..=1.0`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Image {
@@ -18,6 +23,27 @@ impl Image {
             height,
             channels,
             data: vec![0.0; len],
+        }
+    }
+
+    /// Returns a single channel image with the luminance of each pixel. Images with fewer than
+    /// three channels are copied unchanged.
+    pub fn to_luma(&self) -> Image {
+        let channels = usize::from(self.channels).max(1);
+        let data = if channels >= 3 {
+            let [wr, wg, wb] = LUMA_WEIGHTS;
+            self.data
+                .chunks_exact(channels)
+                .map(|px| wr * px[0] + wg * px[1] + wb * px[2])
+                .collect()
+        } else {
+            self.data.chunks_exact(channels).map(|px| px[0]).collect()
+        };
+        Image {
+            width: self.width,
+            height: self.height,
+            channels: 1,
+            data,
         }
     }
 
