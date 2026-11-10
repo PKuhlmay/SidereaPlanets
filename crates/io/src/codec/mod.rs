@@ -1,5 +1,7 @@
 //! Decoders for compressed AVI video, selected by the FourCC in the bitmap header.
 
+mod lagarith;
+
 use planets_core::Image;
 
 #[derive(Debug, thiserror::Error)]
@@ -28,7 +30,8 @@ type Decoder = fn(&FrameFormat, &[u8]) -> Result<Image, CodecError>;
 #[allow(clippy::match_single_binding)]
 fn decoder(fourcc: &[u8; 4]) -> Option<Decoder> {
     // Each codec adds its FourCCs here (upper case).
-    match &fourcc.to_ascii_uppercase() {
+    match fourcc.to_ascii_uppercase().as_slice() {
+        b"LAGS" => Some(lagarith::decode),
         _ => None,
     }
 }
