@@ -58,6 +58,9 @@ re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, M
 
 - Nur im Repo unter `tickets/`, **kein Jira**. Dateiname `RK-NNN-kurzer-titel.md`, fortlaufend nummeriert.
 - Kopf: Status (`offen` · `in Arbeit` · `erledigt`), Abhängigkeiten, dann Ziel und Akzeptanzkriterien.
+- Akzeptanzkriterien sind **Checkboxen** (`- [ ]` offen, `- [x]` erledigt). Sobald ein Kriterium wirklich erfüllt ist
+  (Test grün, Verhalten geprüft), wird es im selben Commit abgehakt. Status `erledigt` erst, wenn alle abgehakt sind;
+  bewusst gestrichene Kriterien bleiben offen und bekommen eine Begründung im Text.
 - Status-Änderung direkt in der Datei und im selben Commit wie die Umsetzung.
 - Commits: `[TYPE] RK-NNN - Message in English` (Types wie in den globalen Regeln).
 

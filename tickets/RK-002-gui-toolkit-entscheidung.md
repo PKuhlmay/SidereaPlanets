@@ -8,6 +8,7 @@ Entscheiden, womit die Oberfläche gebaut wird, sodass sie dem Original in Aufba
 (dichte Windows-Desktop-Oberfläche mit Reitern, Reglern, großem Bildbereich, Zoom).
 
 ## Akzeptanzkriterien
-- Kandidaten (z. B. egui, iced, Slint) mit kleinem Spike verglichen: Bildanzeige mit Zoom/Pan,
-  viele Regler, Reaktionszeit bei 16-Bit-Bildern
-- Entscheidung mit Begründung in `docs/gui-toolkit.md`
+- [ ] Kandidaten (z. B. egui, iced, Slint) mit kleinem Spike verglichen: Bildanzeige mit Zoom/Pan,
+  viele Regler, Reaktionszeit bei 16-Bit-Bildern — bewusst übersprungen, Tauri nach Gespräch gewählt;
+  die Bildübertragung ist als Messwert in der App sichtbar (Ladezeit pro Frame)
+- [x] Entscheidung mit Begründung in `docs/gui-toolkit.md`

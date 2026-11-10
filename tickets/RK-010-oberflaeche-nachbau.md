@@ -9,7 +9,7 @@ Modernes Erscheinungsbild; das Design bauen separate Agenten im Frontend unter `
 Gleicher Aufbau und gleiche Begriffe wie im Original, sodass bisherige the reference program-Nutzer sich sofort zurechtfinden.
 
 ## Akzeptanzkriterien
-- Reiter und Schritte in der Reihenfolge des Originals, gleiche Beschriftungen
-- Bildbereich mit Zoom, Pan, Vorher/Nachher
-- Reglerwerte und Standardwerte wie in `docs/ui.md`
-- Fortschrittsanzeige und Abbrechen bei langen Berechnungen
+- [ ] Reiter und Schritte in der Reihenfolge des Originals, gleiche Beschriftungen
+- [ ] Bildbereich mit Zoom, Pan, Vorher/Nachher
+- [ ] Reglerwerte und Standardwerte wie in `docs/ui.md`
+- [ ] Fortschrittsanzeige und Abbrechen bei langen Berechnungen

@@ -7,7 +7,7 @@
 Lauffähiges Rust-Gerüst, auf dem alle weiteren Tickets aufbauen.
 
 ## Akzeptanzkriterien
-- Cargo-Workspace mit Crates: `core` (Bildverarbeitung, GUI-frei), `io` (Video-/Bildformate), `app` (GUI)
-- Rust-Toolchain ist installiert (aktuell fehlt `cargo` im PATH) und per `rust-toolchain.toml` fixiert
-- Befehle laufen: `cargo build`, `cargo test`, `cargo clippy`, `cargo fmt --check`
-- Dev-Commands in `CLAUDE.md` eingetragen
+- [x] Cargo-Workspace mit Crates: `core` (Bildverarbeitung, GUI-frei), `io` (Video-/Bildformate), `app/src-tauri` (Tauri-Shell)
+- [x] Rust-Toolchain ist installiert und per `rust-toolchain.toml` auf eine Version fixiert (1.99.1)
+- [x] Befehle laufen: `cargo build`, `cargo test`, `cargo clippy`, `cargo fmt --check`
+- [x] Dev-Commands in `CLAUDE.md` eingetragen

@@ -8,6 +8,6 @@ Nachbearbeitung wie im Original: Farbkan√§le gegeneinander verschieben (Atmosph√
 Gamma, Kontrast, Histogramm.
 
 ## Akzeptanzkriterien
-- RGB-Ausrichtung automatisch und manuell
-- RGB-Balance, Gamma, Kontrast und Histogramm-Anpassung
-- Vergleich mit dem Original an einem Farbdatensatz
+- [ ] RGB-Ausrichtung automatisch und manuell
+- [ ] RGB-Balance, Gamma, Kontrast und Histogramm-Anpassung
+- [ ] Vergleich mit dem Original an einem Farbdatensatz

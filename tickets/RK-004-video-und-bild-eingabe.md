@@ -7,8 +7,9 @@
 Aufnahmen laden, wie es astronomische Kameras liefern.
 
 ## Akzeptanzkriterien
-- SER-Dateien (inkl. Bayer-Muster, 8/16 Bit) werden gelesen
-- AVI unkomprimiert (8 Bit mit Palette, 24/32 Bit, OpenDML-Segmente) ist fertig; komprimierte Codecs (z. B. MJPEG, HuffYUV, Lagarith) offen, erst wenn echte Aufnahmen sie brauchen
-- AVI (gängige Codecs) und Einzelbild-Serien (BMP/PNG/TIFF/FITS) werden gelesen
-- Frames werden gestreamt, nicht komplett im Speicher gehalten
-- Unit-Tests mit kleinen, selbst erzeugten Beispieldateien
+- [x] SER-Dateien (8–16 Bit, Mono, RGB/BGR, Bayer als Rohdaten mit Muster-Kennung) werden gelesen
+- [x] AVI unkomprimiert (8 Bit mit Palette, 24/32 Bit, OpenDML-Segmente) wird gelesen
+- [ ] AVI mit komprimierten Codecs (z. B. MJPEG, HuffYUV, Lagarith) wird gelesen
+- [ ] Einzelbild-Serien (BMP/PNG/TIFF/FITS) werden gelesen
+- [x] Frames werden gestreamt, nicht komplett im Speicher gehalten
+- [x] Unit-Tests mit kleinen, selbst erzeugten Beispieldateien

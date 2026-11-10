@@ -7,5 +7,5 @@
 Ergebnisse in gängigen Formaten ausgeben.
 
 ## Akzeptanzkriterien
-- Export als TIFF (16 Bit), PNG, JPEG, FITS
-- Projekt-/Einstellungsdatei, damit eine Sitzung wieder geöffnet werden kann
+- [ ] Export als TIFF (16 Bit), PNG, JPEG, FITS
+- [ ] Projekt-/Einstellungsdatei, damit eine Sitzung wieder geöffnet werden kann
