@@ -38,7 +38,7 @@ Rust liegt unter `~/.cargo/bin` (in Git Bash ggf. `export PATH="$HOME/.cargo/bin
 ## Deploy nach jedem Commit
 
 Nach **jedem** Commit stellt Claude die App bereit, damit Philipp immer den letzten Stand sieht: erst
- und  ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND  No package.json (or package.yaml, or package.json5) was found in "C:\Development\_Projects\Astronomie\SidereaPlanets"., dann läuft  ERR_PNPM_NO_IMPORTER_MANIFEST_FOUND  No package.json (or package.yaml, or package.json5) was found in "C:\Development\_Projects\Astronomie\SidereaPlanets". im Hintergrund mit dem committeten Stand
+`cargo test --workspace` und `pnpm build` (in `app/`), dann läuft `pnpm tauri dev` im Hintergrund mit dem committeten Stand
 (läuft schon eine Sitzung, nimmt sie Änderungen selbst auf; sonst neu starten). „Deploy“ heißt hier nur lokal
 starten, kein Release-Build und kein Veröffentlichen.
 
