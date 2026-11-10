@@ -8,7 +8,8 @@ vergleichbare Resultate. Es ist zunächst nur ein Prototyp, um zu prüfen, ob da
 ## Status
 
 Gerüst steht (RK-001, RK-002): Workspace, SER-Reader, Tauri-Shell mit Platzhalter-UI. the reference program ist unter
-`C:\Program Files (x86)\the reference program` installiert; daraus entsteht die Spezifikation (RK-003).
+`C:\Program Files (x86)\the reference program` installiert; die Spezifikation daraus steht in `docs/` (RK-003), Referenzergebnisse
+in `re-local/reference/` (beschrieben in `docs/testdaten.md`).
 Das Design der Oberfläche wird getrennt von anderen Agenten gebaut (RK-010) — **modern**, nicht der Delphi-Look.
 
 ## Tech Stack
