@@ -43,6 +43,11 @@ export function imagePixel(view: View, image: Size, px: number, py: number): { x
   return x >= 0 && y >= 0 && x < image.w && y < image.h ? { x, y } : null;
 }
 
+/** Position in image pixels under a point of the area, also outside the image and between pixels. */
+export function imagePosition(view: View, px: number, py: number): { x: number; y: number } {
+  return { x: (px - view.x) / view.scale, y: (py - view.y) / view.scale };
+}
+
 /** The square of the Processing Area in the middle of the image (smaller if the image is). */
 export function processingArea(image: Size, side: number): { x: number; y: number; w: number; h: number } {
   const w = Math.min(side, image.w);

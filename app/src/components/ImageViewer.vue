@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { actualSize, fitView, formatZoom, imagePixel, zoomAt, type Size, type View } from "../logic/viewport";
+import { isRegion, rectBetween, type Rect } from "../logic/align";
+import { actualSize, fitView, formatZoom, imagePixel, imagePosition, zoomAt, type Size, type View } from "../logic/viewport";
 
 // The image area: mouse wheel zooms around the pointer, dragging moves the image, the zoom bar at the bottom
 // gives -, the scale (a click shows 100 %), + and Fit. Overlays in the `overlay` slot are drawn in image pixels,
@@ -11,9 +12,15 @@ const props = defineProps<{
   comparable?: boolean;
   /** Text for the empty area. */
   empty: string;
+  /** The next drag draws a rectangle (R.o.Interest) instead of moving the image. */
+  selecting?: boolean;
 }>();
 const before = defineModel<boolean>("before", { default: false });
-const emit = defineEmits<{ hover: [pixel: { x: number; y: number } | null] }>();
+const emit = defineEmits<{
+  hover: [pixel: { x: number; y: number } | null];
+  /** A finished rectangle in image pixels; a drag too small to be a region is dropped. */
+  select: [rect: Rect];
+}>();
 
 const box = ref<HTMLElement | null>(null);
 const canvas = ref<HTMLCanvasElement | null>(null);
@@ -86,15 +93,29 @@ function onWheel(event: WheelEvent) {
 
 let drag: { x: number; y: number } | null = null;
 const dragging = ref(false);
+// The rectangle that is being drawn: from the corner where the drag started to the pointer.
+let corner: { x: number; y: number } | null = null;
+const draft = ref<Rect | null>(null);
 
 function onDown(event: PointerEvent) {
   if (!size.value || (event.target as HTMLElement).closest(".floats > *, .zoom")) return;
+  if (props.selecting) {
+    const { px, py } = point(event);
+    corner = imagePosition(view.value, px, py);
+    draft.value = rectBetween(corner, corner, size.value);
+    box.value?.setPointerCapture(event.pointerId);
+    return;
+  }
   drag = { x: event.clientX - view.value.x, y: event.clientY - view.value.y };
   dragging.value = true;
   box.value?.setPointerCapture(event.pointerId);
 }
 
 function onMove(event: PointerEvent) {
+  if (corner && size.value) {
+    const { px, py } = point(event);
+    draft.value = rectBetween(corner, imagePosition(view.value, px, py), size.value);
+  }
   if (drag) {
     view.value = { ...view.value, x: event.clientX - drag.x, y: event.clientY - drag.y };
     fitted.value = false;
@@ -105,6 +126,9 @@ function onMove(event: PointerEvent) {
 }
 
 function endDrag() {
+  if (draft.value && isRegion(draft.value)) emit("select", draft.value);
+  corner = null;
+  draft.value = null;
   drag = null;
   dragging.value = false;
 }
@@ -114,7 +138,7 @@ function endDrag() {
   <section
     ref="box"
     class="viewer"
-    :class="{ drag: dragging }"
+    :class="{ drag: dragging, selecting }"
     aria-label="Image"
     @wheel.prevent="onWheel"
     @pointerdown="onDown"
@@ -128,6 +152,7 @@ function endDrag() {
       <svg class="overlay" :viewBox="`0 0 ${size.w} ${size.h}`" aria-hidden="true">
         <rect x="0.5" y="0.5" :width="size.w - 1" :height="size.h - 1" class="edge" />
         <slot name="overlay" />
+        <rect v-if="draft" :x="draft.x" :y="draft.y" :width="draft.width" :height="draft.height" class="draft" stroke-dasharray="6 5" />
       </svg>
     </div>
     <p v-else class="empty">{{ empty }}</p>
@@ -160,6 +185,15 @@ function endDrag() {
 }
 .viewer.drag {
   cursor: grabbing;
+}
+.viewer.selecting {
+  cursor: crosshair;
+}
+.draft {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 1.5;
+  vector-effect: non-scaling-stroke;
 }
 .stage {
   position: absolute;

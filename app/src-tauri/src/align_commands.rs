@@ -3,8 +3,8 @@
 use crate::AppState;
 use planets_core::align::{
     AlignError, AlignParams, AlignPoint, Control, FrameAlignment, IntensityMode, LimitMode,
-    PointParams, Reference, align_sequence, apply_threshold, default_threshold, find_alignpoints,
-    limit_frames, rank_by_quality,
+    PointParams, Reference, Roi, align_sequence, apply_threshold, default_threshold,
+    find_alignpoints, limit_frames, rank_by_quality,
 };
 use serde::{Deserialize, Serialize};
 use std::{
@@ -30,11 +30,35 @@ pub struct AlignState {
     paused: AtomicBool,
 }
 
+/// *R.o.Interest*: the rectangle that alignment is based on, in frame pixels.
+#[derive(Deserialize)]
+pub struct RoiSettings {
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+}
+
+impl From<RoiSettings> for Roi {
+    fn from(r: RoiSettings) -> Self {
+        Roi {
+            x: r.x,
+            y: r.y,
+            width: r.width,
+            height: r.height,
+        }
+    }
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PointSettings {
     min_distance: u32,
     edge_distance: u32,
+    /// *Max Alignpoint movement*; it counts towards the spacing of the points.
+    max_movement: u32,
+    /// Look for points inside this region only.
+    roi: Option<RoiSettings>,
     /// `default`, `area3x3` or `lowest`.
     intensity: String,
     lo: f32,
@@ -86,6 +110,8 @@ pub async fn set_alignpoints(
     };
     let params = PointParams {
         min_distance: settings.min_distance,
+        max_movement: settings.max_movement,
+        roi: settings.roi.map(Roi::from),
         edge_distance: settings.edge_distance,
         intensity: match settings.intensity.as_str() {
             "area3x3" => IntensityMode::Area3x3,
@@ -171,13 +197,14 @@ pub async fn align(
             .info()
             .frame_count
     };
-    let reference = Reference::new(
+    let reference = Reference::with_roi(
         &read(reference_frame)?,
         &points,
         &AlignParams {
             box_size: settings.box_size,
             max_movement: settings.max_movement,
         },
+        settings.roi.map(Roi::from),
     );
 
     state.cancelled.store(false, Ordering::Relaxed);
@@ -232,6 +259,8 @@ pub async fn align(
 pub struct AlignSettings {
     box_size: u32,
     max_movement: u32,
+    /// Measure the drift between frames inside this region only; use the one the points were set in.
+    roi: Option<RoiSettings>,
 }
 
 /// Stops a running *Align*.
@@ -252,11 +281,24 @@ pub enum LimitSettings {
     LowestQuality(f32),
     BestPercent(f32),
     BestCount(usize),
+    FramesPerPoint(usize),
 }
 
-/// *Limit*: the frame indices that stay, best first.
+/// Result of *Limit*.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Limited {
+    /// The frame indices that stay, best first.
+    frames: Vec<u32>,
+    /// For every point in use, how far it sits from where the movement of the whole frame puts it, on
+    /// average over the frames that stay: the green strokes in the image. `None` if it was never found.
+    /// Which shift the original draws is unobserved; this is the local distortion, a few pixels.
+    point_shifts: Vec<Option<[f32; 2]>>,
+}
+
+/// *Limit*: the frames that stay and the mean shift of every point over them.
 #[tauri::command]
-pub fn limit(settings: LimitSettings, state: State<'_, AlignState>) -> Result<Vec<u32>, String> {
+pub fn limit(settings: LimitSettings, state: State<'_, AlignState>) -> Result<Limited, String> {
     let results = state.results.lock().map_err(|e| e.to_string())?;
     if results.is_empty() {
         return Err("align first".into());
@@ -265,9 +307,26 @@ pub fn limit(settings: LimitSettings, state: State<'_, AlignState>) -> Result<Ve
         LimitSettings::LowestQuality(p) => LimitMode::LowestQuality(p),
         LimitSettings::BestPercent(p) => LimitMode::BestPercent(p),
         LimitSettings::BestCount(n) => LimitMode::BestCount(n),
+        LimitSettings::FramesPerPoint(n) => LimitMode::FramesPerPoint(n),
     };
-    Ok(limit_frames(&results, mode)
-        .into_iter()
-        .map(|i| i as u32)
-        .collect())
+    let kept = limit_frames(&results, mode);
+    let point_count = results.iter().map(|r| r.points.len()).max().unwrap_or(0);
+    let point_shifts = (0..point_count)
+        .map(|point| {
+            let (mut sum, mut n) = ([0.0f32; 2], 0u32);
+            for &frame in &kept {
+                let result = &results[frame];
+                if let Some(Some(m)) = result.points.get(point) {
+                    sum[0] += m.dx - result.shift.0;
+                    sum[1] += m.dy - result.shift.1;
+                    n += 1;
+                }
+            }
+            (n > 0).then(|| [sum[0] / n as f32, sum[1] / n as f32])
+        })
+        .collect();
+    Ok(Limited {
+        frames: kept.into_iter().map(|i| i as u32).collect(),
+        point_shifts,
+    })
 }

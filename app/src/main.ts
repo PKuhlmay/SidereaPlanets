@@ -1,5 +1,6 @@
 import { createApp } from "vue";
 import App from "./App.vue";
+import "./align";
 import { restoreTheme } from "./theme";
 import "../../docs/design/tokens.css";
 import "./styles.css";

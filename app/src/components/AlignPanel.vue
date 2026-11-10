@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { runAction } from "../actions";
+import { setThreshold } from "../align";
 import { atLeast } from "../logic/workflow";
-import { session, settings } from "../state";
+import { session, settings, status } from "../state";
 import NumberField from "./NumberField.vue";
 
-// Left panel of the Align tab. Everything is locked until a recording is open. Threshold changes are picked up
-// by the Align ticket (RK-005), which sets the points in `session.alignpoints`.
+// Left panel of the Align tab. Everything is locked until a recording is open. The Threshold slider moves the
+// weakest points out of `session.alignpoints` through the backend (align.ts) and is fixed once Align has run.
 const align = settings.align;
 const hasPoints = computed(() => atLeast(session.step, "points"));
+// The region is part of Set Alignpoints and Align, so it only changes before Align.
+const canDrawRoi = computed(() => (session.step === "loaded" || session.step === "points") && status.busy === null);
 const countMode = computed(() => align.limitMode === "framesPerPoint" || align.limitMode === "bestCount");
 </script>
 
@@ -39,9 +42,9 @@ const countMode = computed(() => align.limitMode === "framesPerPoint" || align.l
         min="0"
         :max="session.alignpointTotal"
         :value="align.threshold"
-        :disabled="session.alignpointTotal === 0"
+        :disabled="session.alignpointTotal === 0 || session.step !== 'points' || status.busy !== null"
         aria-label="Threshold"
-        @input="align.threshold = Number(($event.target as HTMLInputElement).value)"
+        @input="setThreshold(Number(($event.target as HTMLInputElement).value))"
       />
       <label class="row">Number of Alignpoints <NumberField :model-value="session.alignpoints.length" readonly /></label>
       <label class="chk"><input type="checkbox" disabled />Keep Alignpoints inside ScanFrame</label>
@@ -54,7 +57,15 @@ const countMode = computed(() => align.limitMode === "framesPerPoint" || align.l
       </div>
       <div class="seg">
         <button type="button" @click="runAction('noAlign')">No Align</button>
-        <button type="button" @click="runAction('regionOfInterest')">R.o.Interest</button>
+        <button
+          type="button"
+          :disabled="!canDrawRoi"
+          :aria-pressed="session.roiDrawing"
+          title="Draw the region that alignment is based on; press again to drop it"
+          @click="runAction('regionOfInterest')"
+        >
+          R.o.Interest
+        </button>
         <button type="button" :disabled="!atLeast(session.step, 'aligned')" @click="runAction('scanFrames')">Scan Frames</button>
       </div>
       <label class="row first"><span>Alignmentbox size</span> <NumberField v-model="align.boxSize" /></label>

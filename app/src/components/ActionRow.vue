@@ -32,7 +32,7 @@ const classes = (id: StepId) => ({ next: steps.value[id].next, done: steps.value
         <label class="chk"><input v-model="settings.colour" type="checkbox" />Colour</label>
         <label class="chk"><input v-model="settings.lrgb" type="checkbox" />LRGB</label>
         <label class="chk"><input v-model="settings.align.showFullImage" type="checkbox" />Show Full Image</label>
-        <label class="chk"><input v-model="settings.align.showRoi" type="checkbox" disabled />Show ROI</label>
+        <label class="chk"><input v-model="settings.align.showRoi" type="checkbox" :disabled="!session.roi" />Show ROI</label>
         <label class="chk"><input v-model="settings.align.showAlignpoints" type="checkbox" />Show Alignpoints</label>
         <label class="chk"><input v-model="settings.align.showAligndata" type="checkbox" />Show Aligndata</label>
         <label class="chk"><input v-model="settings.align.showFramelist" type="checkbox" />Show Framelist</label>

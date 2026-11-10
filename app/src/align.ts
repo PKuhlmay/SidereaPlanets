@@ -1,0 +1,120 @@
+// The Align tab: Set Alignpoints, Align and Limit call the backend commands (app/src-tauri/src/align_commands.rs)
+// and write their results into `session`. Imported once by main.ts, which registers the handlers.
+//
+// Not available yet, because the reference program was never observed doing them (docs/offene-fragen.md, question 21):
+// No Align, Scan Frames and Empty List have no handler; the status bar says so.
+
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+import { handlers } from "./actions";
+import { runJob } from "./jobs";
+import {
+  alignArgs,
+  limitArgs,
+  limitMessages,
+  qualityPercent,
+  roomForPoints,
+  setAlignpointsArgs,
+  type AlignedAnswer,
+  type AlignpointsAnswer,
+  type AlignProgress,
+  type LimitedAnswer,
+} from "./logic/align";
+import { atLeast } from "./logic/workflow";
+import { session, settings, status } from "./state";
+
+function showPoints(answer: AlignpointsAnswer) {
+  session.alignpoints = answer.points.map((p) => ({ x: p.x, y: p.y, checked: true }));
+  session.alignpointTotal = answer.total;
+  settings.align.threshold = answer.threshold;
+}
+
+async function setAlignpoints() {
+  const roi = session.roi;
+  if (roi && !roomForPoints(roi, settings.align.edgeDistance)) {
+    status.result = "The region is too small for Min distance from edge";
+    return;
+  }
+  await runJob("Set Alignpoints", async () => {
+    const answer = await invoke<AlignpointsAnswer>("set_alignpoints", setAlignpointsArgs(session.frame, settings.align, roi));
+    showPoints(answer);
+    // Points that are set again start a new alignment.
+    session.frames.forEach((f) => Object.assign(f, { quality: null, difference: null }));
+    if (answer.points.length === 0) {
+      session.step = "loaded";
+      return "No alignpoints found: try other Lo and Hi values";
+    }
+    session.step = "points";
+    return `${answer.points.length} alignpoints set`;
+  });
+}
+
+/** The Threshold slider: the weakest points are dropped. */
+export async function setThreshold(threshold: number) {
+  settings.align.threshold = threshold;
+  try {
+    showPoints(await invoke<AlignpointsAnswer>("set_alignpoint_threshold", { threshold }));
+  } catch (e) {
+    status.result = `Error: ${String(e)}`;
+  }
+}
+
+async function align() {
+  await runJob("Align", async (job) => {
+    const stop = await listen<AlignProgress>("align-progress", (event) =>
+      job.progress(event.payload.done, event.payload.total, `Loading frame: ${event.payload.done}`),
+    );
+    let answer: AlignedAnswer;
+    try {
+      answer = await invoke<AlignedAnswer>("align", alignArgs(settings.align, session.roi));
+    } finally {
+      stop();
+    }
+    const percent = qualityPercent(answer.frames.map((f) => f.quality));
+    for (const frame of answer.frames) {
+      const entry = session.frames[frame.index];
+      if (entry) Object.assign(entry, { quality: percent[frame.index], difference: frame.difference });
+    }
+    session.step = "aligned";
+    return "Alignment finished.";
+  });
+}
+
+async function limit() {
+  await runJob("Limit", async () => {
+    const answer = await invoke<LimitedAnswer>("limit", limitArgs(settings.align));
+    const kept = new Set(answer.frames);
+    session.frames.forEach((f) => (f.checked = kept.has(f.index)));
+    answer.pointShifts.forEach((shift, i) => {
+      const point = session.alignpoints[i];
+      if (point) Object.assign(point, { shiftX: shift?.[0], shiftY: shift?.[1] });
+    });
+    // Limiting again after Stack makes that stack out of date.
+    if (atLeast(session.step, "stacked")) {
+      session.stackImage = null;
+      session.processedImage = null;
+      session.stackSize = null;
+    }
+    session.step = "limited";
+    session.tab = "stack";
+    const messages = limitMessages(answer.frames.length);
+    status.action = messages.action;
+    return messages.result;
+  });
+}
+
+/** R.o.Interest: the next drag in the image draws the region; pressed again, the region is dropped. */
+function regionOfInterest() {
+  if (session.roiDrawing) {
+    session.roiDrawing = false;
+    session.roi = null;
+    settings.align.showRoi = false;
+  } else {
+    session.roiDrawing = true;
+  }
+}
+
+handlers.setAlignpoints = setAlignpoints;
+handlers.align = align;
+handlers.limit = limit;
+handlers.regionOfInterest = regionOfInterest;

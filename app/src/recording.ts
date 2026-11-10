@@ -95,6 +95,8 @@ export function startSession(info: RecordingInfo, name: string) {
   session.stackSize = null;
   session.alignpoints = [];
   session.alignpointTotal = 0;
+  session.roi = null;
+  session.roiDrawing = false;
   session.frames = Array.from({ length: info.frameCount }, (_, index) => ({ index, checked: true, quality: null, difference: null }));
   settings.align.threshold = 0;
   // The original asks "process in colour?"; the clone decides from the recording (Settings > Autodetect Colour/BW).

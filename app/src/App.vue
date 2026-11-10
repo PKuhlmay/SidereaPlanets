@@ -14,6 +14,7 @@ import TabBar from "./components/TabBar.vue";
 import Toolbar from "./components/Toolbar.vue";
 import WaveletPanel from "./components/WaveletPanel.vue";
 import DocsView from "./docs/DocsView.vue";
+import type { Rect } from "./logic/align";
 import { atLeast, pickImage, tabLocked, windowTitle } from "./logic/workflow";
 import { session, settings, status } from "./state";
 
@@ -48,6 +49,13 @@ watch(
     status.position = "";
   },
 );
+
+// A region drawn with R.o.Interest ends the drawing and shows the rectangle.
+function onSelect(rect: Rect) {
+  session.roi = rect;
+  session.roiDrawing = false;
+  settings.align.showRoi = true;
+}
 
 // Position under the pointer, shown in the status bar of the Wavelet tab.
 function onHover(pixel: { x: number; y: number } | null) {
@@ -87,7 +95,15 @@ watch(
         <AlignPanel v-if="session.tab === 'align'" />
         <StackPanel v-else-if="session.tab === 'stack'" />
         <WaveletPanel v-else />
-        <ImageViewer v-model:before="before" :image="image" :comparable="wavelet" :empty="emptyText" @hover="onHover">
+        <ImageViewer
+          v-model:before="before"
+          :image="image"
+          :comparable="wavelet"
+          :empty="emptyText"
+          :selecting="session.roiDrawing && session.tab === 'align'"
+          @hover="onHover"
+          @select="onSelect"
+        >
           <template #overlay>
             <ImageOverlays v-if="image" :width="image.width" :height="image.height" />
           </template>

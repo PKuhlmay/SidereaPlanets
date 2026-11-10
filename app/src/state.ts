@@ -2,6 +2,7 @@
 // write their results into `session` and `status` (see logic/actions.ts).
 
 import { reactive } from "vue";
+import type { Rect } from "./logic/align";
 import { createSettings } from "./logic/settings";
 import type { Step, Tab } from "./logic/workflow";
 import type { Theme } from "./logic/settings";
@@ -63,6 +64,10 @@ export const session = reactive({
   /** How many points satisfy the spacing rules before the threshold: the upper end of the Threshold slider (0 = none set). */
   alignpointTotal: 0,
   frames: [] as FrameEntry[],
+  /** The region of interest of the Align tab, in image pixels (R.o.Interest); null = the whole frame. */
+  roi: null as Rect | null,
+  /** True while the next drag in the image draws the region. */
+  roiDrawing: false,
 });
 
 // The status bar: five fields (docs/design.md, "Statusleiste").
