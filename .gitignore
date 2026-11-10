@@ -1,0 +1,6 @@
+/target
+.idea/
+.vscode/
+*.log
+# Reverse-engineering material stays local (original binaries, sample data, captures)
+/re-local/
