@@ -8,6 +8,6 @@ Das Herzstück von the reference program: mehrschichtige Wavelet-Zerlegung mit R
 
 ## Akzeptanzkriterien
 - [ ] Zerlegung in Ebenen mit Verstärkung und Rauschunterdrückung je Ebene (Anzahl und Details laut `docs/`)
-- [ ] Vorschau reagiert flüssig auf Reglerbewegung
+- [ ] Vorschau reagiert flüssig auf Reglerbewegung (Maßnahmen und Messwerte: `docs/gui-toolkit.md`, Abschnitt Spike: Vorschau auf Ausschnitt begrenzen, RGBA-Umwandlung mit `rayon`, Übertragung neu messen)
 - [ ] Ergebnis bei gleichen Reglerwerten gegen das Original verglichen (PSNR-Schwelle in `docs/` festlegen)
 - [ ] Einstellungen speicher- und ladbar
