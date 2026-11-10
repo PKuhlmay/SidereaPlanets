@@ -1,6 +1,6 @@
 use planets_io::recording::{Recording, RecordingInfo as IoInfo};
 use serde::Serialize;
-use std::{path::Path, sync::Mutex};
+use std::{path::PathBuf, sync::Mutex};
 use tauri::{State, ipc::Response};
 
 /// Summary of an opened recording, as shown in the UI.
@@ -46,10 +46,8 @@ async fn open_recording(
     paths: Vec<String>,
     state: State<'_, AppState>,
 ) -> Result<RecordingInfo, String> {
-    let [path] = paths.as_slice() else {
-        return Err("select exactly one recording".into());
-    };
-    let recording = Recording::open(Path::new(path)).map_err(|e| e.to_string())?;
+    let paths: Vec<PathBuf> = paths.into_iter().map(PathBuf::from).collect();
+    let recording = Recording::open_files(&paths).map_err(|e| e.to_string())?;
     let info = recording.info().into();
     *state.0.lock().map_err(|e| e.to_string())? = Some(recording);
     Ok(info)
