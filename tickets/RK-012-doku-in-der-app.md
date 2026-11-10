@@ -10,7 +10,7 @@ Im Design (`docs/design.md`) fehlt dafür bisher ein Einstieg: Die Werkzeugleist
 
 ## Akzeptanzkriterien
 - [ ] Design ergänzt: Einstieg in der Werkzeugleiste (Vorschlag: „Help“ ohne Rahmen links von About, mit Icon), Doku-Ansicht als eigener Bildschirm mit Seitenliste links und Text rechts, jeweils dunkel und hell
-- [ ] Icon im Stil der übrigen Oberfläche entworfen (Größe, Strichstärke, Farbe aus den Tokens) und in `docs/design/siderea-planets.figcraft` angelegt; `docs/design/figcraft-build.mjs` erzeugt es mit
+- [x] Icon im Stil der übrigen Oberfläche entworfen (Größe, Strichstärke, Farbe aus den Tokens) und in `docs/design/siderea-planets.figcraft` angelegt; `docs/design/figcraft-build.mjs` erzeugt es mit (Help-Button in der Werkzeugleiste, im Entwurf und in `docs/design.md` beschrieben)
 - [ ] `docs/design.md`, `docs/design/tokens.css`, klickbarer Entwurf und Soll-Bilder nachgezogen
 - [ ] Doku-Ansicht in `app/src` umgesetzt, aus der Werkzeugleiste erreichbar, Rückweg zur Arbeitsansicht ohne Verlust des Zustands (geladenes Video, Reglerwerte)
 - [ ] Doku-Inhalte als Markdown im Repo (Pfad im Ticket festhalten), in der App gerendert, Suche oder Seitenliste vorhanden

@@ -88,7 +88,7 @@ Schaltflächen, 600 für Gruppenüberschriften, aktive Reiter und gefüllte Scha
 
 | Bereich | Höhe | Inhalt und Regeln |
 |---|---|---|
-| Werkzeugleiste | 44 px | Drei Zonen: links Select und die vier Menüs, in der Mitte Cancel und Pause, rechts About und CPUs. Reihenfolge wie im Original |
+| Werkzeugleiste | 44 px | Drei Zonen: links Select und die vier Menüs, in der Mitte Cancel und Pause, rechts Help, About und CPUs. Help gibt es im Original nicht, es öffnet die Doku in der App (RK-012) |
 | Reiterleiste | 36 px | Reiter als nummerierte Schritte mit „›“ dazwischen. Rechts Dateiname, Codec, Größe, Frame-Zahl und Speicher in `--muted` |
 | Aktionszeile | mind. 62 px | Links die Schritt-Schaltflächen, bündig über dem linken Panel. Daneben die Häkchen spaltenweise in zwei Zeilen, Spaltenfolge wie im Original |
 | Arbeitsbereich | Rest | Linkes Panel fest 272 px, Bildbereich füllt den Rest, rechtes Panel 248 px nur im Wavelet-Reiter. Panels scrollen senkrecht, wenn das Fenster zu niedrig ist |
@@ -109,10 +109,14 @@ damit der Fortschritt wie im Original in der Taskleiste lesbar ist.
 |---|---|---|
 | Standard | `--raised`, Umriss `--line-strong`, Höhe `--h-btn`, Radius `--r` | Save image, Process, Load Scheme und alle übrigen |
 | Gefüllt | `--accent` mit `--on-accent`, Gewicht 600 | Select; der nächste Schritt der Schrittfolge; Do All; Cancel während einer Berechnung |
-| Ohne Rahmen | durchsichtig, Hover `--raised` | Menüs der Werkzeugleiste (mit Pfeil nach unten), About |
+| Ohne Rahmen | durchsichtig, Hover `--raised` | Menüs der Werkzeugleiste (mit Pfeil nach unten), Help (mit Icon), About |
 | Textlink | `--accent-ink`, ohne Fläche | Aktionen in Gruppenköpfen: Reset Wavelets, Hold, Reset |
 | Umschalter | gedrückt: `--accent-soft`, Umriss `--accent`, Text `--accent-ink` | Functions-Raster, Functions », Before |
 | Gesperrt | Text `--off`, Umriss `--line`, keine Fläche | jede Art |
+
+Icons sind Linienbilder auf 16×16 px, Strich 1,5 px mit runden Enden, Farbe `--muted` (Hover `--text`), ohne Füllung.
+Sie stehen links vom Text. Bisher gibt es nur das Help-Icon, ein aufgeschlagenes Buch (Doku, nicht Info).
+Das SVG steht im klickbaren Entwurf, dieselbe Geometrie in `figcraft-build.mjs`.
 
 Pro Zeile ist höchstens eine Schaltfläche gefüllt. Rot kommt nicht vor: „Save image“ ist im Original rot
 beschriftet, im Klon eine Standard-Schaltfläche.
