@@ -1,8 +1,9 @@
 //! Uncompressed AVI files (RIFF/AVI, OpenDML `AVIX` segments included).
 //!
-//! Only `BI_RGB` video is decoded (8 bit with palette, 24 bit, 32 bit); that is what
-//! capture programs write for raw planetary recordings. Compressed codecs are rejected.
+//! `BI_RGB` video (8 bit with palette, 24 bit, 32 bit) is decoded here; that is what capture
+//! programs write for raw planetary recordings. Compressed video goes to [`crate::codec`].
 
+use crate::codec::{self, CodecError, FrameFormat};
 use planets_core::Image;
 use std::{
     fs::File,
@@ -18,8 +19,10 @@ pub enum AviError {
     NotAvi,
     #[error("AVI file has no video stream")]
     NoVideoStream,
-    #[error("unsupported compression '{0}' (only uncompressed AVI is supported)")]
+    #[error("unsupported compression '{0}'")]
     UnsupportedCompression(String),
+    #[error(transparent)]
+    Codec(#[from] CodecError),
     #[error("unsupported bit depth {0}")]
     UnsupportedBitDepth(u16),
     #[error("frame {index} is truncated")]
@@ -54,6 +57,8 @@ struct Bitmap {
     compression: [u8; 4],
     /// RGB palette entries (8 bit video only).
     palette: Vec<[u8; 3]>,
+    /// Codec private data after the header (compressed video only).
+    extra: Vec<u8>,
 }
 
 #[derive(Default)]
@@ -95,8 +100,13 @@ fn parse_bitmap(file: &mut File, body: u64, size: u32) -> Result<Bitmap, AviErro
     let header_size = u32_at(&b, 0);
     let height = i32_at(&b, 8);
     let bpp = u16::from_le_bytes([b[14], b[15]]);
+    let compression = [b[16], b[17], b[18], b[19]];
     let mut palette = Vec::new();
-    if bpp <= 8 {
+    let mut extra = Vec::new();
+    if compression != [0; 4] {
+        let len = size.saturating_sub(header_size) as usize;
+        extra = read_at(file, body + u64::from(header_size), len)?;
+    } else if bpp <= 8 {
         let used = u32_at(&b, 32);
         let wanted = if used == 0 { 1u32 << bpp } else { used };
         let available = size.saturating_sub(header_size) / 4;
@@ -114,8 +124,9 @@ fn parse_bitmap(file: &mut File, body: u64, size: u32) -> Result<Bitmap, AviErro
         height: height.unsigned_abs(),
         top_down: height < 0,
         bpp,
-        compression: [b[16], b[17], b[18], b[19]],
+        compression,
         palette,
+        extra,
     })
 }
 
@@ -184,6 +195,9 @@ pub struct AviReader {
     info: AviInfo,
     top_down: bool,
     palette: Vec<[u8; 3]>,
+    /// FourCC of compressed video, all zero for `BI_RGB`.
+    compression: [u8; 4],
+    extra: Vec<u8>,
     frames: Vec<FrameLoc>,
 }
 
@@ -211,13 +225,14 @@ impl AviReader {
         }
 
         let mut bitmap = parsed.bitmap.ok_or(AviError::NoVideoStream)?;
-        if bitmap.compression != [0; 4] {
+        let compressed = bitmap.compression != [0; 4];
+        if compressed && !codec::is_supported(&bitmap.compression) {
             let name = String::from_utf8_lossy(&bitmap.compression)
                 .trim()
                 .to_owned();
             return Err(AviError::UnsupportedCompression(name));
         }
-        if !matches!(bitmap.bpp, 8 | 24 | 32) {
+        if !compressed && !matches!(bitmap.bpp, 8 | 24 | 32) {
             return Err(AviError::UnsupportedBitDepth(bitmap.bpp));
         }
         if bitmap.bpp == 8 && bitmap.palette.is_empty() {
@@ -244,6 +259,8 @@ impl AviReader {
             },
             top_down: bitmap.top_down,
             palette: bitmap.palette,
+            compression: bitmap.compression,
+            extra: bitmap.extra,
             frames: parsed.frames,
         })
     }
@@ -260,6 +277,16 @@ impl AviReader {
                 count: self.info.frame_count,
             });
         };
+        if self.compression != [0; 4] {
+            let data = read_at(&mut self.file, loc.offset, loc.len as usize)?;
+            let format = FrameFormat {
+                width: self.info.width,
+                height: self.info.height,
+                bits_per_pixel: self.info.bits_per_pixel,
+                extra: &self.extra,
+            };
+            return Ok(codec::decode(&self.compression, &format, &data)?);
+        }
         let (w, h) = (self.info.width as usize, self.info.height as usize);
         let bpp = usize::from(self.info.bits_per_pixel);
         // Rows are padded to 4-byte boundaries.
