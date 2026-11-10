@@ -8,3 +8,4 @@
 node_modules/
 dist/
 app/src-tauri/gen/
+tauri-dev.log

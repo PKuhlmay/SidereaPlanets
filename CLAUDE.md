@@ -27,8 +27,11 @@ cargo clippy --workspace --all-targets       # soll ohne Warnungen laufen
 cargo fmt --all
 cd app && pnpm install && pnpm tauri dev     # App mit Hot-Reload starten
 cd app && pnpm build                         # Frontend bauen (vue-tsc + vite)
-cargo build -p planets-app                  # Desktop-Binary (braucht vorher `pnpm build`)
+cd app && pnpm tauri build                   # Release-Installer bauen
 ```
+
+**Nicht** `target/debug/planets-app.exe` direkt starten: im Debug-Build erwartet die App den Vite-Server
+(`localhost:1420`) und zeigt sonst „Seite nicht gefunden“. Immer `pnpm tauri dev` benutzen.
 
 Rust liegt unter `~/.cargo/bin` (in Git Bash ggf. `export PATH="$HOME/.cargo/bin:$PATH"`).
 
