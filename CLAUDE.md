@@ -45,6 +45,14 @@ Nach **jedem** Commit stellt Claude die App bereit, damit Philipp immer den letz
 (läuft schon eine Sitzung, nimmt sie Änderungen selbst auf; sonst neu starten). „Deploy“ heißt hier nur lokal
 starten, kein Release-Build und kein Veröffentlichen.
 
+## Doku in der App
+
+Zu jeder Funktion gehört Anwenderdoku, die **in der App über die UI erreichbar** ist (eigener Bereich/Hilfe-Ansicht, im
+Design aus `docs/design.md`, gleiche Tokens und Komponenten). Sie wird mit der Funktion zusammen geschrieben und **in jedem
+Commit mitgepflegt, wo die Änderung sie betrifft** (neue Funktion, geändertes Verhalten, neue Begriffe/Formate).
+Die Doku beschreibt Bedienung und Ergebnis, nicht die Reverse-Engineering-Notizen — die bleiben in `docs/`.
+Existiert die Doku-Ansicht noch nicht, legt das erste Ticket an, das Oberfläche oder Funktion liefert, sie mit an.
+
 ## Verzeichnisstruktur
 
 ```
