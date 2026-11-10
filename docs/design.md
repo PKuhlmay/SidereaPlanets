@@ -168,7 +168,10 @@ Zusammenhängende Schaltflächen in einem gemeinsamen Umriss. Zwei Einsätze:
 „›“ für ein Untermenü. Zahlen- und Textfelder (Bias subtract, Save to Subdir, Faktor bei Create Darkframe) stehen
 rechts im Eintrag. Trennlinien gruppieren wie im Original. Escape und ein Klick daneben schließen.
 
-Aus dem Menü Settings entfallen „Check for the reference program Update“ sowie „Layouts“ und „Set Skin“.
+Aus dem Menü Settings entfallen „Check for the reference program Update“ sowie „Layouts“ und „Set Skin“. An die Stelle von „Set Skin“
+tritt **Theme** (Dark · Light). Einträge mit „›“ öffnen ihr Untermenü als Flyout rechts neben dem Eintrag (bei Hover oder
+Fokus), gleiche Fläche wie das Menü; darin stehen Häkchen, eine Auswahl (Processing Area, Stretch FIT/TIFF, Theme) oder
+Zahlenfelder (Luminance Setting mit Reset Luminance).
 
 ### Panels und Gruppen
 
@@ -358,13 +361,15 @@ Entwurf zeigt die Doku nicht.
 Für diese Teile gibt es kein Soll-Bild. Wer sie braucht, baut sie aus den vorhandenen Komponenten und ergänzt
 dieses Dokument im selben Commit.
 
-- Zustand vor dem Laden einer Aufnahme: Select ist gefüllt, alles andere gesperrt, die Frame-Leiste leer. Wie der
-  leere Bildbereich aussieht, ist offen.
-- Fehlermeldungen (z. B. Datei nicht lesbar).
+- Zustand vor dem Laden (festgelegt in RK-010): Select ist gefüllt, Schritt-Schaltflächen und linkes Panel sind
+  gesperrt, die Frame-Leiste ist leer. Der Bildbereich zeigt mittig „Press Select to open a recording“ in `--muted`.
+- Fehlermeldungen (festgelegt in RK-010): Text mit Präfix „Error:“ im Ergebnisfeld der Statusleiste (Feld 3), in
+  `--text`; kein Dialog, kein Rot.
+- Speicherangabe („Memory used/free/total“) in der Reiterleiste: entfällt vorerst, sie braucht einen Befehl im Backend.
 - Die fünfzehn Panels hinter den Functions-Schaltflächen. Sie sind im Original noch nicht erfasst
   (`docs/offene-fragen.md`). Vorgabe für die Form: schwebende Karten wie Framelist.
 - Stackgraph, Stacklist, Aligndata und Prefilter. Vorgabe für die Form: schwebende Karten.
-- MACRO/Batch-Fenster, About-Dialog, Untermenüs von Settings.
+- MACRO/Batch-Fenster und About-Dialog. Ihre Schaltflächen sind angelegt und melden „not available yet“.
 - Dateidialoge sind die des Betriebssystems und brauchen kein Design.
 
 ## Zuordnung zu den Tickets
@@ -379,6 +384,12 @@ dieses Dokument im selben Commit.
 | RK-009 Speichern | Save image in Stack und Wavelet, Save Aligned, Save Integrated, Load/Save Scheme | 06, 07 |
 | RK-010 Oberfläche | alles in diesem Dokument außer der Doku | 01–12 |
 | RK-012 Doku in der App | Help in der Werkzeugleiste, Doku-Ansicht | 13, 14 |
+
+## Zustände im Klon ansehen (Dev-Build)
+
+Im Dev-Build (`pnpm tauri dev` oder `pnpm exec vite`) springt `app/src/preview.ts` mit denselben URL-Parametern wie der
+Entwurf in einen Zustand, mit erzeugten Daten statt einer Aufnahme: `step`, `tab`, `theme=light`, `busy`, `show`
+(framelist, graph, resampling, drizzling, procarea, alignpoints, nosections), `layers`. Im Release-Build fehlt das Modul.
 
 ## Soll-Bilder neu erzeugen
 

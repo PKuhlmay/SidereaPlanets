@@ -1,0 +1,105 @@
+// Opening a recording and reading its frames through the Tauri commands of the backend.
+
+import { reactive } from "vue";
+import { invoke } from "@tauri-apps/api/core";
+import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import { pushRecent, fileName } from "./logic/recent";
+import { session, settings, status, type RecordingInfo } from "./state";
+
+// Same filters and order as the "Open file(s)" dialog of the reference program (docs/formats.md).
+const fileFilters = [
+  { name: "Video (*.avi *.ser)", extensions: ["avi", "ser"] },
+  { name: "Still frames (*.bmp *.jpg *.tif *.png)", extensions: ["bmp", "jpg", "jpeg", "tif", "tiff", "png"] },
+  { name: "FITS frames (*.fit *.fits *.fts)", extensions: ["fit", "fits", "fts"] },
+  { name: "All files", extensions: ["*"] },
+];
+
+const RECENT_KEY = "rk-recent";
+
+function loadRecent(): string[][] {
+  try {
+    const parsed: unknown = JSON.parse(localStorage.getItem(RECENT_KEY) ?? "[]");
+    return Array.isArray(parsed) ? parsed.filter((e): e is string[] => Array.isArray(e) && e.every((p) => typeof p === "string")) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** The files opened last, newest first (menu MRU). */
+export const recent = reactive({ list: loadRecent() });
+
+// Where frames come from. The default asks the backend; the design preview in dev builds swaps it for a generated image.
+let readFrameImage = async (index: number): Promise<ImageData> => {
+  // Binary layout: width (u32 LE), height (u32 LE), then RGBA bytes.
+  const buffer = await invoke<ArrayBuffer>("read_frame", { index });
+  const view = new DataView(buffer);
+  const width = view.getUint32(0, true);
+  const height = view.getUint32(4, true);
+  return new ImageData(new Uint8ClampedArray(buffer, 8, width * height * 4), width, height);
+};
+
+export function setFrameReader(reader: (index: number) => Promise<ImageData>) {
+  readFrameImage = reader;
+}
+
+// Drops answers that arrive after a newer frame was requested.
+let latestRequest = 0;
+
+export async function showFrame(index: number) {
+  const request = ++latestRequest;
+  session.frame = index;
+  try {
+    const image = await readFrameImage(index);
+    if (request === latestRequest) session.frameImage = image;
+  } catch (e) {
+    if (request === latestRequest) status.result = `Error: ${String(e)}`;
+  }
+}
+
+/** Select: asks for files and opens them. */
+export async function chooseFiles() {
+  // Several still frames together form one sequence, so multiple selection is allowed.
+  const picked = await openDialog({ multiple: true, directory: false, filters: fileFilters });
+  if (picked && picked.length > 0) await openRecording(picked);
+}
+
+export async function openRecording(paths: string[]) {
+  let info: RecordingInfo;
+  try {
+    info = await invoke<RecordingInfo>("open_recording", { paths });
+  } catch (e) {
+    status.result = `Error: ${String(e)}`;
+    return;
+  }
+  startSession(info, fileName(paths[0] ?? ""));
+  recent.list = pushRecent(recent.list, paths);
+  try {
+    localStorage.setItem(RECENT_KEY, JSON.stringify(recent.list));
+  } catch {
+    // The list then lasts for this run only.
+  }
+  await showFrame(0);
+  status.result = `Loaded ${info.frameCount} frames`;
+}
+
+/** Puts the window into the state "recording loaded". */
+export function startSession(info: RecordingInfo, name: string) {
+  session.info = info;
+  session.fileName = name;
+  session.step = "loaded";
+  session.tab = "align";
+  session.frame = 0;
+  session.frameImage = null;
+  session.stackImage = null;
+  session.processedImage = null;
+  session.stackSize = null;
+  session.alignpoints = [];
+  session.alignpointTotal = 0;
+  session.frames = Array.from({ length: info.frameCount }, (_, index) => ({ index, checked: true, quality: null, difference: null }));
+  settings.align.threshold = 0;
+  // The original asks "process in colour?"; the clone decides from the recording (Settings > Autodetect Colour/BW).
+  settings.colour = info.color !== "Mono";
+  status.progress = 0;
+  status.action = "";
+  status.position = "";
+}
