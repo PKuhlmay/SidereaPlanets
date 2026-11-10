@@ -4,3 +4,7 @@
 *.log
 # Reverse-engineering material stays local (original binaries, sample data, captures)
 /re-local/
+
+node_modules/
+dist/
+app/src-tauri/gen/

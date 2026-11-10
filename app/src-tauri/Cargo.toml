@@ -1,0 +1,20 @@
+[package]
+name = "planets-app"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "SidereaPlanets desktop app (Tauri shell)"
+
+[lib]
+# The `_lib` suffix keeps the lib name unique next to the bin name (Windows linker issue).
+name = "planets_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+planets-core = { path = "../../crates/core" }
+planets-io = { path = "../../crates/io" }
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }

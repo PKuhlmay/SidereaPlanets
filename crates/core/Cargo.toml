@@ -1,0 +1,10 @@
+[package]
+name = "planets-core"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+
+[lints]
+workspace = true

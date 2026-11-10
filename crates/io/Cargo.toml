@@ -1,0 +1,12 @@
+[package]
+name = "planets-io"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+
+[dependencies]
+planets-core = { path = "../core" }
+thiserror = "2"
+
+[lints]
+workspace = true

@@ -1,6 +1,6 @@
 # RK-001 Cargo-Workspace und Gerüst
 
-- Status: offen
+- Status: erledigt
 - Abhängig von: —
 
 ## Ziel

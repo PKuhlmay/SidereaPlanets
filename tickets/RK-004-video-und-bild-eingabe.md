@@ -1,6 +1,6 @@
 # RK-004 Video- und Bild-Eingabe
 
-- Status: offen
+- Status: in Arbeit (SER mono/RGB/BGR/Bayer-roh, 8–16 Bit fertig; AVI, Bildserien, FITS offen)
 - Abhängig von: RK-001, RK-003
 
 ## Ziel

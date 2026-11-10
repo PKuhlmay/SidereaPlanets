@@ -1,6 +1,6 @@
 # RK-002 GUI-Toolkit auswählen
 
-- Status: offen
+- Status: erledigt (Entscheidung ohne Benchmark-Spike, siehe `docs/gui-toolkit.md`)
 - Abhängig von: RK-001
 
 ## Ziel

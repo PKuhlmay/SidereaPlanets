@@ -7,23 +7,37 @@ vergleichbare Resultate. Es ist zunächst nur ein Prototyp, um zu prüfen, ob da
 
 ## Status
 
-Frühe Phase, noch kein Code. Philipp installiert das Original (the reference program) lokal; daraus entsteht per
-Reverse Engineering die Spezifikation (Verhalten, Oberfläche, Dateiformate, Algorithmen).
+Gerüst steht (RK-001, RK-002): Workspace, SER-Reader, Tauri-Shell mit Platzhalter-UI. the reference program ist unter
+`C:\Program Files (x86)\the reference program` installiert; daraus entsteht die Spezifikation (RK-003).
+Das Design der Oberfläche wird getrennt von anderen Agenten gebaut (RK-010) — **modern**, nicht der Delphi-Look.
 
 ## Tech Stack
 
-- Rust (stable, Edition 2021+), Cargo-Workspace — Crates werden mit den Tickets angelegt
-- GUI-Toolkit: offen, wird in RK-002 entschieden
+- Rust stable (Edition 2024), Cargo-Workspace, `unsafe_code` verboten (Workspace-Lint)
+- App-Shell: **Tauri 2** (Rust-Kern + Web-UI), Frontend **Vue 3 + TypeScript + Vite** (`pnpm`)
+- Ziel-Plattformen: Windows, macOS, Linux — nichts Windows-Spezifisches im Code; Mehrplattform-Build später per CI
 - Bildverarbeitung: eigene Implementierung der Algorithmen, keine Delphi-Quellen
+- Entscheidung und Begründung: `docs/gui-toolkit.md`
 
 ## Dev-Commands
 
-Noch keine. Sobald das Workspace-Gerüst steht (RK-001), hier ergänzen:
-`cargo build`, `cargo test`, `cargo clippy`, `cargo fmt --check`.
+```
+cargo test --workspace                       # Rechenkern und Reader
+cargo clippy --workspace --all-targets       # soll ohne Warnungen laufen
+cargo fmt --all
+cd app && pnpm install && pnpm tauri dev     # App mit Hot-Reload starten
+cd app && pnpm build                         # Frontend bauen (vue-tsc + vite)
+cargo build -p planets-app                  # Desktop-Binary (braucht vorher `pnpm build`)
+```
+
+Rust liegt unter `~/.cargo/bin` (in Git Bash ggf. `export PATH="$HOME/.cargo/bin:$PATH"`).
 
 ## Verzeichnisstruktur
 
 ```
+crates/core/ Bildtyp und (später) Algorithmen: Ausrichtung, Stacking, Wavelets — GUI-frei
+crates/io/   Leser für Aufnahmen (SER fertig; AVI, Bildserien, FITS folgen)
+app/         Tauri-App: `app/src` = Vue-Frontend (hier entsteht das Design), `app/src-tauri` = Rust-Shell mit Commands
 tickets/   Aufgaben als Markdown-Dateien (RK-NNN-kurzer-titel.md), kein Jira
 docs/      Spezifikation, die beim Reverse Engineering entsteht (Workflow, UI, Algorithmen, Formate)
 re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, Mitschnitte
