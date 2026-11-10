@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import { open as openDialog } from "@tauri-apps/plugin-dialog";
 
 interface RecordingInfo {
   format: string;
@@ -15,8 +16,16 @@ interface RecordingInfo {
   telescope: string | null;
 }
 
+// Same filters and order as the "Open file(s)" dialog of the reference program (docs/formats.md).
+const fileFilters = [
+  { name: "Video (*.avi *.ser)", extensions: ["avi", "ser"] },
+  { name: "Still frames (*.bmp *.jpg *.tif *.png)", extensions: ["bmp", "jpg", "jpeg", "tif", "tiff", "png"] },
+  { name: "FITS frames (*.fit *.fits *.fts)", extensions: ["fit", "fits", "fts"] },
+  { name: "All files", extensions: ["*"] },
+];
+
 // Placeholder shell: proves the Rust bridge and the frame transfer work. The real UI is designed separately (see RK-010).
-const path = ref("");
+const paths = ref<string[]>([]);
 const info = ref<RecordingInfo | null>(null);
 const error = ref("");
 const frame = ref(0);
@@ -46,12 +55,20 @@ async function loadFrame() {
   }
 }
 
+async function chooseFiles() {
+  // Several still frames together form one sequence, so multiple selection is allowed.
+  const picked = await openDialog({ multiple: true, directory: false, filters: fileFilters });
+  if (!picked || picked.length === 0) return;
+  paths.value = picked;
+  await open();
+}
+
 async function open() {
   error.value = "";
   info.value = null;
   frameMs.value = null;
   try {
-    info.value = await invoke<RecordingInfo>("open_recording", { path: path.value });
+    info.value = await invoke<RecordingInfo>("open_recording", { paths: paths.value });
     frame.value = 0;
     await loadFrame();
   } catch (e) {
@@ -63,10 +80,9 @@ async function open() {
 <template>
   <main>
     <h1>SidereaPlanets</h1>
-    <form @submit.prevent="open">
-      <input v-model="path" placeholder="Path to a .ser or .avi file" />
-      <button type="submit">Open</button>
-    </form>
+    <button type="button" @click="chooseFiles">Open</button>
+    <p v-if="paths.length > 1">{{ paths.length }} files selected</p>
+    <p v-else-if="paths.length === 1">{{ paths[0] }}</p>
     <p v-if="error">{{ error }}</p>
     <template v-if="info">
       <p>

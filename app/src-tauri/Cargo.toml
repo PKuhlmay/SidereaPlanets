@@ -18,3 +18,4 @@ planets-core = { path = "../../crates/core" }
 planets-io = { path = "../../crates/io" }
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
+tauri-plugin-dialog = "2"

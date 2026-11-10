@@ -40,9 +40,16 @@ impl From<IoInfo> for RecordingInfo {
 #[derive(Default)]
 struct AppState(Mutex<Option<Recording>>);
 
+/// Opens the files picked in the dialog: one video, or one or more still frames as a sequence.
 #[tauri::command]
-async fn open_recording(path: String, state: State<'_, AppState>) -> Result<RecordingInfo, String> {
-    let recording = Recording::open(Path::new(&path)).map_err(|e| e.to_string())?;
+async fn open_recording(
+    paths: Vec<String>,
+    state: State<'_, AppState>,
+) -> Result<RecordingInfo, String> {
+    let [path] = paths.as_slice() else {
+        return Err("select exactly one recording".into());
+    };
+    let recording = Recording::open(Path::new(path)).map_err(|e| e.to_string())?;
     let info = recording.info().into();
     *state.0.lock().map_err(|e| e.to_string())? = Some(recording);
     Ok(info)
@@ -64,6 +71,7 @@ async fn read_frame(index: u32, state: State<'_, AppState>) -> Result<Response, 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_dialog::init())
         .manage(AppState::default())
         .invoke_handler(tauri::generate_handler![open_recording, read_frame])
         .run(tauri::generate_context!())
