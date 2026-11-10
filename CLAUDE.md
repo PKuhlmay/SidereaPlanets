@@ -30,6 +30,7 @@ cargo clippy --workspace --all-targets       # soll ohne Warnungen laufen
 cargo fmt --all
 cd app && pnpm install && pnpm tauri dev     # App mit Hot-Reload starten
 cd app && pnpm build                         # Frontend bauen (vue-tsc + vite)
+cd app && pnpm test                          # Frontend-Tests (vitest), z. B. Doku-Logik
 cd app && pnpm tauri build                   # Release-Installer bauen
 ```
 
@@ -59,7 +60,7 @@ Zu jeder Funktion gehört Anwenderdoku, die **in der App über die UI erreichbar
 Design aus `docs/design.md`, gleiche Tokens und Komponenten). Sie wird mit der Funktion zusammen geschrieben und **in jedem
 Commit mitgepflegt, wo die Änderung sie betrifft** (neue Funktion, geändertes Verhalten, neue Begriffe/Formate).
 Die Doku beschreibt Bedienung und Ergebnis, nicht die Reverse-Engineering-Notizen — die bleiben in `docs/`.
-Existiert die Doku-Ansicht noch nicht, legt das erste Ticket an, das Oberfläche oder Funktion liefert, sie mit an.
+Die Seiten liegen als Markdown in `app/src/docs/pages/` (Kopf mit `title`, `group`, `order`), die Ansicht ist `app/src/docs/DocsView.vue`; Help in der Werkzeugleiste öffnet sie. Eine neue Seite ist nur eine neue Datei.
 
 ## Verzeichnisstruktur
 

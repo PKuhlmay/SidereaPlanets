@@ -20,11 +20,12 @@ Bei Widersprüchen gewinnt für Begriffe und Werte `docs/ui.md`, für Aussehen u
 | `docs/design/tokens.css` | Farben, Schrift, Maße. Einzige Quelle für diese Werte, wird ins Frontend übernommen |
 | `docs/design/oberflaeche-entwurf.html` | Klickbarer Entwurf aller drei Reiter, im Browser öffnen |
 | `docs/design/screenshots/` | Soll-Bilder der Zustände bei 1440×900, erzeugt aus dem Entwurf |
-| `docs/design/siderea-planets.figcraft` | Die drei Reiter als FigCraft-Datei, je dunkel und hell (sechs Frames 1440×900). Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
+| `docs/design/siderea-planets.figcraft` | Die drei Reiter und die Doku als FigCraft-Datei, je dunkel und hell (acht Frames 1440×900). Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
 | `docs/design/figcraft-build.mjs` | Baut die FigCraft-Datei neu und liest die Farben dabei aus `tokens.css`. Aufruf: `node docs/design/figcraft-build.mjs` |
 
-Die FigCraft-Datei entsteht vollständig aus dem Skript. Änderungen von Hand in FigCraft gehen beim nächsten Lauf
-verloren; wer das Design ändert, ändert Skript und `tokens.css`.
+Die sechs Frames der Reiter entstehen aus dem Skript, die zwei Doku-Frames (RK-012) sind dagegen von Hand in
+FigCraft gebaut und stehen nicht im Skript. Ein Lauf des Skripts schreibt die Datei neu und entfernt sie. Wer ihn
+braucht, sichert die Doku-Frames vorher oder baut sie nach der Beschreibung unter [Doku](#doku) neu.
 
 Der Entwurf ist eine Vorlage zum Ansehen, kein Code zum Übernehmen: Er ist eine einzelne HTML-Datei ohne Vue und
 ohne Rechenkern. Markup und CSS-Regeln dürfen als Orientierung dienen, die Umsetzung baut eigene Komponenten.
@@ -286,6 +287,41 @@ und ein; der Bildbereich nimmt den frei werdenden Platz.
 MRU zeigt die zuletzt geöffneten Dateien als Einträge, leer den Text „No recent files“ in `--muted`. Tools hat zwei
 Einträge: eine Aktion und ein Häkchen.
 
+### Doku
+
+Help in der Werkzeugleiste schaltet zwischen Arbeitsansicht und Doku um. Der Schalter steht in der Doku gedrückt
+(`--accent-soft`, Umriss `--accent`, Icon und Text `--accent-ink`); ein zweiter Klick und Escape führen zurück. Die
+Arbeitsansicht bleibt dabei unverändert im Speicher (Aufnahme, Reglerwerte, laufende Berechnung). Reiterleiste,
+Aktionszeile und Statusleiste entfallen in der Doku, die Werkzeugleiste bleibt.
+
+Zwei Spalten: links die Seitenliste (Breite wie das linke Panel, 272 px, `--panel`, Linie rechts), rechts der Text auf
+`--bg`, 720 px breit und waagerecht zentriert, 36 px Abstand oben.
+
+| Teil | Regel |
+|---|---|
+| Suchfeld | oben in der Seitenliste, wie ein Textfeld (`--field`, Umriss `--line-strong`, Radius `--r-s`, 28 px hoch) |
+| Gruppenüberschrift | 12 px, `--muted`; darunter die Seiten als Zeilen, 30 px hoch, Radius `--r` |
+| Aktive Seite | `--accent-soft`, Text `--accent-ink`, Gewicht 600 |
+| Brotkrumen | 12 px, `--muted`, über der Überschrift |
+| Überschrift 1 | 28 px, Gewicht 600; darunter ein Einleitungsabsatz in 15 px, `--muted` |
+| Überschrift 2 | 18 px, Gewicht 600 |
+| Fließtext | 14 px, Zeilenhöhe 20 px, `--text` |
+| Tabelle | Fläche `--panel`, Umriss `--line`, Radius `--r-l`; Kopfzeile `--raised` mit 12 px `--muted`; Zeilen 38 px, getrennt durch `--line`. Noch nicht Vorhandenes in `--off` |
+| Hinweis | `--accent-soft`, 3 px Streifen links in `--accent`, Radius `--r` |
+| Schritte | Nummer in einem Kreis (20 px, `--raised`, Ziffer 11 px `--muted`), daneben der Text |
+| Blättern | unten links „‹ Vorherige“, rechts „Nächste ›“, beides `--accent-ink` |
+
+Doku-Texte sind Anwenderdoku und auf Englisch wie die Oberfläche; sie nennen, was schon geht, und markieren Fehlendes
+als „Not available yet“. Quelle der Seiten ist Markdown im Repo (RK-012).
+
+| Zustand | Soll-Bild |
+|---|---|
+| Doku, dunkel | ![Doku](design/screenshots/13-docs.png) |
+| Doku, hell | ![Doku, hell](design/screenshots/14-docs-light.png) |
+
+Die Soll-Bilder 13 und 14 stammen aus `docs/design/siderea-planets.figcraft`, nicht aus dem klickbaren Entwurf; der
+Entwurf zeigt die Doku nicht.
+
 ### Helles Thema
 
 | Reiter | Soll-Bild |
@@ -341,7 +377,8 @@ dieses Dokument im selben Commit.
 | RK-007 Wavelets | linkes Panel im Wavelet-Reiter, Process, Do All, Before, Processing Area | 07, 08, 12 |
 | RK-008 Farbe und Tonwerte | rechtes Panel im Wavelet-Reiter (Functions, Contrast/Brightness), Colour/LRGB | 07, 12 |
 | RK-009 Speichern | Save image in Stack und Wavelet, Save Aligned, Save Integrated, Load/Save Scheme | 06, 07 |
-| RK-010 Oberfläche | alles in diesem Dokument | 01–12 |
+| RK-010 Oberfläche | alles in diesem Dokument außer der Doku | 01–12 |
+| RK-012 Doku in der App | Help in der Werkzeugleiste, Doku-Ansicht | 13, 14 |
 
 ## Soll-Bilder neu erzeugen
 

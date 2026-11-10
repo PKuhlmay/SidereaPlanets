@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import DocsView from "./docs/DocsView.vue";
 
 interface RecordingInfo {
   format: string;
@@ -32,6 +33,8 @@ const error = ref("");
 const frame = ref(0);
 const frameMs = ref<number | null>(null);
 const canvas = ref<HTMLCanvasElement | null>(null);
+// The work view stays mounted (v-show) while the documentation is open, so the recording and settings survive.
+const showDocs = ref(false);
 
 // Drops answers that arrive after a newer frame was requested.
 let latestRequest = 0;
@@ -79,7 +82,17 @@ async function open() {
 </script>
 
 <template>
-  <main>
+  <div class="shell">
+    <header class="toolbar">
+      <button type="button" class="help" :aria-pressed="showDocs" @click="showDocs = !showDocs">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path d="M8 3.5C6.5 2.5 4.5 2.3 1.5 2.5v10c3-.2 5 0 6.5 1zm0 0c1.5-1 3.5-1.2 6.5-1v10c-3-.2-5 0-6.5 1" />
+        </svg>
+        Help
+      </button>
+    </header>
+    <DocsView v-if="showDocs" class="docs-slot" @close="showDocs = false" />
+  <main v-show="!showDocs">
     <h1>SidereaPlanets</h1>
     <button type="button" @click="chooseFiles">Select</button>
     <p v-if="paths.length > 1">{{ paths.length }} files selected</p>
@@ -98,4 +111,37 @@ async function open() {
     </template>
     <canvas ref="canvas" style="max-width: 100%" />
   </main>
+  </div>
 </template>
+
+<style scoped>
+.shell {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 12px;
+}
+.help {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.help svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.docs-slot {
+  flex: 1;
+  min-height: 0;
+}
+main {
+  overflow-y: auto;
+}
+</style>
