@@ -20,6 +20,11 @@ Bei Widersprüchen gewinnt für Begriffe und Werte `docs/ui.md`, für Aussehen u
 | `docs/design/tokens.css` | Farben, Schrift, Maße. Einzige Quelle für diese Werte, wird ins Frontend übernommen |
 | `docs/design/oberflaeche-entwurf.html` | Klickbarer Entwurf aller drei Reiter, im Browser öffnen |
 | `docs/design/screenshots/` | Soll-Bilder der Zustände bei 1440×900, erzeugt aus dem Entwurf |
+| `docs/design/siderea-planets.figcraft` | Die drei Reiter als FigCraft-Datei, je dunkel und hell (sechs Frames 1440×900). Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
+| `docs/design/figcraft-build.mjs` | Baut die FigCraft-Datei neu und liest die Farben dabei aus `tokens.css`. Aufruf: `node docs/design/figcraft-build.mjs` |
+
+Die FigCraft-Datei entsteht vollständig aus dem Skript. Änderungen von Hand in FigCraft gehen beim nächsten Lauf
+verloren; wer das Design ändert, ändert Skript und `tokens.css`.
 
 Der Entwurf ist eine Vorlage zum Ansehen, kein Code zum Übernehmen: Er ist eine einzelne HTML-Datei ohne Vue und
 ohne Rechenkern. Markup und CSS-Regeln dürfen als Orientierung dienen, die Umsetzung baut eigene Komponenten.
