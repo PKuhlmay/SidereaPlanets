@@ -1,0 +1,62 @@
+/* SidereaPlanets — design tokens. Single source of truth for colours, type and sizes; rules in docs/design.md.
+   Dark is the default. Light applies with <html data-theme="light">. */
+:root{
+  color-scheme:dark;
+
+  /* surfaces: neutral greys without tint, so the UI does not shift the perceived image colours */
+  --bg:#141518;          /* window background, gaps */
+  --panel:#1c1d21;       /* toolbar, tab row, action row, side panels, status bar */
+  --raised:#26282d;      /* buttons, menus, stepper arrows */
+  --raised-h:#30333a;    /* hover of raised elements */
+  --field:#101114;       /* number fields, selects, text inputs */
+  --line:#2e3036;        /* separators between regions and groups */
+  --line-strong:#40434b; /* control outlines, slider track */
+
+  /* text */
+  --text:#e7e8eb;        /* labels and values */
+  --muted:#9b9fa9;       /* sub headings, meta info, status bar */
+  --off:#5f636d;         /* disabled controls and locked steps */
+
+  /* accent: amber, taken from the orange buttons of the original. The only accent colour. */
+  --accent:#f2a93b;      /* next step, primary button, checked controls, slider thumb, progress */
+  --accent-h:#f7b955;    /* hover of accent fills */
+  --on-accent:#1d1300;   /* text on accent fills */
+  --accent-ink:#f2a93b;  /* accent used as text or outline on a surface */
+  --accent-soft:rgba(242,169,59,.14); /* selected segment, pressed toggle, menu hover */
+
+  /* status */
+  --ok:#4fc08d;          /* finished step, "Aligned" dot */
+  --info:#6fa8ff;        /* second series in graphs (Difference) */
+
+  /* image area: stays dark in both themes */
+  --canvas:#08080a;                   /* background around the image */
+  --canvas-chrome:rgba(24,25,29,.86); /* zoom bar on top of the image */
+  --canvas-line:#40434b;
+  --on-canvas:#e7e8eb;
+  --ap-point:#ff4d4d;    /* alignpoints after Set Alignpoints (red dots, as in the original) */
+  --ap-ring:#ffd84a;     /* alignpoints after Limit (yellow rings) */
+  --ap-shift:#57e389;    /* shift marker inside a ring (green line) */
+
+  /* type */
+  --font:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,"Helvetica Neue",sans-serif;
+  --fs:13px;             /* base size */
+  --fs-s:12px;           /* sub headings, status bar, meta info */
+
+  /* shape and size */
+  --r:6px;               /* buttons, segments */
+  --r-s:4px;             /* fields, menu items */
+  --r-l:8px;             /* menus, floating cards, zoom bar */
+  --h-btn:28px;
+  --h-field:26px;
+  --side:272px;          /* left panel */
+  --side-right:248px;    /* Functions panel (Wavelet tab) */
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --bg:#e9ebef; --panel:#f6f7f9; --raised:#ffffff; --raised-h:#eef0f4; --field:#ffffff;
+  --line:#d8dce3; --line-strong:#bcc2cc;
+  --text:#1a1c21; --muted:#5a606c; --off:#a4a9b4;
+  --accent:#f2a93b; --accent-h:#eb9c22; --on-accent:#1d1300; --accent-ink:#8f5300; --accent-soft:rgba(242,169,59,.22);
+  --ok:#1e8a5a; --info:#2f6fd6;
+  --canvas:#0d0d10;
+}

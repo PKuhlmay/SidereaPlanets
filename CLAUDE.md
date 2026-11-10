@@ -10,7 +10,9 @@ vergleichbare Resultate. Es ist zunächst nur ein Prototyp, um zu prüfen, ob da
 Gerüst steht (RK-001, RK-002): Workspace, SER-Reader, Tauri-Shell mit Platzhalter-UI. the reference program ist unter
 `C:\Program Files (x86)\the reference program` installiert; die Spezifikation daraus steht in `docs/` (RK-003), Referenzergebnisse
 in `re-local/reference/` (beschrieben in `docs/testdaten.md`).
-Das Design der Oberfläche wird getrennt von anderen Agenten gebaut (RK-010) — **modern**, nicht der Delphi-Look.
+Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens, klickbarer Entwurf und Soll-Bilder in
+`docs/design/`) und für jede Arbeit an der Oberfläche verbindlich — **modern**, nicht der Delphi-Look. Umgesetzt wird es
+getrennt von anderen Agenten (RK-010).
 
 ## Tech Stack
 

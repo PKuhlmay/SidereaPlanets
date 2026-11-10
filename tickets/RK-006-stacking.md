@@ -13,3 +13,9 @@ Die lokale Ausrichtung über die Alignpoints passiert beim Stacken selbst.
       mit den Standardwerten aus `docs/ui.md`
 - [ ] Stacking mit Fließkomma oder 16-Bit-Genauigkeit ohne Überlauf
 - [ ] Ergebnis gegen das Original verglichen (Differenzbild, PSNR; Referenz und Schwelle in `docs/testdaten.md`) und in `docs/` festgehalten
+
+## Design
+Soweit dieses Ticket Bedienelemente anbindet oder anzeigt, gilt `docs/design.md`. Aussehen und Anordnung werden nicht neu entschieden.
+
+- Betroffen: Stack-Reiter komplett, Karte Alignmentpoints, Zusatzfelder für Resampling und Drizzling (`docs/design.md`, Abschnitte Stack und Zustände)
+- Soll-Bilder: `docs/design/screenshots/05-stack-limited.png`, `06-stack-stacked.png`
