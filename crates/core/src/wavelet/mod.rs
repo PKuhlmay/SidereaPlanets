@@ -338,8 +338,11 @@ mod tests {
 
     #[test]
     fn denoise_removes_small_detail_and_keeps_strong_edges() {
-        // Fine ripple (small) next to a strong step edge. Taking out layer 1 keeps only 0.8 * 0.8 of
-        // a checkerboard ripple.
+        // Fine ripple (small) next to a strong step edge. Denoising removes all of layer 1, so what is left
+        // is the image smoothed once. The kernel 0.05 / 0.9 / 0.05 turns a checkerboard into
+        // (0.9 - 0.1) = 0.8 of itself per axis, so 0.8 * 0.8 = 0.64 of the ripple stays. That holds in the
+        // interior; in the first and last row the replicated edge row breaks the cancellation (0.9 instead
+        // of 0.8 vertically), so the ripple is measured in row 4.
         let mut img = Image::new(64, 8, 1);
         for y in 0..8usize {
             for x in 0..64usize {
@@ -351,12 +354,11 @@ mod tests {
         let mut s = WaveletSettings::default();
         s.layers[0].denoise = 3.0;
         let out = process(&img, &s);
-        let ripple = |im: &Image| (im.data[10] - im.data[11]).abs();
+        let ripple = |im: &Image| (im.data[4 * 64 + 10] - im.data[4 * 64 + 11]).abs();
+        let kept = ripple(&out) / ripple(&img);
         assert!(
-            ripple(&out) < ripple(&img) * 0.7,
-            "{} vs {}",
-            ripple(&out),
-            ripple(&img)
+            (kept - 0.64).abs() < 0.02,
+            "{kept} of the ripple is left, expected 0.64"
         );
         // The step survives.
         assert!((out.data[40] - out.data[24]) > 0.5);
