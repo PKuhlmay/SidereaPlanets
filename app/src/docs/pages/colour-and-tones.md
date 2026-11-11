@@ -73,11 +73,11 @@ Use them to compare two versions of your image, for example before and after a s
 
 ## Colour and LRGB
 
-**Colour** (Align and Stack tab) processes the recording in colour; without it the result is grayscale. **LRGB** needs Colour and is meant to sharpen only the brightness, while hue and saturation come from the stack. That keeps the colours calm when the wavelets would otherwise bring out colour noise. Both are greyed out for grayscale recordings.
+**Colour** (Align and Stack tab) processes the recording in colour; without it the result is grayscale. **LRGB** needs Colour and sharpens only the brightness, while hue and saturation come from the stack. That keeps the colours calm when the wavelets would otherwise bring out colour noise. Both act on the Wavelet tab's preview and on **Do All**, see [Wavelet sharpening](wavelet-sharpening). Both are greyed out for grayscale recordings.
 
 | Part | Status |
 |---|---|
 | The two check boxes and their rules | Works |
-| Their effect on **Do All** | Not available yet |
+| Their effect on the Wavelet preview and **Do All** | Works |
 
 > SidereaPlanets follows the reference program in what the tools are called and where they are. The exact scale of the sliders and the way the original applies them has not been compared yet, so the same numbers can look a little different in the two programs.

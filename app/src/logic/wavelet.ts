@@ -21,6 +21,15 @@ export interface BackendSettings {
   layers: { enabled: boolean; gain: number; denoise: number; sharpen: number }[];
 }
 
+/** `ColourMode` of crates/core: how the colour of the stack is treated while sharpening. */
+export type ColourMode = "colour" | "lrgb" | "gray";
+
+/** The Colour and LRGB checkboxes as the mode of the backend. LRGB only counts together with Colour. */
+export function colourMode(colour: boolean, lrgb: boolean): ColourMode {
+  if (!colour) return "gray";
+  return lrgb ? "lrgb" : "colour";
+}
+
 /** The slider position is ten times the factor of the layer (10 = 1.0). */
 export function toBackend(values: WaveletValues): BackendSettings {
   return {

@@ -4,7 +4,7 @@
 
 use planets_core::{
     Image,
-    wavelet::{Previewer, Region, WaveletSettings},
+    wavelet::{ColourMode, Previewer, Region, WaveletSettings},
 };
 use std::{sync::Arc, time::Instant};
 
@@ -36,7 +36,7 @@ fn a_slider_step_in_the_processing_area_fits_the_frame_budget() {
 
         // First call: builds the layers of the area.
         let started = Instant::now();
-        previewer.render(&settings, area);
+        previewer.render(&settings, ColourMode::Colour, area);
         let first = started.elapsed().as_secs_f64() * 1000.0;
 
         // Every further call only recombines them.
@@ -44,7 +44,7 @@ fn a_slider_step_in_the_processing_area_fits_the_frame_budget() {
             .map(|i| {
                 settings.layers[0].gain = 3.0 + i as f32 * 0.5;
                 let started = Instant::now();
-                previewer.render(&settings, area);
+                previewer.render(&settings, ColourMode::Colour, area);
                 started.elapsed().as_secs_f64() * 1000.0
             })
             .collect();

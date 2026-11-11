@@ -3,7 +3,7 @@
 use crate::{AppState, export_commands::ExportState};
 use planets_core::{
     Image,
-    wavelet::{self, Previewer, Region, WaveletSettings, rgba_region, scheme},
+    wavelet::{self, ColourMode, Previewer, Region, WaveletSettings, rgba_region, scheme},
 };
 use serde::Serialize;
 use std::{
@@ -28,7 +28,7 @@ impl WaveletState {
         Ok(())
     }
 
-    /// The result of the last *Do All*, for *Save image* (RK-009). Not clamped to `0.0..=1.0`.
+    /// The result of the last *Do All*, for *Save image* (RK-009).
     #[allow(dead_code)] // first caller is the export command of RK-009
     pub fn processed(&self) -> Option<Arc<Image>> {
         self.processed.lock().ok().and_then(|p| p.clone())
@@ -75,7 +75,8 @@ pub async fn wavelet_set_source_frame(
     Ok(source)
 }
 
-/// Renders the preview of one area. `settings` of `null` gives the unprocessed image (*Before*).
+/// Renders the preview of one area, with the tone curve and colour treatment *Do All* uses. `settings` of `null` gives
+/// the unprocessed image (*Before*).
 ///
 /// Returns binary: x, y, width, height of the area that was rendered (4 x u32 LE; the requested area cut to
 /// the image), then width * height * 4 bytes RGBA.
@@ -83,12 +84,13 @@ pub async fn wavelet_set_source_frame(
 pub async fn wavelet_preview(
     settings: Option<WaveletSettings>,
     area: Region,
+    mode: ColourMode,
     state: State<'_, WaveletState>,
 ) -> Result<Response, String> {
     let mut guard = state.previewer.lock().map_err(|e| e.to_string())?;
     let previewer = guard.as_mut().ok_or("no image to sharpen")?;
     let preview = match settings {
-        Some(settings) => previewer.render(&settings, area),
+        Some(settings) => previewer.render(&settings, mode, area),
         None => previewer.before(area),
     };
     let r = preview.region;
@@ -100,12 +102,14 @@ pub async fn wavelet_preview(
     Ok(Response::new(out))
 }
 
-/// *Do All*: applies the settings to the whole image and keeps the result for saving.
+/// *Do All*: applies the settings to the whole image (tone curve and colour treatment included) and keeps the result
+/// for saving.
 ///
 /// Returns binary like `read_frame`: width (u32 LE), height (u32 LE), then width * height * 4 bytes RGBA.
 #[tauri::command]
 pub async fn wavelet_do_all(
     settings: WaveletSettings,
+    mode: ColourMode,
     app: AppHandle,
     state: State<'_, WaveletState>,
 ) -> Result<Response, String> {
@@ -117,7 +121,7 @@ pub async fn wavelet_do_all(
             .source()
             .clone()
     };
-    let result = Arc::new(wavelet::process(&source, &settings));
+    let result = Arc::new(wavelet::do_all(&source, &settings, mode));
     let rgba = rgba_region(&result, Region::full(result.width, result.height));
     let mut out = Vec::with_capacity(8 + rgba.len());
     out.extend(result.width.to_le_bytes());

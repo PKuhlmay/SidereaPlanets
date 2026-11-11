@@ -10,10 +10,12 @@
 //! - [`Decomposition`] for the live preview: keeps the layers of the visible area, so moving a slider
 //!   only recombines them (see [`preview::Previewer`]).
 
+pub mod output;
 pub mod preview;
 pub mod scheme;
 pub mod settings;
 
+pub use output::{ColourMode, apply_output_curve, finish, output_curve, uses_luma, working_image};
 pub use preview::{Preview, Previewer, Region, rgba_region};
 pub use settings::{
     DEFAULT_SHARPEN, Filter, LAYERS, LayerSettings, Scheme, Structure, WaveletSettings,
@@ -195,6 +197,14 @@ pub fn process(image: &Image, settings: &WaveletSettings) -> Image {
         },
     );
     result
+}
+
+/// *Do All*: sharpens the whole image the way the window shows it, with the tone curve of the original and the
+/// colour treatment of `mode` ([`ColourMode`]). The result is clamped to `0.0..=1.0`. The live preview
+/// gives the same pixels for its area ([`Previewer::render`]).
+pub fn do_all(image: &Image, settings: &WaveletSettings, mode: ColourMode) -> Image {
+    let working = working_image(image, mode);
+    finish(image, process(&working, settings), mode)
 }
 
 /// The layers of an image, kept so that a change of gain, *Denoise* or *Sharpen* only recombines them.
@@ -416,5 +426,60 @@ mod tests {
             .collect();
         let sigma = noise_sigma(&layer, 1);
         assert!((sigma[0] - 0.5 * MAD_TO_SIGMA).abs() < 1e-6);
+    }
+
+    #[test]
+    fn do_all_with_default_settings_is_the_tone_curve_of_the_original() {
+        let img = test_image(40, 30, 3);
+        let out = do_all(&img, &WaveletSettings::default(), ColourMode::Colour);
+        assert_ne!(out, img);
+        for (o, i) in out.data.iter().zip(&img.data) {
+            assert_eq!(*o, output_curve(*i));
+        }
+    }
+
+    #[test]
+    fn do_all_applies_the_curve_after_the_layers() {
+        let img = test_image(64, 64, 1);
+        let s = boost(0, 5.0);
+        let mut expected = process(&img, &s);
+        apply_output_curve(&mut expected);
+        assert_eq!(do_all(&img, &s, ColourMode::Colour), expected);
+    }
+
+    #[test]
+    fn do_all_in_gray_sharpens_the_luminance_only() {
+        let img = test_image(48, 40, 3);
+        let s = boost(0, 5.0);
+        let out = do_all(&img, &s, ColourMode::Gray);
+        assert_eq!((out.channels, out.width, out.height), (1, 48, 40));
+        let mut expected = process(&img.to_luma(), &s);
+        apply_output_curve(&mut expected);
+        assert_eq!(out, expected);
+    }
+
+    #[test]
+    fn do_all_with_lrgb_keeps_the_hue_of_the_stack() {
+        let img = test_image(48, 40, 3);
+        let s = boost(0, 4.0);
+        let out = do_all(&img, &s, ColourMode::Lrgb);
+        assert_eq!(out.channels, 3);
+        assert_ne!(out, do_all(&img, &s, ColourMode::Colour));
+        // Where nothing is clamped, the ratio of the channels is that of the stack.
+        let mut checked = 0;
+        for (o, i) in out
+            .data
+            .as_chunks::<3>()
+            .0
+            .iter()
+            .zip(img.data.as_chunks::<3>().0)
+        {
+            if o.iter().all(|v| *v > 0.01 && *v < 0.99) {
+                assert!((o[0] / o[1] - i[0] / i[1]).abs() < 1e-3);
+                assert!((o[2] / o[1] - i[2] / i[1]).abs() < 1e-3);
+                checked += 1;
+            }
+        }
+        assert!(checked > 500, "only {checked} pixels were checked");
     }
 }

@@ -8,7 +8,7 @@ import { watch } from "vue";
 import { runJob } from "./jobs";
 import { defaultLayer } from "./logic/settings";
 import { processingArea } from "./logic/viewport";
-import { fromBackend, parsePreview, toBackend, writePreview, type BackendSettings } from "./logic/wavelet";
+import { colourMode, fromBackend, parsePreview, toBackend, writePreview, type BackendSettings } from "./logic/wavelet";
 import { session, settings, status } from "./state";
 
 // The design preview of dev builds runs in a plain browser; there is no backend to ask.
@@ -27,6 +27,9 @@ function workingPixels(stack: ImageData): Uint8ClampedArray<ArrayBuffer> {
   return working.pixels;
 }
 
+/** Colour and LRGB decide how the stack is sharpened: per channel, on the luminance only, or as grayscale. */
+const mode = () => colourMode(settings.colour, settings.lrgb);
+
 const area = (stack: ImageData) => {
   const a = processingArea({ w: stack.width, h: stack.height }, settings.menu.processingArea);
   return { x: a.x, y: a.y, width: a.w, height: a.h };
@@ -38,7 +41,7 @@ async function renderPreview(): Promise<string> {
   if (!stack) throw new Error("no stacked image");
   // Time from the request to the finished drawing in the image area, shown in the status bar (docs/gui-toolkit.md).
   const started = performance.now();
-  const answer = await invoke<ArrayBuffer>("wavelet_preview", { settings: toBackend(settings.wavelet), area: area(stack) });
+  const answer = await invoke<ArrayBuffer>("wavelet_preview", { settings: toBackend(settings.wavelet), area: area(stack), mode: mode() });
   const pixels = workingPixels(stack);
   writePreview(pixels, stack.width, parsePreview(answer));
   session.processedImage = new ImageData(pixels, stack.width, stack.height);
@@ -77,7 +80,7 @@ export async function process(): Promise<void> {
 export async function doAll(): Promise<void> {
   await runJob("Wavelet", async (job) => {
     job.progress(0, 1, "Do_all processing");
-    const buffer = await invoke<ArrayBuffer>("wavelet_do_all", { settings: toBackend(settings.wavelet) });
+    const buffer = await invoke<ArrayBuffer>("wavelet_do_all", { settings: toBackend(settings.wavelet), mode: mode() });
     if (job.cancelled) return;
     // Binary layout: width (u32 LE), height (u32 LE), then RGBA bytes.
     const view = new DataView(buffer);
@@ -140,7 +143,7 @@ const AUTOMATIC_DELAY_MS = 600;
 let automatic: number | undefined;
 
 watch(
-  [() => JSON.stringify(toBackend(settings.wavelet)), () => settings.menu.processingArea, () => session.stackImage, () => session.tab],
+  [() => JSON.stringify(toBackend(settings.wavelet)), mode, () => settings.menu.processingArea, () => session.stackImage, () => session.tab],
   () => {
     if (!inTauri() || session.tab !== "wavelet" || !session.stackImage || status.busy) return;
     status.action = "layer setting changed";

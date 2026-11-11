@@ -1,7 +1,7 @@
 //! Live preview of the Wavelet tab: only the visible area is processed and converted to RGBA
 //! (measures from `docs/gui-toolkit.md`, section *Maßnahmen für die Live-Vorschau*).
 
-use super::{Decomposition, LAYERS, WaveletSettings};
+use super::{ColourMode, Decomposition, LAYERS, WaveletSettings, finish, uses_luma};
 use crate::Image;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -132,6 +132,8 @@ pub struct Preview {
 
 struct Cached {
     outer: Region,
+    /// Whether the layers come from the luminance of the source (see [`uses_luma`]).
+    luma: bool,
     decomposition: Decomposition,
 }
 
@@ -139,6 +141,8 @@ struct Cached {
 /// slider recombines them instead of decomposing again.
 pub struct Previewer {
     source: Arc<Image>,
+    /// The luminance of the source, made when [`ColourMode::Lrgb`] or [`ColourMode::Gray`] first needs it.
+    luma: Option<Arc<Image>>,
     cache: Option<Cached>,
 }
 
@@ -146,6 +150,7 @@ impl Previewer {
     pub fn new(source: Arc<Image>) -> Self {
         Self {
             source,
+            luma: None,
             cache: None,
         }
     }
@@ -163,41 +168,62 @@ impl Previewer {
         }
     }
 
-    /// The image in the region with the settings applied. The region is cut to the image; the
+    /// The image in the region with the settings applied, as *Do All* ([`super::do_all`]) shows it: with the
+    /// tone curve of the original and the colour treatment of `mode`. The region is cut to the image; the
     /// returned [`Preview::region`] says what was rendered.
     ///
     /// The area around the region is processed too, as far as the layers reach, so that the result is
-    /// the same as cutting the region out of [`super::process`]. Only the noise level that *Denoise*
+    /// the same as cutting the region out of [`super::do_all`]. Only the noise level that *Denoise*
     /// relies on is estimated from the processed area instead of from the whole image.
-    pub fn render(&mut self, settings: &WaveletSettings, region: Region) -> Preview {
+    pub fn render(
+        &mut self,
+        settings: &WaveletSettings,
+        mode: ColourMode,
+        region: Region,
+    ) -> Preview {
         let (width, height) = (self.source.width, self.source.height);
         let region = region.clamped(width, height);
         let settings = settings.clone().clamped();
-        if settings.is_neutral() {
-            return self.before(region);
-        }
-
-        let margin = settings.structure.margin(LAYERS) as u32;
-        let wanted = region.expanded(margin, width, height);
-        let reusable = self.cache.as_ref().is_some_and(|c| {
-            c.decomposition.structure() == &settings.structure && c.outer.contains(&wanted)
-        });
-        if !reusable {
-            self.cache = Some(Cached {
-                outer: wanted,
-                decomposition: Decomposition::new(&crop(&self.source, wanted), settings.structure),
-            });
-        }
-        let cached = self.cache.as_ref().expect("cache was filled above");
-        let composed = cached.decomposition.compose(&settings);
-        let inner = Region {
-            x: region.x - cached.outer.x,
-            y: region.y - cached.outer.y,
-            ..region
+        let luma = uses_luma(&self.source, mode);
+        let working = if luma {
+            Arc::clone(
+                self.luma
+                    .get_or_insert_with(|| Arc::new(self.source.to_luma())),
+            )
+        } else {
+            Arc::clone(&self.source)
         };
+
+        let worked = if settings.is_neutral() {
+            crop(&working, region)
+        } else {
+            let margin = settings.structure.margin(LAYERS) as u32;
+            let wanted = region.expanded(margin, width, height);
+            let reusable = self.cache.as_ref().is_some_and(|c| {
+                c.luma == luma
+                    && c.decomposition.structure() == &settings.structure
+                    && c.outer.contains(&wanted)
+            });
+            if !reusable {
+                self.cache = Some(Cached {
+                    outer: wanted,
+                    luma,
+                    decomposition: Decomposition::new(&crop(&working, wanted), settings.structure),
+                });
+            }
+            let cached = self.cache.as_ref().expect("cache was filled above");
+            let composed = cached.decomposition.compose(&settings);
+            let inner = Region {
+                x: region.x - cached.outer.x,
+                y: region.y - cached.outer.y,
+                ..region
+            };
+            crop(&composed, inner)
+        };
+        let image = finish(&crop(&self.source, region), worked, mode);
         Preview {
             region,
-            rgba: rgba_region(&composed, inner),
+            rgba: rgba_region(&image, Region::full(region.width, region.height)),
         }
     }
 }
@@ -205,7 +231,7 @@ impl Previewer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::wavelet::process;
+    use crate::wavelet::{apply_output_curve, do_all};
 
     fn test_image(width: u32, height: u32) -> Arc<Image> {
         let mut img = Image::new(width, height, 3);
@@ -334,7 +360,7 @@ mod tests {
     }
 
     #[test]
-    fn neutral_settings_show_the_source() {
+    fn neutral_settings_show_the_source_with_the_tone_curve() {
         let img = test_image(64, 48);
         let region = Region {
             x: 10,
@@ -343,16 +369,24 @@ mod tests {
             height: 20,
         };
         let mut previewer = Previewer::new(img.clone());
-        let preview = previewer.render(&WaveletSettings::default(), region);
-        assert_eq!(preview.rgba, previewer.before(region).rgba);
+        let preview = previewer.render(&WaveletSettings::default(), ColourMode::Colour, region);
         assert_eq!(preview.region, region);
+        // The original darkens the image even when nothing is sharpened ...
+        assert_ne!(preview.rgba, previewer.before(region).rgba);
+        // ... and the preview shows exactly that.
+        let mut toned = (*img).clone();
+        apply_output_curve(&mut toned);
+        assert_eq!(preview.rgba, rgba_region(&toned, region));
     }
 
     #[test]
     fn preview_equals_the_region_of_the_full_result() {
         let img = test_image(120, 90);
         let settings = boosted();
-        let full = rgba_region(&process(&img, &settings), Region::full(120, 90));
+        let full = rgba_region(
+            &do_all(&img, &settings, ColourMode::Colour),
+            Region::full(120, 90),
+        );
         // One region inside, one touching the image corner.
         for region in [
             Region {
@@ -368,7 +402,7 @@ mod tests {
                 height: 20,
             },
         ] {
-            let preview = Previewer::new(img.clone()).render(&settings, region);
+            let preview = Previewer::new(img.clone()).render(&settings, ColourMode::Colour, region);
             assert_eq!(preview.region, region);
             for row in 0..region.height as usize {
                 let from = ((region.y as usize + row) * 120 + region.x as usize) * 4;
@@ -393,12 +427,12 @@ mod tests {
         };
         let mut previewer = Previewer::new(img.clone());
         let mut settings = boosted();
-        previewer.render(&settings, region);
+        previewer.render(&settings, ColourMode::Colour, region);
         let outer = previewer.cache.as_ref().unwrap().outer;
         settings.layers[0].gain = 8.0;
-        let preview = previewer.render(&settings, region);
+        let preview = previewer.render(&settings, ColourMode::Colour, region);
         assert_eq!(previewer.cache.as_ref().unwrap().outer, outer);
-        let expected = Previewer::new(img).render(&settings, region);
+        let expected = Previewer::new(img).render(&settings, ColourMode::Colour, region);
         assert_eq!(preview.rgba, expected.rgba);
     }
 
@@ -413,17 +447,18 @@ mod tests {
         };
         let mut previewer = Previewer::new(img);
         let mut settings = boosted();
-        previewer.render(&settings, region);
+        previewer.render(&settings, ColourMode::Colour, region);
         let first = previewer.cache.as_ref().unwrap().outer;
 
         settings.structure.scheme = crate::wavelet::Scheme::Dyadic;
-        previewer.render(&settings, region);
+        previewer.render(&settings, ColourMode::Colour, region);
         let second = previewer.cache.as_ref().unwrap().outer;
         assert!(second.contains(&first), "dyadic reaches further");
         assert_ne!(second, first);
 
         previewer.render(
             &settings,
+            ColourMode::Colour,
             Region {
                 x: 60,
                 y: 50,
@@ -431,5 +466,38 @@ mod tests {
             },
         );
         assert_ne!(previewer.cache.as_ref().unwrap().outer, second);
+    }
+
+    #[test]
+    fn preview_equals_do_all_in_every_colour_mode() {
+        let img = test_image(120, 90);
+        let region = Region {
+            x: 30,
+            y: 20,
+            width: 40,
+            height: 30,
+        };
+        for settings in [boosted(), WaveletSettings::default()] {
+            let mut previewer = Previewer::new(img.clone());
+            // Switching between the modes on one previewer must not serve layers of the wrong kind.
+            for mode in [
+                ColourMode::Colour,
+                ColourMode::Gray,
+                ColourMode::Lrgb,
+                ColourMode::Colour,
+            ] {
+                let full = rgba_region(&do_all(&img, &settings, mode), Region::full(120, 90));
+                let preview = previewer.render(&settings, mode, region);
+                for row in 0..region.height as usize {
+                    let from = ((region.y as usize + row) * 120 + region.x as usize) * 4;
+                    let len = region.width as usize * 4;
+                    assert_eq!(
+                        preview.rgba[row * len..(row + 1) * len],
+                        full[from..from + len],
+                        "row {row} in {mode:?}"
+                    );
+                }
+            }
+        }
     }
 }

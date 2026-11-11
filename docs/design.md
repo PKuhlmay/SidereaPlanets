@@ -350,9 +350,9 @@ Tickets fest und ergänzen dieses Dokument.
 das Häkchen als Graustufen. *LRGB* ist nur mit *Colour* wählbar und schärft nur die Luminanz: Die Wavelets (RK-007)
 rechnen auf der Luminanz, Farbton und Sättigung kommen aus dem Summenbild. Beide sind bei Graustufenbildern gesperrt.
 Das Ticket nennt sie unter dem Wavelet-Reiter; dort stehen sie im Entwurf nicht, die Stelle ist also noch offen.
-Umgesetzt (RK-008): Sie sind bei Graustufenaufnahmen gesperrt und LRGB zusätzlich ohne *Colour*. Die Wirkung auf Do All
-liegt bei RK-007, das beide Werte liest (`settings.colour`, `settings.lrgb`); der Rechenkern bringt dafür
-`color::with_luminance` mit.
+Umgesetzt (RK-008): Sie sind bei Graustufenaufnahmen gesperrt und LRGB zusätzlich ohne *Colour*. Umgesetzt (RK-007): Beide
+Werte (`settings.colour`, `settings.lrgb`) wirken auf die Live-Vorschau und auf Do All (`colourMode` in `app/src/logic/wavelet.ts`,
+Rechnung `wavelet::ColourMode` mit `color::with_luminance`, siehe `docs/wavelets.md`). Ohne *Colour* ist das Ergebnis Graustufen.
 
 ### Menüs
 

@@ -16,8 +16,9 @@ Ebene_n    = G(n−1) − G(n)
 Ergebnis   = Bild + Σ_n ( Gain_n · Denoise(Ebene_n) − Ebene_n )      // Rest = G6, bleibt unverändert
 ```
 
-Bei neutralen Einstellungen (alle Regler 1.0, Denoise 0) ist das Ergebnis **bitgleich** das Eingabebild.
-Jeder Farbkanal wird für sich gerechnet. Ebenen, die nichts ändern, kosten nichts; hinter der letzten
+Bei neutralen Einstellungen (alle Regler 1.0, Denoise 0) liefern die Ebenen **bitgleich** das Eingabebild (`wavelet::process`).
+Danach folgt die Tonkennlinie des Originals (nächster Abschnitt); erst sie macht *Do All* und die Vorschau zum Ergebnis des Originals.
+Jeder Farbkanal wird für sich gerechnet, solange *Colour* an und *LRGB* aus ist (Abschnitt Colour und LRGB). Ebenen, die nichts ändern, kosten nichts; hinter der letzten
 veränderten Ebene wird nicht weiter zerlegt.
 
 ### Glätten
@@ -37,6 +38,43 @@ Getrennter 3- bzw. 5-Tap-Kern (erst waagerecht, dann senkrecht), Taps `Abstand_n
 
 Wegen des Taps-Abstands hängt ein Pixel des Ergebnisses von Pixeln bis zu `Σ Abstand · Reichweite` entfernt ab
 (Standard 21 px, Dyadic mit Gaussian 63 px). Diesen Rand (`Structure::margin`) rechnet die Vorschau mit.
+
+### Tonkennlinie des Originals
+
+Das Original verändert das Bild auch bei neutralen Reglern (Beobachtung 1 unten). Der Klon wendet dieselbe Kennlinie am Ende
+von *Do All* und der Vorschau an (`wavelet/output.rs`, `output_curve`), nach den Ebenen und vor dem Zurückholen der Farbe bei LRGB:
+
+```
+y = 0,988231 · x + 0,015595 · x³          x, y auf 0…1 bezogen, x vorher auf 0…1 begrenzt, y höchstens 1
+```
+
+Was die Daten belegen und was nicht (alles aus `jupiter-stack.tif` gegen `jupiter-wavelet-default.tif`, 16 Bit, ausgewertet mit Python):
+
+| Punkt | Stand |
+|---|---|
+| Ein Eingabewert gibt immer denselben Ausgabewert (1455 verschiedene Werte, größte Streuung 1 von 65535), für alle Kanäle gleich | **belegt** |
+| Form: ungerades Polynom dritten Grades ohne quadratischen Anteil. Die freie Anpassung `a·x + b·x² + c·x³` ergibt `b ≈ −0,0005`, also null. Ein Polynom zweiten Grades (frühere Näherung 0,984·x + 0,0153·x²) verfehlt bis zu 18 von 65535, dieses höchstens 3 | **belegt** als Näherung; die wahre Formel des Originals ist unbekannt |
+| Genauigkeit: mit Rundung auf die nächste Ganzzahl 98,8 dB gegen die Standardausgabe (44 % der Samples exakt, höchstens 3 daneben) | **belegt** |
+| Abstand zur Identität: bis zu einer Stufe von 8 Bit (256 von 65535) um die Mitte des belegten Bereichs, in den Tiefen etwa 1,2 % | **belegt** |
+| Bereich: im Referenzbild kommen nur Werte bis 40063 (0,61) vor. Darüber ist die Kurve eine Fortsetzung. Sie steigt weiter, erreicht bei 1,0 den Wert 1,0038 und wird dort auf 1 begrenzt; ob das Original oben so abbiegt, ist unbekannt (`docs/offene-fragen.md`, Frage 22) | **geraten** |
+| 8-Bit-Rundung: Die 16-Bit-Ausgabe hat Werte, die keine Vielfachen von 256 sind; die Kennlinie wirkt also in 16-Bit-Auflösung, nicht auf einer 8-Bit-Treppe. Der Klon rechnet in Fließkomma und rundet erst beim Speichern | **belegt** (keine Treppe) |
+| Ursache (Contrast/Brightness 100/0, ein Skalierungsschritt, die Zusammensetzung der Ebenen?) | **unbekannt** |
+
+*Before* zeigt das Summenbild ohne die Kennlinie. Bei Graustufen wurde sie nicht beobachtet (die Referenz ist farbig); der Klon wendet sie
+auf alle Kanalzahlen gleich an.
+
+### Colour und LRGB
+
+Die Häkchen *Colour* und *LRGB* (Align- und Stack-Reiter, ein Wert für alle Reiter, `docs/ui.md`) wählen `wavelet::ColourMode`:
+
+| Colour | LRGB | `ColourMode` | Rechnung |
+|---|---|---|---|
+| an | aus | `Colour` | jeder Kanal für sich |
+| an | an | `Lrgb` | Ebenen auf der Luminanz (`Image::to_luma`), danach Kennlinie, dann `color::with_luminance`: Farbton und Sättigung des Summenbilds, Luminanz = Ergebnis |
+| aus | | `Gray` | Luminanz des Summenbilds, Ebenen, Kennlinie; das Ergebnis hat einen Kanal |
+
+LRGB zählt ohne Colour nicht. Bei Bildern mit weniger als drei Kanälen (Graustufenaufnahmen) ändert sich nichts. Die Zuordnung ist aus den
+Namen der Häkchen geschlossen und **nicht** am Original beobachtet (`docs/offene-fragen.md`, Frage 26 im Abschnitt Farbe und Tonwerte).
 
 ### Einstellungen je Ebene
 
@@ -60,12 +98,13 @@ Alles aus `re-local/reference/` (Referenzfall R1, `docs/testdaten.md`), Eingabe 
 `jupiter-stack.tif`. Ausgewertet mit einem Python-Skript (numpy), **nicht** mit dem Rust-Code. Es liegt nicht im
 Repository; die Schritte stehen hier, damit sie sich wiederholen lassen.
 
-1. **Standardwerte (`jupiter-wavelet-default.tif`) verändern das Bild nur durch eine Tonwertkennlinie.**
+1. **Standardwerte (`jupiter-wavelet-default.tif`) verändern das Bild nur durch eine Tonwertkennlinie** (im Klon umgesetzt, Abschnitt oben).
    Dasselbe Eingabe-Sample ergibt immer dasselbe Ausgabe-Sample (Streuung 0 bei 1448 verschiedenen Werten im
    Rotkanal), die Zuordnung ist für alle drei Kanäle gleich. Es gibt keinen räumlichen Anteil. Die Kennlinie
    macht das Bild leicht dunkler und ist leicht gekrümmt: `y ≈ 0,98394·x + 0,01534·x² + 0,0003` (x, y auf 0…1
-   bezogen; größte Abweichung der Näherung 9 von 65535 oberhalb von 3000). Sie gehört nicht zu den Wavelets; woher sie
-   kommt (Contrast/Brightness 100/0, ein Skalierungsschritt?) ist offen und ein Fall für RK-008.
+   bezogen; größte Abweichung der Näherung 9 von 65535 oberhalb von 3000). Die genauere Form ist ein Polynom dritten Grades
+   ohne quadratischen Anteil (Abschnitt Tonkennlinie; die größte Streuung bei gleichem Eingabewert ist 1, nicht 0, durch Rundung).
+   Woher sie kommt, ist offen.
 2. **Ebene 1 auf 10.0 (`jupiter-wavelet-l1-10.tif`)**: Die Differenz zur Standardausgabe lässt sich als lineares
    Filter des Summenbilds beschreiben. Eine freie 7×7-Anpassung (R² = 0,979) liefert Gewichte
    Mitte 1,649 · Kreuz-Nachbarn −0,3875 · Diagonalen −0,023 · alles andere unter 0,003, Summe ≈ 0. Das ist
@@ -99,12 +138,15 @@ Maßnahmen aus `docs/gui-toolkit.md` (Spike):
 - **Übertragung**: weiter per `invoke` mit Binärantwort. Eigenes URI-Schema oder `Channel` sind **nicht umgesetzt und
   nicht gemessen**.
 - **Messung**: `crates/core/tests/wavelet_preview_timing.rs` (ignoriert, nur im Release-Build sinnvoll) misst einen
-  Reglerschritt im 512-px-Bereich bei 1024×680 und 2048×2048 gegen 50 ms (20 Bilder/s). **Noch nicht gelaufen, es gibt
-  keine Messwerte.** Die Übertragung steckt darin nicht, sie wird in Phase 2 mit der Oberfläche gemessen (Spike:
+  Reglerschritt im 512-px-Bereich bei 1024×680 und 2048×2048 gegen 50 ms (20 Bilder/s). **Gemessen am 2026-11-11** (Release-Build, Tonkennlinie eingerechnet):
+  1024×680: erste Vorschau 31,1 ms, Reglerschritt 4,8 ms (Median aus 15); 2048×2048: 27,5 ms und 3,7 ms. Die Übertragung steckt darin nicht, sie wird in Phase 2 mit der Oberfläche gemessen (Spike:
   rund 35 ms für 1024×680-RGBA und 20 Bilder/s, 5,3 Bilder/s bei 2048²).
 
-**Do All** (`process`) rechnet das ganze Bild im Strom (drei Puffer, nicht sieben) und liefert ein Bild ohne
-Begrenzung auf 0…1; beim Speichern wird begrenzt.
+**Do All** (`wavelet::do_all`) rechnet das ganze Bild im Strom (drei Puffer, nicht sieben), dann Kennlinie und Farbbehandlung
+(`output::finish`), und liefert ein auf 0…1 begrenztes Bild. Die Vorschau ruft dieselbe `finish`-Funktion auf ihrem Ausschnitt
+auf, die Pixel sind gleich (Test `preview_equals_do_all_in_every_colour_mode`). Außerhalb der Processing Area zeigt das Bild
+im Fenster weiter das Summenbild ohne Kennlinie, bis *Do All* gelaufen ist; am Rand der Area ist deshalb ein leichter
+Helligkeitssprung zu sehen.
 
 ## Anbindung im Wavelet-Reiter (`app/src/wavelet.ts`, `app/src/logic/wavelet.ts`)
 
@@ -132,8 +174,8 @@ Einstellungen gehen als JSON mit den Feldern von `WaveletSettings` (camelCase): 
 |---|---|
 | `wavelet_default_settings()` | Werte für *Reset Wavelets* |
 | `wavelet_set_source_frame(index)` | Platzhalter: Frame der Aufnahme als Bild des Reiters, bis RK-006 `WaveletState::set_source` nach *Stack* aufruft |
-| `wavelet_preview(settings \| null, area)` | Vorschau. Antwort binär: x, y, Breite, Höhe (4 × u32 LE, der auf das Bild zugeschnittene Bereich), dann RGBA. `null` = unbearbeitet (*Before*) |
-| `wavelet_do_all(settings)` | ganzes Bild; Antwort binär wie `read_frame` (Breite, Höhe als u32 LE, RGBA). Das Ergebnis bleibt in `WaveletState::processed()` für *Save image* (RK-009) |
+| `wavelet_preview(settings \| null, area, mode)` | Vorschau mit Kennlinie und Farbbehandlung wie *Do All*; `mode` ist `"colour"`, `"lrgb"` oder `"gray"`. Antwort binär: x, y, Breite, Höhe (4 × u32 LE, der auf das Bild zugeschnittene Bereich), dann RGBA. `null` = unbearbeitet (*Before*) |
+| `wavelet_do_all(settings, mode)` | ganzes Bild mit Kennlinie und Farbbehandlung; Antwort binär wie `read_frame` (Breite, Höhe als u32 LE, RGBA). Das Ergebnis bleibt in `WaveletState::processed()` für *Save image* (RK-009) |
 | `save_wavelet_scheme(path, settings)` / `load_wavelet_scheme(path)` | `.rwv` schreiben und lesen |
 
 ## Schemadateien
@@ -152,13 +194,21 @@ Gerechnet wird mit 16-Bit-Spitzenwert 65535, Eingabe ist das Original-Summenbild
 | Schwelle | Was sie prüft | Wert |
 |---|---|---|
 | A, Ticket | Ergebnis gegen die Original-Ausgabe bei gleichen Reglerwerten (Standard und Ebene 1 = 10.0) | **≥ 45 dB** |
-| B, streng | Ebene 1 = 10.0, vorher die Kennlinie des Originals (Punkt 1 oben) angewendet | **≥ 65 dB** |
+| B, streng | Ebene 1 = 10.0, Ergebnis des Klons mit seiner Kennlinie direkt gegen die Referenz | **≥ 65 dB** |
+| C, Kennlinie | Standardwerte direkt gegen die Referenz. Die Kennlinie ist an genau diesem Bild angepasst, die Schwelle schützt sie, nicht die Schärfung | **≥ 85 dB** |
 
 Warum zwei: Das Summenbild liegt schon bei 55,6 dB zur Standardausgabe und bei 52,8 dB zur Ebene-1-Ausgabe, A
 besteht also auch ein Klon, der gar nicht schärft. B liegt klar über den 56,0 dB, die „Original-Standardausgabe gegen
 Original-Ebene-1“ erreicht, und beweist damit, dass die Schärfung stimmt. Für das Modell in Python wurden 85,2 dB
 ermittelt (Punkt 3 oben).
 
-Geprüft von `crates/io/tests/wavelet_reference.rs` (ohne `re-local/reference` übersprungen). **Noch nicht gelaufen:**
-Für den Rust-Code gibt es keinen gemessenen PSNR-Wert. Die Zahlen oben gehören zum Python-Modell. Die Kennlinie baut der
-Test aus den Referenzdateien, der Klon selbst enthält sie nicht.
+Geprüft von `crates/io/tests/wavelet_reference.rs` (ohne `re-local/reference` übersprungen; `PLANETS_RE_LOCAL` zeigt auf ein anderes
+`re-local/`, etwa aus einem Worktree). **Gemessen am 2026-11-11 mit dem Rust-Code**, Eingabe `jupiter-stack.tif`, Ergebnis auf 16 Bit gerundet:
+
+| Fall | Gemessen | Schwelle |
+|---|---|---|
+| Standardwerte gegen `jupiter-wavelet-default.tif` | **98,81 dB** (ohne Kennlinie 55,62 dB) | A 45, C 85 |
+| Ebene 1 = 10.0 gegen `jupiter-wavelet-l1-10.tif` | **84,73 dB** (ohne Kennlinie 55,61 dB, das Summenbild allein 52,84 dB) | A 45, B 65 |
+
+Der Wert für Ebene 1 liegt knapp unter den 85,2 dB des Python-Modells (dort mit der gemessenen Wertetabelle statt der Kurve, Ränder gespiegelt statt
+wiederholt). Für die Ebenen 2 bis 6, Dyadic, Denoise und die übrigen Werte gibt es keine Referenz.

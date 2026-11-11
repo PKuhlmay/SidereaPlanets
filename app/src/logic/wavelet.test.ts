@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createSettings, defaultLayer } from "./settings";
-import { fromBackend, linkedLevels, parsePreview, toBackend, writePreview } from "./wavelet";
+import { colourMode, fromBackend, linkedLevels, parsePreview, toBackend, writePreview } from "./wavelet";
 
 describe("values for the backend", () => {
   it("turns slider positions into factors and renames the fields", () => {
@@ -90,5 +90,17 @@ describe("preview", () => {
     expect(at(4, 2)).toBe(0);
     expect(at(1, 3)).toBe(0);
     expect(image.reduce((n, v) => n + (v > 0 ? 1 : 0), 0)).toBe(24);
+  });
+});
+
+describe("colour mode", () => {
+  it("maps the Colour and LRGB checkboxes", () => {
+    expect(colourMode(true, false)).toBe("colour");
+    expect(colourMode(true, true)).toBe("lrgb");
+    expect(colourMode(false, false)).toBe("gray");
+  });
+
+  it("ignores LRGB without Colour", () => {
+    expect(colourMode(false, true)).toBe("gray");
   });
 });
