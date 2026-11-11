@@ -9,7 +9,7 @@ import { watch } from "vue";
 import { runJob } from "./jobs";
 import { defaultLayer } from "./logic/settings";
 import { processingArea } from "./logic/viewport";
-import { colourMode, fromBackend, parsePreview, toBackend, writePreview, type BackendSettings } from "./logic/wavelet";
+import { colourMode, doAllIsCurrent, doAllKey, fromBackend, parsePreview, toBackend, writePreview, type BackendSettings } from "./logic/wavelet";
 import { session, settings, status } from "./state";
 
 // The design preview of dev builds runs in a plain browser; there is no backend to ask.
@@ -82,11 +82,26 @@ export async function process(): Promise<void> {
   await runJob("Wavelet", (job) => renderPreview(() => job.cancelled));
 }
 
+// The stacked image and the values the last finished Do All was made for.
+let lastDoAll: { stack: ImageData; key: string } | null = null;
+
+/** Whether the result of the last Do All (what Save image writes) matches the stack and the values on screen. */
+export const doAllIsUpToDate = (): boolean => doAllIsCurrent(lastDoAll, session.stackImage, doAllKey(settings.wavelet, mode()));
+
 /**
  * Do All: applies the values to the whole image. Cancel and Pause reach the backend between two layers; a cancelled
  * run leaves the earlier result, here and in the backend (what Save image writes), as it was.
  */
 export async function doAll(): Promise<void> {
+  await runDoAll();
+}
+
+/** [`doAll`] that tells whether the run finished; Cancel and an error give `false`. */
+export async function runDoAll(): Promise<boolean> {
+  let finished = false;
+  // The values are read now: they belong to this run even if a slider moves while it works.
+  const stack = session.stackImage;
+  const key = doAllKey(settings.wavelet, mode());
   await runJob("Wavelet", async (job) => {
     job.progress(0, 1, "Do_all processing");
     // The backend reports each finished layer.
@@ -107,8 +122,11 @@ export async function doAll(): Promise<void> {
     session.processedImage = new ImageData(new Uint8ClampedArray(buffer, 8, width * height * 4), width, height);
     // The next preview starts from the stack again, so that its area is not painted over this result.
     working = null;
+    if (stack === session.stackImage && stack) lastDoAll = { stack, key };
+    finished = true;
     return "Do All finished";
   });
+  return finished;
 }
 
 // Load Scheme and Save Scheme. The dialog is the one place RK-009 replaces with its `pick_scheme_path` command.
@@ -168,6 +186,10 @@ watch(
     void refreshPreview();
     // Automatic: once the values stop changing, apply them to the whole image as well.
     window.clearTimeout(automatic);
-    if (settings.wavelet.automatic) automatic = window.setTimeout(() => void doAll(), AUTOMATIC_DELAY_MS);
+    if (settings.wavelet.automatic) {
+      automatic = window.setTimeout(() => {
+        if (session.stackImage) void doAll();
+      }, AUTOMATIC_DELAY_MS);
+    }
   },
 );

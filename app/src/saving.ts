@@ -11,6 +11,7 @@ import { applyProject, buildProject, type ProjectFile } from "./logic/projectfil
 import { fileName } from "./logic/recent";
 import { buildSequenceRequest } from "./logic/stack";
 import { openRecording } from "./recording";
+import { doAllIsUpToDate, runDoAll } from "./wavelet";
 import { session, settings, status } from "./state";
 
 export type ImageSource = "stack" | "wavelet";
@@ -35,10 +36,14 @@ const message = (action: string, error: unknown) => `${action}: ${String(error)}
 /**
  * Save image: the stacked image in the Stack tab, the processed one in the Wavelet tab. In the Wavelet tab the file is
  * written the way the window shows it, with the values of the colour and tone cards applied; the Stack tab shows the
- * stack as it is.
+ * stack as it is. If the layer values, Colour or LRGB changed since the last Do All, or none ran yet, Do All runs
+ * first with the current values (as a job, so it shows progress and can be cancelled); a cancelled or failed Do All
+ * saves nothing.
  */
 export async function saveImage(): Promise<void> {
+  if (status.busy) return;
   const source: ImageSource = session.tab === "wavelet" ? "wavelet" : "stack";
+  if (source === "wavelet" && !doAllIsUpToDate() && !(await runDoAll())) return;
   const values = colourPayload(settings.wavelet);
   try {
     const path = await invoke<string | null>("save_image_as", {

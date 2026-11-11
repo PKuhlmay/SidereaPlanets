@@ -3,7 +3,7 @@
 // logic/*.test.ts; this file is about the seams between the steps (which frame the points belong to, the state
 // after Cancel or an error, what a new stack makes obsolete).
 
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 type Args = Record<string, unknown> | undefined;
 
@@ -117,6 +117,7 @@ function installBackend() {
     wavelet_do_all: () => imageBuffer(),
     cancel_processing: () => undefined,
     cancel_stacking: () => undefined,
+    save_image_as: () => "C:/out/JUPITER.tif",
     cancel_wavelet: () => undefined,
     pause_wavelet: () => undefined,
   };
@@ -471,6 +472,114 @@ describe("Do All and Process: Cancel and Pause", () => {
     backend.handlers.wavelet_preview = () => area(0);
     await process();
     expect(session.processedImage).toMatchObject({ width: W, height: H });
+  });
+});
+
+describe("Save image in the Wavelet tab", () => {
+  const order = () => backend.calls.map((c) => c.command).filter((c) => c === "wavelet_do_all" || c === "save_image_as");
+
+  async function inWaveletTab() {
+    await runAction("setAlignpoints");
+    await runAction("align");
+    await runAction("limit");
+    await runAction("stack");
+    session.tab = "wavelet";
+    backend.calls = [];
+  }
+
+  afterEach(() => {
+    settings.wavelet.layers[0]!.level = 10;
+    settings.wavelet.contrast = 250;
+    settings.colour = true;
+    settings.lrgb = false;
+  });
+
+  it("runs Do All with the current values first when none ran yet, then saves", async () => {
+    await inWaveletTab();
+    settings.wavelet.layers[0]!.level = 100;
+    await runAction("saveImage");
+    expect(order()).toEqual(["wavelet_do_all", "save_image_as"]);
+    const sent = calls("wavelet_do_all")[0]?.args as { settings: { layers: { gain: number }[] } };
+    expect(sent.settings.layers[0]?.gain).toBe(10);
+    expect(calls("save_image_as")[0]?.args).toMatchObject({ source: "wavelet" });
+    expect(status.result).toBe("Saved JUPITER.tif");
+  });
+
+  it("saves the result of the last Do All when nothing changed since", async () => {
+    await inWaveletTab();
+    await runAction("doAll");
+    await runAction("saveImage");
+    expect(order()).toEqual(["wavelet_do_all", "save_image_as"]);
+  });
+
+  it("runs Do All again after a slider moved", async () => {
+    await inWaveletTab();
+    await runAction("doAll");
+    settings.wavelet.layers[0]!.level = 60;
+    await runAction("saveImage");
+    expect(order()).toEqual(["wavelet_do_all", "wavelet_do_all", "save_image_as"]);
+  });
+
+  it("runs Do All again after Colour or LRGB changed", async () => {
+    await inWaveletTab();
+    await runAction("doAll");
+    settings.lrgb = true;
+    await runAction("saveImage");
+    expect(order()).toEqual(["wavelet_do_all", "wavelet_do_all", "save_image_as"]);
+    expect(calls("wavelet_do_all")[1]?.args).toMatchObject({ mode: "lrgb" });
+  });
+
+  it("does not run Do All for the colour and tone cards, which are applied while saving", async () => {
+    await inWaveletTab();
+    await runAction("doAll");
+    settings.wavelet.contrast = 300;
+    await runAction("saveImage");
+    expect(order()).toEqual(["wavelet_do_all", "save_image_as"]);
+    expect(calls("save_image_as")[0]?.args?.adjustments).not.toBeNull();
+  });
+
+  it("runs Do All again for a new stack, although the values are the same", async () => {
+    await inWaveletTab();
+    await runAction("doAll");
+    await runAction("stack");
+    session.tab = "wavelet";
+    await runAction("saveImage");
+    expect(order()).toEqual(["wavelet_do_all", "wavelet_do_all", "save_image_as"]);
+  });
+
+  it("saves nothing when the automatic Do All is cancelled", async () => {
+    await inWaveletTab();
+    const running = pending();
+    backend.handlers.wavelet_do_all = () => running.promise;
+    const saving = runAction("saveImage");
+    await vi.waitFor(() => expect(calls("wavelet_do_all")).toHaveLength(1));
+    expect(status.busy?.name).toBe("Wavelet");
+
+    const cancelling = cancelJob();
+    running.reject("cancelled");
+    await Promise.all([saving, cancelling]);
+
+    expect(calls("cancel_wavelet")).toHaveLength(1);
+    expect(calls("save_image_as")).toHaveLength(0);
+    expect(status.result).toBe("Cancelled");
+  });
+
+  it("saves nothing when Do All fails", async () => {
+    await inWaveletTab();
+    backend.handlers.wavelet_do_all = () => {
+      throw new Error("no image to sharpen");
+    };
+    await runAction("saveImage");
+    expect(calls("save_image_as")).toHaveLength(0);
+    expect(status.result).toContain("no image to sharpen");
+  });
+
+  it("leaves the Stack tab alone: it saves the stack without Do All", async () => {
+    await inWaveletTab();
+    session.tab = "stack";
+    await runAction("saveImage");
+    expect(order()).toEqual(["save_image_as"]);
+    expect(calls("save_image_as")[0]?.args).toMatchObject({ source: "stack" });
   });
 });
 

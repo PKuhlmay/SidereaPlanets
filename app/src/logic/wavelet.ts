@@ -31,6 +31,19 @@ export function colourMode(colour: boolean, lrgb: boolean): ColourMode {
   return lrgb ? "lrgb" : "colour";
 }
 
+/**
+ * What a Do All result depends on: the values of the layers and the colour mode. The Processing Area only decides
+ * what the preview shows, and the colour and tone cards are applied when the image is saved, so neither belongs here.
+ */
+export function doAllKey(values: WaveletValues, mode: ColourMode): string {
+  return JSON.stringify([toBackend(values), mode]);
+}
+
+/** Whether the last Do All (`done`) was made for this stacked image with these values. */
+export function doAllIsCurrent<T>(done: { stack: T; key: string } | null, stack: T | null, key: string): boolean {
+  return done !== null && stack !== null && done.stack === stack && done.key === key;
+}
+
 /** The slider position is ten times the factor of the layer (10 = 1.0). */
 export function toBackend(values: WaveletValues): BackendSettings {
   return {

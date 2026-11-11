@@ -7,7 +7,7 @@ order: 8
 
 Press **Save image** to write a result to a file. The button is on the Stack tab (the stacked image) and on the Wavelet tab (the sharpened image). The file dialog is the one of your operating system.
 
-On the Wavelet tab the file looks like the image in the window: the values of RGB Align, RGB Balance, Histogram, Gamma and Contrast/Brightness are applied to the sharpened image before it is written, at full precision (not from the 8 bit picture on screen). With all of them at their start values the sharpened image is written unchanged. The Stack tab shows the stack without these values and saves it the same way. The sharpened image is the result of **Do All**; run it before you save.
+On the Wavelet tab the file looks like the image in the window: the values of RGB Align, RGB Balance, Histogram, Gamma and Contrast/Brightness are applied to the sharpened image before it is written, at full precision (not from the 8 bit picture on screen). With all of them at their start values the sharpened image is written unchanged. The Stack tab shows the stack without these values and saves it the same way. The sharpened image is the result of **Do All**. You do not have to run it before you save: see below.
 
 ## Choosing the format
 
@@ -26,7 +26,7 @@ Pressing **Save image** first opens a short list of file types: seven on the Sta
 - **For further processing** in other programs choose TIFF or PNG (16 bit), or FITS if the program expects astronomy files. They keep the fine tonal steps that sharpening produces.
 - **For sharing** choose JPEG. It is smaller, but loses some detail.
 - Black is the lowest value and white the highest value of the format, so a 16 bit file uses the full range from 0 to 65535. the reference program writes 16 bit files as its 8 bit image times 256 (at most 65280); if you compare files of both programs, divide the the reference program values by 256.
-- **Save image** on the Wavelet tab writes the result of the last **Do All**. After a change of the sliders, or after a new **Stack**, press **Do All** again first; **Process** only changes the preview area and is not saved. The colour and tone cards are not part of the file yet.
+- **Save image** on the Wavelet tab writes what the current settings produce. If you moved a slider, changed a value of a layer, switched **Colour** or **LRGB**, made a new **Stack**, or have not pressed **Do All** yet, SidereaPlanets runs **Do All** with the current values first and then saves. That run shows progress like any other and can be cancelled with **Cancel**; if you cancel it, or it fails, nothing is saved and the status bar says so. If nothing changed since the last **Do All**, the file is written at once. Changing the Processing Area does not start a new **Do All**, because it only decides what the preview shows. The colour and tone cards (RGB Align, RGB Balance, Histogram, Gamma, Contrast/Brightness) are applied when the file is written, so they never need a new **Do All**. **Process** only changes the preview area and is not saved.
 - A colour image is written with its three channels in one file. A single FITS file holds them as three planes (red, green, blue). Black and white images stay single channel.
 
 > An existing file with the same name is replaced only when the new file was written completely. If saving fails, the old file stays as it was.

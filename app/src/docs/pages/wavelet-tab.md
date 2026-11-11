@@ -13,7 +13,7 @@ The third step: bring out fine detail in the stacked image. The tab opens after 
 |---|---|---|
 | Process | Calculates the preview area with the current settings | Works. **Cancel** drops the result |
 | Do All | Applies the settings to the whole image | Works, with progress; **Cancel** and **Pause** work, see [Progress, Cancel and Pause](progress-cancel-pause) |
-| Save image | Saves the sharpened image from the last **Do All**, with the colour and tone values applied (see [Save and export](save-and-export)) | Works |
+| Save image | Saves the sharpened image with the current settings, with the colour and tone values applied; runs **Do All** first if the settings changed since the last one (see [Save and export](save-and-export)) | Works |
 | Realign with Processed | Aligns again with the sharpened image | Not available yet |
 | Stack Again | Stacks again | Locked, as in the reference program |
 | Functions » | Shows or hides the Functions panel on the right | Works |
