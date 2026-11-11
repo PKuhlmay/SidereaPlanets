@@ -1,15 +1,27 @@
 <script setup lang="ts">
 import { runAction } from "../actions";
 import { defaultLayer, formatPreview, LAYER_RANGE } from "../logic/settings";
+import { linkedLevels } from "../logic/wavelet";
 import { session, settings } from "../state";
 import NumberField from "./NumberField.vue";
 
-// Left panel of the Wavelet tab. The values are collected here; the Wavelet ticket (RK-007) reads them from
-// `settings.wavelet` and calculates the preview whenever a layer changes.
+// Left panel of the Wavelet tab. The values live in `settings.wavelet`; wavelet.ts calculates the preview whenever
+// one of them changes.
 const wavelet = settings.wavelet;
 
 function resetWavelets() {
   wavelet.layers.forEach((layer) => Object.assign(layer, defaultLayer()));
+}
+
+// With Use Linked Wavelets a moved slider takes the others along.
+function moveSlider(index: number, event: Event) {
+  const next = linkedLevels(
+    wavelet.layers.map((l) => l.level),
+    index,
+    Number((event.target as HTMLInputElement).value),
+    wavelet.linked,
+  );
+  next.forEach((level, i) => (wavelet.layers[i].level = level));
 }
 </script>
 
@@ -43,7 +55,7 @@ function resetWavelets() {
         <NumberField v-model="layer.denoise" :decimals="2" :step="0.01" :label="`Denoise layer ${i + 1}`" />
         <NumberField v-model="layer.sharpen" :decimals="3" :step="0.005" :label="`Sharpen layer ${i + 1}`" />
         <button type="button" class="btn small" :title="`Preview layer ${i + 1}`" @click="runAction('previewLayer')">{{ formatPreview(layer.level) }}</button>
-        <input v-model.number="layer.level" type="range" :min="LAYER_RANGE.min" :max="LAYER_RANGE.max" :aria-label="`Layer ${i + 1}`" />
+        <input :value="layer.level" type="range" :min="LAYER_RANGE.min" :max="LAYER_RANGE.max" :aria-label="`Layer ${i + 1}`" @input="moveSlider(i, $event)" />
       </div>
     </div>
 

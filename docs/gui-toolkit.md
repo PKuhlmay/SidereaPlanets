@@ -57,6 +57,12 @@ ein Lauf, synthetisches Graustufenbild. Je Größe 3 Aufwärm- und 15 Messläufe
 - Frames statt per `invoke` über ein eigenes URI-Schema oder `Channel` holen. **Nicht gemessen**, möglicherweise schneller.
 - Neu messen, sobald die echte Wavelet-Rechnung dabei ist; ihre Zeit steckt in den obigen Zahlen nicht drin.
 
+**Stand RK-007:** Ausschnitt mit Rand, gespeicherte Ebenen und parallele RGBA-Umwandlung sind umgesetzt
+(`crates/core/src/wavelet/preview.rs`, Beschreibung in `docs/wavelets.md`). Ein Messlauf mit der echten Rechnung
+(`crates/core/tests/wavelet_preview_timing.rs`, ignoriert, Release) ist geschrieben, aber **noch nicht gelaufen**; Messwerte
+fehlen. URI-Schema oder `Channel` sind nicht umgesetzt. Die Oberfläche zeigt die Zeit jeder Vorschau (Anfrage bis Zeichnen)
+in der Statusleiste („Preview: n ms“), damit sich die Übertragung am laufenden Programm messen lässt; ein Wert liegt noch nicht vor.
+
 ### Grenzen der Messung
 - Eine Maschine, ein Lauf, ein synthetisches Bild; keine echte Verarbeitung.
 - macOS (WKWebView) und Linux (WebKitGTK) nicht gemessen, dort kann die Übertragung anders aussehen.

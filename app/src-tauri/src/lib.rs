@@ -1,5 +1,6 @@
 mod align_commands;
 mod stack_commands;
+mod wavelet_commands;
 
 use planets_io::recording::{Recording, RecordingInfo as IoInfo};
 use serde::Serialize;
@@ -78,6 +79,7 @@ pub fn run() {
         .manage(AppState::default())
         .manage(align_commands::AlignState::default())
         .manage(stack_commands::StackState::default())
+        .manage(wavelet_commands::WaveletState::default())
         .invoke_handler(tauri::generate_handler![
             open_recording,
             read_frame,
@@ -91,6 +93,12 @@ pub fn run() {
             stack_commands::stacked_image,
             stack_commands::cancel_stacking,
             stack_commands::pause_stacking,
+            wavelet_commands::wavelet_default_settings,
+            wavelet_commands::wavelet_set_source_frame,
+            wavelet_commands::wavelet_preview,
+            wavelet_commands::wavelet_do_all,
+            wavelet_commands::save_wavelet_scheme,
+            wavelet_commands::load_wavelet_scheme,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

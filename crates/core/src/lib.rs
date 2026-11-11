@@ -2,6 +2,7 @@
 
 pub mod align;
 pub mod stack;
+pub mod wavelet;
 
 /// Luminance weights for red, green and blue (default of *Settings ▸ Luminance Setting*, `docs/ui.md`).
 pub const LUMA_WEIGHTS: [f32; 3] = [0.299, 0.587, 0.114];

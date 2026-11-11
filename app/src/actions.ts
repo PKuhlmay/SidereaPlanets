@@ -3,14 +3,16 @@
 //
 //   RK-005  setAlignpoints, align, limit, noAlign, regionOfInterest, scanFrames, emptyList
 //   RK-006  stack, saveAligned, saveIntegrated
-//   RK-007  process, doAll, realign, stackAgain, resetWavelets is already done in the panel
+//   RK-007  process, doAll, loadScheme, saveScheme (registered below, wavelet.ts); realign and stackAgain wait for
+//           RK-005/RK-006; resetWavelets is done in the panel
 //   RK-008  functions panels, copyTo, loadTo, difference
-//   RK-009  saveImage, loadScheme, saveScheme, darkframe/flatfield/reference menu entries
+//   RK-009  saveImage, darkframe/flatfield/reference menu entries
 //
 // A handler normally calls runJob (jobs.ts) so that progress, Cancel and Pause work.
 
 import { stack } from "./stack";
 import { status } from "./state";
+import { doAll, loadScheme, process, saveScheme } from "./wavelet";
 
 export const actionLabels = {
   setAlignpoints: "Set Alignpoints",
@@ -44,6 +46,10 @@ export type ActionId = keyof typeof actionLabels;
 
 export const handlers: Partial<Record<ActionId, () => void | Promise<void>>> = {
   stack,
+  process,
+  doAll,
+  loadScheme,
+  saveScheme,
 };
 
 /** The message shown in the status bar for a button without a function. */

@@ -1,0 +1,164 @@
+# Wavelet-Schärfung (RK-007)
+
+Was der Rechenkern (`crates/core/src/wavelet/`) tut, was davon am Original **belegt** ist und was **geraten**.
+Bedienelemente und Standardwerte stehen in `docs/ui.md`, der Ablauf in `docs/workflow.md` (Abschnitt 4), das
+Schemaformat in `docs/formats.md`. Offene Punkte: `docs/offene-fragen.md` (ab Frage 22).
+
+## Modell
+
+Das Bild wird in sechs Detailebenen und einen Rest zerlegt. Ebene `n` ist die Differenz zwischen dem
+`n−1`-mal und dem `n`-mal geglätteten Bild, enthält also die Strukturen einer Größenordnung (Ebene 1 die
+feinsten). Jede Ebene bekommt Verstärkung, optional Entrauschen, dann wird alles wieder addiert:
+
+```
+G0 = Bild,  G(n) = Glätten(G(n−1), Abstand_n)
+Ebene_n    = G(n−1) − G(n)
+Ergebnis   = Bild + Σ_n ( Gain_n · Denoise(Ebene_n) − Ebene_n )      // Rest = G6, bleibt unverändert
+```
+
+Bei neutralen Einstellungen (alle Regler 1.0, Denoise 0) ist das Ergebnis **bitgleich** das Eingabebild.
+Jeder Farbkanal wird für sich gerechnet. Ebenen, die nichts ändern, kosten nichts; hinter der letzten
+veränderten Ebene wird nicht weiter zerlegt.
+
+### Glätten
+
+Getrennter 3- bzw. 5-Tap-Kern (erst waagerecht, dann senkrecht), Taps `Abstand_n` Pixel auseinander
+(à trous), Bildränder durch Wiederholen der Randpixel.
+
+| Wavelet filter | Kern (eindimensional) | Stand |
+|---|---|---|
+| Gaussian (Standard) | `0.05 · 0.90 · 0.05` | **belegt** für Ebene 1 (siehe unten) |
+| Default | B3-Spline `1 4 6 4 1 / 16` | **geraten** (übliche Wahl bei à-trous-Wavelets) |
+
+| Waveletscheme | Abstand der Taps in Ebene `n` (n ab 0) | Stand |
+|---|---|---|
+| Linear (Standard) | `Initial + n · (1 + Step)`, mit Standardwerten 1, 2, 3, 4, 5, 6 | Ebene 1 **belegt**, Rest **geraten** |
+| Dyadic (2^n) | `Initial · 2^n`: 1, 2, 4, 8, 16, 32 | **geraten** |
+
+Wegen des Taps-Abstands hängt ein Pixel des Ergebnisses von Pixeln bis zu `Σ Abstand · Reichweite` entfernt ab
+(Standard 21 px, Dyadic mit Gaussian 63 px). Diesen Rand (`Structure::margin`) rechnet die Vorschau mit.
+
+### Einstellungen je Ebene
+
+| Feld | Wirkung im Klon | Stand |
+|---|---|---|
+| Regler (Gain, −5.0 … 100.0, Reglerposition ÷ 10) | Faktor der Ebene, 1.0 = unverändert, 0 = Ebene entfernt, negativ kehrt sie um | **belegt** für Ebene 1 mit 10.0 |
+| Sharpen (Standard 0.100) | skaliert die Abweichung des Reglers von 1.0: `1 + (Gain − 1) · Sharpen / 0.1`. Bei 0.100 wirkt der Regler genau wie angezeigt | **geraten**, nur der Wert 0.100 ist belegt |
+| Denoise (Standard 0.00) | Soft-Threshold der Ebene vor der Verstärkung: Schwelle = `Denoise · σ`, σ = 1,4826 · Median der Beträge der Ebene (je Kanal). 0 = aus | **geraten** |
+| Häkchen | aus = Ebene bleibt unverändert (Gain 1, kein Denoise) | **geraten** |
+
+Grenzen: Der Klon begrenzt Gain auf −5 … 100 (wie die Regler des Originals), Denoise und Sharpen auf 0 … 100,
+Initial Layer auf 1 … 64, Step Increment auf 0 … 64 (`WaveletSettings::clamped`). Das Original lässt beim Tippen
+beliebige Werte zu (`docs/offene-fragen.md`, Frage 1).
+
+*Automatic*, *Hold Wavelet Setting*, *Use Linked Wavelets* und die Schaltfläche *Preview* je Ebene betreffen nur
+die Bedienung und liegen nicht im Rechenkern (RK-007 Phase 2).
+
+## Was am Original beobachtet wurde
+
+Alles aus `re-local/reference/` (Referenzfall R1, `docs/testdaten.md`), Eingabe ist das Original-Summenbild
+`jupiter-stack.tif`. Ausgewertet mit einem Python-Skript (numpy), **nicht** mit dem Rust-Code. Es liegt nicht im
+Repository; die Schritte stehen hier, damit sie sich wiederholen lassen.
+
+1. **Standardwerte (`jupiter-wavelet-default.tif`) verändern das Bild nur durch eine Tonwertkennlinie.**
+   Dasselbe Eingabe-Sample ergibt immer dasselbe Ausgabe-Sample (Streuung 0 bei 1448 verschiedenen Werten im
+   Rotkanal), die Zuordnung ist für alle drei Kanäle gleich. Es gibt keinen räumlichen Anteil. Die Kennlinie
+   macht das Bild leicht dunkler und ist leicht gekrümmt: `y ≈ 0,98394·x + 0,01534·x² + 0,0003` (x, y auf 0…1
+   bezogen; größte Abweichung der Näherung 9 von 65535 oberhalb von 3000). Sie gehört nicht zu den Wavelets; woher sie
+   kommt (Contrast/Brightness 100/0, ein Skalierungsschritt?) ist offen und ein Fall für RK-008.
+2. **Ebene 1 auf 10.0 (`jupiter-wavelet-l1-10.tif`)**: Die Differenz zur Standardausgabe lässt sich als lineares
+   Filter des Summenbilds beschreiben. Eine freie 7×7-Anpassung (R² = 0,979) liefert Gewichte
+   Mitte 1,649 · Kreuz-Nachbarn −0,3875 · Diagonalen −0,023 · alles andere unter 0,003, Summe ≈ 0. Das ist
+   „Bild minus leicht geglättetes Bild“, mit dem getrennten Kern `0.05 · 0.90 · 0.05` und einem Faktor
+   9 = 10 − 1.
+3. **Modell gegen die Referenz**: `L ≈ f(S + 9·(S − K·S))` mit `K` = getrennter Kern, `f` die Kennlinie aus Punkt 1
+   (Tabelle aus Eingabe/Standardausgabe), ergibt gegen `jupiter-wavelet-l1-10.tif` **85,2 dB** (Ränder gespiegelt).
+   Schon kleine Abweichungen verschlechtern das deutlich: Tap 0,045 → 75,4 dB, 0,055 → 76,6 dB, Faktor 8 oder 10 →
+   höchstens 75,5 dB. Ohne Kennlinie sind es 55,5 dB.
+
+Damit sind **Kernform und Verstärkung von Ebene 1** bei Linear, Gaussian, Sharpen 0.100, Initial 1, Step 0 und
+Denoise 0 gut belegt. Dass `0.05 = Sharpen / 2` ist, passt, belegt aber nicht, dass Sharpen die Kernbreite steuert
+(Frage 24).
+
+**Nicht gegen das Original geprüft** (es gibt dazu keine Referenzdatei): Ebenen 2 bis 6, Dyadic, der Filter
+Default, Denoise, Sharpen ungleich 0.100, Initial Layer und Step Increment ungleich 1 und 0, abgeschaltete Häkchen.
+Dafür bräuchte es weitere Läufe mit dem Original (Vorschlag in Frage 23).
+
+## Vorschau und Do All
+
+Maßnahmen aus `docs/gui-toolkit.md` (Spike):
+
+- **Ausschnitt statt Gesamtbild**: `Previewer::render` verarbeitet nur den Bereich (*Processing Area*, Standard
+  512 px, `Region::centered`) plus den Rand, den die Ebenen brauchen. Das Ergebnis ist pixelgleich zum
+  entsprechenden Ausschnitt von `process`. Einziger Unterschied: das Rauschmaß für *Denoise* wird aus dem
+  verarbeiteten Bereich geschätzt, nicht aus dem ganzen Bild.
+- **Ebenen bleiben erhalten**: Die Zerlegung (sechs Ebenen des Bereichs) wird nur neu gebaut, wenn sich Waveletscheme,
+  Filter, Initial Layer oder Step Increment ändern oder der Bereich den gespeicherten verlässt. Ein Regler, Denoise
+  oder Sharpen ändern nur die Summe; Ebenen, die nichts ändern, entfallen dabei ganz.
+- **RGBA mit `rayon`**: `rgba_region` wandelt zeilenweise parallel um und schneidet dabei den Bereich aus.
+- **Übertragung**: weiter per `invoke` mit Binärantwort. Eigenes URI-Schema oder `Channel` sind **nicht umgesetzt und
+  nicht gemessen**.
+- **Messung**: `crates/core/tests/wavelet_preview_timing.rs` (ignoriert, nur im Release-Build sinnvoll) misst einen
+  Reglerschritt im 512-px-Bereich bei 1024×680 und 2048×2048 gegen 50 ms (20 Bilder/s). **Noch nicht gelaufen, es gibt
+  keine Messwerte.** Die Übertragung steckt darin nicht, sie wird in Phase 2 mit der Oberfläche gemessen (Spike:
+  rund 35 ms für 1024×680-RGBA und 20 Bilder/s, 5,3 Bilder/s bei 2048²).
+
+**Do All** (`process`) rechnet das ganze Bild im Strom (drei Puffer, nicht sieben) und liefert ein Bild ohne
+Begrenzung auf 0…1; beim Speichern wird begrenzt.
+
+## Anbindung im Wavelet-Reiter (`app/src/wavelet.ts`, `app/src/logic/wavelet.ts`)
+
+- Jede Änderung der Werte (Regler, Denoise, Sharpen, Häkchen, Scheme, Filter, Initial, Step), der Processing Area oder des
+  Summenbilds fordert `wavelet_preview` für die Processing Area an (`processingArea` aus `logic/viewport.ts`, gleiche
+  Rundung wie `Region::centered`). Es läuft immer nur eine Anfrage, weitere Änderungen werden zu einer zusammengefasst.
+- Die Antwort wird in einen Puffer geschrieben, der eine Kopie des Summenbilds ist; `session.processedImage` teilt sich
+  diesen Puffer, eine Vorschau kostet also nur den Bereich. Außerhalb der Processing Area bleibt das Summenbild.
+- Die Statusleiste zeigt die Zeit von Anfrage bis Zeichnen (`Preview: n ms`). Das ist die Messung der Übertragung, die
+  `docs/gui-toolkit.md` verlangt; **es liegen noch keine Messwerte vor** (App nicht gestartet).
+- **Process** und **Do All** laufen über `runJob`. Do All ersetzt `session.processedImage` durch das ganze Bild.
+- **Load Scheme / Save Scheme**: Dateidialog (Plugin `dialog`, Filter `.rwv`) in `pickSchemePath`, das ist die Stelle, die
+  RK-009 durch `pick_scheme_path` ersetzt.
+- **Realign with Processed** ist nicht angebunden (braucht Align/Stack, RK-005/RK-006).
+- Ohne gestapeltes Bild im Backend (`WaveletState::set_source` wurde nicht aufgerufen) meldet die Statusleiste
+  „no image to sharpen“. Solange RK-006 fehlt, ist der Reiter ohnehin gesperrt.
+- Automatic, Hold und Linked: geraten, siehe `docs/offene-fragen.md`, Frage 29.
+
+## Tauri-Befehle (`app/src-tauri/src/wavelet_commands.rs`)
+
+Einstellungen gehen als JSON mit den Feldern von `WaveletSettings` (camelCase): `scheme` (`"dyadic"`/`"linear"`),
+`filter` (`"default"`/`"gaussian"`), `initial`, `step`, `layers[6]` mit `enabled`, `gain`, `denoise`, `sharpen`.
+
+| Befehl | Zweck |
+|---|---|
+| `wavelet_default_settings()` | Werte für *Reset Wavelets* |
+| `wavelet_set_source_frame(index)` | Platzhalter: Frame der Aufnahme als Bild des Reiters, bis RK-006 `WaveletState::set_source` nach *Stack* aufruft |
+| `wavelet_preview(settings \| null, area)` | Vorschau. Antwort binär: x, y, Breite, Höhe (4 × u32 LE, der auf das Bild zugeschnittene Bereich), dann RGBA. `null` = unbearbeitet (*Before*) |
+| `wavelet_do_all(settings)` | ganzes Bild; Antwort binär wie `read_frame` (Breite, Höhe als u32 LE, RGBA). Das Ergebnis bleibt in `WaveletState::processed()` für *Save image* (RK-009) |
+| `save_wavelet_scheme(path, settings)` / `load_wavelet_scheme(path)` | `.rwv` schreiben und lesen |
+
+## Schemadateien
+
+Der Klon liest und schreibt das **`.rwv`-Format des Originals** (`docs/formats.md`), damit vorhandene Schemata weiter
+gelten. Zusätzlich gilt: Groß-/Kleinschreibung egal, fehlende Schlüssel behalten ihren Standardwert, unbekannte
+werden ignoriert, Werte werden auf die Grenzen oben gekürzt, ein Fehler nennt die Zeile. Geschrieben wird mit CRLF,
+byteidentisch zu `jupiter-l1-10.rwv`. Der Klon führt kein eigenes Format ein. RK-009 muss für *Available schemes* nur
+Ordner und Dateidialog ergänzen; Lesen und Schreiben stehen (`scheme::from_rwv`, `scheme::to_rwv`).
+Die Datei speichert Gain mit einer Nachkommastelle und Sharpen und Denoise mit zwei (ganze Zahlen ×10 bzw. ×100); beim Schreiben wird darauf gerundet.
+
+## Vergleich mit dem Original und PSNR-Schwellen
+
+Gerechnet wird mit 16-Bit-Spitzenwert 65535, Eingabe ist das Original-Summenbild (damit zählt das Stacking nicht mit).
+
+| Schwelle | Was sie prüft | Wert |
+|---|---|---|
+| A, Ticket | Ergebnis gegen die Original-Ausgabe bei gleichen Reglerwerten (Standard und Ebene 1 = 10.0) | **≥ 45 dB** |
+| B, streng | Ebene 1 = 10.0, vorher die Kennlinie des Originals (Punkt 1 oben) angewendet | **≥ 65 dB** |
+
+Warum zwei: Das Summenbild liegt schon bei 55,6 dB zur Standardausgabe und bei 52,8 dB zur Ebene-1-Ausgabe, A
+besteht also auch ein Klon, der gar nicht schärft. B liegt klar über den 56,0 dB, die „Original-Standardausgabe gegen
+Original-Ebene-1“ erreicht, und beweist damit, dass die Schärfung stimmt. Für das Modell in Python wurden 85,2 dB
+ermittelt (Punkt 3 oben).
+
+Geprüft von `crates/io/tests/wavelet_reference.rs` (ohne `re-local/reference` übersprungen). **Noch nicht gelaufen:**
+Für den Rust-Code gibt es keinen gemessenen PSNR-Wert. Die Zahlen oben gehören zum Python-Modell. Die Kennlinie baut der
+Test aus den Referenzdateien, der Klon selbst enthält sie nicht.

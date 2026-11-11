@@ -107,7 +107,9 @@ layer1=0         ; … layer6, Feld „Denoise“ × 100
 
 Die Kommentare hat TARS ergänzt, die Datei selbst enthält keine. Zeilenenden CRLF. Die Zuordnung `itemindex` → Auswahl
 ist aus dem Zustand beim Speichern geschlossen (Linear und Gaussian waren gewählt). Den Wert 0 haben wir nicht gegengeprüft.
-Ziel für den Klon: dieses Format lesen können, damit vorhandene Schemata weiter nutzbar sind (RK-007).
+Der Klon liest **und** schreibt dieses Format unverändert (RK-007, `crates/core/src/wavelet/scheme.rs`), ein eigenes Format gibt es
+nicht. Zwischen Oberfläche und Rust gehen die Einstellungen als JSON, die Datei ist nur der Speicherort. Einzelheiten
+(tolerantes Lesen, Rundung, Befehle `save_wavelet_scheme`/`load_wavelet_scheme`): `docs/wavelets.md`.
 
 ## Einstellungsdateien
 
