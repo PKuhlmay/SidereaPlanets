@@ -23,6 +23,16 @@ pub struct ColorState {
 }
 
 impl ColorState {
+    /// Forgets the source and the result: they were made from an alignment that is gone.
+    pub fn clear(&self) {
+        if let Ok(mut source) = self.source.lock() {
+            *source = None;
+        }
+        if let Ok(mut result) = self.result.lock() {
+            *result = None;
+        }
+    }
+
     /// Makes `image` the source of the panels and drops the previous result. The Stack and
     /// Wavelet steps call this when they have a new image.
     pub fn set_source(&self, image: Image) -> Result<(), String> {
@@ -267,6 +277,16 @@ mod tests {
         let image = image_from_rgba(2, 1, &[255, 0, 51, 7, 0, 255, 0, 255]).unwrap();
         assert_eq!((image.width, image.height, image.channels), (2, 1, 3));
         assert_eq!(image.data, vec![1.0, 0.0, 0.2, 0.0, 1.0, 0.0]);
+    }
+
+    #[test]
+    fn clearing_forgets_the_source_and_the_result() {
+        let state = ColorState::default();
+        state.set_source(Image::new(2, 2, 3)).unwrap();
+        *state.result.lock().unwrap() = Some(Image::new(2, 2, 3));
+        state.clear();
+        assert!(state.source.lock().unwrap().is_none());
+        assert!(state.result.lock().unwrap().is_none());
     }
 
     #[test]

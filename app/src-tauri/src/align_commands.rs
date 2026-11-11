@@ -114,6 +114,7 @@ fn kept(state: &AlignState) -> Result<Alignpoints, String> {
 pub async fn set_alignpoints(
     frame: u32,
     settings: PointSettings,
+    app: AppHandle,
     recording: State<'_, AppState>,
     state: State<'_, AlignState>,
 ) -> Result<Alignpoints, String> {
@@ -141,6 +142,8 @@ pub async fn set_alignpoints(
     *state.candidates.lock().map_err(|e| e.to_string())? = candidates;
     *state.reference_frame.lock().map_err(|e| e.to_string())? = frame;
     state.results.lock().map_err(|e| e.to_string())?.clear();
+    // New points start a new alignment: nothing built on the old one stays.
+    crate::discard_results(&app);
     kept(&state)
 }
 
@@ -198,6 +201,10 @@ pub async fn align(
         return Err("set alignpoints first".into());
     }
     let reference_frame = *state.reference_frame.lock().map_err(|e| e.to_string())?;
+    // Aligning again replaces the alignment, so what was built on the old one goes now: a cancelled run must not
+    // leave a stack or a sharpened image that no longer matches.
+    state.results.lock().map_err(|e| e.to_string())?.clear();
+    crate::discard_results(&app);
     let read = |index: u32| -> Result<_, String> {
         let mut guard = recording.0.lock().map_err(|e| e.to_string())?;
         let recording = guard.as_mut().ok_or("no recording is open")?;
@@ -312,7 +319,11 @@ pub struct Limited {
 
 /// *Limit*: the frames that stay and the mean shift of every point over them.
 #[tauri::command]
-pub fn limit(settings: LimitSettings, state: State<'_, AlignState>) -> Result<Limited, String> {
+pub fn limit(
+    settings: LimitSettings,
+    app: AppHandle,
+    state: State<'_, AlignState>,
+) -> Result<Limited, String> {
     let results = state.results.lock().map_err(|e| e.to_string())?;
     if results.is_empty() {
         return Err("align first".into());
@@ -339,6 +350,8 @@ pub fn limit(settings: LimitSettings, state: State<'_, AlignState>) -> Result<Li
             (n > 0).then(|| [sum[0] / n as f32, sum[1] / n as f32])
         })
         .collect();
+    // Another selection of frames makes an earlier stack obsolete.
+    crate::discard_results(&app);
     Ok(Limited {
         frames: kept.into_iter().map(|i| i as u32).collect(),
         point_shifts,

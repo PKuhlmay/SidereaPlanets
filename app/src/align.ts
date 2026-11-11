@@ -29,6 +29,22 @@ function showPoints(answer: AlignpointsAnswer) {
   settings.align.threshold = answer.threshold;
 }
 
+/**
+ * A new Set Alignpoints or Align replaces the alignment, so everything built on the old one goes: Limit (frame choice
+ * and point shifts), Stack, the sharpened image and the colour adjustment. The backend drops its copies at the same
+ * time (`discard_results` in lib.rs). A tab that is no longer open goes back to Align.
+ */
+function discardResults() {
+  session.frames.forEach((f) => Object.assign(f, { checked: true, quality: null, difference: null }));
+  session.alignpoints.forEach((p) => Object.assign(p, { shiftX: undefined, shiftY: undefined }));
+  session.stackImage = null;
+  session.processedImage = null;
+  session.adjustedImage = null;
+  session.stackSize = null;
+  session.tab = "align";
+  if (atLeast(session.step, "aligned")) session.step = "points";
+}
+
 async function setAlignpoints() {
   const roi = session.roi;
   if (roi && !roomForPoints(roi, settings.align.edgeDistance)) {
@@ -43,7 +59,7 @@ async function setAlignpoints() {
     // Align and Stack register the other frames against this one (the backend keeps the same number).
     session.referenceFrame = frame;
     // Points that are set again start a new alignment.
-    session.frames.forEach((f) => Object.assign(f, { quality: null, difference: null }));
+    discardResults();
     if (answer.points.length === 0) {
       session.step = "loaded";
       return "No alignpoints found: try other Lo and Hi values";
@@ -65,6 +81,8 @@ export async function setThreshold(threshold: number) {
 
 async function align() {
   await runJob("Align", async (job) => {
+    // The backend drops its results when Align starts, so the window does the same.
+    discardResults();
     const stop = await listen<AlignProgress>("align-progress", (event) =>
       job.progress(event.payload.done, event.payload.total, `Loading frame: ${event.payload.done}`),
     );
@@ -97,6 +115,7 @@ async function limit() {
     if (atLeast(session.step, "stacked")) {
       session.stackImage = null;
       session.processedImage = null;
+      session.adjustedImage = null;
       session.stackSize = null;
     }
     session.step = "limited";

@@ -36,6 +36,13 @@ impl StackState {
         self.result.lock().ok().and_then(|guard| guard.clone())
     }
 
+    /// Forgets the stacked image: it was made from an alignment that is gone.
+    pub fn clear(&self) {
+        if let Ok(mut guard) = self.result.lock() {
+            *guard = None;
+        }
+    }
+
     /// Clears Cancel and Pause before a job starts. *Save Aligned* and *Save Integrated* share the
     /// flags of *Stack* (`jobs.ts` sends Cancel and Pause to the same commands for all three).
     pub(crate) fn begin(&self) {
@@ -224,4 +231,18 @@ pub fn cancel_stacking(state: State<'_, StackState>) {
 #[tauri::command]
 pub fn pause_stacking(paused: bool, state: State<'_, StackState>) {
     state.paused.store(paused, Ordering::Relaxed);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn clearing_forgets_the_stacked_image() {
+        let state = StackState::default();
+        *state.result.lock().unwrap() = Some(Image::new(2, 2, 3));
+        assert!(state.image().is_some());
+        state.clear();
+        assert!(state.image().is_none());
+    }
 }

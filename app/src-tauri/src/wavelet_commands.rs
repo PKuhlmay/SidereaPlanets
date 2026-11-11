@@ -28,6 +28,16 @@ impl WaveletState {
         Ok(())
     }
 
+    /// Forgets the image and the result: they were made from an alignment that is gone.
+    pub fn clear(&self) {
+        if let Ok(mut previewer) = self.previewer.lock() {
+            *previewer = None;
+        }
+        if let Ok(mut processed) = self.processed.lock() {
+            *processed = None;
+        }
+    }
+
     /// The result of the last *Do All*, for *Save image* (RK-009).
     #[allow(dead_code)] // first caller is the export command of RK-009
     pub fn processed(&self) -> Option<Arc<Image>> {
@@ -144,4 +154,23 @@ pub fn load_wavelet_scheme(path: String) -> Result<WaveletSettings, String> {
     // The original writes ANSI text; the file only holds ASCII, so a lossy conversion is enough.
     let bytes = fs::read(&path).map_err(|e| format!("{path}: {e}"))?;
     scheme::from_rwv(&String::from_utf8_lossy(&bytes)).map_err(|e| format!("{path}: {e}"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn image() -> Image {
+        Image::new(4, 4, 1)
+    }
+
+    #[test]
+    fn clearing_forgets_the_source_and_the_result() {
+        let state = WaveletState::default();
+        state.set_source(image()).unwrap();
+        *state.processed.lock().unwrap() = Some(Arc::new(image()));
+        state.clear();
+        assert!(state.previewer.lock().unwrap().is_none());
+        assert!(state.processed().is_none());
+    }
 }

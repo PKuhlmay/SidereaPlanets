@@ -15,7 +15,7 @@ The first step: find the planet in every frame and measure how far each frame ha
 | Align | Aligns all frames to it and rates their quality |
 | Limit | Keeps the best frames, then opens the Stack tab |
 
-The buttons follow the order of the reference program: **Set Alignpoints** is the first step, **Align** is possible after it, **Limit** after Align. A step that is done carries a check mark. **Set Alignpoints** can be pressed again until Align has run.
+The buttons follow the order of the reference program: **Set Alignpoints** is the first step, **Align** is possible after it, **Limit** after Align. A step that is done carries a check mark. **Set Alignpoints** and **Align** stay available once they have run, also after Limit, Stack and Wavelet. Pressing either again starts the alignment over and discards what was built on the old one: the Limit choice, the stack, the sharpened image and the colour adjustment. See [Align your frames](align-your-frames).
 
 ## Check boxes in the action row
 

@@ -240,11 +240,22 @@ Die Sperrlogik stammt aus `docs/workflow.md`; hier steht, wie sie aussieht.
 |---|---|---|---|---|---|---|---|
 | Aufnahme geladen | gefüllt | gesperrt | gesperrt | gesperrt | | | gesperrt |
 | Alignpoints gesetzt | aktiv, Haken | gefüllt | gesperrt | gesperrt | | | gesperrt |
-| ausgerichtet | gesperrt, Haken | gesperrt, Haken | gefüllt | gesperrt | | | gesperrt |
-| begrenzt | gesperrt, Haken | gesperrt, Haken | aktiv, Haken | offen | gefüllt | gesperrt | gesperrt |
-| gestackt | gesperrt, Haken | gesperrt, Haken | aktiv, Haken | offen | aktiv, Haken | aktiv | offen |
+| ausgerichtet | aktiv, Haken | aktiv, Haken | gefüllt | gesperrt | | | gesperrt |
+| begrenzt | aktiv, Haken | aktiv, Haken | aktiv, Haken | offen | gefüllt | gesperrt | gesperrt |
+| gestackt | aktiv, Haken | aktiv, Haken | aktiv, Haken | offen | aktiv, Haken | aktiv | offen |
 
 Nach Limit wechselt die Oberfläche selbst in den Stack-Reiter.
+
+**Erneutes Ausrichten** (Entscheidung von Philipp, RK-005): Set Alignpoints und Align bleiben nach ihrem ersten Lauf
+bedienbar, auch nach Limit, Stack und Wavelet. Im Original sind beide ab Align gesperrt (`docs/workflow.md`,
+Abschnitt 2.2); der Klon weicht bewusst davon ab, damit man andere Punkte, eine andere Region oder eine andere
+Boxgröße ausprobieren kann, ohne die Aufnahme neu zu öffnen. Ein neuer Lauf verwirft alles, was auf der alten
+Ausrichtung aufbaut: Qualität und Frame-Auswahl (alle Frames wieder angehakt), Verschiebungsstriche der Punkte, Stack,
+geschärftes Bild und Farbanpassung, in der Oberfläche wie im Rechenkern (`StackState`, `WaveletState`, `ColorState`,
+`ExportState`, `AlignState`). Der Zustand fällt auf „Alignpoints gesetzt“ zurück, die Reiter Stack und Wavelet sind
+wieder gesperrt und die Oberfläche steht im Align-Reiter. Align verwirft beim Start, nicht erst am Ende: Bricht man
+ab, bleibt kein altes Ergebnis stehen, und Save image kann kein Bild des alten Stacks schreiben. Auch ein erneutes
+Limit nach Stack verwirft den Stack. Regler, Wavelet-Einstellungen und das Bild von Copy To bleiben erhalten.
 
 **Während einer Berechnung** (Align, Stack, Process, Do All): alle Schritt-Schaltflächen sind gesperrt, Cancel ist
 gefüllt, Pause ist aktiv und heißt nach dem Anhalten „Resume“. Der Balken in der Statusleiste läuft, Feld 2 nennt
@@ -423,6 +434,7 @@ Entwurf zeigt die Doku nicht.
 | Radiogruppen bei zwei Möglichkeiten | Segmente | weniger Höhe, gleiche Stelle |
 | „Intensity_selection“, „Realign_with Processed“ | ohne Unterstrich | Artefakte der Delphi-Beschriftung |
 | „Step Increment“ | „Step Incr.“ mit vollem Namen im Tooltip | Platz neben Initial Layer |
+| Set Alignpoints und Align ab Align gesperrt | bleiben bedienbar, ein neuer Lauf verwirft Limit, Stack und Wavelet-Ergebnis | RK-005; Philipp wollte ohne erneutes Öffnen neu ausrichten können, siehe [Zustände](#zustände) |
 | Dezimalkomma je nach Windows-Einstellung | Punkt | einheitlich auf allen Plattformen |
 | » klappt das Functions-Panel | „Functions »“ | Beschriftung sagt, was geklappt wird |
 

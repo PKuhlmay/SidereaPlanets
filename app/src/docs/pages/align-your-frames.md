@@ -17,7 +17,18 @@ A planet wobbles from frame to frame: the air makes it dance, the mount drifts. 
 6. Press **Align**. The status bar shows *Loading frame: n* and the progress, the window title shows it as well (`SidereaPlanets · Align 40%`). **Cancel** stops, **Pause** holds and becomes **Resume**.
 7. When *Alignment finished.* appears, **Limit** is next: [Frame quality and Limit](frame-quality-and-limit).
 
-After Align, both **Set Alignpoints** and **Align** are locked. To start over, open the recording again.
+## Aligning again
+
+**Set Alignpoints** and **Align** stay available after they have run, also after Limit, Stack and Wavelet. This differs from the reference program, where both are locked after Align. Use it to try other points, a region of interest or another box size without opening the recording again.
+
+Pressing **Set Alignpoints** or **Align** again starts the alignment over. Everything that was built on the old alignment is discarded at once, so that no old image stays on screen and **Save image** cannot write one:
+
+- the frame quality and the choice of frames from Limit (all frames are checked again),
+- the stack and the sharpened image,
+- the colour and tone adjustment that was shown on them,
+- the Stack and Wavelet tabs lock again, and the window goes back to the Align tab.
+
+Run Limit and Stack again afterwards. Your slider values, the Wavelet settings and the Copy To image stay as they are. If you cancel **Align**, the old alignment is gone as well: the points are still set, and Align has to run again.
 
 ## Alignpoints
 

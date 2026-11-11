@@ -43,7 +43,8 @@ Ebenso fehlt der frühere Reiter „Final“, dessen Funktionen im Wavelet-Reite
 - Fortschritt erscheint in der Statusleiste („Loading frame: n“, Prozentbalken) und im Taskleistentitel
   („R 6:Align 100%“). Zum Schluss steht in der Statusleiste „Alignment finished.“ mit benötigter und
   verbleibender Zeit.
-- Danach ist **Limit** aktiv, **Set Alignpoints** und **Align** sind gesperrt.
+- Danach ist **Limit** aktiv, **Set Alignpoints** und **Align** sind gesperrt (so im Original beobachtet; der Klon
+  weicht hier bewusst ab, siehe „Was der Klon daraus übernimmt“).
 - Mit *Show Framelist* erscheint die Frameliste, sortiert nach Qualität (bestes Frame oben), jedes Frame mit
   Häkchen. Mit *Show Registrationgraph* erscheint ein Liniendiagramm mit „Quality“ und „Difference“ pro Frame.
 
@@ -94,6 +95,10 @@ Ebenso fehlt der frühere Reiter „Final“, dessen Funktionen im Wavelet-Reite
 ## Was der Klon daraus übernimmt
 
 - Gleiche Reihenfolge und Sperrlogik: Laden → Set Alignpoints → Align → Limit → (automatisch) Stack → Wavelet.
+  **Bewusste Abweichung (Philipp, RK-005):** Set Alignpoints und Align bleiben nach Align, Limit, Stack und Wavelet
+  bedienbar. Ein neuer Lauf verwirft Limit, Stack, Wavelet-Ergebnis, Farbanpassung und Frame-Auswahl, damit man ohne
+  erneutes Öffnen der Aufnahme neu ausrichten kann. Das Original sperrt beide Schritte ab Align und kennt dieses
+  Verhalten nicht; Einzelheiten in `docs/design.md`, Abschnitt „Zustände“.
 - Gleiche Begriffe auf Schaltflächen und Reglern (Liste in `docs/ui.md`).
 - Fortschritt und Abbrechen bei Align, Stack und Do All (RK-010).
 - Die Nachfrage „in Farbe verarbeiten?“ ersetzt der Klon durch die automatische Erkennung, die im Original als

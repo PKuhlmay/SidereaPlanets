@@ -24,7 +24,7 @@ Only **Select** is available. The step buttons and the settings on the left are 
 
 ## The next step is filled
 
-In every row of buttons exactly one is filled in amber: the next step to take. A finished step carries a check mark, a step that is not possible yet is greyed out. The tabs follow the same order: **Stack** opens after Limit, **Wavelet** after Stack. After **Limit** the window moves on to the Stack tab by itself.
+In every row of buttons exactly one is filled in amber: the next step to take. A finished step carries a check mark, a step that is not possible yet is greyed out. The tabs follow the same order: **Stack** opens after Limit, **Wavelet** after Stack. After **Limit** the window moves on to the Stack tab by itself. **Set Alignpoints** and **Align** are never locked once a recording is open; pressing one again discards the Limit choice, the stack and the sharpened image and locks the Stack and Wavelet tabs again (see [Align your frames](align-your-frames)).
 
 ## Help
 

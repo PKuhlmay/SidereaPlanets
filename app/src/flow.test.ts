@@ -268,6 +268,79 @@ describe("Set Alignpoints, Align, Limit, Stack", () => {
   });
 });
 
+/** Runs the chain up to a sharpened image, with a colour adjustment shown on top of it. */
+async function buildEverything() {
+  await runAction("setAlignpoints");
+  await runAction("align");
+  await runAction("limit");
+  await runAction("stack");
+  await runAction("doAll");
+  session.tab = "wavelet";
+  session.adjustedImage = new FakeImageData(new Uint8ClampedArray(W * H * 4), W, H) as unknown as ImageData;
+  expect(session.step).toBe("stacked");
+}
+
+describe("Align again after Limit, Stack and Wavelet", () => {
+  it("Set Alignpoints drops Limit, Stack, the sharpened image, the colour adjustment and the frame choice", async () => {
+    await buildEverything();
+    expect(session.frames.map((f) => f.checked)).toEqual([false, true, true, true]);
+
+    await runAction("setAlignpoints");
+
+    expect(session.step).toBe("points");
+    expect(session.tab).toBe("align");
+    expect(session.stackImage).toBeNull();
+    expect(session.processedImage).toBeNull();
+    expect(session.adjustedImage).toBeNull();
+    expect(session.stackSize).toBeNull();
+    expect(session.frames.map((f) => f.checked)).toEqual([true, true, true, true]);
+    expect(session.frames.every((f) => f.quality === null && f.difference === null)).toBe(true);
+  });
+
+  it("Align drops them as soon as it starts, so a Cancel leaves nothing of the old result", async () => {
+    await buildEverything();
+    const running = pending();
+    backend.handlers.align = () => running.promise;
+    const job = runAction("align");
+    await vi.waitFor(() => expect(calls("align")).toHaveLength(2));
+
+    expect(session.step).toBe("points");
+    expect(session.stackImage).toBeNull();
+    expect(session.processedImage).toBeNull();
+    expect(session.frames.every((f) => f.quality === null && f.checked)).toBe(true);
+    expect(session.alignpoints.every((p) => p.shiftX === undefined && p.shiftY === undefined)).toBe(true);
+
+    const cancelling = cancelJob();
+    running.reject("cancelled");
+    await Promise.all([job, cancelling]);
+    expect(status.result).toBe("Cancelled");
+    expect(session.step).toBe("points");
+    expect(session.tab).toBe("align");
+  });
+
+  it("a finished Align goes back to the step after Align, and Limit and Stack run again on the new result", async () => {
+    await buildEverything();
+    await runAction("align");
+    expect(session.step).toBe("aligned");
+    expect(session.tab).toBe("align");
+    expect(session.stackImage).toBeNull();
+    await runAction("limit");
+    await runAction("stack");
+    expect(session.step).toBe("stacked");
+    expect(session.stackImage).toMatchObject({ width: W, height: H });
+  });
+
+  it("a failed Align after Limit stays at the step of the points", async () => {
+    await buildEverything();
+    backend.handlers.align = () => {
+      throw new Error("no frame");
+    };
+    await runAction("align");
+    expect(session.step).toBe("points");
+    expect(session.stackImage).toBeNull();
+  });
+});
+
 describe("Wavelet", () => {
   it("Do All sends the values of the panel and keeps the whole result", async () => {
     await runAction("setAlignpoints");

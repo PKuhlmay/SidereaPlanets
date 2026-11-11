@@ -8,7 +8,7 @@ mod wavelet_commands;
 use planets_io::recording::{Recording, RecordingInfo as IoInfo};
 use serde::Serialize;
 use std::{path::PathBuf, sync::Mutex};
-use tauri::{State, ipc::Response};
+use tauri::{AppHandle, Manager, State, ipc::Response};
 
 /// Summary of an opened recording, as shown in the UI.
 #[derive(Serialize)]
@@ -73,6 +73,16 @@ async fn read_frame(index: u32, state: State<'_, AppState>) -> Result<Response, 
     out.extend(image.height.to_le_bytes());
     out.extend(image.to_rgba8());
     Ok(Response::new(out))
+}
+
+/// Forgets everything that was built on the current alignment: the stack, the sharpened image, the colour
+/// adjustment and the two images *Save image* writes. Called when Set Alignpoints, Align or Limit run again, so
+/// that no old image stays around and *Save image* cannot write one.
+pub(crate) fn discard_results(app: &AppHandle) {
+    app.state::<stack_commands::StackState>().clear();
+    app.state::<wavelet_commands::WaveletState>().clear();
+    app.state::<color_commands::ColorState>().clear();
+    app.state::<export_commands::ExportState>().clear();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]

@@ -50,22 +50,26 @@ describe("stepButtons (docs/design.md, Zustände)", () => {
     expect(s.limit[1]).toBe(true);
   });
 
-  it("fills Limit after Align and locks the two steps before it, with check marks", () => {
+  it("fills Limit after Align; Set Alignpoints and Align stay usable, with check marks", () => {
     const s = state("aligned");
-    expect(s.setAlignpoints).toEqual([false, true, true]);
-    expect(s.align).toEqual([false, true, true]);
+    expect(s.setAlignpoints).toEqual([false, false, true]);
+    expect(s.align).toEqual([false, false, true]);
     expect(s.limit).toEqual([true, false, false]);
   });
 
-  it("fills Stack after Limit, Save image stays locked", () => {
+  it("fills Stack after Limit, Save image stays locked, Set Alignpoints and Align can run again", () => {
     const s = state("limited");
+    expect(s.setAlignpoints).toEqual([false, false, true]);
+    expect(s.align).toEqual([false, false, true]);
     expect(s.limit).toEqual([false, false, true]);
     expect(s.stack).toEqual([true, false, false]);
     expect(s.saveImage).toBe(true);
   });
 
-  it("opens Save image after Stack", () => {
+  it("opens Save image after Stack, Set Alignpoints and Align can still run again", () => {
     const s = state("stacked");
+    expect(s.setAlignpoints).toEqual([false, false, true]);
+    expect(s.align).toEqual([false, false, true]);
     expect(s.stack).toEqual([false, false, true]);
     expect(s.saveImage).toBe(false);
   });

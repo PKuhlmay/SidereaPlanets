@@ -29,7 +29,8 @@ export interface StepButton {
   done: boolean;
 }
 
-// Set Alignpoints stays usable after it ran (the points can be set again) until Align has run.
+// Set Alignpoints and Align stay usable once they ran, also after Limit, Stack and Wavelet: running one again drops
+// everything built on the old alignment (a deliberate difference from the original, docs/design.md, "Zustände").
 export function stepButtons(step: Step, busy: boolean): Record<StepId, StepButton> {
   const r = rank[step];
   const button = (enabled: boolean, next: boolean, done: boolean): StepButton => ({
@@ -38,8 +39,8 @@ export function stepButtons(step: Step, busy: boolean): Record<StepId, StepButto
     done,
   });
   return {
-    setAlignpoints: button(r === 0 || r === 1, r === 0, r >= 1),
-    align: button(r === 1, r === 1, r >= 2),
+    setAlignpoints: button(r >= 0, r === 0, r >= 1),
+    align: button(r >= 1, r === 1, r >= 2),
     limit: button(r >= 2, r === 2, r >= 3),
     stack: button(r >= 3, r === 3, r >= 4),
     saveImage: button(r >= 4, false, false),

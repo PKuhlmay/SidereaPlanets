@@ -42,6 +42,16 @@ impl ExportState {
         }
     }
 
+    /// Forgets both images: they were made from an alignment that is gone.
+    pub fn clear(&self) {
+        if let Ok(mut slot) = self.stack.lock() {
+            *slot = None;
+        }
+        if let Ok(mut slot) = self.wavelet.lock() {
+            *slot = None;
+        }
+    }
+
     /// Sets the processed image (result of *Process* or *Do All*).
     pub fn set_wavelet(&self, image: Image) {
         if let Ok(mut slot) = self.wavelet.lock() {
@@ -374,6 +384,18 @@ mod tests {
         let err = state.get(ImageSource::Wavelet).unwrap_err();
         assert!(err.contains("no processed image"), "{err}");
         assert!(state.get(ImageSource::Stack).is_ok());
+    }
+
+    #[test]
+    fn clearing_forgets_both_images() {
+        let state = ExportState::default();
+        state.set_stack(image());
+        state.set_wavelet(image());
+        state.clear();
+        let err = state.get(ImageSource::Stack).unwrap_err();
+        assert!(err.contains("no stacked image"), "{err}");
+        let err = state.get(ImageSource::Wavelet).unwrap_err();
+        assert!(err.contains("no processed image"), "{err}");
     }
 
     #[test]

@@ -18,6 +18,7 @@ Frames nach Qualität sortieren und begrenzen.
 - [x] Alignpoint-Zahl abgeleitet statt angepasst: Abstand = *Minimum distance between* + *Max Alignpoint movement* (quadratisch), Threshold-Standard ein Zehntel der Punkte. Bei R1 87 gefunden (Original 91), 78 nach Threshold (Original 82). Beides sind Vermutungen aus je einer Beobachtung (`docs/offene-fragen.md`, Frage 18, `docs/testdaten.md`)
 - [x] Parallel über Frames (`rayon`), Frames werden nacheinander gelesen und in Blöcken parallel ausgerichtet
 - [ ] Bedienung im Align-Reiter angebunden (Alignpoints setzen, Align mit Fortschritt, Cancel und Pause, Limit, Framelist, Registrationgraph): geschrieben (`app/src/align.ts`, `app/src/logic/align.ts`, Threshold-Regler, R.o.Interest-Rechteck, Frames/Apoint im Limit Setup), kompiliert, aber nie in der App gestartet und nicht mit den Soll-Bildern 01–04 und 11 verglichen. *No Align*, *Scan Frames* und *Empty List* sind bewusst ohne Funktion ("not available yet"), weil am Original unbeobachtet; Punkte von Hand setzen gibt es nicht
+- [x] Erneutes Set Alignpoints und Align nach Limit, Stack und Wavelet (Entscheidung von Philipp, 2026-11-11; weicht vom Original ab, das beide ab Align sperrt): `stepButtons` lässt beide ab gesetzten Punkten zu, ein neuer Lauf verwirft Limit-Auswahl, Stack, Wavelet-Ergebnis und Farbanpassung in `session` und im Backend (`discard_results` in `app/src-tauri/src/lib.rs` leert `StackState`, `WaveletState`, `ColorState`, `ExportState`; `AlignState` leert seine Ergebnisse), Align schon beim Start, damit ein Abbruch kein altes Ergebnis stehen lässt. Tests: `app/src/logic/workflow.test.ts`, `app/src/flow.test.ts`, je ein `clearing_…`-Test in den Rust-Modulen. Doku: `docs/design.md`, `docs/workflow.md`, Seiten *Align your frames*, *The Align tab*, *The window at a glance*, *Frame quality and Limit*
 - [x] Anwenderdoku zum Align-Reiter in der App (Regel „Doku in der App“): Seiten *Align your frames* und *Frame quality and Limit* in `app/src/docs/pages/`. Dazu die Übersichtsseite *The Align tab* aus RK-010, aktualisiert; *No Align*, *Scan Frames* und *Empty List* stehen dort als „Not available yet“
 
 ## Design
@@ -27,6 +28,8 @@ Soweit dieses Ticket Bedienelemente anbindet oder anzeigt, gilt `docs/design.md`
 - Soll-Bilder: `docs/design/screenshots/01-align-loaded.png` bis `04-align-aligned.png`, hell `11-align-light.png`
 
 ## Stand
+Erneutes Align (2026-11-11): Set Alignpoints und Align sind nach Limit, Stack und Wavelet wieder bedienbar und verwerfen die davon abhängigen Ergebnisse (Oberfläche und Backend). Die Tests dazu liefen rot (an Assertionen) und dann grün; Entwurf `oberflaeche-entwurf.html` und die Soll-Bilder 04 und 11 sind angepasst.
+
 Rechenkern (`crates/core/src/align.rs`), Tauri-Befehle (`app/src-tauri/src/align_commands.rs`; Bereich, Frames/Apoint, `limit`
 liefert zusätzlich den mittleren Versatz je Punkt), Vergleichstest (`crates/io/tests/align_reference.rs`), Anbindung im
 Align-Reiter und Doku sind geschrieben und kompilieren (`cargo clippy --workspace --all-targets`, `pnpm build`).
