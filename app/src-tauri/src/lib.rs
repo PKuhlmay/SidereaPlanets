@@ -112,6 +112,8 @@ pub fn run() {
             wavelet_commands::wavelet_set_source_frame,
             wavelet_commands::wavelet_preview,
             wavelet_commands::wavelet_do_all,
+            wavelet_commands::cancel_wavelet,
+            wavelet_commands::pause_wavelet,
             wavelet_commands::save_wavelet_scheme,
             wavelet_commands::load_wavelet_scheme,
             color_commands::set_color_source,

@@ -45,7 +45,8 @@ vi.stubGlobal("window", { setInterval, clearInterval, setTimeout, clearTimeout }
 import "./align";
 import { runAction } from "./actions";
 import { autoAlign } from "./colour";
-import { cancelJob } from "./jobs";
+import { cancelJob, togglePause } from "./jobs";
+import { process } from "./wavelet";
 import { openRecording, startSession } from "./recording";
 import { session, settings, status, type RecordingInfo } from "./state";
 
@@ -116,6 +117,8 @@ function installBackend() {
     wavelet_do_all: () => imageBuffer(),
     cancel_processing: () => undefined,
     cancel_stacking: () => undefined,
+    cancel_wavelet: () => undefined,
+    pause_wavelet: () => undefined,
   };
 }
 
@@ -367,6 +370,107 @@ describe("Wavelet", () => {
     await runAction("stack");
     expect(session.processedImage).toBeNull();
     expect(session.step).toBe("stacked");
+  });
+});
+
+describe("Do All and Process: Cancel and Pause", () => {
+  async function stacked() {
+    await runAction("setAlignpoints");
+    await runAction("align");
+    await runAction("limit");
+    await runAction("stack");
+  }
+
+  it("Cancel stops Do All through the wavelet flag, keeps the earlier result and shows nothing of the run", async () => {
+    await stacked();
+    await runAction("doAll");
+    const earlier = session.processedImage;
+    expect(earlier).not.toBeNull();
+
+    const running = pending();
+    backend.handlers.wavelet_do_all = () => running.promise;
+    const job = runAction("doAll");
+    await vi.waitFor(() => expect(calls("wavelet_do_all")).toHaveLength(2));
+    expect(status.busy?.name).toBe("Wavelet");
+
+    const cancelling = cancelJob();
+    running.reject("cancelled");
+    await Promise.all([job, cancelling]);
+
+    expect(calls("cancel_wavelet")).toHaveLength(1);
+    expect(calls("cancel_processing")).toHaveLength(0);
+    expect(calls("cancel_stacking")).toHaveLength(0);
+    expect(status.result).toBe("Cancelled");
+    expect(session.processedImage).toBe(earlier);
+    expect(status.busy).toBeNull();
+  });
+
+  it("drops a Do All result that arrives after Cancel", async () => {
+    await stacked();
+    const running = pending();
+    backend.handlers.wavelet_do_all = () => running.promise;
+    const job = runAction("doAll");
+    await vi.waitFor(() => expect(calls("wavelet_do_all")).toHaveLength(1));
+    const cancelling = cancelJob();
+    running.resolve(imageBuffer());
+    await Promise.all([job, cancelling]);
+    expect(status.result).toBe("Cancelled");
+    expect(session.processedImage).toBeNull();
+  });
+
+  it("Pause goes to the wavelet flag, not to the align flag", async () => {
+    await stacked();
+    backend.handlers.pause_wavelet = () => undefined;
+    const running = pending();
+    backend.handlers.wavelet_do_all = () => running.promise;
+    const job = runAction("doAll");
+    await vi.waitFor(() => expect(calls("wavelet_do_all")).toHaveLength(1));
+    await togglePause();
+    expect(calls("pause_wavelet")[0]?.args).toEqual({ paused: true });
+    expect(calls("pause_processing")).toHaveLength(0);
+    await togglePause();
+    expect(calls("pause_wavelet")[1]?.args).toEqual({ paused: false });
+    running.resolve(imageBuffer());
+    await job;
+  });
+
+  it("shows the layers of a Do All as progress", async () => {
+    await stacked();
+    const seen: number[] = [];
+    backend.handlers.wavelet_do_all = () => {
+      backend.listeners["wavelet-progress"]?.({ payload: { done: 1, total: 4 } });
+      seen.push(status.progress);
+      return imageBuffer();
+    };
+    await runAction("doAll");
+    expect(seen).toEqual([0.25]);
+    expect(backend.listeners["wavelet-progress"]).toBeUndefined();
+  });
+
+  it("Cancel on Process drops the preview that is on its way", async () => {
+    await stacked();
+    expect(session.processedImage).toBeNull();
+    const area = (x: number) => {
+      const buffer = new ArrayBuffer(16 + 4 * 4);
+      const view = new DataView(buffer);
+      [x, 0, 2, 2].forEach((v, i) => view.setUint32(i * 4, v, true));
+      return buffer;
+    };
+    const running = pending();
+    backend.handlers.wavelet_preview = () => running.promise;
+    const job = process();
+    await vi.waitFor(() => expect(calls("wavelet_preview")).toHaveLength(1));
+    const cancelling = cancelJob();
+    running.resolve(area(0));
+    await Promise.all([job, cancelling]);
+    expect(calls("cancel_wavelet")).toHaveLength(1);
+    expect(status.result).toBe("Cancelled");
+    expect(session.processedImage).toBeNull();
+
+    // Without Cancel the same preview is shown.
+    backend.handlers.wavelet_preview = () => area(0);
+    await process();
+    expect(session.processedImage).toMatchObject({ width: W, height: H });
   });
 });
 

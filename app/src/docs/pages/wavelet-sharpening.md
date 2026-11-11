@@ -58,7 +58,7 @@ LRGB only counts together with Colour. Both are greyed out for grayscale recordi
 
 Moving a slider updates the preview at once. Only the *Processing Area* is calculated, a square of 512 pixels by default that you can change under Settings > Processing Area and show with **Show Processing Area**. The status bar tells how long the last preview took. That keeps the preview fast, even for large images. The area is calculated together with a small border around it, so what you see matches what the whole image will look like.
 
-**Process** calculates the Processing Area once more with the current settings. **Do All** applies the settings to the whole image; after it, moving a slider shows the preview of the area on the stacked image again. **Before** shows the stacked image without any change, to compare.
+**Process** calculates the Processing Area once more with the current settings. **Do All** applies the settings to the whole image (you can cancel or pause it, see [Progress, Cancel and Pause](progress-cancel-pause)); after it, moving a slider shows the preview of the area on the stacked image again. **Before** shows the stacked image without any change, to compare.
 
 > With Denoise, the preview judges the amount of noise from the Processing Area, **Do All** from the whole image. The two can differ slightly.
 

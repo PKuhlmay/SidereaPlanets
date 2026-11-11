@@ -21,7 +21,7 @@ pub use settings::{
     DEFAULT_SHARPEN, Filter, LAYERS, LayerSettings, Scheme, Structure, WaveletSettings,
 };
 
-use crate::Image;
+use crate::{Image, align::Control};
 use rayon::prelude::*;
 
 /// Pixels per parallel work item when walking over samples.
@@ -86,13 +86,27 @@ fn for_each_layer(
     count: usize,
     mut visit: impl FnMut(usize, &[f32]),
 ) {
+    for_each_layer_until(image, structure, count, |k, layer| {
+        visit(k, layer);
+        Control::Continue
+    });
+}
+
+/// Like [`for_each_layer`], but stops as soon as `visit` answers [`Control::Cancel`] and tells whether all layers
+/// were built.
+fn for_each_layer_until(
+    image: &Image,
+    structure: &Structure,
+    count: usize,
+    mut visit: impl FnMut(usize, &[f32]) -> Control,
+) -> bool {
     let dims = (
         image.width as usize,
         image.height as usize,
         usize::from(image.channels).max(1),
     );
     if count == 0 || dims.0 == 0 || dims.1 == 0 {
-        return;
+        return true;
     }
     let mut current = image.data.clone();
     let mut next = vec![0.0; current.len()];
@@ -118,9 +132,12 @@ fn for_each_layer(
                     *l = a - b;
                 }
             });
-        visit(k, &scratch);
+        if visit(k, &scratch) == Control::Cancel {
+            return false;
+        }
         std::mem::swap(&mut current, &mut next);
     }
+    true
 }
 
 /// Noise level of a layer per channel: the robust standard deviation (median absolute deviation) of its samples.
@@ -176,27 +193,37 @@ fn add_delta(
 
 /// Applies the settings to the whole image (*Do All*). The result is not clamped to `0.0..=1.0`.
 pub fn process(image: &Image, settings: &WaveletSettings) -> Image {
+    process_until(image, settings, |_, _| Control::Continue)
+        .expect("a checkpoint that never cancels always gets a result")
+}
+
+/// [`process`] that can be stopped; `checkpoint(done, total)` is called before the first layer and after each layer
+/// (`done` of `total` finished). `None` if it answered [`Control::Cancel`].
+fn process_until(
+    image: &Image,
+    settings: &WaveletSettings,
+    mut checkpoint: impl FnMut(u32, u32) -> Control,
+) -> Option<Image> {
     let settings = settings.clone().clamped();
     let mut result = image.clone();
     let channels = usize::from(image.channels).max(1);
-    for_each_layer(
-        image,
-        &settings.structure,
-        settings.layers_needed(),
-        |k, layer| {
-            let layer_settings = &settings.layers[k];
-            if layer_settings.is_neutral() {
-                return;
-            }
+    let total = settings.layers_needed();
+    if checkpoint(0, total as u32) == Control::Cancel {
+        return None;
+    }
+    let finished = for_each_layer_until(image, &settings.structure, total, |k, layer| {
+        let layer_settings = &settings.layers[k];
+        if !layer_settings.is_neutral() {
             let noise = if layer_settings.denoise > 0.0 {
                 noise_sigma(layer, channels)
             } else {
                 vec![0.0; channels]
             };
             add_delta(&mut result.data, layer, channels, layer_settings, &noise);
-        },
-    );
-    result
+        }
+        checkpoint(k as u32 + 1, total as u32)
+    });
+    finished.then_some(result)
 }
 
 /// *Do All*: sharpens the whole image the way the window shows it, with the tone curve of the original and the
@@ -205,6 +232,20 @@ pub fn process(image: &Image, settings: &WaveletSettings) -> Image {
 pub fn do_all(image: &Image, settings: &WaveletSettings, mode: ColourMode) -> Image {
     let working = working_image(image, mode);
     finish(image, process(&working, settings), mode)
+}
+
+/// [`do_all`] that can be stopped: `checkpoint(done, total)` is called before the first layer and after each layer
+/// (`done` layers of `total` are finished) and answers whether to go on. `None` if it asked to stop. Only the
+/// whole-image path pays for the calls, a handful per run; the live preview does not use it.
+pub fn do_all_until(
+    image: &Image,
+    settings: &WaveletSettings,
+    mode: ColourMode,
+    checkpoint: impl FnMut(u32, u32) -> Control,
+) -> Option<Image> {
+    let working = working_image(image, mode);
+    let worked = process_until(&working, settings, checkpoint)?;
+    Some(finish(image, worked, mode))
 }
 
 /// The layers of an image, kept so that a change of gain, *Denoise* or *Sharpen* only recombines them.
@@ -445,6 +486,68 @@ mod tests {
         let mut expected = process(&img, &s);
         apply_output_curve(&mut expected);
         assert_eq!(do_all(&img, &s, ColourMode::Colour), expected);
+    }
+
+    /// A checkpoint that records its calls and stops at the call with the given number (1-based).
+    fn stopping_at(
+        stop: usize,
+        calls: &mut Vec<(u32, u32)>,
+    ) -> impl FnMut(u32, u32) -> Control + '_ {
+        move |done, total| {
+            calls.push((done, total));
+            if calls.len() == stop {
+                Control::Cancel
+            } else {
+                Control::Continue
+            }
+        }
+    }
+
+    #[test]
+    fn do_all_until_gives_the_result_of_do_all_when_nothing_stops_it() {
+        let img = test_image(48, 40, 3);
+        let mut s = boost(0, 4.0);
+        s.layers[2].gain = 3.0;
+        let mut calls = Vec::new();
+        let out = do_all_until(&img, &s, ColourMode::Colour, stopping_at(0, &mut calls));
+        assert_eq!(out, Some(do_all(&img, &s, ColourMode::Colour)));
+        // Before the first layer and after each of the three layers that are needed.
+        assert_eq!(calls, vec![(0, 3), (1, 3), (2, 3), (3, 3)]);
+    }
+
+    #[test]
+    fn do_all_until_stops_before_the_first_layer() {
+        let img = test_image(48, 40, 3);
+        let s = boost(0, 4.0);
+        let mut calls = Vec::new();
+        let out = do_all_until(&img, &s, ColourMode::Colour, stopping_at(1, &mut calls));
+        assert_eq!(out, None);
+        assert_eq!(calls, vec![(0, 1)]);
+    }
+
+    #[test]
+    fn do_all_until_stops_between_layers_without_working_on() {
+        let img = test_image(48, 40, 1);
+        let mut s = WaveletSettings::default();
+        s.layers[4].gain = 2.0;
+        let mut calls = Vec::new();
+        // Stops at the third call: after two of the five layers.
+        let out = do_all_until(&img, &s, ColourMode::Colour, stopping_at(3, &mut calls));
+        assert_eq!(out, None);
+        assert_eq!(calls, vec![(0, 5), (1, 5), (2, 5)]);
+    }
+
+    #[test]
+    fn do_all_until_can_stop_even_when_no_layer_is_needed() {
+        let img = test_image(16, 16, 1);
+        let mut calls = Vec::new();
+        let out = do_all_until(
+            &img,
+            &WaveletSettings::default(),
+            ColourMode::Colour,
+            stopping_at(1, &mut calls),
+        );
+        assert_eq!(out, None);
     }
 
     #[test]

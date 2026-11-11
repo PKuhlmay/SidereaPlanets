@@ -4,6 +4,7 @@
 
 import { invoke } from "@tauri-apps/api/core";
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
+import { listen } from "@tauri-apps/api/event";
 import { watch } from "vue";
 import { runJob } from "./jobs";
 import { defaultLayer } from "./logic/settings";
@@ -36,12 +37,14 @@ const area = (stack: ImageData) => {
 };
 
 /** Calculates the Processing Area with the current values and shows it in the image. */
-async function renderPreview(): Promise<string> {
+async function renderPreview(cancelled?: () => boolean): Promise<string> {
   const stack = session.stackImage;
   if (!stack) throw new Error("no stacked image");
   // Time from the request to the finished drawing in the image area, shown in the status bar (docs/gui-toolkit.md).
   const started = performance.now();
   const answer = await invoke<ArrayBuffer>("wavelet_preview", { settings: toBackend(settings.wavelet), area: area(stack), mode: mode() });
+  // Process was cancelled while the area was being calculated: the old picture stays.
+  if (cancelled?.()) return "";
   const pixels = workingPixels(stack);
   writePreview(pixels, stack.width, parsePreview(answer));
   session.processedImage = new ImageData(pixels, stack.width, stack.height);
@@ -71,16 +74,31 @@ async function refreshPreview(): Promise<void> {
   }
 }
 
-/** Process: calculates the Processing Area now. */
+/**
+ * Process: calculates the Processing Area now. The area is small, so the backend does not stop in the middle; Cancel
+ * drops the result when it arrives.
+ */
 export async function process(): Promise<void> {
-  await runJob("Wavelet", () => renderPreview());
+  await runJob("Wavelet", (job) => renderPreview(() => job.cancelled));
 }
 
-/** Do All: applies the values to the whole image. */
+/**
+ * Do All: applies the values to the whole image. Cancel and Pause reach the backend between two layers; a cancelled
+ * run leaves the earlier result, here and in the backend (what Save image writes), as it was.
+ */
 export async function doAll(): Promise<void> {
   await runJob("Wavelet", async (job) => {
     job.progress(0, 1, "Do_all processing");
-    const buffer = await invoke<ArrayBuffer>("wavelet_do_all", { settings: toBackend(settings.wavelet), mode: mode() });
+    // The backend reports each finished layer.
+    const unlisten = await listen<{ done: number; total: number }>("wavelet-progress", ({ payload }) =>
+      job.progress(payload.done, payload.total),
+    );
+    let buffer: ArrayBuffer;
+    try {
+      buffer = await invoke<ArrayBuffer>("wavelet_do_all", { settings: toBackend(settings.wavelet), mode: mode() });
+    } finally {
+      unlisten();
+    }
     if (job.cancelled) return;
     // Binary layout: width (u32 LE), height (u32 LE), then RGBA bytes.
     const view = new DataView(buffer);

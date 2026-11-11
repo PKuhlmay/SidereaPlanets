@@ -59,7 +59,7 @@ impl ExportState {
         }
     }
 
-    fn get(&self, source: ImageSource) -> Result<Arc<Image>, String> {
+    pub(crate) fn get(&self, source: ImageSource) -> Result<Arc<Image>, String> {
         let slot = match source {
             ImageSource::Stack => &self.stack,
             ImageSource::Wavelet => &self.wavelet,

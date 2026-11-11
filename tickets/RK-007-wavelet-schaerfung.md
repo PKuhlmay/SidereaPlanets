@@ -12,6 +12,21 @@ Das Herzstück von the reference program: mehrschichtige Wavelet-Zerlegung mit R
 - [x] Ergebnis bei gleichen Reglerwerten gegen das Original verglichen (PSNR-Schwelle in `docs/` festlegen): Standardwerte 98,81 dB, Ebene 1 = 10.0 84,73 dB, Schwellen 45/65/85 dB (`docs/wavelets.md`)
 - [ ] Einstellungen speicher- und ladbar. `.rwv` lesen und schreiben ist getestet (byteidentisch zur Datei des Originals), Befehle und Dateidialog sind im laufenden Programm **nicht** ausprobiert
 
+## Stand (Abbrechen und Pausieren, 2026-11-11)
+Do All ist im Rechenkern abbrechbar und pausierbar; ein abgebrochenes Do All ändert weder `processed` noch `ExportState`. Rot-zuerst
+belegt (Tests an Assertionen gescheitert, dann grün).
+- Kern: `wavelet::do_all_until(image, settings, mode, checkpoint)` ruft `checkpoint(fertige_Ebenen, Ebenen)` vor der ersten und nach jeder
+  Ebene auf, `None` bei Abbruch. `process` und `do_all` bleiben unverändert, die Vorschau (`Decomposition`, `Previewer`) benutzt den Pfad nicht,
+  ist also nicht langsamer.
+- Befehl: `WaveletState::do_all` hält Abbruch- und Pause-Flag (`cancel_wavelet`, `pause_wavelet`), setzt Ergebnis und Export erst nach dem
+  letzten Layer und meldet Fortschritt über das Ereignis `wavelet-progress`. Abbruch- und Pause-Granularität ist eine Ebene, bei großen Bildern
+  ein Moment.
+- Oberfläche: Auftrag „Wavelet“ in `app/src/jobs.ts` schickt Cancel und Pause an die neuen Befehle; `doAll` zeigt den Fortschritt. Process
+  rechnet nur die Processing Area (Bruchteil einer Sekunde): Das Backend bricht dort nicht mitten drin ab, Cancel verwirft das Ergebnis beim
+  Eintreffen (bewusst so, sonst müsste der Vorschau-Pfad Prüfungen bekommen).
+- Tests: `crates/core/src/wavelet/mod.rs` (`do_all_until_*`), `app/src-tauri/src/wavelet_commands.rs`, `app/src/flow.test.ts`.
+- Doku: *Progress, Cancel and Pause*, *The Wavelet tab*, *Wavelet sharpening*.
+
 ## Stand (Tonkennlinie und Farbe, 2026-11-11)
 Die Tests laufen wieder (`cargo test --workspace`, `pnpm test`, clippy ohne Warnungen). Neu in diesem Schritt:
 - **Tonkennlinie des Originals** (`0,988231·x + 0,015595·x³`, `wavelet/output.rs`) am Ende von Do All und der Vorschau; gegen die Referenz
