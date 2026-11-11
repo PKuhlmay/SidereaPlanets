@@ -13,10 +13,10 @@ use planets_core::{
 use planets_io::recording::Recording;
 use std::path::PathBuf;
 
+mod common;
+
 fn re_local(path: &str) -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../re-local")
-        .join(path)
+    common::re_local().join(path)
 }
 
 /// The 16 bit TIFF of the original. Its samples are the 8 bit values times 256 (`docs/testdaten.md`),

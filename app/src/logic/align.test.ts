@@ -70,6 +70,28 @@ describe("limitArgs", () => {
   });
 });
 
+describe("typed values the backend cannot take", () => {
+  // The fields accept any typed number (docs/ui.md); the commands read whole numbers from zero (u32, usize).
+  it("rounds and bounds the whole-number fields of Set Alignpoints and Align", () => {
+    const a = align();
+    a.minDistance = 30.5;
+    a.edgeDistance = -4;
+    a.maxMovement = Number.NaN;
+    a.boxSize = 0;
+    expect(setAlignpointsArgs(0, a, null).settings).toMatchObject({ minDistance: 31, edgeDistance: 0, maxMovement: 0, boxSize: 1 });
+    expect(alignArgs(a, null).settings).toMatchObject({ maxMovement: 0, boxSize: 1 });
+  });
+
+  it("rounds the count of the count modes and keeps at least one frame", () => {
+    const a = align();
+    a.limitMode = "bestCount";
+    a.limitCount = 5.6;
+    expect(limitArgs(a).settings.value).toBe(6);
+    a.limitCount = 0;
+    expect(limitArgs(a).settings.value).toBe(1);
+  });
+});
+
 describe("qualityPercent", () => {
   it("rates the best frame with 100 and the others relative to it", () => {
     const percent = qualityPercent([0.05, 0.1, 0.075]);

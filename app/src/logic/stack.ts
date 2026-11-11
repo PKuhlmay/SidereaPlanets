@@ -1,6 +1,7 @@
 // What the Stack button sends to the backend, collected from the window state (docs/stacking.md).
 
 import type { settings as settingsValue, session as sessionValue } from "../state";
+import { wholeNumber } from "./numbers";
 
 /** Matches `StackSettings` of the Tauri command `stack` (app/src-tauri/src/stack_commands.rs). */
 export interface StackRequest {
@@ -19,21 +20,18 @@ export interface StackRequest {
 type Session = Pick<typeof sessionValue, "referenceFrame" | "alignpoints" | "frames" | "roi">;
 type Settings = Pick<typeof settingsValue, "align" | "stack">;
 
-// The number fields accept any typed value (docs/ui.md); the backend takes whole numbers from zero (one point at least).
-const whole = (value: number, min: number): number => (Number.isFinite(value) ? Math.max(min, Math.round(value)) : min);
-
 /** The checked alignpoints and checked frames together with the options of the Stack tab. */
 export function buildStackRequest(session: Session, settings: Settings): StackRequest {
   return {
     referenceFrame: session.referenceFrame,
     points: session.alignpoints.filter((p) => p.checked).map(({ x, y }) => ({ x, y })),
     frames: session.frames.filter((f) => f.checked).map((f) => f.index),
-    boxSize: whole(settings.align.boxSize, 1),
-    maxMovement: whole(settings.align.maxMovement, 0),
-    nearestPoints: whole(settings.stack.nearestPoints, 1),
+    boxSize: wholeNumber(settings.align.boxSize, 1),
+    maxMovement: wholeNumber(settings.align.maxMovement, 0),
+    nearestPoints: wholeNumber(settings.stack.nearestPoints, 1),
     correctGeometry: settings.stack.correctGeometry,
     normalize: settings.stack.normalize,
-    edgeSkip: whole(settings.stack.edgePixels, 0),
+    edgeSkip: wholeNumber(settings.stack.edgePixels, 0),
     roi: session.roi,
   };
 }
@@ -50,8 +48,8 @@ export interface SequenceRequest {
 export function buildSequenceRequest(session: Session, settings: Settings): SequenceRequest {
   return {
     stack: buildStackRequest(session, settings),
-    framerate: whole(settings.stack.framerate, 1),
+    framerate: wholeNumber(settings.stack.framerate, 1),
     sortOnQuality: settings.stack.sortOnQuality,
-    averageFrames: whole(settings.stack.averageFrames, 1),
+    averageFrames: wholeNumber(settings.stack.averageFrames, 1),
   };
 }

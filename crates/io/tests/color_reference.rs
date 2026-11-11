@@ -12,12 +12,11 @@ use planets_core::{
     tone::{auto_levels, histogram, stretch_levels},
 };
 use planets_io::images::ImageSequenceReader;
-use std::path::PathBuf;
+mod common;
 
 /// The 16-bit stack of Jupiter that the reference program saved after *Stack*.
 fn jupiter_stack() -> Option<Image> {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../re-local/reference/jupiter-stack.tif");
+    let path = common::re_local().join("reference/jupiter-stack.tif");
     path.exists().then(|| {
         ImageSequenceReader::open(vec![path])
             .unwrap()

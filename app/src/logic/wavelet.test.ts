@@ -31,6 +31,15 @@ describe("values for the backend", () => {
     });
   });
 
+  it("sends whole numbers for Initial Layer and Step Increment, which the backend reads as unsigned integers", () => {
+    const w = createSettings().wavelet;
+    w.initialLayer = 2.4;
+    w.stepIncrement = -3;
+    expect(toBackend(w)).toMatchObject({ initial: 2, step: 0 });
+    w.initialLayer = 0;
+    expect(toBackend(w).initial).toBe(1);
+  });
+
   it("round-trips through the backend format", () => {
     const w = createSettings().wavelet;
     w.layers[3] = { enabled: false, denoise: 1.25, sharpen: 0.375, level: 77 };

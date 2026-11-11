@@ -1,6 +1,7 @@
 // Pure helpers of the Wavelet tab: the values of the panel as the backend wants them, linked sliders, and
 // putting a preview of the Processing Area into the image. The calls to the backend are in ../wavelet.ts.
 
+import { wholeNumber } from "./numbers";
 import { defaultLayer, LAYER_COUNT, LAYER_RANGE, type WaveletFilter, type WaveletLayer, type WaveletScheme } from "./settings";
 
 /** The values of the left panel that decide the result (`settings.wavelet` without the window state). */
@@ -35,8 +36,8 @@ export function toBackend(values: WaveletValues): BackendSettings {
   return {
     scheme: values.scheme,
     filter: values.filter,
-    initial: values.initialLayer,
-    step: values.stepIncrement,
+    initial: wholeNumber(values.initialLayer, 1),
+    step: wholeNumber(values.stepIncrement, 0),
     layers: values.layers.map((l) => ({ enabled: l.enabled, gain: l.level / 10, denoise: l.denoise, sharpen: l.sharpen })),
   };
 }

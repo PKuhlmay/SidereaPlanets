@@ -6,11 +6,10 @@ use planets_core::align::{
     default_threshold, find_alignpoints, limit_frames, rank_by_quality,
 };
 use planets_io::recording::Recording;
-use std::path::PathBuf;
+mod common;
 
 fn jupiter() -> Option<Recording> {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../re-local/testdata/astropix/JUPITER.AVI");
+    let path = common::re_local().join("testdata/astropix/JUPITER.AVI");
     path.exists().then(|| Recording::open(&path).unwrap())
 }
 

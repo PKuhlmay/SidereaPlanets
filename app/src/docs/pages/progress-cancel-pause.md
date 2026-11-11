@@ -25,4 +25,4 @@ Align, Stack and Do All can take a while. While one of them runs, the window sho
 
 The third field of the status bar shows the result of the last step, for example *Alignment finished.*. A problem is shown there too, starting with *Error:*. A button whose function is not built yet says so in that field, for example *Align: not available yet*.
 
-> The steps themselves are **Not available yet**, so nothing runs today. The display is in place for them.
+> Process and Do All cannot be stopped once they run: **Cancel** then drops the result, and the status bar says *Cancelled*.

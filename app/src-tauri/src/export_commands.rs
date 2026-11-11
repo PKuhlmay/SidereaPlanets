@@ -31,10 +31,14 @@ pub struct ExportState {
 }
 
 impl ExportState {
-    /// Sets the stacked image (result of *Stack*).
+    /// Sets the stacked image (result of *Stack*). A processed image belongs to the previous stack, so it is
+    /// dropped: *Save image* in the Wavelet tab must not write it for the new stack.
     pub fn set_stack(&self, image: Image) {
         if let Ok(mut slot) = self.stack.lock() {
             *slot = Some(Arc::new(image));
+        }
+        if let Ok(mut slot) = self.wavelet.lock() {
+            *slot = None;
         }
     }
 
@@ -357,6 +361,19 @@ mod tests {
         for (got, want) in read.data.iter().zip([0.25, 0.75, 1.0, 0.5]) {
             assert!((got - want).abs() < 1e-4, "{got} vs {want}");
         }
+    }
+
+    #[test]
+    fn a_new_stack_drops_the_processed_image_of_the_old_one() {
+        let state = ExportState::default();
+        state.set_stack(image());
+        state.set_wavelet(image());
+        assert!(state.get(ImageSource::Wavelet).is_ok());
+
+        state.set_stack(image());
+        let err = state.get(ImageSource::Wavelet).unwrap_err();
+        assert!(err.contains("no processed image"), "{err}");
+        assert!(state.get(ImageSource::Stack).is_ok());
     }
 
     #[test]

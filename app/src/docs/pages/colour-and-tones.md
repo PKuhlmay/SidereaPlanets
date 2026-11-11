@@ -23,7 +23,7 @@ The other **Functions** buttons have no card yet. Pressing one says so in the st
 - A **Functions** button stays pressed while its card is open. Press it again, or press the cross in the card, to close the card.
 - Closing a card keeps its values. **Reset** in the card sets the values back so that the image is not changed.
 - All values are applied to the stacked (or sharpened) image in this order: RGB Align, RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** shows the image without any of them.
-- The values count for **Do All** and **Save image** as well.
+- The values change what the window shows, and **Save image** on the Wavelet tab writes the image with them applied. **Do All** itself does not include them: the sharpened image stays as it is and the cards apply on top of it.
 - RGB Align and RGB Balance need a colour image. With a grayscale recording they are greyed out.
 - The cards work on the stacked image, or on the sharpened image once there is one. Pressing **Process** or **Do All** puts a new sharpened image in the window; the cards then apply to that image.
 

@@ -3,10 +3,10 @@
 use planets_io::recording::Recording;
 use std::path::PathBuf;
 
+mod common;
+
 fn testdata(name: &str) -> Option<PathBuf> {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("../../re-local/testdata/astropix")
-        .join(name);
+    let path = common::re_local().join("testdata/astropix").join(name);
     path.exists().then_some(path)
 }
 

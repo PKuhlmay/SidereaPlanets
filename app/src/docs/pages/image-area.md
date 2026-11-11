@@ -20,7 +20,7 @@ A recording starts fitted and follows the size of the window until you zoom or m
 
 ## Before and after
 
-On the Wavelet tab the zoom bar has a **Before** switch. While it is pressed the window shows the stack as it was before sharpening. Press it again to see the sharpened image. Sharpening itself is **Not available yet**, so both views show the stack for now.
+On the Wavelet tab the zoom bar has a **Before** switch. While it is pressed the window shows the stack as it was before sharpening. Press it again to see the sharpened image. Both views differ as soon as you have pressed **Process** or **Do All**.
 
 ## Marks on the image
 

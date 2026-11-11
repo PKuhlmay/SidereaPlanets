@@ -26,6 +26,7 @@ Pressing **Save image** first opens a short list of file types: seven on the Sta
 - **For further processing** in other programs choose TIFF or PNG (16 bit), or FITS if the program expects astronomy files. They keep the fine tonal steps that sharpening produces.
 - **For sharing** choose JPEG. It is smaller, but loses some detail.
 - Black is the lowest value and white the highest value of the format, so a 16 bit file uses the full range from 0 to 65535. the reference program writes 16 bit files as its 8 bit image times 256 (at most 65280); if you compare files of both programs, divide the the reference program values by 256.
+- **Save image** on the Wavelet tab writes the result of the last **Do All**. After a change of the sliders, or after a new **Stack**, press **Do All** again first; **Process** only changes the preview area and is not saved. The colour and tone cards are not part of the file yet.
 - A colour image is written with its three channels in one file. A single FITS file holds them as three planes (red, green, blue). Black and white images stay single channel.
 
 > An existing file with the same name is replaced only when the new file was written completely. If saving fails, the old file stays as it was.

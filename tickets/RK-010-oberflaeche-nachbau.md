@@ -36,8 +36,24 @@ Gleicher Aufbau und gleiche Begriffe wie im Original, sodass bisherige the refer
   (dunkel) sowie 01, 03, 05, 11 und 12 (hell, gegen das dunkle Soll-Bild des Zustands bzw. gegen 11/12) erfolgte per Bildschirmfoto der Dev-Vorschau in einem Browser ohne Fenster (Edge headless gegen `pnpm exec vite`,
   Zustände über die URL-Parameter der Vorschau): Aufbau, Maße, Zustände und Farben stimmen mit den Soll-Bildern überein.
 - Nicht geprüft: Lauf im Tauri-Fenster (Select, Dateidialog, Frames laden); Interaktionen (Mausrad-Zoom, Ziehen, Menüs öffnen, Flyouts);
-  Abgleich mit den Soll-Bildern 02, 07, 09, 10, 13, 14. Die vitest-Tests sind geschrieben, aber noch nicht gelaufen und damit auch noch nicht
-  „rot zuerst“ geprüft (Philipps Wunsch: Testläufe am Ende).
-- Offen bis RK-005: Abbrechen und Fortschritt mit einer echten Berechnung. Der Mechanismus (`runJob`, Cancel, Pause) steht, Align ist aber nicht angebunden.
-- Offen bis RK-007: Vorher/Nachher zeigt erst einen Unterschied, wenn es ein bearbeitetes Bild gibt (`session.processedImage`).
+  Abgleich mit den Soll-Bildern 09, 10, 13, 14 (Menüs und Doku brauchen Klicks im Fenster). Am 2026-11-11 lief die Debug-App nicht mehr, ihr
+  Protokoll `tauri-dev.log` zeigt nur Baufehler aus der Zeit der parallelen Arbeit (fehlendes Modul, `marked` nicht installiert), keinen
+  Laufzeitfehler; das Fenster selbst wurde nicht bedient.
+- Abbrechen und Fortschritt: Align und Stack sind angebunden (Fake-Backend-Tests in `app/src/flow.test.ts`); mit der echten Berechnung im Fenster noch nicht gesehen.
+- Vorher/Nachher unterscheidet sich, sobald Process oder Do All gelaufen ist (`session.processedImage`); im Fenster noch nicht gesehen.
 - Bewusst ausgelassen: Speicherangabe in der Reiterleiste (braucht einen Backend-Befehl).
+
+## Betriebsbereit-Prüfung (2026-11-11)
+
+- Backend-Kette: `crates/io/tests/pipeline.rs` läuft JUPITER.AVI durch Alignpoints, Align, Limit, Stack, Wavelet (Standard, Ebene 1 = 10,0, Vorschau
+  gegen Do All) und Save image in allen sieben Formaten mit Wiedereinlesen; dazu Cancel und leere Auswahl. Grün; rot zuerst an der Schärfe-Assertion gesehen.
+- Zusammenspiel Fenster und Befehle: `app/src/flow.test.ts` fährt die Handler gegen ein Fake-Backend mit den Antwortformen der Rust-Befehle (Schritte, Cancel
+  von Align und Stack über das jeweils richtige Flag, Fehler, Fortschrittsereignisse, neuer Stack macht das geschärfte Bild ungültig).
+- Gefunden und behoben: (1) `session.referenceFrame` wurde nie gesetzt, Stack registrierte immer gegen Frame 1, auch wenn die Alignpoints auf einem anderen
+  Frame lagen; (2) ein neuer Stack ließ das alte geschärfte Bild für Save image im Wavelet-Reiter stehen (`ExportState::set_stack`); (3) getippte
+  Kommazahlen oder negative Werte in ganzzahligen Feldern (Abstände, Boxgröße, Anzahl, Initial Layer, Step Increment, Max shift) ließen die Befehle mit einem
+  Deserialisierungsfehler scheitern; (4) die Referenztests fanden `re-local/` in einem Worktree nicht und übersprangen sich (`tests/common/mod.rs`).
+- Abgleich mit Soll-Bildern 02 und 07 (Edge ohne Fenster, Dev-Vorschau): Aufbau und Maße stimmen; Unterschiede sind die Help-Schaltfläche (RK-012),
+  die fehlende Speicherangabe (bewusst ausgelassen) und eine Pixelzeile Höhenversatz der Werkzeugleiste.
+- Offen: Do All und Process lassen sich nicht abbrechen (kein Abbruch-Flag im Rust-Befehl, Cancel verwirft nur das Ergebnis); die Farb- und Tonkarten
+  fließen nicht in Do All und Save image ein (RK-008/RK-009); ein zweites Align ist nach dem Design nicht vorgesehen (Schaltflächen gesperrt, Zustandstabelle).

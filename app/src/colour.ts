@@ -12,6 +12,7 @@ import {
   type ColourPayload,
   type HistogramData,
 } from "./logic/colour";
+import { wholeNumber } from "./logic/numbers";
 import { defaultTone, type ChannelShifts } from "./logic/settings";
 import { session, settings, status } from "./state";
 
@@ -94,7 +95,7 @@ export async function autoAlign(): Promise<void> {
       status.result = "RGB Align: no image yet";
       return;
     }
-    const found = await invoke<ChannelShifts>("estimate_rgb_align", { maxShift: settings.wavelet.tone.maxShift });
+    const found = await invoke<ChannelShifts>("estimate_rgb_align", { maxShift: wholeNumber(settings.wavelet.tone.maxShift, 1) });
     settings.wavelet.tone.shifts = found;
     status.result = "RGB Align: shifts found";
   } catch (e) {

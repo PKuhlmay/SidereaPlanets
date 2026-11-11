@@ -35,9 +35,13 @@ async function setAlignpoints() {
     status.result = "The region is too small for Min distance from edge";
     return;
   }
+  // The frame is read now: the Frame bar may move on while the points are searched, but they belong to this one.
+  const frame = session.frame;
   await runJob("Set Alignpoints", async () => {
-    const answer = await invoke<AlignpointsAnswer>("set_alignpoints", setAlignpointsArgs(session.frame, settings.align, roi));
+    const answer = await invoke<AlignpointsAnswer>("set_alignpoints", setAlignpointsArgs(frame, settings.align, roi));
     showPoints(answer);
+    // Align and Stack register the other frames against this one (the backend keeps the same number).
+    session.referenceFrame = frame;
     // Points that are set again start a new alignment.
     session.frames.forEach((f) => Object.assign(f, { quality: null, difference: null }));
     if (answer.points.length === 0) {

@@ -23,3 +23,8 @@ export function clampNumber(value: number, min?: number, max?: number): number {
 export function stepNumber(value: number, direction: 1 | -1, step: number, decimals: number, min?: number, max?: number): number {
   return clampNumber(Number((value + direction * step).toFixed(decimals)), min, max);
 }
+
+/** A typed value as a whole number of at least `min`, for the backend commands that take u32 or usize. */
+export function wholeNumber(value: number, min: number): number {
+  return Number.isFinite(value) ? Math.max(min, Math.round(value)) : min;
+}

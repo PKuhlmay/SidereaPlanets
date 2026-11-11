@@ -1,6 +1,7 @@
 // Pure helpers of the Align tab: what is sent to the backend commands (app/src-tauri/src/align_commands.rs)
 // and how their answers become what the window shows. The calls themselves are in ../align.ts.
 
+import { wholeNumber } from "./numbers";
 import type { createSettings } from "./settings";
 import type { Size } from "./viewport";
 
@@ -44,26 +45,26 @@ export function setAlignpointsArgs(frame: number, align: AlignSettings, roi: Rec
   return {
     frame,
     settings: {
-      minDistance: align.minDistance,
-      edgeDistance: align.edgeDistance,
-      maxMovement: align.maxMovement,
+      minDistance: wholeNumber(align.minDistance, 0),
+      edgeDistance: wholeNumber(align.edgeDistance, 0),
+      maxMovement: wholeNumber(align.maxMovement, 0),
       roi,
       intensity: align.intensity,
       lo: align.lo,
       hi: align.hi,
-      boxSize: align.boxSize,
+      boxSize: wholeNumber(align.boxSize, 1),
     },
   };
 }
 
 export function alignArgs(align: AlignSettings, roi: Rect | null) {
-  return { settings: { boxSize: align.boxSize, maxMovement: align.maxMovement, roi } };
+  return { settings: { boxSize: wholeNumber(align.boxSize, 1), maxMovement: wholeNumber(align.maxMovement, 0), roi } };
 }
 
 /** Lowest Quality (%) and Best Frames (%) take the percent field, the two count modes the number field. */
 export function limitArgs(align: AlignSettings) {
   const percent = align.limitMode === "lowestQuality" || align.limitMode === "bestPercent";
-  return { settings: { mode: align.limitMode, value: percent ? align.limitPercent : align.limitCount } };
+  return { settings: { mode: align.limitMode, value: percent ? align.limitPercent : wholeNumber(align.limitCount, 1) } };
 }
 
 /** Quality in percent of the best frame, as the Framelist shows it. */

@@ -17,18 +17,10 @@ const STRICT_THRESHOLD_DB: f64 = 65.0;
 /// guards the curve, not the sharpening.
 const NEUTRAL_THRESHOLD_DB: f64 = 85.0;
 
+mod common;
+
 fn reference_dir() -> Option<PathBuf> {
-    let manifest = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    [
-        std::env::var_os("PLANETS_RE_LOCAL").map(PathBuf::from),
-        Some(manifest.join("../../re-local")),
-        // In a worktree below `.claude/worktrees/<name>/`.
-        Some(manifest.join("../../../../../re-local")),
-    ]
-    .into_iter()
-    .flatten()
-    .map(|p| p.join("reference"))
-    .find(|p| p.join("jupiter-stack.tif").exists())
+    Some(common::re_local().join("reference")).filter(|p| p.join("jupiter-stack.tif").exists())
 }
 
 /// 16-bit RGB samples as written by the original.

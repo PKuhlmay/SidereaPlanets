@@ -17,6 +17,6 @@ Work runs from left to right through three tabs:
 
 ## Where things stand
 
-SidereaPlanets is a prototype and grows ticket by ticket. Today you can open recordings; the three processing steps are still being built and appear here as soon as they work. Every page of this documentation says plainly what is not available yet.
+SidereaPlanets is a prototype and grows ticket by ticket. Today you can run the whole chain, from opening a recording to saving the sharpened image; what is still missing is marked on the page of each function. Every page of this documentation says plainly what is not available yet.
 
 Start with [Select a recording](select-a-recording).

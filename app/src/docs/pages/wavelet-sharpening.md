@@ -7,7 +7,7 @@ order: 40
 
 The Wavelet tab brings out fine detail in the stacked image. It splits the image into six layers, from the finest structures (layer 1) to coarser ones (layer 6), and lets you strengthen or weaken each layer on its own. This is the step that turns a soft stack into a sharp planet.
 
-> Needs a stacked image, so it works as soon as the Stack step does (**Not available yet**). The buttons of the tab are described on [The Wavelet tab](wavelet-tab).
+> Needs a stacked image, so it works as soon as the Stack step has run. The buttons of the tab are described on [The Wavelet tab](wavelet-tab).
 
 ## The six layers
 
