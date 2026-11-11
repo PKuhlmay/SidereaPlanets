@@ -12,7 +12,7 @@ The second step: add up the best frames into one sharper image. The tab opens af
 | Button | What it does | Status |
 |---|---|---|
 | Stack | Adds up the frames that stay after Limit | Works |
-| Save image | Saves the stacked image | Not available yet |
+| Save image | Saves the stacked image (see [Save and export](save-and-export)) | Works |
 
 ## How the stack is made
 
@@ -50,15 +50,16 @@ Switch on **Resampling** and the method (Bell, Bspline, Lanczos, Mitchell; defau
 
 | Setting | Default |
 |---|---|
-| Codec | DIB |
-| Compress Qual | 7500 |
+| Codec | DIB (no effect, the video is always uncompressed) |
+| Compress Qual | 7500 (no effect) |
 | Framerate | 25 |
-| Image size (aligned sequence) | Original image size |
-| Sort On Quality, Use Prefilters | off |
+| Image size (aligned sequence) | Original image size (the other choices have no effect yet) |
+| Sort On Quality | off |
+| Use Prefilters | off (no effect yet) |
 | Method (integrated sequence) | Moving average |
 | Average of … Frames | 5 |
 
-**Save Aligned** and **Save Integrated** are **Not available yet**.
+**Save Aligned** writes the frames that stay after Limit as a video, **Save Integrated** a moving average over several of them. Both are described on the page [Save and export](save-and-export). They need the Align step to be done.
 
 ## Compared with the reference program
 

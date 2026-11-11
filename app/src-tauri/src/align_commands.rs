@@ -30,8 +30,22 @@ pub struct AlignState {
     paused: AtomicBool,
 }
 
+impl AlignState {
+    /// The registration of all frames from the last *Align*, if it fits a request with
+    /// `point_count` alignpoints on a recording of `frame_count` frames. Anything else (no *Align*
+    /// yet, points checked or unchecked since) gives `None`, and the caller registers again.
+    pub fn results_for(&self, point_count: usize, frame_count: u32) -> Option<Vec<FrameAlignment>> {
+        let results = self.results.lock().ok()?;
+        matching(&results, point_count, frame_count).then(|| results.clone())
+    }
+}
+
+fn matching(results: &[FrameAlignment], point_count: usize, frame_count: u32) -> bool {
+    results.len() == frame_count as usize && results.iter().all(|r| r.points.len() == point_count)
+}
+
 /// *R.o.Interest*: the rectangle that alignment is based on, in frame pixels.
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct RoiSettings {
     x: u32,
     y: u32,
@@ -329,4 +343,30 @@ pub fn limit(settings: LimitSettings, state: State<'_, AlignState>) -> Result<Li
         frames: kept.into_iter().map(|i| i as u32).collect(),
         point_shifts,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn rated(points: usize) -> FrameAlignment {
+        FrameAlignment {
+            shift: (0.0, 0.0),
+            points: vec![None; points],
+            quality: 1.0,
+            difference: 0.0,
+        }
+    }
+
+    #[test]
+    fn results_are_only_reused_for_the_same_frames_and_points() {
+        let results = vec![rated(3), rated(3)];
+        assert!(matching(&results, 3, 2));
+        // Another number of alignpoints than at Align: points were checked or unchecked since.
+        assert!(!matching(&results, 2, 2));
+        // Another recording length.
+        assert!(!matching(&results, 3, 5));
+        // No Align yet.
+        assert!(!matching(&[], 3, 2));
+    }
 }

@@ -37,7 +37,7 @@ The settings are collected here already; the steps that use them follow with the
 
 ## Toolbar
 
-**CPUs** is the number of threads for calculations (default 1). **About** is **Not available yet**.
+**Open** and **Save** next to the menus open and save a project file (see Save and export). **Open** is locked while a calculation runs; **Save** is also locked until a recording is open. **CPUs** is the number of threads for calculations (default 1). **About** is **Not available yet**.
 
 ## Number fields
 

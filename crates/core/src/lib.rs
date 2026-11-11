@@ -2,6 +2,7 @@
 
 pub mod align;
 pub mod color;
+pub mod sequence;
 pub mod stack;
 pub mod tone;
 pub mod wavelet;

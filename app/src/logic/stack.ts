@@ -37,3 +37,21 @@ export function buildStackRequest(session: Session, settings: Settings): StackRe
     roi: session.roi,
   };
 }
+
+/** Matches `SequenceSettings` of the Tauri commands `save_aligned` and `save_integrated` (src-tauri/src/sequence_commands.rs). */
+export interface SequenceRequest {
+  stack: StackRequest;
+  framerate: number;
+  sortOnQuality: boolean;
+  averageFrames: number;
+}
+
+/** What *Save Aligned* and *Save Integrated* send: the request of Stack plus the options of *Create AVI*. */
+export function buildSequenceRequest(session: Session, settings: Settings): SequenceRequest {
+  return {
+    stack: buildStackRequest(session, settings),
+    framerate: whole(settings.stack.framerate, 1),
+    sortOnQuality: settings.stack.sortOnQuality,
+    averageFrames: whole(settings.stack.averageFrames, 1),
+  };
+}

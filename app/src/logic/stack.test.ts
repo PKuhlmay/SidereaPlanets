@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createSettings } from "./settings";
-import { buildStackRequest } from "./stack";
+import { buildSequenceRequest, buildStackRequest } from "./stack";
 
 const session = () => ({
   roi: null,
@@ -43,5 +43,25 @@ describe("buildStackRequest", () => {
     settings.align.maxMovement = 2.6;
     const request = buildStackRequest(session(), settings);
     expect([request.nearestPoints, request.edgeSkip, request.maxMovement]).toEqual([1, 0, 3]);
+  });
+});
+
+describe("buildSequenceRequest", () => {
+  it("adds the Create AVI options to the request of Stack", () => {
+    const settings = createSettings();
+    settings.stack.framerate = 12.6;
+    settings.stack.sortOnQuality = true;
+    settings.stack.averageFrames = 0;
+    const request = buildSequenceRequest(session(), settings);
+    expect(request.stack).toEqual(buildStackRequest(session(), settings));
+    expect(request.framerate).toBe(13);
+    expect(request.sortOnQuality).toBe(true);
+    // At least one frame per average.
+    expect(request.averageFrames).toBe(1);
+  });
+
+  it("uses the defaults of the reference program: 25 frames per second, an average of 5", () => {
+    const request = buildSequenceRequest(session(), createSettings());
+    expect(request).toMatchObject({ framerate: 25, sortOnQuality: false, averageFrames: 5 });
   });
 });

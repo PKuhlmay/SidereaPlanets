@@ -307,6 +307,42 @@ impl<'a> Stacker<'a> {
         self.frames += usable.len() as u32;
     }
 
+    /// One frame moved onto the reference, the way [`Stacker::add_aligned`] would add it, but as an
+    /// image of its own (*Save Aligned*). Pixels the frame does not cover stay black. `None` if the
+    /// frame has another size or channel count than the reference frame.
+    pub fn warp(&self, frame: &Image, alignment: &FrameAlignment) -> Option<Image> {
+        let channels = usize::from(frame.channels).max(1);
+        if frame.width as usize != self.width
+            || frame.height as usize != self.height
+            || channels != self.channels
+        {
+            return None;
+        }
+        let field = self.field(alignment);
+        let gain = self.gain(frame);
+        let width = self.width;
+        let mut data = vec![0.0f32; width * self.height * channels];
+        data.par_chunks_mut(width * channels)
+            .enumerate()
+            .for_each(|(y, row)| {
+                let mut px = vec![0.0f32; channels];
+                for x in 0..width {
+                    let (dx, dy) = field.at(x as f32, y as f32);
+                    if sample(frame, x as f32 + dx, y as f32 + dy, 0.0, &mut px) {
+                        for (out, &v) in row[x * channels..(x + 1) * channels].iter_mut().zip(&px) {
+                            *out = v * gain;
+                        }
+                    }
+                }
+            });
+        Some(Image {
+            width: frame.width,
+            height: frame.height,
+            channels: channels as u8,
+            data,
+        })
+    }
+
     /// The shift of each pixel of a frame.
     fn field(&self, alignment: &FrameAlignment) -> Field {
         if !self.params.correct_geometry {

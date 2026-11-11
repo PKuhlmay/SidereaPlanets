@@ -11,18 +11,25 @@ Ergebnisse in gängigen Formaten ausgeben.
 - [ ] Projekt-/Einstellungsdatei, damit eine Sitzung wieder geöffnet werden kann
 
 ## Stand
-Backend und Oberfläche sind angebunden und kompilieren (`cargo clippy`, `pnpm build`). Die Tests sind geschrieben, aber noch nicht
-gelaufen. Deshalb bleiben die Kriterien offen, bis die Testläufe grün sind und das Speichern in der laufenden App geprüft ist.
+Backend und Oberfläche sind angebunden. Die Testläufe sind grün (`cargo test --workspace`, `cargo clippy`, `pnpm build`, `pnpm test`), neue
+Tests waren vorher rot. Die Kriterien bleiben offen, bis das Speichern in der laufenden App von Hand geprüft ist (dieser Stand
+wurde nur über Tests und Bau geprüft, die App selbst wurde nicht gestartet).
 
 - Schreiber `crates/io/src/export.rs` (BMP, JPEG, TIFF 16, PNG 16, FITS 16/32/32 Float), `fits_write.rs`, `avi_write.rs`
   (unkomprimierte AVI); Projektdatei `project.rs`; Befehle `app/src-tauri/src/export_commands.rs`.
-- Oberfläche: `app/src/saving.ts` (Handler `saveImage`, Tools ▸ Open/Save project), Formatmenü
-  `SaveImageMenu.vue`, Projektabschnitte `logic/projectfile.ts`.
+- Oberfläche: `app/src/saving.ts` (Handler `saveImage`, `saveAligned`, `saveIntegrated`, `openProject`, `saveProject`), Formatmenü
+  `SaveImageMenu.vue`, Projektabschnitte `logic/projectfile.ts`. **Open** und **Save** (Projektdatei) sind eigene Schaltflächen
+  der Werkzeugleiste, nicht mehr Einträge im Menü Tools (Entscheidung Philipp, 2026-11-11).
+- *Save image* im Wavelet-Reiter schreibt das Bild mit den Farb- und Tonwerten (RK-008), wie das Fenster es zeigt; ohne Anpassung wie
+  zuvor. Der Stack-Reiter schreibt das Summenbild unverändert.
+- *Save Aligned* und *Save Integrated*: `app/src-tauri/src/sequence_commands.rs`, Kern `planets_core::sequence`. Save Aligned schreibt die
+  nach *Limit* behaltenen Frames, auf das Bezugsframe geschoben, als AVI; Save Integrated den gleitenden Mittelwert über *Average of n
+  Frames* (_Vermutung_, `docs/offene-fragen.md`, Punkt 23a). Fortschritt, Cancel und Pause wie bei *Stack*.
+- 16-Bit-Wertebereich: entschieden, voller Bereich bis 65535 (`docs/offene-fragen.md`, Punkt 22).
 - Format der Projektdatei und der Ausgaben: `docs/formats.md`; Anwenderdoku: Seite „Save and export“.
-- Offen: *Save Aligned* und *Save Integrated* (brauchen die ausgerichteten Frames aus RK-005/RK-006; der Schreiber ist fertig, die
-  Schaltflächen melden „not available yet“), Menü Flat/Dark/Reference (Darkframe, Flatfield, Referenzframe laden: gehört nicht zu
-  Speichern und Export). `ExportState::set_stack` und `set_wavelet` rufen `stack` und `wavelet_do_all` auf; die Farb- und Tonwerte aus RK-008 fließen noch nicht in
-  *Save image* ein (Save image schreibt das Bild vor der Farbanpassung). 16-Bit-Wertebereich: `docs/offene-fragen.md`, Punkt 22.
+- Offen: Menü Flat/Dark/Reference (Darkframe, Flatfield, Referenzframe laden: gehört nicht zu Speichern und Export); Optionen von
+  Create AVI ohne Wirkung (Codec, Compress Qual, Image size, Use Prefilters, Method Compressed); im Wavelet-Reiter schreibt *Save
+  image* das Ergebnis von *Do All*, nicht den Stand der Vorschau (*Process*).
 
 ## Design
 Soweit dieses Ticket Bedienelemente anbindet oder anzeigt, gilt `docs/design.md`. Aussehen und Anordnung werden nicht neu entschieden.

@@ -1,6 +1,7 @@
 mod align_commands;
 mod color_commands;
 mod export_commands;
+mod sequence_commands;
 mod stack_commands;
 mod wavelet_commands;
 
@@ -115,6 +116,9 @@ pub fn run() {
             export_commands::project_save_as,
             export_commands::project_load,
             export_commands::project_open,
+            sequence_commands::choose_video_path,
+            sequence_commands::save_aligned,
+            sequence_commands::save_integrated,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

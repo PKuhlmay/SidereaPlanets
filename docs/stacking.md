@@ -133,7 +133,7 @@ Nicht Teil der Akzeptanzkriterien und nie beobachtet; jeweils nur der Name bekan
 
 - *StackSize* (Minimized, Maximized, R.of Interest), *Stretch histogram after stacking*, *De-rotate images*.
 - **Resampling** (Bell, Bspline, Lanczos, Mitchell, Faktor) und **Drizzling**, die das Ergebnis vergrößern.
-- **Create AVI** (*Save Aligned*, *Save Integrated*); gehört zu RK-009.
+- **Create AVI** (*Save Aligned*, *Save Integrated*): in RK-009 gebaut, siehe `docs/formats.md`, Abschnitt „Create AVI“.
 - Stackgraph und Stacklist.
 
 ## Offen

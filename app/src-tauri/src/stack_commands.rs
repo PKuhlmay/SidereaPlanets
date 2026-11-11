@@ -35,6 +35,25 @@ impl StackState {
     pub fn image(&self) -> Option<Image> {
         self.result.lock().ok().and_then(|guard| guard.clone())
     }
+
+    /// Clears Cancel and Pause before a job starts. *Save Aligned* and *Save Integrated* share the
+    /// flags of *Stack* (`jobs.ts` sends Cancel and Pause to the same commands for all three).
+    pub(crate) fn begin(&self) {
+        self.cancelled.store(false, Ordering::Relaxed);
+        self.paused.store(false, Ordering::Relaxed);
+    }
+
+    /// Called after each batch: waits while paused and tells whether the job goes on.
+    pub(crate) fn checkpoint(&self) -> Control {
+        while self.paused.load(Ordering::Relaxed) && !self.cancelled.load(Ordering::Relaxed) {
+            std::thread::sleep(Duration::from_millis(50));
+        }
+        if self.cancelled.load(Ordering::Relaxed) {
+            Control::Cancel
+        } else {
+            Control::Continue
+        }
+    }
 }
 
 #[derive(Deserialize)]
@@ -48,11 +67,11 @@ pub struct PointPosition {
 #[serde(rename_all = "camelCase")]
 pub struct StackSettings {
     /// The frame the alignpoints were set on.
-    reference_frame: u32,
+    pub(crate) reference_frame: u32,
     /// The alignpoints in use (checked in the *Alignmentpoints* list).
     points: Vec<PointPosition>,
     /// The frames that stay after *Limit* (checked in the frame list).
-    frames: Vec<u32>,
+    pub(crate) frames: Vec<u32>,
     /// *Alignmentbox size* and *Max Alignpoint movement* of the Align tab.
     box_size: u32,
     max_movement: u32,
@@ -66,6 +85,37 @@ pub struct StackSettings {
     edge_skip: u32,
     /// The *R.o.Interest* the alignpoints were set in, if any.
     roi: Option<RoiSettings>,
+}
+
+impl StackSettings {
+    /// The reference for registering frames: the alignpoints of the request on `reference_frame`.
+    pub(crate) fn reference(&self, reference_frame: &Image) -> Reference {
+        let points = points_from_positions(self.points.iter().map(|p| (p.x, p.y)));
+        Reference::with_roi(
+            reference_frame,
+            &points,
+            &AlignParams {
+                box_size: self.box_size,
+                max_movement: self.max_movement,
+            },
+            self.roi.as_ref().map(|r| Roi::from(r.clone())),
+        )
+    }
+
+    /// The *Stacking options* of the request.
+    pub(crate) fn params(&self) -> StackParams {
+        StackParams {
+            nearest_points: self.nearest_points,
+            correct_geometry: self.correct_geometry,
+            normalize: self.normalize,
+            edge_skip: self.edge_skip,
+        }
+    }
+
+    /// How many alignpoints the request uses.
+    pub(crate) fn point_count(&self) -> usize {
+        self.points.len()
+    }
 }
 
 #[derive(Serialize, Clone)]
@@ -106,25 +156,10 @@ pub async fn stack(
         recording.read_frame(index).map_err(|e| e.to_string())
     };
     let reference_frame = read(settings.reference_frame)?;
-    let points = points_from_positions(settings.points.iter().map(|p| (p.x, p.y)));
-    let reference = Reference::with_roi(
-        &reference_frame,
-        &points,
-        &AlignParams {
-            box_size: settings.box_size,
-            max_movement: settings.max_movement,
-        },
-        settings.roi.map(Roi::from),
-    );
-    let params = StackParams {
-        nearest_points: settings.nearest_points,
-        correct_geometry: settings.correct_geometry,
-        normalize: settings.normalize,
-        edge_skip: settings.edge_skip,
-    };
+    let reference = settings.reference(&reference_frame);
+    let params = settings.params();
 
-    state.cancelled.store(false, Ordering::Relaxed);
-    state.paused.store(false, Ordering::Relaxed);
+    state.begin();
     let total = settings.frames.len() as u32;
     let started = Instant::now();
     let stacked = stack_sequence(
@@ -134,9 +169,7 @@ pub async fn stack(
         &settings.frames,
         read,
         |done| {
-            while state.paused.load(Ordering::Relaxed) && !state.cancelled.load(Ordering::Relaxed) {
-                std::thread::sleep(Duration::from_millis(50));
-            }
+            let control = state.checkpoint();
             let _ = app.emit(
                 "stack-progress",
                 Progress {
@@ -145,11 +178,7 @@ pub async fn stack(
                     elapsed_ms: started.elapsed().as_millis() as u64,
                 },
             );
-            if state.cancelled.load(Ordering::Relaxed) {
-                Control::Cancel
-            } else {
-                Control::Continue
-            }
+            control
         },
     )
     .map_err(|e| match e {

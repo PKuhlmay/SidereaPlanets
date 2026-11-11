@@ -9,7 +9,7 @@ The window has the same parts as the reference program, from top to bottom:
 
 | Part | What it does |
 |---|---|
-| Toolbar | **Select** opens a recording. The menus MRU, Flat/Dark/Reference, Tools and Settings sit next to it, **Cancel** and **Pause** in the middle, **Help**, **About** and the number of CPUs on the right |
+| Toolbar | **Select** opens a recording. The menus MRU, Flat/Dark/Reference, Tools and Settings sit next to it, followed by **Open** and **Save** for project files. **Cancel** and **Pause** are in the middle; **Help**, **About** and the number of CPUs on the right |
 | Tabs | Align, Stack and Wavelet as numbered steps. A step opens once the one before it is done. At the right: file name, codec, size and number of frames |
 | Action row | The buttons for the current step and the check boxes of the tab |
 | Work area | Settings on the left, the image in the middle, on the Wavelet tab the Functions panel on the right |

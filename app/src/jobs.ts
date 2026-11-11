@@ -12,9 +12,10 @@ export interface JobContext {
   readonly cancelled: boolean;
 }
 
-// Align and Stack run in different commands of the backend, each with its own flags for Cancel and Pause.
+// Align and Stack run in different commands of the backend, each with its own flags for Cancel and Pause; Save Aligned
+// and Save Integrated share the flags of Stack.
 const commands = (name: string) =>
-  name === "Stack"
+  name === "Stack" || name === "Save Aligned" || name === "Save Integrated"
     ? { cancel: "cancel_stacking", pause: "pause_stacking" }
     : { cancel: "cancel_processing", pause: "pause_processing" };
 

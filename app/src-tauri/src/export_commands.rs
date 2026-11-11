@@ -6,7 +6,11 @@
 //! frontend only decides *what* to save. The steps that produce an image hand it over with
 //! [`ExportState::set_stack`] and [`ExportState::set_wavelet`].
 
-use planets_core::Image;
+use crate::color_commands::ColorSettings;
+use planets_core::{
+    Image,
+    color::{Adjustments, adjust},
+};
 use planets_io::{
     export::{ExportFormat, save_image as write_image},
     project::{PROJECT_EXTENSION, Project, with_project_extension},
@@ -97,9 +101,17 @@ pub async fn save_image(
     source: ImageSource,
     format: ExportFormat,
     path: String,
+    adjustments: Option<ColorSettings>,
     state: State<'_, ExportState>,
 ) -> Result<String, String> {
-    save(&state, source, format, Path::new(&path))
+    let adjustments = adjustments.map(Adjustments::from);
+    save(
+        &state,
+        source,
+        format,
+        Path::new(&path),
+        adjustments.as_ref(),
+    )
 }
 
 /// Opens the save dialog for `format` and writes the image there. `None` if the user cancels.
@@ -112,8 +124,10 @@ pub async fn save_image_as(
     format: ExportFormat,
     suggested_name: Option<String>,
     directory: Option<String>,
+    adjustments: Option<ColorSettings>,
     state: State<'_, ExportState>,
 ) -> Result<Option<String>, String> {
+    let adjustments = adjustments.map(Adjustments::from);
     // Fail before the dialog if there is nothing to save.
     state.get(source)?;
     let name = suggested_name.map(|n| format.with_extension(Path::new(&n)));
@@ -121,19 +135,30 @@ pub async fn save_image_as(
         .set_title("Save image")
         .add_filter(format.label(), format.extensions());
     match pick_save(dialog)? {
-        Some(path) => save(&state, source, format, &path).map(Some),
+        Some(path) => save(&state, source, format, &path, adjustments.as_ref()).map(Some),
         None => Ok(None),
     }
 }
 
+/// Writes the image of `source`; with `adjustments` it is written as the colour and tone panels
+/// show it (`docs/formats.md`), not as it came out of Stack or Wavelet.
 fn save(
     state: &ExportState,
     source: ImageSource,
     format: ExportFormat,
     path: &Path,
+    adjustments: Option<&Adjustments>,
 ) -> Result<String, String> {
     let image = state.get(source)?;
-    write_image(&image, path, format)
+    let adjusted;
+    let image = match adjustments {
+        Some(a) => {
+            adjusted = adjust(&image, a);
+            &adjusted
+        }
+        None => &*image,
+    };
+    write_image(image, path, format)
         .map(|p| p.to_string_lossy().into_owned())
         .map_err(|e| e.to_string())
 }
@@ -211,7 +236,7 @@ pub async fn project_open(
 }
 
 /// A dialog that starts in `directory` with `file_name` filled in.
-fn start_dialog(
+pub(crate) fn start_dialog(
     app: &AppHandle,
     file_name: Option<&Path>,
     directory: Option<&str>,
@@ -226,7 +251,7 @@ fn start_dialog(
     dialog
 }
 
-fn pick_save(dialog: FileDialogBuilder<tauri::Wry>) -> Result<Option<PathBuf>, String> {
+pub(crate) fn pick_save(dialog: FileDialogBuilder<tauri::Wry>) -> Result<Option<PathBuf>, String> {
     dialog
         .blocking_save_file()
         .map(|p| p.into_path().map_err(|e| e.to_string()))
@@ -251,9 +276,16 @@ mod tests {
     fn saving_without_an_image_says_so() {
         let state = ExportState::default();
         let path = std::env::temp_dir().join("planets-cmd-none.png");
-        let err = save(&state, ImageSource::Stack, ExportFormat::Png16, &path).unwrap_err();
+        let err = save(&state, ImageSource::Stack, ExportFormat::Png16, &path, None).unwrap_err();
         assert!(err.contains("no stacked image"));
-        let err = save(&state, ImageSource::Wavelet, ExportFormat::Png16, &path).unwrap_err();
+        let err = save(
+            &state,
+            ImageSource::Wavelet,
+            ExportFormat::Png16,
+            &path,
+            None,
+        )
+        .unwrap_err();
         assert!(err.contains("no processed image"));
     }
 
@@ -272,6 +304,7 @@ mod tests {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &dir.join("s.bmp"),
+            None,
         )
         .unwrap();
         // The format wins over the typed extension.
@@ -281,6 +314,7 @@ mod tests {
             ImageSource::Wavelet,
             ExportFormat::Tiff16,
             &dir.join("w.tif"),
+            None,
         )
         .unwrap();
         let read = |p: &str| {
@@ -295,6 +329,34 @@ mod tests {
             assert!((got - want).abs() < 1e-4, "{got} vs {want}");
         }
         assert_eq!(b.data, vec![1.0; 4]);
+    }
+
+    #[test]
+    fn the_panel_values_are_written_when_given() {
+        let state = ExportState::default();
+        state.set_stack(image());
+        let dir = std::env::temp_dir().join(format!("planets-cmd-adj-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        // Brightness +0.25 of the range moves every sample up by a quarter.
+        let brighter = Adjustments {
+            brightness: 0.25,
+            ..Adjustments::default()
+        };
+        let path = save(
+            &state,
+            ImageSource::Stack,
+            ExportFormat::Tiff16,
+            &dir.join("a.tif"),
+            Some(&brighter),
+        )
+        .unwrap();
+        let read = ImageSequenceReader::open(vec![PathBuf::from(path)])
+            .unwrap()
+            .read_frame(0)
+            .unwrap();
+        for (got, want) in read.data.iter().zip([0.25, 0.75, 1.0, 0.5]) {
+            assert!((got - want).abs() < 1e-4, "{got} vs {want}");
+        }
     }
 
     #[test]

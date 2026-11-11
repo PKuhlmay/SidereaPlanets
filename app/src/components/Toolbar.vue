@@ -81,10 +81,6 @@ function resetLuminance() {
       <MenuButton v-slot="{ close }" label="Tools">
         <button type="button" class="mi" @click="close(), runAction('macroBatch')">Show MACRO/Batch window</button>
         <label class="mi"><input v-model="settings.menu.recordInFilename" type="checkbox" />Record Processing Information in Filename</label>
-        <hr />
-        <!-- Not in the original: the project file keeps the recording and the settings of a session (docs/formats.md). -->
-        <button type="button" class="mi" :disabled="busy" @click="close(), openProject()">Open project…</button>
-        <button type="button" class="mi" :disabled="!loaded || busy" @click="close(), saveProject()">Save project…</button>
       </MenuButton>
 
       <MenuButton label="Settings" wide>
@@ -141,9 +137,23 @@ function resetLuminance() {
         <label class="mi">Save to Subdir <input v-model="settings.menu.saveToSubdir" type="text" placeholder="Subdirname" /></label>
         <div class="mi">Bias subtract <NumberField v-model="settings.menu.biasSubtract" label="Bias subtract" /></div>
       </MenuButton>
+
+      <!-- Not in the original: the project file keeps the recording and the settings of a session (docs/formats.md). -->
+      <button type="button" class="btn ghost" title="Open project" aria-label="Open project" :disabled="busy" @click="openProject">
+        <svg class="ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path d="M1.5 3.5h4l1.5 1.5h7.5v7.5h-13z" />
+        </svg>
+        Open
+      </button>
+      <button type="button" class="btn ghost" title="Save project" aria-label="Save project" :disabled="!loaded || busy" @click="saveProject">
+        <svg class="ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
+          <path d="M2.5 2.5h8l3 3v8h-11zM5 2.5v3.5h5V2.5M5 13.5v-4h6v4" />
+        </svg>
+        Save
+      </button>
     </div>
 
-    <div class="zone">
+    <div class="zone mid">
       <button type="button" class="btn" :class="{ next: busy }" :disabled="!busy" @click="cancelJob">Cancel</button>
       <button type="button" class="btn" :disabled="!busy" @click="togglePause">{{ status.busy?.paused ? "Resume" : "Pause" }}</button>
     </div>
@@ -164,7 +174,7 @@ function resetLuminance() {
 <style scoped>
 .toolbar {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: auto 1fr auto;
   gap: 12px;
   align-items: center;
   padding: 8px 12px;
@@ -175,6 +185,9 @@ function resetLuminance() {
   display: flex;
   gap: 4px;
   align-items: center;
+}
+.zone.mid {
+  justify-content: center;
 }
 .zone.right {
   justify-content: flex-end;

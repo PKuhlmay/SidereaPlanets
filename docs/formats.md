@@ -106,15 +106,35 @@ n Frames) schreiben AVI mit einem Video-for-Windows-Codec, Qualität und Bildrat
   Datei lässt sich mit dem Leser des Klons wieder öffnen. Die Zeilen werden von unten nach oben abgelegt, wie FITS es vorsieht.
   Die Variante „RGB separate“ (je Kanal eine Datei) und „Special the reference program Fits“ gibt es nicht, ihr Aufbau ist unbekannt.
 - **Wertebereich**: Der Klon rechnet in Fließkomma und bildet 1.0 auf den Höchstwert des Formats ab (255, 65535 …). Das Original
-  liefert 16 Bit als 8 Bit × 256, also höchstens 65280 (siehe Beobachtungen oben). Die Abweichung ist bewusst, siehe
-  `docs/offene-fragen.md`, Punkt 22.
+  liefert 16 Bit als 8 Bit × 256, also höchstens 65280 (siehe Beobachtungen oben). Die Abweichung ist **entschieden** (Philipp,
+  2026-11-11): 16 Bit bleiben im vollen Bereich bis 65535, siehe `docs/offene-fragen.md`, Punkt 22. Wer gegen ein Original-TIFF
+  vergleicht, rechnet dessen Werte durch 256 (so macht es `docs/stacking.md`).
+- **Farb- und Tonwerte**: *Save image* im **Wavelet-Reiter** schreibt das Bild so, wie das Fenster es zeigt: das geschärfte Bild mit
+  den Werten von RGB Align, RGB Balance, Histogram, Gamma und Contrast/Brightness (RK-008). Die Oberfläche schickt die Werte mit
+  (`adjustments` bei `save_image` und `save_image_as`), der Befehl rechnet `planets_core::color::adjust` auf dem
+  Bild in voller Genauigkeit, nicht auf der 8-Bit-Anzeige. Sind alle Werte neutral, wird das Bild unverändert geschrieben, wie zuvor.
+  Der **Stack-Reiter** zeigt das Summenbild ohne diese Werte und schreibt es auch so.
 - Geschrieben wird in eine Datei mit Endung `.part` und danach umbenannt, ein Fehler lässt eine vorhandene Datei also unverändert.
 - Nicht umgesetzt: *Save to Subdir*, *Record Processing Information in Filename* (im Original nie beobachtet).
 
 **Create AVI**: Der Schreiber `planets_io::avi_write::AviWriter` erzeugt unkomprimierte AVI (24 Bit), Bild für Bild und damit auch für
 tausende Frames. Die Codec-Auswahl und *Compress Qual* des Originals entfallen, weil der Klon keine Video-for-Windows-Codecs
-benutzt. Grenze 4 GiB (kein OpenDML). Die Befehle für *Save Aligned* und *Save Integrated* (in der Oberfläche vorerst „not available yet“) kommen mit der Anbindung der
-ausgerichteten Frames aus dem Stacking (RK-006).
+benutzt. Grenze 4 GiB (kein OpenDML); ein Video, das darüber käme, bricht mit Meldung ab und lässt keine Datei zurück.
+
+Umsetzung: Befehle `choose_video_path` (Dateidialog, Endung `.avi`), `save_aligned` und `save_integrated`
+(`app/src-tauri/src/sequence_commands.rs`), Kern `planets_core::sequence` (`aligned_frames`, `MovingAverage`) und
+`Stacker::warp`. Fortschritt über das Ereignis `sequence-progress`; Cancel und Pause teilen die Merker von *Stack*.
+
+- **Save Aligned**: Jeder Frame, der nach *Limit* bleibt (die Häkchen der Frameliste), wird wie beim Stacken auf das Bezugsframe
+  geschoben (*Correct geometry*, *Normalization* und *Use Nearestby Alignpoints* der Stacking options gelten) und als ein Videobild
+  geschrieben. Was der Frame nicht abdeckt, bleibt schwarz. Reihenfolge: die der Frameliste; mit *Sort On Quality* der beste zuerst.
+  Die Verschiebungen kommen aus dem letzten *Align* (`AlignState::results_for`); passen sie nicht mehr (Punkte seither an- oder
+  abgehakt), registriert der Befehl neu. *Sort On Quality* braucht das Ergebnis von *Align* und meldet sonst einen Fehler.
+- **Save Integrated** (_Vermutung_, siehe `docs/offene-fragen.md`, Punkt 23a): gleitender Mittelwert (*Method: Moving average*) über
+  je *Average of n Frames* aufeinanderfolgende ausgerichtete Frames; jedes Videobild ist der Mittelwert eines Fensters, das um einen
+  Frame weiterrückt. Bei N Frames entstehen N − n + 1 Bilder; sind es weniger als n, ein Bild mit dem Mittelwert aller.
+- **Bildrate** ist *Framerate* (Standard 25). Nicht umgesetzt: Codec, *Compress Qual*, *Image size* (immer Originalgröße, d. h.
+  Größe des Bezugsframes), *Use Prefilters*, die Methode *Compressed*.
 
 ## Wavelet-Schema (`.rwv`)
 

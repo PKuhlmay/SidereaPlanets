@@ -2,16 +2,16 @@
 // yet reports "Not available yet" in the status bar; a ticket that builds a function registers its handler here.
 //
 //   RK-005  setAlignpoints, align, limit, noAlign, regionOfInterest, scanFrames, emptyList
-//   RK-006  stack, saveAligned, saveIntegrated
+//   RK-006  stack
 //   RK-007  process, doAll, loadScheme, saveScheme (registered below, wavelet.ts); realign and stackAgain wait for
 //           RK-005/RK-006; resetWavelets is done in the panel
 //   RK-008  functions panels, copyTo, loadTo, difference
-//   RK-009  saveImage (saving.ts); saveAligned, saveIntegrated and the
+//   RK-009  saveImage, saveAligned, saveIntegrated (saving.ts); the
 //           darkframe/flatfield/reference menu entries are still open
 //
 // A handler normally calls runJob (jobs.ts) so that progress, Cancel and Pause work.
 
-import { saveImage } from "./saving";
+import { saveAligned, saveImage, saveIntegrated } from "./saving";
 import { stack } from "./stack";
 import { status } from "./state";
 import { doAll, loadScheme, process, saveScheme } from "./wavelet";
@@ -46,10 +46,10 @@ export const actionLabels = {
 
 export type ActionId = keyof typeof actionLabels;
 
-// Save Aligned and Save Integrated have no handler on purpose: they need the aligned frames of RK-005/RK-006, so they
-// report "not available yet" until a handler is registered here.
 export const handlers: Partial<Record<ActionId, () => void | Promise<void>>> = {
   saveImage,
+  saveAligned,
+  saveIntegrated,
   stack,
   process,
   doAll,

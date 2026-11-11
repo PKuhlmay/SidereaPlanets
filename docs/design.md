@@ -72,7 +72,7 @@ Schaltflächen, 600 für Gruppenüberschriften, aktive Reiter und gefüllte Scha
 
 ```
 ┌───────────────────────────────────────────────────────────────────────────────────┐
-│ Werkzeugleiste   Select  MRU  Flat/Dark/Reference  Tools  Settings │ Cancel Pause │ About  CPUs │
+│ Werkzeugleiste   Select  MRU  Flat/Dark/Reference  Tools  Settings  Open  Save │ Cancel Pause │ Help About  CPUs │
 ├───────────────────────────────────────────────────────────────────────────────────┤
 │ Reiterleiste     1 Align › 2 Stack › 3 Wavelet                 Datei · Speicher   │
 ├───────────────────────────────────────────────────────────────────────────────────┤
@@ -90,7 +90,7 @@ Schaltflächen, 600 für Gruppenüberschriften, aktive Reiter und gefüllte Scha
 
 | Bereich | Höhe | Inhalt und Regeln |
 |---|---|---|
-| Werkzeugleiste | 44 px | Drei Zonen: links Select und die vier Menüs, in der Mitte Cancel und Pause, rechts Help, About und CPUs. Help gibt es im Original nicht, es öffnet die Doku in der App (RK-012) |
+| Werkzeugleiste | 44 px | Drei Zonen: links Select, die vier Menüs und die Projekt-Schaltflächen Open und Save, in der Mitte (im Rest zwischen links und rechts zentriert) Cancel und Pause, rechts Help, About und CPUs. Help, Open und Save gibt es im Original nicht: Help öffnet die Doku in der App (RK-012), Open und Save öffnen und speichern die Projektdatei (RK-009) |
 | Reiterleiste | 36 px | Reiter als nummerierte Schritte mit „›“ dazwischen. Rechts Dateiname, Codec, Größe, Frame-Zahl und Speicher in `--muted` |
 | Aktionszeile | mind. 62 px | Links die Schritt-Schaltflächen, bündig über dem linken Panel. Daneben die Häkchen spaltenweise in zwei Zeilen, Spaltenfolge wie im Original |
 | Arbeitsbereich | Rest | Linkes Panel fest 272 px, Bildbereich füllt den Rest, rechtes Panel 248 px nur im Wavelet-Reiter. Panels scrollen senkrecht, wenn das Fenster zu niedrig ist |
@@ -111,14 +111,15 @@ damit der Fortschritt wie im Original in der Taskleiste lesbar ist.
 |---|---|---|
 | Standard | `--raised`, Umriss `--line-strong`, Höhe `--h-btn`, Radius `--r` | Save image, Process, Load Scheme und alle übrigen |
 | Gefüllt | `--accent` mit `--on-accent`, Gewicht 600 | Select; der nächste Schritt der Schrittfolge; Do All; Cancel während einer Berechnung |
-| Ohne Rahmen | durchsichtig, Hover `--raised` | Menüs der Werkzeugleiste (mit Pfeil nach unten), Help (mit Icon), About |
+| Ohne Rahmen | durchsichtig, Hover `--raised` | Menüs der Werkzeugleiste (mit Pfeil nach unten), Open und Save (mit Icon), Help (mit Icon), About |
 | Textlink | `--accent-ink`, ohne Fläche | Aktionen in Gruppenköpfen: Reset Wavelets, Hold, Reset |
 | Umschalter | gedrückt: `--accent-soft`, Umriss `--accent`, Text `--accent-ink` | Functions-Raster, Functions », Before |
 | Gesperrt | Text `--off`, Umriss `--line`, keine Fläche | jede Art |
 
 Icons sind Linienbilder auf 16×16 px, Strich 1,5 px mit runden Enden, Farbe `--muted` (Hover `--text`), ohne Füllung.
-Sie stehen links vom Text. Bisher gibt es nur das Help-Icon, ein aufgeschlagenes Buch (Doku, nicht Info).
-Das SVG steht im klickbaren Entwurf, dieselbe Geometrie in `figcraft-build.mjs`.
+Sie stehen links vom Text. Es gibt drei: Help, ein aufgeschlagenes Buch (Doku, nicht Info); Open, eine Mappe; Save, eine
+Diskette. Das Help-SVG steht im klickbaren Entwurf, dieselbe Geometrie in `figcraft-build.mjs`; Open und Save (RK-009) stehen
+nur in `app/src/components/Toolbar.vue` (Pfade `M1.5 3.5h4l1.5 1.5h7.5v7.5h-13z` und `M2.5 2.5h8l3 3v8h-11zM5 2.5v3.5h5V2.5M5 13.5v-4h6v4`).
 
 Pro Zeile ist höchstens eine Schaltfläche gefüllt. Rot kommt nicht vor: „Save image“ ist im Original rot
 beschriftet, im Klon eine Standard-Schaltfläche.
@@ -170,9 +171,11 @@ Zusammenhängende Schaltflächen in einem gemeinsamen Umriss. Zwei Einsätze:
 „›“ für ein Untermenü. Zahlen- und Textfelder (Bias subtract, Save to Subdir, Faktor bei Create Darkframe) stehen
 rechts im Eintrag. Trennlinien gruppieren wie im Original. Escape und ein Klick daneben schließen.
 
-Dem Menü Tools sind zwei Einträge hinzugefügt (RK-009), getrennt durch eine Linie unter den Einträgen des Originals:
-**Open project…** und **Save project…** (Projektdatei, `docs/formats.md`). Das Original hat sie nicht; Ort und Namen sind ein
-Vorschlag, den Philipp ändern kann. Save project ist ohne geladene Aufnahme gesperrt.
+**Open** und **Save** (RK-009) sind eigene Schaltflächen ohne Rahmen in der Werkzeugleiste, rechts neben dem Menü Settings
+(Projektdatei, `docs/formats.md`). Das Original hat sie nicht. Die Beschriftung ist kurz gehalten, weil die Werkzeugleiste
+bei der Mindestbreite von 1120 px sonst überläuft; der Tooltip und das Label für Screenreader heißen *Open project* und
+*Save project*. Beide sind während einer Berechnung gesperrt, Save zusätzlich ohne geladene Aufnahme. Tools enthält damit
+wieder nur die Einträge des Originals.
 
 **Save image** (Stack- und Wavelet-Reiter) ist eine Standard-Schaltfläche, die beim Anklicken ein Menü mit der Auswahl des
 Dateityps öffnet (Stack: sieben Einträge, Wavelet: fünf; rechts steht die Endung). Ein Klick auf einen Eintrag öffnet den
@@ -362,7 +365,7 @@ Rechnung `wavelet::ColourMode` mit `color::with_luminance`, siehe `docs/wavelets
 | Flat/Dark/Reference | ![Menü Flat/Dark/Reference](design/screenshots/10-menu-flat-dark-reference.png) |
 
 MRU zeigt die zuletzt geöffneten Dateien als Einträge, leer den Text „No recent files“ in `--muted`. Tools hat zwei
-Einträge: eine Aktion und ein Häkchen.
+Einträge: eine Aktion und ein Häkchen (Open und Save stehen nicht mehr dort, sondern als Schaltflächen daneben).
 
 ### Doku
 
