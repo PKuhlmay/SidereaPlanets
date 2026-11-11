@@ -55,7 +55,7 @@ describe("documentation of the Align tab", () => {
   it("describes all four limit modes in one table", () => {
     const html = renderBody(alignPages[1].body);
     for (const mode of ["Lowest Quality (%)", "Best Frames (%)", "Best Frames", "Frames/Apoint"]) {
-      expect(html).toMatch(new RegExp(`<td>${mode.replace(/[()%/]/g, "\$&")}</td>`));
+      expect(html).toMatch(new RegExp(`<td>${mode.replace(/[()%/]/g, "\\$&")}</td>`));
     }
   });
 

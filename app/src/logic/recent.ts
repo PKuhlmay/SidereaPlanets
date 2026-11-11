@@ -9,7 +9,7 @@ export function pushRecent(list: string[][], paths: string[]): string[][] {
 }
 
 export function fileName(path: string): string {
-  return path.split(/[\/]/).pop() ?? path;
+  return path.split(/[\\/]/).pop() ?? path;
 }
 
 /** Menu text: the file name, plus the number of further files for a still-frame sequence. */

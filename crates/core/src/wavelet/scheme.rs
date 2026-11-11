@@ -167,7 +167,8 @@ mod tests {
         s.layers[1].enabled = false;
         s.layers[2].gain = -2.5;
         s.layers[3].denoise = 1.25;
-        s.layers[4].sharpen = 0.375;
+        // The file keeps whole percent values.
+        s.layers[4].sharpen = 0.38;
         assert_eq!(from_rwv(&to_rwv(&s)).unwrap(), s);
     }
 

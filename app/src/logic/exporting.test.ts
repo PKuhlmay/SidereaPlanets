@@ -15,7 +15,7 @@ describe("stem", () => {
 
 describe("directoryOf", () => {
   it("handles both kinds of separator", () => {
-    expect(directoryOf("C:\Aufnahmen\JUPITER.AVI")).toBe("C:\Aufnahmen");
+    expect(directoryOf("C:\\Aufnahmen\\JUPITER.AVI")).toBe("C:\\Aufnahmen");
     expect(directoryOf("/home/me/jupiter.ser")).toBe("/home/me");
   });
   it("has no folder for a bare name or nothing", () => {

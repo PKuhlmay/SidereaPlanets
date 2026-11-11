@@ -404,7 +404,7 @@ mod tests {
 
     #[test]
     fn another_structure_or_a_region_outside_the_cache_rebuilds_it() {
-        let img = test_image(100, 80);
+        let img = test_image(400, 300);
         let region = Region {
             x: 20,
             y: 20,

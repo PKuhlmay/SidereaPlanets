@@ -72,7 +72,8 @@ describe("limitArgs", () => {
 
 describe("qualityPercent", () => {
   it("rates the best frame with 100 and the others relative to it", () => {
-    expect(qualityPercent([0.05, 0.1, 0.075])).toEqual([50, 100, 75]);
+    const percent = qualityPercent([0.05, 0.1, 0.075]);
+    [50, 100, 75].forEach((expected, i) => expect(percent[i]).toBeCloseTo(expected, 6));
   });
 
   it("gives 0 for everything if no frame has any quality", () => {
