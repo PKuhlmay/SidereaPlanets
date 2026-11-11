@@ -6,7 +6,7 @@ import { session, settings } from "../state";
 import NumberField from "./NumberField.vue";
 
 // Left panel of the Stack tab: Stacking options and Create AVI. The values are collected here; the Stack ticket
-// (RK-006) reads them from `settings.stack`.
+// (RK-006) reads them from `settings.stack` (logic/stack.ts).
 const stack = settings.stack;
 </script>
 

@@ -9,6 +9,7 @@
 //
 // A handler normally calls runJob (jobs.ts) so that progress, Cancel and Pause work.
 
+import { stack } from "./stack";
 import { status } from "./state";
 
 export const actionLabels = {
@@ -41,7 +42,9 @@ export const actionLabels = {
 
 export type ActionId = keyof typeof actionLabels;
 
-export const handlers: Partial<Record<ActionId, () => void | Promise<void>>> = {};
+export const handlers: Partial<Record<ActionId, () => void | Promise<void>>> = {
+  stack,
+};
 
 /** The message shown in the status bar for a button without a function. */
 export const unavailableMessage = (id: ActionId): string => `${actionLabels[id]}: not available yet`;

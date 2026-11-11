@@ -12,6 +12,12 @@ export interface JobContext {
   readonly cancelled: boolean;
 }
 
+// Align and Stack run in different commands of the backend, each with its own flags for Cancel and Pause.
+const commands = (name: string) =>
+  name === "Stack"
+    ? { cancel: "cancel_stacking", pause: "pause_stacking" }
+    : { cancel: "cancel_processing", pause: "pause_processing" };
+
 let timer: number | undefined;
 let startedAt = 0;
 let pausedAt: number | null = null;
@@ -68,7 +74,7 @@ export async function cancelJob() {
   if (!busy) return;
   busy.cancelled = true;
   if (busy.paused) resume(busy);
-  await invoke("cancel_processing").catch(() => undefined);
+  await invoke(commands(busy.name).cancel).catch(() => undefined);
 }
 
 function resume(busy: { paused: boolean }) {
@@ -87,6 +93,6 @@ export async function togglePause() {
     busy.paused = true;
     pausedAt = performance.now();
   }
-  await invoke("pause_processing", { paused: busy.paused }).catch(() => undefined);
+  await invoke(commands(busy.name).pause, { paused: busy.paused }).catch(() => undefined);
 }
 

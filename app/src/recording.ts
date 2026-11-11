@@ -94,6 +94,7 @@ export function startSession(info: RecordingInfo, name: string) {
   session.processedImage = null;
   session.stackSize = null;
   session.alignpoints = [];
+  session.referenceFrame = 0;
   session.alignpointTotal = 0;
   session.roi = null;
   session.roiDrawing = false;

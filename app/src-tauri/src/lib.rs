@@ -1,4 +1,5 @@
 mod align_commands;
+mod stack_commands;
 
 use planets_io::recording::{Recording, RecordingInfo as IoInfo};
 use serde::Serialize;
@@ -76,6 +77,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState::default())
         .manage(align_commands::AlignState::default())
+        .manage(stack_commands::StackState::default())
         .invoke_handler(tauri::generate_handler![
             open_recording,
             read_frame,
@@ -85,6 +87,10 @@ pub fn run() {
             align_commands::cancel_processing,
             align_commands::pause_processing,
             align_commands::limit,
+            stack_commands::stack,
+            stack_commands::stacked_image,
+            stack_commands::cancel_stacking,
+            stack_commands::pause_stacking,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

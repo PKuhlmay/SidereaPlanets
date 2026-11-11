@@ -11,26 +11,40 @@ The second step: add up the best frames into one sharper image. The tab opens af
 
 | Button | What it does | Status |
 |---|---|---|
-| Stack | Adds up the frames that stay after Limit | Not available yet |
+| Stack | Adds up the frames that stay after Limit | Works |
 | Save image | Saves the stacked image | Not available yet |
+
+## How the stack is made
+
+1. Every frame that is checked in the Framelist is shifted back onto the reference frame, the frame you set the alignpoints on.
+2. The shift is not the same everywhere. A planet that wobbles in the seeing is moved a little differently in each part of the picture, so SidereaPlanets takes the movement of the alignpoints **nearest** to each pixel and blends it. That straightens the frame locally before it is added.
+3. The shifted frames are averaged. The brightness stays that of the frames, it is not added up beyond the range.
+
+Only alignpoints with a check mark in the card *Alignmentpoints* are used (see *Show AlignSections*).
+
+The sum is kept at floating point precision, so even thousands of 16 bit frames add up without overflow or visible rounding. Frames are read and added a few at a time, so a long video does not have to fit into memory.
+
+While **Stack** runs, the status bar shows the progress and the time. **Cancel** stops it, **Pause** holds it. When it is done the status bar reads for example "Stack size (n=10) - (1024x680)" and the Wavelet tab opens up.
+
+At the edge of the image some frames do not reach, because they were shifted. There each pixel is the average of the frames that do cover it, so the brightness stays right, only the noise is a little higher.
 
 ## Check boxes in the action row
 
 Colour · LRGB · Show Full Image · Show AlignSections (shows the card *Alignmentpoints* with one check box per point) · Show Stackgraph · Show Stacklist · Resampling · Drizzling.
 
-Switch on **Resampling** and the method (Bell, Bspline, Lanczos, Mitchell; default Lanczos) and the factor (default 2.0) appear next to it. Switch on **Drizzling** and its factor (default 0.5) appears.
+Switch on **Resampling** and the method (Bell, Bspline, Lanczos, Mitchell; default Lanczos) and the factor (default 2.0) appear next to it. Switch on **Drizzling** and its factor (default 0.5) appears. Resampling, Drizzling, Stackgraph and Stacklist are **Not available yet**: they can be set, but the stack ignores them.
 
 ## Stacking options
 
-| Setting | Default |
-|---|---|
-| StackSize | Default (or Minimized, Maximized, R.of Interest) |
-| Use Nearestby Alignpoints | 3 |
-| Normalization of frame intensity | off |
-| Correct geometry | on |
-| Stretch histogram after stacking | off |
-| De-rotate images | off |
-| Do not stack pixels at the frameedge | 0 |
+| Setting | Default | Status |
+|---|---|---|
+| StackSize | Default (or Minimized, Maximized, R.of Interest) | Not available yet |
+| Use Nearestby Alignpoints | 3 | Works. How many of the nearest alignpoints decide the shift of a pixel: more give a smoother correction, fewer follow the local movement more closely |
+| Normalization of frame intensity | off | Works. Brightens or dims each frame to the brightness of the reference frame before adding, useful when clouds pass by |
+| Correct geometry | on | Works. Shifts each part of the picture by its own movement; off, the whole frame moves by one value |
+| Stretch histogram after stacking | off | Not available yet |
+| De-rotate images | off | Not available yet |
+| Do not stack pixels at the frameedge | 0 | Works. Leaves this border of every frame out of the stack |
 
 ## Create AVI
 
@@ -45,3 +59,7 @@ Switch on **Resampling** and the method (Bell, Bspline, Lanczos, Mitchell; defau
 | Average of … Frames | 5 |
 
 **Save Aligned** and **Save Integrated** are **Not available yet**.
+
+## Compared with the reference program
+
+The stack is meant to look like the one the reference program makes from the same frames. How close it gets is measured and noted in the project documents; the figures are not available yet.

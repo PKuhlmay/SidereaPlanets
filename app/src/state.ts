@@ -61,6 +61,8 @@ export const session = reactive({
   /** Number of stacked frames, for the position display of the Wavelet tab. */
   stackSize: null as number | null,
   alignpoints: [] as Alignpoint[],
+  /** The frame the alignpoints were set on; Align and Stack register the other frames against it. */
+  referenceFrame: 0,
   /** How many points satisfy the spacing rules before the threshold: the upper end of the Threshold slider (0 = none set). */
   alignpointTotal: 0,
   frames: [] as FrameEntry[],

@@ -1,0 +1,52 @@
+// The Stack button: stacks the checked frames in the backend and shows the result in the Stack tab.
+
+import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
+import { runJob } from "./jobs";
+import { buildStackRequest } from "./logic/stack";
+import { session, settings } from "./state";
+
+interface Stacked {
+  width: number;
+  height: number;
+  channels: number;
+  frames: number;
+  elapsedMs: number;
+}
+
+interface StackProgress {
+  done: number;
+  total: number;
+}
+
+// Same binary layout as a frame: width (u32 LE), height (u32 LE), then RGBA bytes.
+async function fetchStackImage(): Promise<ImageData> {
+  const buffer = await invoke<ArrayBuffer>("stacked_image");
+  const view = new DataView(buffer);
+  const width = view.getUint32(0, true);
+  const height = view.getUint32(4, true);
+  return new ImageData(new Uint8ClampedArray(buffer, 8, width * height * 4), width, height);
+}
+
+export async function stack(): Promise<void> {
+  const request = buildStackRequest(session, settings);
+  await runJob("Stack", async (job) => {
+    job.progress(0, request.frames.length, "Stacking frame: 0");
+    const unlisten = await listen<StackProgress>("stack-progress", ({ payload }) =>
+      job.progress(payload.done, payload.total, `Stacking frame: ${payload.done}`),
+    );
+    let stacked: Stacked;
+    try {
+      stacked = await invoke<Stacked>("stack", { settings: request });
+    } finally {
+      unlisten();
+    }
+    session.stackImage = await fetchStackImage();
+    session.stackSize = stacked.frames;
+    // A new stack makes an earlier sharpened image obsolete.
+    session.processedImage = null;
+    session.step = "stacked";
+    job.progress(1, 1, `Stack size (n=${stacked.frames}) - (${stacked.width}x${stacked.height})`);
+    return "Stacking Range : 0-255";
+  });
+}
