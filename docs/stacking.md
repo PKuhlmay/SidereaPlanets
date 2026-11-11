@@ -6,10 +6,10 @@ Alles, was nur geraten ist, steht als **Vermutung** da.
 
 ## Stand
 
-Rechenkern und Tauri-Befehle sind geschrieben und kompilieren (`cargo clippy --workspace --all-targets` ohne Warnungen).
-**Es wurde kein Test und kein Vergleich ausgeführt**, auf ausdrücklichen Wunsch von Philipp (Testläufe sind vorerst aus).
-Alle Messwerte unten sind deshalb leer. Die Tests sind geschrieben und müssen nach dem Ende der Pause einmal laufen, und
-jeder muss einmal an einer Assertion rot gewesen sein (Regel „Tests erst rot“, siehe Abschnitt „Offen“).
+Rechenkern, Tauri-Befehle und Anbindung an den Stack-Reiter sind fertig. Die Tests in `stack.rs` (18) laufen grün; der
+Vergleichstest gegen das Original erreicht **54,85 dB** (Schwelle 45 dB), siehe „Vergleich mit dem Original“. Die beiden neuen Tests
+der Untersuchung (`scatter_of_the_points_does_not_distort_the_frame`, `matches_at_the_limit_of_the_search_range_are_not_followed`)
+waren gegen den Stand davor rot.
 
 ## Beobachtet und geschlossen
 
@@ -30,12 +30,18 @@ Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist
 
 1. **Registrierung.** Jeder Frame wird mit `Reference::align_frame` (RK-005) gegen das Bezugsframe registriert. Das liefert
    je Alignpoint die Verschiebung `(dx, dy)`: Dort, wo das Bezugsframe an `p` etwas zeigt, zeigt der Frame es bei
-   `p + (dx, dy)`. Punkte, die nicht verfolgt werden konnten, fehlen und zählen nicht.
+   `p + (dx, dy)`. Punkte, die nicht verfolgt werden konnten, fehlen und zählen nicht, ebenso Treffer am Rand des
+   Suchbereichs (`at_limit`): Sie sagen nur, dass die Bewegung mindestens so groß ist.
 2. **Verschiebungsfeld** (bei *Correct geometry* an). Für jeden Pixel werden die *n* nächsten Alignpoints
    (*Use Nearestby Alignpoints*) gemittelt, mit Gewichten, die zum (n+1)-ten Punkt hin auf null fallen, damit das Feld
    nicht springt, wenn sich die Menge der nächsten Punkte ändert. Ausgewertet wird das Feld auf einem Raster von 4 px und
    dazwischen bilinear interpoliert, das spart bei tausenden Frames die Suche nach den nächsten Punkten pro Pixel.
    Bei *Correct geometry* aus gilt für den ganzen Frame der Medianversatz.
+   **Vertrauen in die Punkte:** Das Feld folgt den Punkten nur so weit, wie ihre Abweichungen vom Frameversatz räumlich
+   zusammenhängen. Jeder Punkt wird aus den anderen vorhergesagt (wie ein Pixel) und aus dem Frameversatz allein; das Vertrauen
+   ist `1 − Fehler(Nachbarn) / Fehler(Frameversatz)`, auf 0..1 begrenzt (`coherence` in `stack.rs`), und das Feld ist
+   `Frameversatz + Vertrauen × (Nachbarmischung − Frameversatz)`. Bei einer echten Verzerrung liegt es nahe 1, bei Streuung
+   der Zuordnung bei 0, dann bewegt sich der Frame als Ganzes. Das ist eine eigene Entscheidung des Klons, nicht beobachtet.
 3. **Abtasten.** Der Frame wird an der verschobenen Stelle bilinear abgetastet (Vermutung: Das Original interpoliert
    vielleicht anders, etwa bikubisch oder mit ganzzahligen Verschiebungen; bilinear glättet etwas).
 4. **Mitteln.** Je Pixel werden die Werte aller Frames summiert, die den Pixel abdecken, und durch deren Anzahl geteilt.
@@ -82,25 +88,44 @@ Haupt-Checkout laufen lassen).
 
 ### Messwerte
 
-| Messung | Wert |
-|---|---|
-| Klon (Standardwerte, lokale Korrektur) gegen `jupiter-stack.tif` | **offen**, nicht gemessen |
-| Klon mit *Correct geometry* aus gegen `jupiter-stack.tif` | **offen** |
-| Frame 1 gegen `jupiter-stack.tif` | **offen** (zum Vergleich: Original-BMP gegen Frame 1 = 43,99 dB) |
-| Kanalmittel Klon gegen Original (R 6674,1 · G 5130,5 · B 6099,5) | **offen** |
+Lauf am 2026-11-11 mit `cargo test -p planets-io --test stack_reference --release -- --nocapture`.
 
-Einordnung der Erwartung, nicht gemessen: Die Alignpoint-Zahl (80 statt 82) und die Registrierung (RK-005) sind nicht
-identisch mit dem Original, und der Klon registriert am Frame 1; ob das Original ein Mittelbild baut, ist unbekannt
-(`docs/offene-fragen.md`, Punkt 19). All das geht in den Versatz jedes Pixels ein. Ob 45 dB erreicht werden, ist offen.
+| Messung | erster Stand | jetzt |
+|---|---|---|
+| Klon (Standardwerte) gegen `jupiter-stack.tif` | 43,92 dB | **54,85 dB** (Schwelle 45 dB erreicht) |
+| Klon mit *Correct geometry* aus (nur Frameversatz) | 54,85 dB | 54,85 dB |
+| Frame 1 gegen `jupiter-stack.tif` | 44,03 dB | 44,03 dB (Original-BMP gegen Frame 1: 43,99 dB) |
+| einfacher Mittelwert ohne Ausrichtung gegen `jupiter-stack.tif` | 38,83 dB | 38,83 dB (Original-BMP gegen Mittelwert: 38,77 dB) |
+| Kanalmittel R / G / B, Original 6674,1 / 5130,5 / 6099,5 | 6588 / 5064 / 6023 (−1,3 %) | 6698,6 / 5149,4 / 6121,7 (+0,36 %) |
 
-### Wenn die Schwelle verfehlt wird
+### Ursachenanalyse
 
-In dieser Reihenfolge prüfen, jeweils mit dem Test messen:
+1. **Helligkeit.** Der erste Stand war in allen drei Kanälen gleichmäßig 1,3 % dunkler als das Original, die Variante mit nur
+   Frameversatz dagegen 0,36 % heller. Die Abweichung kam also aus der lokalen Korrektur, nicht aus Abtastung oder Rand: Folgten
+   die Punkte Zufallsversätzen, wurde Bildinhalt aus hellen Bereichen weggeschoben. Mit dem Vertrauen ist sie weg.
+2. **Warum die lokale Korrektur schlechter war als der Frameversatz.** Die Versätze der einzelnen Punkte streuen gegenüber dem
+   Frameversatz um median 3,4 bis 4,4 px (90 %-Wert 5,8 bis 6,7 px), 20 bis 30 von 78 Punkten liegen am Rand des Suchbereichs
+   von ±5 px, und benachbarte Punkte haben unabhängige Abweichungen. Die Korrelationswerte sind dabei hoch (im Mittel 0,88): Das
+   Bild ist weich, die Korrelation hat einen breiten Rücken, und das Maximum landet irgendwo darauf. Eine so große, unzusammenhängende
+   Verzerrung ist bei einem Planeten nicht echt. Das Original stackt von denselben Frames ein Bild, das dem reinen Frameversatz auf
+   54,85 dB gleicht; seine lokale Korrektur ist also klein oder wirkt auf verlässlichere Punkte.
+3. **Größe der Nachbarschaft** (vor der Änderung, nur Messung): *n* = 1, 3, 6, 12, 40 ergab 43,47, 43,92, 44,27, 44,74, 45,81 dB.
+   Je mehr geglättet wird, desto besser, die Grenze ist der Frameversatz. Das bestätigt die Streuung als Ursache.
+4. **Abtastung und Gewichtung** wurden nicht geändert: Mit dem reinen Frameversatz sind 54,85 dB erreicht, bikubische Abtastung
+   oder andere Gewichte wurden nicht versucht.
+5. **Randbehandlung** wurde nicht verändert; bei R1 verschiebt sich das Bild um bis zu 9 px, der Rand betrifft einen kleinen
+   Teil des schwarzen Hintergrunds.
+6. Treffer am Rand des Suchbereichs auszulassen ändert bei R1 fast nichts (54,85 gegen 54,85 dB bei *n* = 3, 54,91 gegen 54,79 dB
+   bei *n* = 40, mit gegen ohne Filter); es bleibt, weil `PointShift::at_limit` ausdrücklich sagt, dass die Bewegung dort größer
+   sein kann.
 
-1. Abtastung: bikubisch statt bilinear.
-2. Gewichtung der nächsten Punkte (Abstand hoch 1 statt 2, harte Nachbarschaft ohne Auslaufen).
-3. Registrierung von RK-005 (Bezugsframe, Subpixel-Verfeinerung), weil dort die größte Unsicherheit liegt.
-4. Ob das Original Frames vor dem Mitteln gewichtet (nach Qualität).
+**Was das für R1 heißt:** Mit dem Vertrauen liefert die Standardeinstellung bei R1 den Frameversatz-Stack (das Vertrauen
+liegt nahe 0). Die lokale Korrektur ist im Kern umgesetzt und an einer künstlichen, zusammenhängenden Verzerrung geprüft
+(`local_correction_follows_a_coherent_distortion`), sie wirkt aber bei R1 praktisch nicht. Ob das Original wirklich lokal
+korrigiert, ist offen: Bei R1 wäre der Unterschied zum reinen Frameversatz kleiner, als 54,85 dB zeigen können. Ein Referenzfall
+mit starker Luftunruhe (RK-011) würde das klären. Die Ursache der Streuung liegt in der Zuordnung der Punkte (RK-005: weiche
+Strukturen, breiter Korrelationsrücken), nicht im Stacken; eine robustere Zuordnung (Punkte nach Schärfe der Korrelationsspitze
+wählen oder gewichten) würde die lokale Korrektur erst nutzbar machen.
 
 ## Nicht umgesetzt
 
@@ -113,9 +138,13 @@ Nicht Teil der Akzeptanzkriterien und nie beobachtet; jeweils nur der Name bekan
 
 ## Offen
 
-- Interpolation und Gewichtung wie oben, bis der Vergleich vorliegt.
+- Ob das Original lokal korrigiert und wie stark; bei R1 nicht vom Frameversatz zu unterscheiden (siehe Ursachenanalyse).
+- Interpolation und Gewichtung der nächsten Punkte: bei R1 ohne Wirkung (nur Frameversatz). Das gewichtete Mittel der nächsten
+  Punkte gibt ein lineares Feld nicht exakt wieder (Fehler bis etwa 0,4 px bei Rasterpunkten); eine lokale Ebene durch die Punkte
+  wäre genauer, wurde nicht umgesetzt, weil sie bei R1 nichts ändert.
+- Helligkeit: Der Frameversatz-Stack ist 0,36 % heller als das Original (vermutlich rundet das Original auf 8 Bit); ohne Folgen
+  für die Schwelle.
 - Ob das Original beim Stacken neu registriert oder die Ergebnisse von *Align* weiterverwendet. Der Klon registriert im
   Tauri-Befehl neu, weil der Zustand der Align-Befehle nicht von außen lesbar ist; der Kern kann beides.
-- „Tests erst rot“: Die Tests in `stack.rs` und `stack_reference.rs` wurden nicht ausgeführt, also auch nicht rot gesehen.
-  Nach der Testpause: jeden Test gegen eine absichtlich kaputte Variante laufen lassen (z. B. Vorzeichen des Versatzes
-  in `Stacker::add_aligned` vertauschen, `edge_skip` ignorieren) und prüfen, dass er an einer Assertion scheitert.
+- „Tests erst rot“: Der Vergleichstest war rot (43,92 dB gegen 45), die beiden Tests der Untersuchung gegen den Stand ohne
+  Vertrauen und ohne `at_limit`-Filter ebenfalls. Die übrigen Tests in `stack.rs` wurden nicht gegen kaputte Varianten geprüft.

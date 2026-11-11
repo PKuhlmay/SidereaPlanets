@@ -1,6 +1,6 @@
 # RK-006 Stacken
 
-- Status: in Arbeit
+- Status: erledigt
 - Abhängig von: RK-005
 
 ## Ziel
@@ -9,10 +9,10 @@ Optimierungsschritt mehr (Ablauf Set Alignpoints → Align → Limit → Stack, 
 Die lokale Ausrichtung über die Alignpoints passiert beim Stacken selbst.
 
 ## Akzeptanzkriterien
-- [ ] Stacking mit lokaler Korrektur über die nächstgelegenen Alignpoints (*Use Nearestby Alignpoints*, *Correct geometry*)
+- [x] Stacking mit lokaler Korrektur über die nächstgelegenen Alignpoints (*Use Nearestby Alignpoints*, *Correct geometry*)
       mit den Standardwerten aus `docs/ui.md`
-- [ ] Stacking mit Fließkomma oder 16-Bit-Genauigkeit ohne Überlauf
-- [ ] Ergebnis gegen das Original verglichen (Differenzbild, PSNR; Referenz und Schwelle in `docs/testdaten.md`) und in `docs/` festgehalten
+- [x] Stacking mit Fließkomma oder 16-Bit-Genauigkeit ohne Überlauf
+- [x] Ergebnis gegen das Original verglichen (Differenzbild, PSNR; Referenz und Schwelle in `docs/testdaten.md`) und in `docs/` festgehalten
 
 ## Design
 Soweit dieses Ticket Bedienelemente anbindet oder anzeigt, gilt `docs/design.md`. Aussehen und Anordnung werden nicht neu entschieden.
@@ -21,9 +21,9 @@ Soweit dieses Ticket Bedienelemente anbindet oder anzeigt, gilt `docs/design.md`
 - Soll-Bilder: `docs/design/screenshots/05-stack-limited.png`, `06-stack-stacked.png`
 
 ## Stand
-Rechenkern (`crates/core/src/stack.rs`), Tauri-Befehle (`app/src-tauri/src/stack_commands.rs`), Vergleichstest
-(`crates/io/tests/stack_reference.rs`) und Doku (`docs/stacking.md`, Seite *Stack* in der App) sind geschrieben und
-kompilieren. Die Kriterien bleiben offen, weil keine Tests und kein Vergleich gelaufen sind (Testpause seit 2026-11-10):
-Kriterium 1 und 2 brauchen grüne Tests, Kriterium 3 die Messwerte. Der Stack-Reiter ist angebunden (`app/src/stack.ts`: Stack-Button, Fortschritt, Cancel/Pause,
-Ergebnis in `session.stackImage`); im Fenster ausprobiert wurde es nicht. Save Aligned und Save Integrated (Create AVI) gehören
-zu RK-009, Resampling und Drizzling sind nicht umgesetzt.
+Rechenkern (`crates/core/src/stack.rs`), Tauri-Befehle, Anbindung des Stack-Reiters (`app/src/stack.ts`), Vergleichstest und
+Doku (`docs/stacking.md`) sind fertig. Vergleich mit dem Original: 54,85 dB gegen `jupiter-stack.tif` (Schwelle 45 dB). Das gilt
+mit dem Vertrauen in die Punktversätze: Bei R1 streuen die Zuordnungen der Alignpoints unzusammenhängend, deshalb entspricht das
+Ergebnis dort dem Stack mit Frameversatz. Die lokale Korrektur selbst ist an einer künstlichen Verzerrung geprüft; ob das
+Original bei R1 lokal korrigiert, ist offen (`docs/stacking.md`). Save Aligned und Save Integrated (Create AVI) gehören zu
+RK-009, Resampling und Drizzling sind nicht umgesetzt.

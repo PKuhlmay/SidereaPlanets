@@ -43,6 +43,7 @@ impl Default for StackParams {
 const FIELD_STEP: usize = 4;
 
 /// Where an alignpoint of the reference was found in a frame.
+#[derive(Clone, Copy)]
 struct Anchor {
     x: f32,
     y: f32,
@@ -69,17 +70,28 @@ impl Field {
     }
 
     /// The shift blended from the `nearest` anchors at every grid node.
-    fn from_anchors(width: usize, height: usize, anchors: &[Anchor], nearest: usize) -> Self {
+    fn from_anchors(
+        width: usize,
+        height: usize,
+        anchors: &[Anchor],
+        nearest: usize,
+        base: (f32, f32),
+        trust: f32,
+    ) -> Self {
         let cols = (width.saturating_sub(1)) / FIELD_STEP + 2;
         let rows = (height.saturating_sub(1)) / FIELD_STEP + 2;
         let mut data = vec![(0.0, 0.0); cols * rows];
         data.par_chunks_mut(cols).enumerate().for_each(|(j, row)| {
             for (i, node) in row.iter_mut().enumerate() {
-                *node = blend(
+                let local = blend(
                     anchors,
                     nearest,
                     (i * FIELD_STEP) as f32,
                     (j * FIELD_STEP) as f32,
+                );
+                *node = (
+                    base.0 + trust * (local.0 - base.0),
+                    base.1 + trust * (local.1 - base.1),
                 );
             }
         });
@@ -152,6 +164,33 @@ fn blend(anchors: &[Anchor], nearest: usize, x: f32, y: f32) -> (f32, f32) {
         dy += w * a.dy;
     }
     (dx / total, dy / total)
+}
+
+/// How far the movements of the alignpoints can be trusted to differ from the movement of the frame
+/// as a whole, `0.0..=1.0`. Every point is predicted from the other points (blended as for a pixel)
+/// and from the frame shift alone; the share by which the first prediction is the better one is the
+/// trust. Where the points move coherently (a real distortion) it is close to 1; where their
+/// deviations are scatter of the matching (flat, blurred structure) it is 0 and the frame moves as a whole.
+fn coherence(anchors: &[Anchor], nearest: usize, base: (f32, f32)) -> f32 {
+    if anchors.len() < 2 {
+        return 0.0;
+    }
+    let (mut local, mut global) = (0.0f64, 0.0f64);
+    for (i, a) in anchors.iter().enumerate() {
+        let others: Vec<Anchor> = anchors
+            .iter()
+            .enumerate()
+            .filter(|&(j, _)| j != i)
+            .map(|(_, o)| *o)
+            .collect();
+        let (px, py) = blend(&others, nearest, a.x, a.y);
+        local += f64::from((px - a.dx).powi(2) + (py - a.dy).powi(2));
+        global += f64::from((base.0 - a.dx).powi(2) + (base.1 - a.dy).powi(2));
+    }
+    if global <= 0.0 {
+        return 0.0;
+    }
+    (1.0 - local / global).clamp(0.0, 1.0) as f32
 }
 
 /// Bilinear sample of `frame` at `(x, y)` into `out` (one value per channel). Returns `false`, and
@@ -279,7 +318,9 @@ impl<'a> Stacker<'a> {
             .iter()
             .zip(&alignment.points)
             .filter_map(|(p, shift)| {
-                shift.map(|s| Anchor {
+                // A match on the border of the search range only says that the movement is at least
+                // that large, so it is not a position to follow.
+                shift.filter(|s| !s.at_limit).map(|s| Anchor {
                     x: p.x as f32,
                     y: p.y as f32,
                     dx: s.dx,
@@ -287,11 +328,18 @@ impl<'a> Stacker<'a> {
                 })
             })
             .collect();
+        let nearest = self.params.nearest_points;
+        let trust = coherence(&anchors, nearest, alignment.shift);
+        if trust <= 0.0 {
+            return Field::uniform(alignment.shift);
+        }
         Field::from_anchors(
             self.width,
             self.height,
             &anchors,
-            self.params.nearest_points,
+            nearest,
+            alignment.shift,
+            trust,
         )
     }
 
@@ -541,29 +589,36 @@ mod tests {
         assert!(psnr(&stack, &frame).unwrap() > psnr(&naive, &frame).unwrap() + 10.0);
     }
 
+    /// The test picture at `(px, py)`; see [`scene`].
+    fn pattern(px: f32, py: f32) -> f32 {
+        0.5 + 0.2 * (px * 0.35).sin() + 0.2 * (py * 0.27).cos() + 0.1 * ((px + py) * 0.15).sin()
+    }
+
     #[test]
-    fn local_correction_follows_the_nearest_points() {
-        // Left half of the picture moved by +2, right half by -2: only a local shift can undo both.
+    fn local_correction_follows_a_coherent_distortion() {
+        // The content is stretched about the middle: moved by `slope * (x - 40)`, from -2 px at the
+        // left edge to +2 px at the right one. The frame shift (the median) is zero; only a shift
+        // that varies over the picture straightens it.
         let (w, h) = (80u32, 40u32);
+        let slope = 0.05f32;
         let frame = scene(w, h, (0.0, 0.0));
-        let left = scene(w, h, (2.0, 0.0));
-        let right = scene(w, h, (-2.0, 0.0));
         let mut distorted = frame.clone();
-        for y in 0..h as usize {
-            for x in 0..w as usize {
-                let src = if x < 40 { &left } else { &right };
-                distorted.data[y * w as usize + x] = src.data[y * w as usize + x];
+        for y in 0..h {
+            for x in 0..w {
+                let moved = slope * (x as f32 - 40.0);
+                distorted.data[(y * w + x) as usize] = pattern(x as f32 - moved, y as f32);
             }
         }
-        let points = grid_points(w, h, 8);
+        let points = grid_points(w, h, 4);
         let reference = reference_of(&frame, &points);
         let alignment = FrameAlignment {
             shift: (0.0, 0.0),
             points: points
                 .iter()
                 .map(|p| {
+                    // `frame(x + d)` shows the reference at `x`: d = slope * (x + d - 40).
                     Some(PointShift {
-                        dx: if p.x < 40 { 2.0 } else { -2.0 },
+                        dx: slope * (p.x as f32 - 40.0) / (1.0 - slope),
                         dy: 0.0,
                         score: 1.0,
                         at_limit: false,
@@ -572,7 +627,7 @@ mod tests {
                 })
                 .collect(),
             quality: 1.0,
-            difference: 2.0,
+            difference: 1.0,
         };
         let frames = [(distorted, alignment)];
         let local = stack_of(&reference, &frame, StackParams::default(), &frames);
@@ -585,12 +640,72 @@ mod tests {
             },
             &frames,
         );
-        // Far from the seam and the edges the local correction restores the picture exactly.
-        for &(x, y) in &[(12usize, 20usize), (25, 10), (60, 20), (70, 30)] {
-            let i = y * w as usize + x;
-            assert!((local.data[i] - frame.data[i]).abs() < 1e-4, "at {x},{y}");
+        // Compared away from the edges: a frame that moved right does not reach the left edge.
+        let inner_db = |img: &Image| {
+            let mse = (0..h as usize)
+                .flat_map(|y| (6..w as usize - 6).map(move |x| y * w as usize + x))
+                .map(|i| f64::from(img.data[i] - frame.data[i]).powi(2))
+                .sum::<f64>()
+                / (h as usize * (w as usize - 12)) as f64;
+            10.0 * (1.0 / mse).log10()
+        };
+        let (local_db, global_db) = (inner_db(&local), inner_db(&global));
+        assert!(
+            local_db > global_db + 10.0,
+            "{local_db} dB against {global_db} dB"
+        );
+    }
+
+    #[test]
+    fn scatter_of_the_points_does_not_distort_the_frame() {
+        // The picture did not move at all, but the matches of the points scatter by a few pixels, as
+        // they do on flat blurred structure. Following them would smear the frame; the stack must
+        // fall back to the movement of the frame as a whole.
+        let frame = scene(80, 40, (0.0, 0.0));
+        let points = grid_points(80, 40, 8);
+        let reference = reference_of(&frame, &points);
+        let mut alignment = uniform_alignment(points.len(), (0.0, 0.0));
+        for (i, p) in alignment.points.iter_mut().enumerate() {
+            let scatter = |k: usize| ((i * k) % 13) as f32 / 2.0 - 3.0;
+            *p = Some(PointShift {
+                dx: scatter(7),
+                dy: scatter(5),
+                score: 0.9,
+                at_limit: false,
+                quality: 0.0,
+            });
         }
-        assert!(psnr(&local, &frame).unwrap() > psnr(&global, &frame).unwrap() + 5.0);
+        let stack = stack_of(
+            &reference,
+            &frame,
+            StackParams::default(),
+            &[(frame.clone(), alignment)],
+        );
+        assert!(psnr(&stack, &frame).unwrap() > 60.0);
+    }
+
+    #[test]
+    fn matches_at_the_limit_of_the_search_range_are_not_followed() {
+        // One point sits on the border of its search range with a movement of 5 px; the frame did not
+        // move. The point is left out, the stack equals the frame.
+        let frame = scene(60, 40, (0.0, 0.0));
+        let points = grid_points(60, 40, 10);
+        let reference = reference_of(&frame, &points);
+        let mut alignment = uniform_alignment(points.len(), (0.0, 0.0));
+        alignment.points[3] = Some(PointShift {
+            dx: 5.0,
+            dy: 0.0,
+            score: 0.9,
+            at_limit: true,
+            quality: 0.0,
+        });
+        let stack = stack_of(
+            &reference,
+            &frame,
+            StackParams::default(),
+            &[(frame.clone(), alignment)],
+        );
+        assert!(psnr(&stack, &frame).unwrap() > 100.0);
     }
 
     #[test]
