@@ -28,7 +28,7 @@ In every row of buttons exactly one is filled in amber: the next step to take. A
 
 ## Help
 
-**Help** in the toolbar opens this documentation. Press it again, or press Escape, to go back to your work. Your recording and settings stay as they were.
+**Help** in the toolbar opens this documentation in a window of its own, in front of the main window. Your work stays where it is, so you can keep the help open beside it. Press Escape in the help window, or close it, when you are done.
 
 ## Title of the window
 

@@ -14,15 +14,12 @@ import StatusBar from "./components/StatusBar.vue";
 import TabBar from "./components/TabBar.vue";
 import Toolbar from "./components/Toolbar.vue";
 import WaveletPanel from "./components/WaveletPanel.vue";
-import DocsView from "./docs/DocsView.vue";
 import type { Rect } from "./logic/align";
 import { startColour } from "./colour";
 import { pickToneImage } from "./logic/colour";
 import { atLeast, pickImage, tabLocked, windowTitle } from "./logic/workflow";
 import { session, settings, status } from "./state";
 
-// The work view stays mounted (v-show) while the documentation is open, so the recording and settings survive.
-const showDocs = ref(false);
 // "Before" in the zoom bar of the Wavelet tab: the unprocessed stack instead of the sharpened image.
 const before = ref(false);
 
@@ -101,9 +98,8 @@ watch(
 
 <template>
   <div class="shell">
-    <Toolbar :docs-open="showDocs" @toggle-docs="showDocs = !showDocs" />
-    <DocsView v-if="showDocs" class="docs-slot" @close="showDocs = false" />
-    <div v-show="!showDocs" class="work-view">
+    <Toolbar />
+    <div class="work-view">
       <TabBar />
       <ActionRow />
       <div class="work" :class="{ 'with-functions': withFunctions }">
@@ -142,10 +138,6 @@ watch(
   height: 100vh;
   min-width: 1120px;
   min-height: 600px;
-}
-.docs-slot {
-  flex: 1;
-  min-height: 0;
 }
 .work-view {
   display: flex;

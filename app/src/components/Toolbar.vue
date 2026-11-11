@@ -7,12 +7,10 @@ import { recentLabel } from "../logic/recent";
 import { applyTheme } from "../theme";
 import { chooseFiles, openRecording, recent } from "../recording";
 import { session, settings, status, theme } from "../state";
+import { openHelp } from "../helpWindow";
 import { openProject, saveProject } from "../saving";
 import MenuButton from "./MenuButton.vue";
 import NumberField from "./NumberField.vue";
-
-defineProps<{ docsOpen: boolean }>();
-const emit = defineEmits<{ toggleDocs: [] }>();
 
 const loaded = computed(() => session.step !== "empty");
 const busy = computed(() => status.busy !== null);
@@ -159,7 +157,7 @@ function resetLuminance() {
     </div>
 
     <div class="zone right">
-      <button type="button" class="btn ghost" :aria-pressed="docsOpen" @click="emit('toggleDocs')">
+      <button type="button" class="btn ghost" @click="openHelp">
         <svg class="ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
           <path d="M8 3.5C6.5 2.5 4.5 2.3 1.5 2.5v10c3-.2 5 0 6.5 1zm0 0c1.5-1 3.5-1.2 6.5-1v10c-3-.2-5 0-6.5 1" />
         </svg>

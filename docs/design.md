@@ -369,10 +369,10 @@ Einträge: eine Aktion und ein Häkchen (Open und Save stehen nicht mehr dort, s
 
 ### Doku
 
-Help in der Werkzeugleiste schaltet zwischen Arbeitsansicht und Doku um. Der Schalter steht in der Doku gedrückt
-(`--accent-soft`, Umriss `--accent`, Icon und Text `--accent-ink`); ein zweiter Klick und Escape führen zurück. Die
-Arbeitsansicht bleibt dabei unverändert im Speicher (Aufnahme, Reglerwerte, laufende Berechnung). Reiterleiste,
-Aktionszeile und Statusleiste entfallen in der Doku, die Werkzeugleiste bleibt.
+Help in der Werkzeugleiste öffnet die Doku in einem eigenen Fenster (1000 × 720 px, mindestens 640 × 400) vor dem Hauptfenster,
+nicht in der App selbst. Ein zweiter Klick holt das offene Fenster nach vorn; Escape oder Schließen beendet es. Die
+Arbeitsansicht bleibt unberührt und benutzbar. Das Help-Fenster zeigt nur die Doku, ohne Werkzeugleiste, Reiterleiste,
+Aktionszeile und Statusleiste; die Schaltfläche Help bleibt im Hauptfenster ungedrückt wie jede Schaltfläche ohne Zustand.
 
 Zwei Spalten: links die Seitenliste (Breite wie das linke Panel, 272 px, `--panel`, Linie rechts), rechts der Text auf
 `--bg`, 720 px breit und waagerecht zentriert, 36 px Abstand oben.

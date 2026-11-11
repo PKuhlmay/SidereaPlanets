@@ -1,13 +1,17 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Capability for the main window",
+  "description": "Capability for the main window and the help window",
   "windows": [
-    "main"
+    "main",
+    "help"
   ],
   "permissions": [
     "core:default",
     "core:window:allow-set-title",
+    "core:window:allow-set-focus",
+    "core:window:allow-close",
+    "core:webview:allow-create-webview-window",
     "dialog:allow-open",
     "dialog:allow-save"
   ]
