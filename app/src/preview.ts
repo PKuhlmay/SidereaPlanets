@@ -3,6 +3,8 @@
 //
 //   ?step=loaded|points|aligned|limited|stacked  ?tab=align|stack|wavelet  ?theme=light  ?busy=40
 //   ?show=framelist,graph,resampling,drizzling,procarea,alignpoints,nosections  ?layers=32,22,14,10,10,10
+//   ?functions=Histogram,Gamma  (cards open in the Wavelet tab; their values come from the engine, so the cards
+//   need the app, not the plain browser)
 
 import { setFrameReader, showFrame, startSession } from "./recording";
 import { LAYER_COUNT } from "./logic/settings";
@@ -128,6 +130,7 @@ export async function applyPreview(search: string) {
   (params.get("layers") ?? "").split(",").slice(0, LAYER_COUNT).forEach((value, i) => {
     if (value !== "") settings.wavelet.layers[i].level = Number(value);
   });
+  settings.wavelet.functions = (params.get("functions") ?? "").split(",").filter((name) => name !== "");
   const busy = Number(params.get("busy"));
   if (busy > 0) {
     status.busy = { name: "Align", paused: false, cancelled: false };

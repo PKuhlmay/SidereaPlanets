@@ -4,6 +4,7 @@ import { getCurrentWindow } from "@tauri-apps/api/window";
 import ActionRow from "./components/ActionRow.vue";
 import AlignPanel from "./components/AlignPanel.vue";
 import FloatingCards from "./components/FloatingCards.vue";
+import FunctionCards from "./components/FunctionCards.vue";
 import FrameBar from "./components/FrameBar.vue";
 import FunctionsPanel from "./components/FunctionsPanel.vue";
 import ImageOverlays from "./components/ImageOverlays.vue";
@@ -15,6 +16,8 @@ import Toolbar from "./components/Toolbar.vue";
 import WaveletPanel from "./components/WaveletPanel.vue";
 import DocsView from "./docs/DocsView.vue";
 import type { Rect } from "./logic/align";
+import { startColour } from "./colour";
+import { pickToneImage } from "./logic/colour";
 import { atLeast, pickImage, tabLocked, windowTitle } from "./logic/workflow";
 import { session, settings, status } from "./state";
 
@@ -31,6 +34,18 @@ const image = computed(() =>
   }),
 );
 const wavelet = computed(() => session.tab === "wavelet");
+startColour();
+
+// The Wavelet tab shows the colour and tone cards applied to the image, or the Copy To image or the difference to it;
+// Before shows the plain stack.
+const shown = computed(() => {
+  if (!wavelet.value || before.value) return image.value;
+  return pickToneImage(session.toneView, {
+    current: session.adjustedImage ?? image.value,
+    clipboard: session.clipboardImage,
+    difference: session.differenceImage,
+  });
+});
 const withFunctions = computed(() => wavelet.value && settings.wavelet.functionsOpen);
 const emptyText = computed(() => (session.step === "empty" ? "Press Select to open a recording" : "No image yet"));
 
@@ -97,7 +112,7 @@ watch(
         <WaveletPanel v-else />
         <ImageViewer
           v-model:before="before"
-          :image="image"
+          :image="shown"
           :comparable="wavelet"
           :empty="emptyText"
           :selecting="session.roiDrawing && session.tab === 'align'"
@@ -105,10 +120,11 @@ watch(
           @select="onSelect"
         >
           <template #overlay>
-            <ImageOverlays v-if="image" :width="image.width" :height="image.height" />
+            <ImageOverlays v-if="shown" :width="shown.width" :height="shown.height" />
           </template>
           <template #floats>
             <FloatingCards />
+            <FunctionCards />
           </template>
         </ImageViewer>
         <FunctionsPanel v-if="withFunctions" />

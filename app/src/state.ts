@@ -58,6 +58,13 @@ export const session = reactive({
   /** The stacked image (RK-006) and the sharpened one (RK-007). */
   stackImage: null as ImageData | null,
   processedImage: null as ImageData | null,
+  /** The base image with the Functions cards and Contrast/Brightness applied (RK-008); null while they are all neutral. */
+  adjustedImage: null as ImageData | null,
+  /** Copy To: the image kept for comparison, and the difference to it. */
+  clipboardImage: null as ImageData | null,
+  differenceImage: null as ImageData | null,
+  /** Which of them the image area shows in the Wavelet tab (the Toggle group of the Copy To panel). */
+  toneView: "current" as "current" | "clipboard" | "difference",
   /** Number of stacked frames, for the position display of the Wavelet tab. */
   stackSize: null as number | null,
   alignpoints: [] as Alignpoint[],

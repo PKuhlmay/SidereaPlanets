@@ -234,6 +234,7 @@ canvas,
   flex-direction: column;
   gap: 10px;
   width: 236px;
+  overflow-y: auto;
   pointer-events: none;
 }
 .zoom {

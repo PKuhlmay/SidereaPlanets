@@ -28,6 +28,11 @@
   --ok:#4fc08d;          /* finished step, "Aligned" dot */
   --info:#6fa8ff;        /* second series in graphs (Difference) */
 
+  /* histogram curves: image data, not UI colours */
+  --ch-r:#ff6b6b;
+  --ch-g:#4fc08d;
+  --ch-b:#6fa8ff;
+
   /* image area: stays dark in both themes */
   --canvas:#08080a;                   /* background around the image */
   --canvas-chrome:rgba(24,25,29,.86); /* zoom bar on top of the image */
@@ -58,5 +63,6 @@
   --text:#1a1c21; --muted:#5a606c; --off:#a4a9b4;
   --accent:#f2a93b; --accent-h:#eb9c22; --on-accent:#1d1300; --accent-ink:#8f5300; --accent-soft:rgba(242,169,59,.22);
   --ok:#1e8a5a; --info:#2f6fd6;
+  --ch-r:#d93f3f; --ch-g:#1e8a5a; --ch-b:#2f6fd6;
   --canvas:#0d0d10;
 }

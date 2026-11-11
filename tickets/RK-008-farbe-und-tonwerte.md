@@ -1,6 +1,6 @@
 # RK-008 Farbabgleich, RGB-Ausrichtung und Tonwerte
 
-- Status: offen
+- Status: in Arbeit
 - Abhängig von: RK-006
 
 ## Ziel
@@ -11,6 +11,15 @@ Gamma, Kontrast, Histogramm.
 - [ ] RGB-Ausrichtung automatisch und manuell
 - [ ] RGB-Balance, Gamma, Kontrast und Histogramm-Anpassung
 - [ ] Vergleich mit dem Original an einem Farbdatensatz
+
+## Stand
+
+Rechenkern und Tauri-Befehle stehen (`crates/core/src/{color,tone}.rs`, `app/src-tauri/src/color_commands.rs`), dazu die
+Karten Histogram, Gamma, RGB Align und RGB Balance im Wavelet-Reiter, Contrast/Brightness, Copy To / Load to / Difference,
+Colour/LRGB-Sperren, Anwenderdoku (`colour-and-tones`) und die Karten in `docs/design.md`. `pnpm build`, `cargo clippy` und
+`cargo fmt` laufen sauber; die Tests (Rust und Vitest) sind geschrieben, aber noch nicht gelaufen, die Oberfläche noch nicht
+gesehen. Offen: der Vergleich mit dem Original, für den es keine Referenzergebnisse gibt (`docs/testdaten.md`), und die Wirkung
+von Colour/LRGB auf Do All (RK-007). Deshalb ist noch kein Kriterium abgehakt: Es fehlen grüne Tests und eine Sichtprüfung.
 
 ## Design
 Soweit dieses Ticket Bedienelemente anbindet oder anzeigt, gilt `docs/design.md`. Aussehen und Anordnung werden nicht neu entschieden.

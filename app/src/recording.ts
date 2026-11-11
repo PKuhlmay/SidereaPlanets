@@ -92,6 +92,10 @@ export function startSession(info: RecordingInfo, name: string) {
   session.frameImage = null;
   session.stackImage = null;
   session.processedImage = null;
+  session.adjustedImage = null;
+  session.clipboardImage = null;
+  session.differenceImage = null;
+  session.toneView = "current";
   session.stackSize = null;
   session.alignpoints = [];
   session.referenceFrame = 0;

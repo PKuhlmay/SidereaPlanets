@@ -26,7 +26,8 @@ export const LAYER_RANGE = { min: -50, max: 1000 };
 export const LUMINANCE = { red: 0.299, green: 0.587, blue: 0.114 };
 
 // Contrast/Brightness: the sliders start at 250 and 0 while the fields show 100 and 0. The ratio 2.5 follows
-// from those two defaults and is not confirmed against the original.
+// from that one pair of values only; whether the original maps linearly (or at all like this) was never checked,
+// so it stays an assumption (docs/offene-fragen.md, question 23). The engine works on the field value.
 export const CONTRAST_RATIO = 2.5;
 export const CONTRAST_RANGE = { min: 1, max: 1000 };
 export const BRIGHTNESS_RANGE = { min: -512, max: 512 };
@@ -43,6 +44,61 @@ export const functionNames = [
 ] as const;
 
 export const codecs = ["DIB", "cvid", "i420", "iyuv", "mrle", "msvc", "uyvy", "yuy2", "yvu9", "yvyu"] as const;
+
+export interface Shift {
+  x: number;
+  y: number;
+}
+
+export interface ChannelShifts {
+  red: Shift;
+  green: Shift;
+  blue: Shift;
+}
+
+/** The values of the cards behind the Functions buttons (docs/design.md, "Karten hinter den Functions-Schaltflächen"). */
+export interface ToneSettings {
+  /** RGB Align: shift of every channel in pixels. */
+  shifts: ChannelShifts;
+  /** RGB Align, Auto: how far the search goes, in pixels. */
+  maxShift: number;
+  /** RGB Balance in percent, 100 = unchanged. */
+  red: number;
+  green: number;
+  blue: number;
+  /** Histogram: black and white point on a 0..255 scale, the share of pixels Auto cuts off at each end, and the graph shown. */
+  black: number;
+  white: number;
+  clip: number;
+  histogramView: "input" | "result";
+  /** 1.0 = unchanged. */
+  gamma: number;
+}
+
+export const TONE_LIMITS = {
+  shift: 20,
+  maxShift: { min: 1, max: 20 },
+  balance: { min: 0, max: 200 },
+  gamma: { min: 0.1, max: 5 },
+  level: { min: 0, max: 255 },
+  clip: { min: 0, max: 49 },
+};
+
+const noShift = (): Shift => ({ x: 0, y: 0 });
+export const defaultShifts = (): ChannelShifts => ({ red: noShift(), green: noShift(), blue: noShift() });
+
+export const defaultTone = (): ToneSettings => ({
+  shifts: defaultShifts(),
+  maxShift: 5,
+  red: 100,
+  green: 100,
+  blue: 100,
+  black: 0,
+  white: 255,
+  clip: 0.1,
+  histogramView: "input",
+  gamma: 1,
+});
 
 export const defaultLayer = (): WaveletLayer => ({ enabled: true, denoise: 0, sharpen: 0.1, level: 10 });
 
@@ -129,11 +185,12 @@ export function createSettings() {
       linked: false,
       layers: Array.from({ length: LAYER_COUNT }, defaultLayer),
       functionsOpen: true,
-      /** Pressed Functions buttons; every button opens its own panel (not built yet). */
+      /** Pressed Functions buttons in the order they were pressed; each opens its own card. Cards exist for `toneCards` (logic/colour.ts). */
       functions: [] as string[],
       contrast: 250,
       brightness: 0,
       holdContrast: false,
+      tone: defaultTone(),
     },
   };
 }

@@ -1,7 +1,9 @@
 //! GUI-free image processing for the the reference program clone.
 
 pub mod align;
+pub mod color;
 pub mod stack;
+pub mod tone;
 pub mod wavelet;
 
 /// Luminance weights for red, green and blue (default of *Settings ▸ Luminance Setting*, `docs/ui.md`).

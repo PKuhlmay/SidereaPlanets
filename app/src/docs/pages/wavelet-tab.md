@@ -36,6 +36,6 @@ The preview updates while you move a slider; how it works and what each setting 
 
 ## Functions (right)
 
-Fifteen buttons in three columns, from Histogram to Cropping Area. Each is a switch for its own panel. The panels themselves are **Not available yet**; the buttons only keep their pressed state.
+Fifteen buttons in three columns, from Histogram to Cropping Area. Each is a switch for its own card over the image. Histogram, Gamma, RGB Align and RGB Balance have their card, see [Colour and tones](colour-and-tones). The other cards are **Not available yet**; pressing their button says so in the status bar.
 
-**Contrast/Brightness** has two sliders and two fields. Contrast starts at 100 and Brightness at 0. **Reset** returns both. **Hold** is a switch; what it holds is **Not available yet**. **Copy To**, **Load to** and **Difference** are **Not available yet**; *Clipboard Image* is locked until something is copied.
+**Contrast/Brightness** has two sliders and two fields. Contrast starts at 100 and Brightness at 0. **Reset** returns both. **Hold** is a switch; what it holds is **Not available yet**. **Copy To**, **Load to** and **Difference** keep and compare images, see [Colour and tones](colour-and-tones); *Clipboard Image* is locked until something is copied.

@@ -322,3 +322,17 @@ input[type="text"]:focus {
   color: var(--accent-ink);
   background: var(--accent-soft);
 }
+
+/* body of a floating card behind a Functions button; a fieldset so that a grayscale recording can lock it */
+.cardbody {
+  min-width: 0;
+  padding: 8px 10px 10px;
+  margin: 0;
+  border: 0;
+}
+.cardbody:disabled {
+  opacity: 0.45;
+}
+.cardbody .row {
+  min-height: 28px;
+}

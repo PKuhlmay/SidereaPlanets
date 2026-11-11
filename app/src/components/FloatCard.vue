@@ -1,20 +1,27 @@
 <script setup lang="ts">
-// A floating card over the image (Framelist, Registrationgraph, Alignmentpoints); the cross removes its check mark.
+// A floating card over the image (Framelist, Registrationgraph, Alignmentpoints, the Functions cards); the cross
+// removes its check mark. Actions such as Reset go into the `actions` slot, at the left of the cross.
 defineProps<{ title: string }>();
 const emit = defineEmits<{ close: [] }>();
 </script>
 
 <template>
-  <section class="float" :aria-label="title">
+  <section class="float" :aria-label="title" @wheel.stop>
     <header>
       {{ title }}
-      <button type="button" aria-label="Close" @click="emit('close')">×</button>
+      <span class="acts">
+        <slot name="actions" />
+        <button type="button" aria-label="Close" @click="emit('close')">×</button>
+      </span>
     </header>
     <slot />
   </section>
 </template>
 
 <style scoped>
+.float.fixed {
+  flex: none;
+}
 .float {
   display: flex;
   flex-direction: column;
@@ -34,6 +41,21 @@ header {
   padding: 6px 6px 6px 10px;
   font-weight: 600;
   border-bottom: 1px solid var(--line);
+}
+.acts {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+}
+header button.link {
+  width: auto;
+  height: auto;
+  padding: 2px 4px;
+  font-size: var(--fs);
+  color: var(--accent-ink);
+}
+header button.link:hover {
+  background: var(--accent-soft);
 }
 header button {
   width: 22px;

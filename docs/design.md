@@ -56,6 +56,7 @@ Komponenten benutzen ausschließlich die Variablen, keine eigenen Farbwerte.
 | Text | `--text` `--muted` `--off` | Beschriftung und Werte; Zwischenüberschriften und Statusleiste; Gesperrtes |
 | Akzent | `--accent` `--accent-h` `--on-accent` `--accent-ink` `--accent-soft` | Füllung, Hover, Text auf Füllung, Akzent als Text, gewählte Segmente |
 | Status | `--ok` `--info` | erledigter Schritt und Punkt „Aligned“; zweite Linie in Diagrammen |
+| Histogramm | `--ch-r` `--ch-g` `--ch-b` | Kanalkurven in der Karte Histogram; Bilddaten, keine Oberflächenfarben |
 | Bildbereich | `--canvas` `--canvas-chrome` `--canvas-line` `--on-canvas` | Hintergrund um das Bild, Zoom-Leiste darauf |
 | Alignpoints | `--ap-point` `--ap-ring` `--ap-shift` | rote Punkte nach Set Alignpoints, gelbe Ringe und grüne Striche nach Limit |
 | Schrift | `--font` `--fs` `--fs-s` | Systemschrift, 13 px Grundgröße, 12 px für Nebentext |
@@ -145,7 +146,8 @@ Feld in `--field` mit rechtsbündigem Wert und zwei kleinen Pfeiltasten rechts. 
 (Ausnahmen: 84 px bei vierstelligen Werten, 46–56 px in engen Zeilen). Fokus färbt den Umriss in `--accent`.
 Das Feld steht rechts in der Zeile, die Beschriftung links. Gesperrt: 45 % Deckkraft.
 
-Dezimaltrenner ist der Punkt. Nachkommastellen: Denoise 2, Sharpen 3, Preview 1, Faktoren 1, alles andere ganzzahlig.
+Dezimaltrenner ist der Punkt. Nachkommastellen: Denoise 2, Sharpen 3, Preview 1, Faktoren 1, Gamma 2, Verschiebung in RGB Align 2, Clip in
+Histogram 1, alles andere ganzzahlig.
 
 ### Regler
 
@@ -280,6 +282,69 @@ und ein; der Bildbereich nimmt den frei werdenden Platz.
 | Summenbild, Standardwerte | ![Wavelet](design/screenshots/07-wavelet.png) |
 | Ebenen 1–3 angehoben, Show Processing Area | ![Wavelet, geschärft](design/screenshots/08-wavelet-sharpened.png) |
 
+### Karten hinter den Functions-Schaltflächen
+
+Die Schaltflächen des Functions-Rasters öffnen Karten, die Form ist die der schwebenden Karten (Framelist, siehe
+[Schwebende Karten](#schwebende-karten)): oben rechts über dem Bild, 236 px breit, Titel und Schließen-Kreuz, nicht
+verschiebbar. Es gibt dazu kein Soll-Bild; die Karten sind aus den vorhandenen Komponenten gebaut.
+
+Dieser Abschnitt legt die Karten fest, die RK-008 braucht: **Histogram**, **Gamma**, **RGB Align** und **RGB Balance**.
+Contrast/Brightness bleibt das feste Panel unter dem Raster (Soll-Bild 07). Die übrigen Karten (Colour Mixing, View …,
+Flip and Rotate, Resize Image, Denoise/Deringing, Wavelet Filter, Masking, Show Linegraph, Cropping Area) legen ihre
+Tickets fest und ergänzen dieses Dokument.
+
+**Gemeinsames Verhalten**
+
+- Jede Functions-Schaltfläche ist ein Umschalter: gedrückt zeigt sie ihre Karte, ein zweiter Klick oder das Kreuz in der
+  Karte schließt sie und löst die Schaltfläche. Mehrere Karten sind gleichzeitig offen und liegen in der Reihenfolge des
+  Öffnens untereinander; reicht die Höhe nicht, scrollt der Kartenstapel.
+- Die Karten stellen Werte ein, sie sind keine Schritte. Das Bild im Bildbereich folgt jeder Änderung sofort; die Werte
+  gelten auch für das Ergebnis von Do All und für Save image. Eine geschlossene Karte behält ihre Werte, nur **Reset**
+  nimmt sie zurück. Das Original wurde dazu nicht beobachtet (`docs/offene-fragen.md`).
+- Die Werte werden immer auf das Ausgangsbild angewendet, nicht aufeinander gestapelt, in dieser Reihenfolge: RGB Align,
+  RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** zeigt das Ausgangsbild ohne sie.
+- **Reset** steht als Textlink in der Titelzeile, links vom Kreuz, und setzt die Werte der Karte auf den neutralen
+  Zustand: das Bild bleibt unverändert. Weitere Aktionen (Auto) stehen ebenfalls als Textlinks dort.
+- Bei einem Graustufenbild sind RGB Align und RGB Balance gesperrt; der Tooltip sagt „Needs a colour image“.
+- Zahlenfeld und Regler einer Zeile sind gekoppelt: das eine setzt das andere. Werte außerhalb des Bereichs werden auf
+  den Bereich gesetzt.
+
+| Karte | Aufbau von oben nach unten | Standard · Bereich |
+|---|---|---|
+| Histogram | Graph, 212 × 84 px, Fläche `--field`, Umriss `--line`. Luminanz als gefüllte Fläche in `--line-strong`, darüber Red, Green und Blue als 1-px-Linien in `--ch-r` `--ch-g` `--ch-b`. Waagerecht 0 … 255, senkrecht logarithmisch, weil das Bild meist fast schwarz ist. Unter der Achse zwei Dreiecke für Black und White, ziehbar. Darunter Segmente **Input · Result**, dann die Felder **Black** und **White**, darunter **Auto** mit dem Feld **Clip %** | Black 0 · 0 … 254, White 255 · 1 … 255, Black bleibt unter White; Clip 0.1 · 0 … 49; Segment Input |
+| Gamma | Regler mit „darker“ links und „brighter“ rechts (12 px, `--muted`) über der Spur, darunter das Feld **Gamma** rechts in der Zeile | 1.00 · 0.10 … 5.00; Regler in Schritten von 0.01 |
+| RGB Align | Spaltenköpfe X und Y (12 px, `--muted`), drei Zeilen **Red**, **Green**, **Blue** mit je zwei Feldern, darunter die Zeile **Max shift** mit Feld, Hinweis „Auto moves Red and Blue onto Green“ (12 px, `--muted`) | Verschiebung 0.00 px · −20.00 … 20.00, Pfeiltasten ±0.1; positives X nach rechts, positives Y nach unten; Max shift 5 · 1 … 20 |
+| RGB Balance | Drei Zeilen **Red**, **Green**, **Blue**: Beschriftung links, Regler, Feld rechts (56 px). Die Regler bleiben in der Akzentfarbe, die Kanäle erkennt man an der Beschriftung | 100 % · 0 … 200 |
+
+- **Histogram**: *Input* zeigt das Bild vor dem Stretch, das ist das Bild, auf dem Black und White sitzen; *Result* zeigt
+  das Ergebnis nach allen Schritten. **Auto** setzt Black und White so, dass vom dunkelsten und vom hellsten Ende je Clip %
+  der Pixel abgeschnitten werden (gemessen an der Luminanz). Black und White wirken gleich auf alle Kanäle, die Farbe
+  bleibt also erhalten.
+- **Gamma**: über 1.00 wird das Bild in den Mitteltönen heller, darunter dunkler; Schwarz und Weiß bleiben.
+- **RGB Align**: **Auto** sucht in den Kanälen Red und Blue die Verschiebung, mit der ihre Kanten auf die von Green fallen
+  (Green ist die Bezugsfarbe), und trägt sie in die Felder ein. Danach lässt sich von Hand nachstellen. Die Verschiebung
+  hat Nachkommastellen, das Bild behält seine Größe, am Rand wird der letzte Pixel wiederholt.
+- **Contrast/Brightness** (festes Panel): 100 und 0 lassen das Bild unverändert. Contrast dreht die Tonwerte um Mittelgrau;
+  der volle Brightness-Bereich −512 … 512 entspricht dem ganzen Tonumfang. Das Feld Contrast zeigt die Reglerposition
+  geteilt durch 2,5 (250 → 100); dieses Verhältnis ist eine Annahme aus dem einen Wertepaar, nicht belegt.
+- **Copy To / Load to / Difference** (festes Panel): *Copy To* merkt sich das Bild, das gerade im Bildbereich steht (mit
+  allen Karten und Contrast/Brightness), als *Clipboard Image*. *Current Image* und *Clipboard Image* im Toggle wechseln
+  die Anzeige zwischen beiden; *Clipboard Image* ist gesperrt, bis etwas kopiert wurde. *Load to* macht das kopierte Bild
+  zum bearbeiteten Bild und setzt alle Karten und Contrast/Brightness zurück, weil sie im Bild schon stecken.
+  *Difference* zeigt den Betrag des Unterschieds beider Bilder, vierfach verstärkt, und folgt dem aktuellen Bild;
+  die Schaltfläche steht dabei gedrückt. *Load to* und *Difference* sind ohne Kopie gesperrt, *Difference* auch bei
+  verschiedener Bildgröße (Meldung in der Statusleiste). Das Original wurde dazu nicht beobachtet; es gilt nur, was
+  `docs/ui.md` über den Toggle sagt.
+- Eine Functions-Schaltfläche ohne Karte bleibt unten und meldet „‹Name›: not available yet“ in der Statusleiste.
+
+**Colour und LRGB** sitzen als Häkchen im Align- und im Stack-Reiter (`docs/ui.md`). *Colour* verarbeitet in Farbe, ohne
+das Häkchen als Graustufen. *LRGB* ist nur mit *Colour* wählbar und schärft nur die Luminanz: Die Wavelets (RK-007)
+rechnen auf der Luminanz, Farbton und Sättigung kommen aus dem Summenbild. Beide sind bei Graustufenbildern gesperrt.
+Das Ticket nennt sie unter dem Wavelet-Reiter; dort stehen sie im Entwurf nicht, die Stelle ist also noch offen.
+Umgesetzt (RK-008): Sie sind bei Graustufenaufnahmen gesperrt und LRGB zusätzlich ohne *Colour*. Die Wirkung auf Do All
+liegt bei RK-007, das beide Werte liest (`settings.colour`, `settings.lrgb`); der Rechenkern bringt dafür
+`color::with_luminance` mit.
+
 ### Menüs
 
 | Menü | Soll-Bild |
@@ -366,8 +431,9 @@ dieses Dokument im selben Commit.
 - Fehlermeldungen (festgelegt in RK-010): Text mit Präfix „Error:“ im Ergebnisfeld der Statusleiste (Feld 3), in
   `--text`; kein Dialog, kein Rot.
 - Speicherangabe („Memory used/free/total“) in der Reiterleiste: entfällt vorerst, sie braucht einen Befehl im Backend.
-- Die fünfzehn Panels hinter den Functions-Schaltflächen. Sie sind im Original noch nicht erfasst
-  (`docs/offene-fragen.md`). Vorgabe für die Form: schwebende Karten wie Framelist.
+- Elf der fünfzehn Panels hinter den Functions-Schaltflächen. Histogram, Gamma, RGB Align und RGB Balance stehen unter
+  [Karten hinter den Functions-Schaltflächen](#karten-hinter-den-functions-schaltflächen); die übrigen sind im Original
+  noch nicht erfasst (`docs/offene-fragen.md`). Vorgabe für die Form: schwebende Karten wie Framelist.
 - Stackgraph, Stacklist, Aligndata und Prefilter. Vorgabe für die Form: schwebende Karten.
 - MACRO/Batch-Fenster und About-Dialog. Ihre Schaltflächen sind angelegt und melden „not available yet“.
 - Dateidialoge sind die des Betriebssystems und brauchen kein Design.

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { runAction } from "../actions";
+import { toggleFunction } from "../colour";
 import {
   BRIGHTNESS_RANGE,
   CONTRAST_RANGE,
@@ -8,18 +9,14 @@ import {
   contrastSlider,
   functionNames,
 } from "../logic/settings";
-import { settings } from "../state";
+import { session, settings } from "../state";
 import NumberField from "./NumberField.vue";
 
-// Right panel of the Wavelet tab. Every function button is a switch for its own panel; those panels are not built
-// yet (RK-008), so the buttons only keep their pressed state.
+// Right panel of the Wavelet tab. Every function button is a switch for its own card over the image (FunctionCards.vue);
+// buttons whose card does not exist yet say so in the status bar. Contrast/Brightness and the Copy To panel live here.
 const wavelet = settings.wavelet;
-
-function toggle(name: string) {
-  const at = wavelet.functions.indexOf(name);
-  if (at >= 0) wavelet.functions.splice(at, 1);
-  else wavelet.functions.push(name);
-}
+const hasImage = computed(() => (session.processedImage ?? session.stackImage) !== null);
+const hasCopy = computed(() => session.clipboardImage !== null);
 
 const contrast = computed({
   get: () => contrastField(wavelet.contrast),
@@ -43,7 +40,7 @@ function resetContrast() {
           type="button"
           class="btn wrap"
           :aria-pressed="wavelet.functions.includes(name)"
-          @click="toggle(name)"
+          @click="toggleFunction(name)"
         >
           {{ name }}
         </button>
@@ -68,14 +65,14 @@ function resetContrast() {
 
     <div class="grp">
       <div class="seg">
-        <button type="button" @click="runAction('copyTo')">Copy To</button>
-        <button type="button" @click="runAction('loadTo')">Load to</button>
-        <button type="button" disabled @click="runAction('difference')">Difference</button>
+        <button type="button" :disabled="!hasImage" @click="runAction('copyTo')">Copy To</button>
+        <button type="button" :disabled="!hasCopy" @click="runAction('loadTo')">Load to</button>
+        <button type="button" :disabled="!hasCopy" :aria-pressed="session.toneView === 'difference'" @click="runAction('difference')">Difference</button>
       </div>
       <div class="sub">Toggle</div>
       <div class="col">
-        <label class="chk"><input type="radio" name="toggle" checked />Current Image</label>
-        <label class="chk"><input type="radio" name="toggle" disabled />Clipboard Image</label>
+        <label class="chk"><input v-model="session.toneView" type="radio" name="toggle" value="current" />Current Image</label>
+        <label class="chk"><input v-model="session.toneView" type="radio" name="toggle" value="clipboard" :disabled="!hasCopy" />Clipboard Image</label>
       </div>
     </div>
   </aside>

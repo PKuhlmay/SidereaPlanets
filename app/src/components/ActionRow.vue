@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { runAction } from "../actions";
+import { isMono } from "../colour";
 import type { ResampleMethod } from "../logic/settings";
 import { atLeast, stepButtons, type StepId } from "../logic/workflow";
 import { session, settings, status } from "../state";
@@ -8,6 +9,8 @@ import NumberField from "./NumberField.vue";
 
 // The action row under the tabs: step buttons at the left (above the left panel), the header check boxes next to them.
 const busy = computed(() => status.busy !== null);
+// Grayscale recordings have no colour to process: Colour and LRGB are locked, LRGB also without Colour.
+const mono = computed(() => isMono());
 const steps = computed(() => stepButtons(session.step, busy.value));
 const stacked = computed(() => atLeast(session.step, "stacked"));
 const methods: { value: ResampleMethod; label: string }[] = [
@@ -29,8 +32,8 @@ const classes = (id: StepId) => ({ next: steps.value[id].next, done: steps.value
         <button type="button" class="btn" :class="classes('limit')" :disabled="steps.limit.disabled" @click="runAction('limit')">Limit</button>
       </div>
       <div class="opts">
-        <label class="chk"><input v-model="settings.colour" type="checkbox" />Colour</label>
-        <label class="chk"><input v-model="settings.lrgb" type="checkbox" />LRGB</label>
+        <label class="chk"><input v-model="settings.colour" type="checkbox" :disabled="mono" />Colour</label>
+        <label class="chk"><input v-model="settings.lrgb" type="checkbox" :disabled="mono || !settings.colour" />LRGB</label>
         <label class="chk"><input v-model="settings.align.showFullImage" type="checkbox" />Show Full Image</label>
         <label class="chk"><input v-model="settings.align.showRoi" type="checkbox" :disabled="!session.roi" />Show ROI</label>
         <label class="chk"><input v-model="settings.align.showAlignpoints" type="checkbox" />Show Alignpoints</label>
@@ -47,8 +50,8 @@ const classes = (id: StepId) => ({ next: steps.value[id].next, done: steps.value
         <button type="button" class="btn" :disabled="steps.saveImage.disabled" @click="runAction('saveImage')">Save image</button>
       </div>
       <div class="opts">
-        <label class="chk"><input v-model="settings.colour" type="checkbox" />Colour</label>
-        <label class="chk"><input v-model="settings.lrgb" type="checkbox" />LRGB</label>
+        <label class="chk"><input v-model="settings.colour" type="checkbox" :disabled="mono" />Colour</label>
+        <label class="chk"><input v-model="settings.lrgb" type="checkbox" :disabled="mono || !settings.colour" />LRGB</label>
         <label class="chk"><input v-model="settings.stack.showFullImage" type="checkbox" />Show Full Image</label>
         <label class="chk"><input v-model="settings.stack.showAlignSections" type="checkbox" />Show AlignSections</label>
         <label class="chk"><input v-model="settings.stack.showStackgraph" type="checkbox" />Show Stackgraph</label>
