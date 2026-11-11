@@ -28,7 +28,6 @@ pub struct ExportState {
 
 impl ExportState {
     /// Sets the stacked image (result of *Stack*).
-    #[allow(dead_code)] // called by the Stack step once it exists (RK-006)
     pub fn set_stack(&self, image: Image) {
         if let Ok(mut slot) = self.stack.lock() {
             *slot = Some(Arc::new(image));
@@ -36,7 +35,6 @@ impl ExportState {
     }
 
     /// Sets the processed image (result of *Process* or *Do All*).
-    #[allow(dead_code)] // called by the Wavelet step once it exists (RK-007)
     pub fn set_wavelet(&self, image: Image) {
         if let Ok(mut slot) = self.wavelet.lock() {
             *slot = Some(Arc::new(image));

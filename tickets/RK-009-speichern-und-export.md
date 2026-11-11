@@ -21,8 +21,8 @@ gelaufen. Deshalb bleiben die Kriterien offen, bis die Testläufe grün sind und
 - Format der Projektdatei und der Ausgaben: `docs/formats.md`; Anwenderdoku: Seite „Save and export“.
 - Offen: *Save Aligned* und *Save Integrated* (brauchen die ausgerichteten Frames aus RK-005/RK-006; der Schreiber ist fertig, die
   Schaltflächen melden „not available yet“), Menü Flat/Dark/Reference (Darkframe, Flatfield, Referenzframe laden: gehört nicht zu
-  Speichern und Export), Aufruf von `ExportState::set_stack` und `set_wavelet` durch Stack und Wavelet, bis dahin meldet
-  *Save image* „there is no stacked image yet“. 16-Bit-Wertebereich: `docs/offene-fragen.md`, Punkt 22.
+  Speichern und Export). `ExportState::set_stack` und `set_wavelet` rufen `stack` und `wavelet_do_all` auf; die Farb- und Tonwerte aus RK-008 fließen noch nicht in
+  *Save image* ein (Save image schreibt das Bild vor der Farbanpassung). 16-Bit-Wertebereich: `docs/offene-fragen.md`, Punkt 22.
 
 ## Design
 Soweit dieses Ticket Bedienelemente anbindet oder anzeigt, gilt `docs/design.md`. Aussehen und Anordnung werden nicht neu entschieden.

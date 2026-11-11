@@ -1,6 +1,6 @@
 //! Commands for the Wavelet tab: preview, Do All and schemes (`docs/wavelets.md`).
 
-use crate::AppState;
+use crate::{AppState, export_commands::ExportState};
 use planets_core::{
     Image,
     wavelet::{self, Previewer, Region, WaveletSettings, rgba_region, scheme},
@@ -10,7 +10,7 @@ use std::{
     fs,
     sync::{Arc, Mutex},
 };
-use tauri::{State, ipc::Response};
+use tauri::{AppHandle, Manager, State, ipc::Response};
 
 /// What the Wavelet tab works on and what it has produced.
 #[derive(Default)]
@@ -21,7 +21,7 @@ pub struct WaveletState {
 
 impl WaveletState {
     /// Sets the image the tab sharpens (the stacked image) and forgets the previous result.
-    /// Called after *Stack* (RK-006).
+    /// Called by the `stack` command after *Stack*.
     pub fn set_source(&self, image: Image) -> Result<(), String> {
         *self.previewer.lock().map_err(|e| e.to_string())? = Some(Previewer::new(Arc::new(image)));
         *self.processed.lock().map_err(|e| e.to_string())? = None;
@@ -106,6 +106,7 @@ pub async fn wavelet_preview(
 #[tauri::command]
 pub async fn wavelet_do_all(
     settings: WaveletSettings,
+    app: AppHandle,
     state: State<'_, WaveletState>,
 ) -> Result<Response, String> {
     let source = {
@@ -122,6 +123,7 @@ pub async fn wavelet_do_all(
     out.extend(result.width.to_le_bytes());
     out.extend(result.height.to_le_bytes());
     out.extend(rgba);
+    app.state::<ExportState>().set_wavelet((*result).clone());
     *state.processed.lock().map_err(|e| e.to_string())? = Some(result);
     Ok(Response::new(out))
 }

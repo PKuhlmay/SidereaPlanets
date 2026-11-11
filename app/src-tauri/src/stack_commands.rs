@@ -3,7 +3,10 @@
 //! The stack is kept as an [`Image`] in [`StackState`], so that the Wavelet tab and the export can
 //! take it from there without going through the UI.
 
-use crate::{AppState, align_commands::RoiSettings};
+use crate::{
+    AppState, align_commands::RoiSettings, export_commands::ExportState,
+    wavelet_commands::WaveletState,
+};
 use planets_core::{
     Image,
     align::{AlignParams, Control, Reference, Roi},
@@ -17,7 +20,7 @@ use std::{
     },
     time::{Duration, Instant},
 };
-use tauri::{AppHandle, Emitter, State, ipc::Response};
+use tauri::{AppHandle, Emitter, Manager, State, ipc::Response};
 
 /// What the Stack tab has computed.
 #[derive(Default)]
@@ -162,6 +165,10 @@ pub async fn stack(
         frames: stacked.frames,
         elapsed_ms: started.elapsed().as_millis() as u64,
     };
+    // The Wavelet tab sharpens the stacked image and *Save image* writes it.
+    app.state::<WaveletState>()
+        .set_source(stacked.image.clone())?;
+    app.state::<ExportState>().set_stack(stacked.image.clone());
     *state.result.lock().map_err(|e| e.to_string())? = Some(stacked.image);
     Ok(summary)
 }
