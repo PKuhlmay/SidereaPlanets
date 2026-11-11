@@ -72,6 +72,7 @@ export async function openRecording(paths: string[]) {
     return;
   }
   startSession(info, fileName(paths[0] ?? ""));
+  session.paths = [...paths];
   recent.list = pushRecent(recent.list, paths);
   try {
     localStorage.setItem(RECENT_KEY, JSON.stringify(recent.list));
@@ -86,6 +87,7 @@ export async function openRecording(paths: string[]) {
 export function startSession(info: RecordingInfo, name: string) {
   session.info = info;
   session.fileName = name;
+  session.paths = [];
   session.step = "loaded";
   session.tab = "align";
   session.frame = 0;

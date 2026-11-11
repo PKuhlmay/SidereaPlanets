@@ -7,6 +7,8 @@ publish.workspace = true
 [dependencies]
 image = { version = "0.25.10", default-features = false, features = ["bmp", "png", "tiff", "jpeg"] }
 planets-core = { path = "../core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 thiserror = "2"
 zune-core = "0.5"
 zune-jpeg = "0.5.15"

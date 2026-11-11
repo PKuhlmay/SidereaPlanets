@@ -1,5 +1,6 @@
 mod align_commands;
 mod color_commands;
+mod export_commands;
 mod stack_commands;
 mod wavelet_commands;
 
@@ -82,6 +83,7 @@ pub fn run() {
         .manage(stack_commands::StackState::default())
         .manage(wavelet_commands::WaveletState::default())
         .manage(color_commands::ColorState::default())
+        .manage(export_commands::ExportState::default())
         .invoke_handler(tauri::generate_handler![
             open_recording,
             read_frame,
@@ -106,6 +108,13 @@ pub fn run() {
             color_commands::apply_colors,
             color_commands::color_histogram,
             color_commands::auto_histogram_points,
+            export_commands::export_formats,
+            export_commands::save_image,
+            export_commands::save_image_as,
+            export_commands::project_save,
+            export_commands::project_save_as,
+            export_commands::project_load,
+            export_commands::project_open,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

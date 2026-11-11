@@ -51,6 +51,8 @@ export const settings = reactive(createSettings());
 export const session = reactive({
   info: null as RecordingInfo | null,
   fileName: "",
+  /** The files of the open recording, as given to Select. */
+  paths: [] as string[],
   step: "empty" as Step,
   tab: "align" as Tab,
   frame: 0,

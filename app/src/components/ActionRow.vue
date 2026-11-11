@@ -6,6 +6,7 @@ import type { ResampleMethod } from "../logic/settings";
 import { atLeast, stepButtons, type StepId } from "../logic/workflow";
 import { session, settings, status } from "../state";
 import NumberField from "./NumberField.vue";
+import SaveImageMenu from "./SaveImageMenu.vue";
 
 // The action row under the tabs: step buttons at the left (above the left panel), the header check boxes next to them.
 const busy = computed(() => status.busy !== null);
@@ -47,7 +48,7 @@ const classes = (id: StepId) => ({ next: steps.value[id].next, done: steps.value
     <template v-else-if="session.tab === 'stack'">
       <div class="flow">
         <button type="button" class="btn" :class="classes('stack')" :disabled="steps.stack.disabled" @click="runAction('stack')">Stack</button>
-        <button type="button" class="btn" :disabled="steps.saveImage.disabled" @click="runAction('saveImage')">Save image</button>
+        <SaveImageMenu source="stack" :disabled="steps.saveImage.disabled" />
       </div>
       <div class="opts">
         <label class="chk"><input v-model="settings.colour" type="checkbox" :disabled="mono" />Colour</label>
@@ -79,7 +80,7 @@ const classes = (id: StepId) => ({ next: steps.value[id].next, done: steps.value
       <div class="flow">
         <button type="button" class="btn" :disabled="busy || !stacked" @click="runAction('process')">Process</button>
         <button type="button" class="btn" :class="{ next: !busy && stacked }" :disabled="busy || !stacked" @click="runAction('doAll')">Do All</button>
-        <button type="button" class="btn" :disabled="steps.saveImage.disabled" @click="runAction('saveImage')">Save image</button>
+        <SaveImageMenu source="wavelet" :disabled="steps.saveImage.disabled" />
         <span class="gap" />
         <button type="button" class="btn" :disabled="busy || !stacked" @click="runAction('realign')">Realign with Processed</button>
         <button type="button" class="btn" disabled>Stack Again</button>

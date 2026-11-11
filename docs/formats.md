@@ -83,6 +83,39 @@ Beobachtungen:
 **Stack-Reiter, Create AVI**: Save Aligned (ausgerichtete Frames) und Save Integrated (gleitender Mittelwert über
 n Frames) schreiben AVI mit einem Video-for-Windows-Codec, Qualität und Bildrate. Nicht ausprobiert.
 
+### Was der Klon schreibt (RK-009)
+
+*Save image* in beiden Reitern schreibt über `planets_io::export` (Befehl `save_image`, Dateidialog des Betriebssystems):
+
+| Format | Endung | Inhalt |
+|---|---|---|
+| BMP (8 bit) | `.bmp` | RGB, bei Einkanalbildern Grau |
+| JPEG (8 bit) | `.jpg` | Qualität 95 (_Annahme_, das Original nennt keinen Wert) |
+| TIFF (16 bit) | `.tif` | RGB oder Grau, 16 Bit je Kanal, unkomprimiert |
+| PNG (16 bit) | `.png` | RGB oder Grau, 16 Bit je Kanal |
+| FITS (16 bit) | `.fit` | `BITPIX` 16, `BZERO` 32768 (Unsigned-Konvention), voller Wertebereich |
+| FITS (32 bit) | `.fit` | `BITPIX` 32, `BZERO` 2147483648, voller Wertebereich |
+| FITS (32 bit float) | `.fit` | `BITPIX` −32, Werte 0 … 1 unverändert |
+
+- Der Stack-Reiter bietet alle sieben Einträge an, der Wavelet-Reiter BMP, JPEG, FITS 16, TIFF und PNG, jeweils in der Reihenfolge
+  des Originals.
+- **Das Format wählt die Oberfläche**, nicht die Endung (wie beim Filter des Originals). Der Dialog zeigt nur den Filter des
+  gewählten Formats. Passt die getippte Endung nicht zum Format (auch `.tiff`, `.jpeg`, `.fits` zählen als passend), ersetzt der Klon
+  sie, wie es das Original bei `….tif` mit Filter BMP tat.
+- FITS: nur die primäre HDU. Einkanalbilder haben `NAXIS` 2, Farbbilder `NAXIS` 3 mit den Ebenen R, G, B **in einer Datei**; die
+  Datei lässt sich mit dem Leser des Klons wieder öffnen. Die Zeilen werden von unten nach oben abgelegt, wie FITS es vorsieht.
+  Die Variante „RGB separate“ (je Kanal eine Datei) und „Special the reference program Fits“ gibt es nicht, ihr Aufbau ist unbekannt.
+- **Wertebereich**: Der Klon rechnet in Fließkomma und bildet 1.0 auf den Höchstwert des Formats ab (255, 65535 …). Das Original
+  liefert 16 Bit als 8 Bit × 256, also höchstens 65280 (siehe Beobachtungen oben). Die Abweichung ist bewusst, siehe
+  `docs/offene-fragen.md`, Punkt 22.
+- Geschrieben wird in eine Datei mit Endung `.part` und danach umbenannt, ein Fehler lässt eine vorhandene Datei also unverändert.
+- Nicht umgesetzt: *Save to Subdir*, *Record Processing Information in Filename* (im Original nie beobachtet).
+
+**Create AVI**: Der Schreiber `planets_io::avi_write::AviWriter` erzeugt unkomprimierte AVI (24 Bit), Bild für Bild und damit auch für
+tausende Frames. Die Codec-Auswahl und *Compress Qual* des Originals entfallen, weil der Klon keine Video-for-Windows-Codecs
+benutzt. Grenze 4 GiB (kein OpenDML). Die Befehle für *Save Aligned* und *Save Integrated* (in der Oberfläche vorerst „not available yet“) kommen mit der Anbindung der
+ausgerichteten Frames aus dem Stacking (RK-006).
+
 ## Wavelet-Schema (`.rwv`)
 
 *Save Scheme* speichert die Wavelet-Einstellungen als INI-Datei mit der Endung **`.rwv`** (Filter „the reference program Wavelet
@@ -110,6 +143,44 @@ ist aus dem Zustand beim Speichern geschlossen (Linear und Gaussian waren gewäh
 Der Klon liest **und** schreibt dieses Format unverändert (RK-007, `crates/core/src/wavelet/scheme.rs`), ein eigenes Format gibt es
 nicht. Zwischen Oberfläche und Rust gehen die Einstellungen als JSON, die Datei ist nur der Speicherort. Einzelheiten
 (tolerantes Lesen, Rundung, Befehle `save_wavelet_scheme`/`load_wavelet_scheme`): `docs/wavelets.md`.
+
+## Projektdatei (`.rkproj`)
+
+Gibt es im Original nicht. Sie hält fest, was zum Wiederöffnen einer Sitzung nötig ist: die Aufnahme und die Einstellungen der Schritte.
+Umsetzung: `planets_io::project` (Befehle `project_save`, `project_save_as`, `project_load`, `project_open`).
+
+JSON, UTF-8, Endung **`.rkproj`**, Felder in camelCase:
+
+```json
+{
+  "formatVersion": 1,
+  "recording": ["C:/Aufnahmen/JUPITER.AVI"],
+  "sections": {
+    "align":   { },
+    "stack":   { },
+    "wavelet": { },
+    "colour":  { }
+  }
+}
+```
+
+- `formatVersion`: Aufbau der Datei. Eine höhere Zahl als die des Programms wird abgelehnt (Meldung statt Raten).
+- `recording`: die Dateien, die *Select* bekam: ein Video oder die Einzelbilder einer Serie in ihrer Reihenfolge. Pfade stehen so,
+  wie sie beim Speichern waren (absolut); fehlt eine Datei beim Öffnen, meldet `project_load` sie in `missingFiles`.
+- `sections`: je Schritt ein frei aufgebauter JSON-Wert. Wer einen Schritt baut, legt dessen Aufbau fest und liest und schreibt ihn mit
+  `Project::section` und `Project::set_section`. Abschnitte, die ein Programm nicht kennt, bleiben beim Speichern erhalten. Namen:
+  `align`, `stack`, `wavelet`, `colour` (Konstanten `SECTION_*`). Fehlt ein Abschnitt, gelten die Standardwerte.
+- Inhalt der Abschnitte in der Oberfläche (`app/src/logic/projectfile.ts`): `align`, `stack` und `wavelet` enthalten alle
+  Einstellungen des Reiters mit ihren Namen aus `settings.ts` (bei `align` ohne den Schwellenwert, der zu den Punkten des aktuellen
+  Frames gehört), `colour` die beiden Häkchen `colour` und `lrgb`. Beim Öffnen werden nur Schlüssel übernommen, die es gibt und die
+  denselben Typ haben; alles andere behält den Standardwert.
+- Nicht in der Datei: die Bilder selbst (Ergebnis von Align und Stack). Sie werden beim Öffnen neu berechnet.
+
+Das Wavelet-Schema des Originals (`.rwv`, Abschnitt oben) bleibt ein eigenes Dateiformat. *Load Scheme* und *Save Scheme* lesen und
+schreiben es (Rechenkern `crates/core/src/wavelet/scheme.rs`, Befehle `load_wavelet_scheme` und `save_wavelet_scheme`, RK-007). Gelesen werden Schema, Filter,
+Initial Layer, Step Increment und je Ebene Häkchen, Regler, Sharpen (÷ 100) und Denoise (÷ 100); gespeichert wird in der
+Reihenfolge des Beispiels oben mit CRLF. Die Zuordnung der Werte 0 und 1 ist bisher nur aus dem Beispiel (Linear, Gaussian)
+geschlossen. 
 
 ## Einstellungsdateien
 

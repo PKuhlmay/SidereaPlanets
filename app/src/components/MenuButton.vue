@@ -2,7 +2,8 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 
 // A toolbar menu: borderless button with an arrow, the list opens below it. Escape and a click outside close it.
-defineProps<{ label: string; wide?: boolean }>();
+// With `plain` the opener is a standard button instead of a borderless one with an arrow (a button that offers a choice).
+defineProps<{ label: string; wide?: boolean; plain?: boolean; disabled?: boolean }>();
 
 const open = ref(false);
 const root = ref<HTMLElement | null>(null);
@@ -31,7 +32,17 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="root" class="mw">
-    <button type="button" class="btn ghost caret" aria-haspopup="menu" :aria-expanded="open" @click="open = !open">{{ label }}</button>
+    <button
+      type="button"
+      class="btn"
+      :class="plain ? '' : 'ghost caret'"
+      aria-haspopup="menu"
+      :aria-expanded="open"
+      :disabled="disabled"
+      @click="open = !open"
+    >
+      {{ label }}
+    </button>
     <div v-if="open" class="menu" :class="{ wide }" role="menu">
       <slot :close="close" />
     </div>

@@ -7,6 +7,7 @@ import { recentLabel } from "../logic/recent";
 import { applyTheme } from "../theme";
 import { chooseFiles, openRecording, recent } from "../recording";
 import { session, settings, status, theme } from "../state";
+import { openProject, saveProject } from "../saving";
 import MenuButton from "./MenuButton.vue";
 import NumberField from "./NumberField.vue";
 
@@ -80,6 +81,10 @@ function resetLuminance() {
       <MenuButton v-slot="{ close }" label="Tools">
         <button type="button" class="mi" @click="close(), runAction('macroBatch')">Show MACRO/Batch window</button>
         <label class="mi"><input v-model="settings.menu.recordInFilename" type="checkbox" />Record Processing Information in Filename</label>
+        <hr />
+        <!-- Not in the original: the project file keeps the recording and the settings of a session (docs/formats.md). -->
+        <button type="button" class="mi" :disabled="busy" @click="close(), openProject()">Open project…</button>
+        <button type="button" class="mi" :disabled="!loaded || busy" @click="close(), saveProject()">Save project…</button>
       </MenuButton>
 
       <MenuButton label="Settings" wide>

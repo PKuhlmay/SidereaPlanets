@@ -170,6 +170,15 @@ Zusammenhängende Schaltflächen in einem gemeinsamen Umriss. Zwei Einsätze:
 „›“ für ein Untermenü. Zahlen- und Textfelder (Bias subtract, Save to Subdir, Faktor bei Create Darkframe) stehen
 rechts im Eintrag. Trennlinien gruppieren wie im Original. Escape und ein Klick daneben schließen.
 
+Dem Menü Tools sind zwei Einträge hinzugefügt (RK-009), getrennt durch eine Linie unter den Einträgen des Originals:
+**Open project…** und **Save project…** (Projektdatei, `docs/formats.md`). Das Original hat sie nicht; Ort und Namen sind ein
+Vorschlag, den Philipp ändern kann. Save project ist ohne geladene Aufnahme gesperrt.
+
+**Save image** (Stack- und Wavelet-Reiter) ist eine Standard-Schaltfläche, die beim Anklicken ein Menü mit der Auswahl des
+Dateityps öffnet (Stack: sieben Einträge, Wavelet: fünf; rechts steht die Endung). Ein Klick auf einen Eintrag öffnet den
+Speichern-Dialog des Betriebssystems für genau diesen Typ. Beim Original wählt man den Typ im Dialog; das Dialog-Plugin meldet
+den gewählten Filter nicht zurück, deshalb steht die Auswahl davor.
+
 Aus dem Menü Settings entfallen „Check for the reference program Update“ sowie „Layouts“ und „Set Skin“. An die Stelle von „Set Skin“
 tritt **Theme** (Dark · Light). Einträge mit „›“ öffnen ihr Untermenü als Flyout rechts neben dem Eintrag (bei Hover oder
 Fokus), gleiche Fläche wie das Menü; darin stehen Häkchen, eine Auswahl (Processing Area, Stretch FIT/TIFF, Theme) oder
