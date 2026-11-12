@@ -52,21 +52,28 @@ struct ReadOnlyField: View {
     }
 }
 
-/// The label at the left, the field at the right: one row of a panel. Locked, the field is dimmed to 45 % (docs/design.md).
+/// The label at the left, the field at the right: one row of a panel. Locked, the field is dimmed to 45% (docs/design.md). A long
+/// label wraps to a second line instead of being cut off; `help` is the tooltip of the row.
 struct FieldRow: View {
     let title: String
     @Binding var value: Int
     var range: ClosedRange<Int> = 0...1_000_000
     var isLocked = false
+    var help = ""
 
     var body: some View {
         HStack(spacing: 4) {
-            Text(title).font(.rk).foregroundStyle(isLocked ? RK.off : RK.text).lineLimit(1)
+            Text(title)
+                .font(.rk)
+                .foregroundStyle(isLocked ? RK.off : RK.text)
+                .lineLimit(2)
+                .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
             NumberField(label: title, value: $value, range: range)
                 .disabled(isLocked)
                 .opacity(isLocked ? 0.45 : 1)
         }
+        .help(isLocked ? "Not available yet" : help)
     }
 }
 
@@ -76,6 +83,7 @@ struct RadioRow: View {
     let title: String
     let isSelected: Bool
     var isEnabled = true
+    var help = ""
     let action: () -> Void
 
     var body: some View {
@@ -91,15 +99,17 @@ struct RadioRow: View {
         }
         .buttonStyle(.plain)
         .disabled(!isEnabled)
+        .help(help)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }
 
-/// A check box in the style of the panels; locked ones carry the tooltip "Not available yet".
+/// A check box in the style of the panels; locked ones carry the tooltip "Not available yet". `help` explains an active one.
 struct PanelCheckbox: View {
     let title: String
     @Binding var isOn: Bool
     var isLocked = false
+    var help = ""
 
     var body: some View {
         Toggle(isOn: $isOn) {
@@ -107,7 +117,7 @@ struct PanelCheckbox: View {
         }
         .toggleStyle(.checkbox)
         .disabled(isLocked)
-        .help(isLocked ? "Not available yet" : "")
+        .help(isLocked ? "Not available yet" : help)
     }
 }
 

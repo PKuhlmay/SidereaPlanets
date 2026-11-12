@@ -63,11 +63,11 @@ private struct HistogramCard: View {
                 ])
                 HStack(alignment: .top, spacing: 12) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Black").font(.rkSmall).foregroundStyle(RK.muted)
+                        Text("Black point").font(.rkSmall).foregroundStyle(RK.muted)
                         NumberField(label: "Black point", value: $model.tone.black, range: 0...max(model.tone.white - 1, 0), width: 62)
                     }
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("White").font(.rkSmall).foregroundStyle(RK.muted)
+                        Text("White point").font(.rkSmall).foregroundStyle(RK.muted)
                         NumberField(label: "White point", value: $model.tone.white, range: min(model.tone.black + 1, 255)...255, width: 62)
                     }
                 }
@@ -75,7 +75,8 @@ private struct HistogramCard: View {
                 HStack(spacing: 8) {
                     Button("Auto") { Task { await model.autoLevels() } }
                         .buttonStyle(.rk)
-                    Text("Clip %").font(.rkSmall).foregroundStyle(RK.muted)
+                    Text("Clip (%)").font(.rkSmall).foregroundStyle(RK.muted)
+                        .help("Share of the darkest and brightest pixels that Auto may cut off.")
                     DecimalField(label: "Clip percent", value: $model.tone.clip, decimals: 1, step: 0.1, range: ToneLimits.clip, width: 40)
                     Spacer(minLength: 0)
                 }
@@ -219,8 +220,8 @@ private struct RgbAlignCard: View {
                 Grid(alignment: .trailing, horizontalSpacing: 6, verticalSpacing: 2) {
                     GridRow {
                         Text("")
-                        Text("X").frame(width: 70, alignment: .trailing)
-                        Text("Y").frame(width: 70, alignment: .trailing)
+                        Text("X (px)").frame(width: 70, alignment: .trailing)
+                        Text("Y (px)").frame(width: 70, alignment: .trailing)
                     }
                     .font(.rkSmall)
                     .foregroundStyle(RK.muted)
@@ -229,7 +230,7 @@ private struct RgbAlignCard: View {
                     channel("Blue", x: shiftBinding(\.blue, \.x), y: shiftBinding(\.blue, \.y))
                 }
                 HStack {
-                    Text("Max shift").font(.rk).foregroundStyle(RK.text)
+                    Text("Max shift (px)").font(.rk).foregroundStyle(RK.text)
                     Spacer()
                     NumberField(label: "Max shift in pixels", value: $model.tone.maxShift, range: ToneLimits.maxShift, width: 40)
                 }
@@ -239,7 +240,7 @@ private struct RgbAlignCard: View {
             .padding(10)
             .disabled(model.isMono)
             .opacity(model.isMono ? 0.45 : 1)
-            .help(model.isMono ? "Needs a colour image" : "")
+            .help(model.isMono ? "Needs a color image" : "")
         })
     }
 
@@ -281,7 +282,7 @@ private struct RgbBalanceCard: View {
             .padding(10)
             .disabled(model.isMono)
             .opacity(model.isMono ? 0.45 : 1)
-            .help(model.isMono ? "Needs a colour image" : "")
+            .help(model.isMono ? "Needs a color image" : "")
         })
     }
 
@@ -296,6 +297,7 @@ private struct RgbBalanceCard: View {
             .tint(RK.accent)
             .accessibilityLabel(name)
             NumberField(label: "\(name) percent", value: value, range: ToneLimits.balance, width: 36)
+            Text("%").font(.rkSmall).foregroundStyle(RK.muted)
         }
         .frame(minHeight: 30)
     }

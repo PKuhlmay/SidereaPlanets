@@ -123,7 +123,7 @@ final class Dialogs {
         backend.log.setImageError("no stacked image to save")
         let dialogs = Dialogs(answer: folder.appendingPathComponent("a.tif"))
         await model.saveImage(try format(.tiff16), choose: dialogs.save)
-        #expect(model.status.result == "Save image: no stacked image to save")
+        #expect(model.status.result == "Save Image failed: no stacked image to save")
         #expect(dialogs.saveRequests.isEmpty && model.stepStates[.save]?.status != .done)
     }
 
@@ -132,7 +132,7 @@ final class Dialogs {
         model.show(.stack)
         await backend.setSaveError("disk full")
         await model.saveImage(try format(.tiff16), choose: Dialogs(answer: folder.appendingPathComponent("a.tif")).save)
-        #expect(model.status.result == "Save image: disk full")
+        #expect(model.status.result == "Save Image failed: disk full")
         #expect(!model.isBusy)
     }
 
@@ -242,8 +242,8 @@ final class Dialogs {
         let dialogs = Dialogs(answer: folder.appendingPathComponent("c.avi"))
         let running = Task { await model.saveVideo(.aligned, choose: dialogs.save) }
         #expect(await eventually { await backend.isVideoHeld && model.status.progress > 0 })
-        #expect(model.run?.name == "Save Aligned" && model.isBusy && model.canCancel)
-        #expect(model.windowTitle.hasPrefix("Siderea Planets · Save Aligned"))
+        #expect(model.run?.name == "Save Aligned Video" && model.isBusy && model.canCancel)
+        #expect(model.windowTitle.hasPrefix("Siderea Planets · Save Aligned Video"))
         #expect(model.status.action == "Writing frame: 1")
         #expect(!model.canSaveVideo && !model.canSaveImage && !model.canSaveProject)
 
@@ -258,7 +258,7 @@ final class Dialogs {
         await limitedRecording()
         await backend.setSaveError("the file is too large")
         await model.saveVideo(.integrated, choose: Dialogs(answer: folder.appendingPathComponent("e.avi")).save)
-        #expect(model.status.result == "Error: the file is too large")
+        #expect(model.status.result == "Save Averaged Video failed: the file is too large")
     }
 
     @Test func aCancelledVideoDialogStartsNoRun() async {
@@ -326,7 +326,7 @@ final class Dialogs {
         let json = #"{"formatVersion": 1, "recording": ["/nowhere/a.ser", "/nowhere/b.ser"], "sections": {}}"#
         try json.write(to: file, atomically: true, encoding: .utf8)
         await model.openProject(choose: Dialogs(answer: file).open)
-        #expect(model.status.result == "Open project: file not found: a.ser, b.ser")
+        #expect(model.status.result == "Open Project: the recording was not found: a.ser, b.ser")
         #expect(!model.hasRecording)
     }
 
@@ -334,23 +334,23 @@ final class Dialogs {
         let empty = folder.appendingPathComponent("empty.rkproj")
         try #"{"formatVersion": 1, "recording": [], "sections": {}}"#.write(to: empty, atomically: true, encoding: .utf8)
         await model.openProject(choose: Dialogs(answer: empty).open)
-        #expect(model.status.result == "Open project: the project has no recording")
+        #expect(model.status.result == "Open Project: the project has no recording")
 
         let newer = folder.appendingPathComponent("newer.rkproj")
         try #"{"formatVersion": 9, "recording": ["/x.ser"], "sections": {}}"#.write(to: newer, atomically: true, encoding: .utf8)
         await model.openProject(choose: Dialogs(answer: newer).open)
-        #expect(model.status.result.hasPrefix("Open project: ") && model.status.result.contains("newer version"))
+        #expect(model.status.result.hasPrefix("Open Project failed: ") && model.status.result.contains("newer version"))
 
         let broken = folder.appendingPathComponent("broken.rkproj")
         try "not json".write(to: broken, atomically: true, encoding: .utf8)
         await model.openProject(choose: Dialogs(answer: broken).open)
-        #expect(model.status.result.hasPrefix("Open project: not a valid project file"))
+        #expect(model.status.result.hasPrefix("Open Project failed: not a valid project file"))
     }
 
     @Test func saveProjectNeedsARecordingAndACancelledDialogDoesNothing() async throws {
         let none = Dialogs(answer: folder.appendingPathComponent("x.rkproj"))
         await model.saveProject(choose: none.save)
-        #expect(model.status.result == "Save project: no recording is open" && none.saveRequests.isEmpty)
+        #expect(model.status.result == "Save Project: no recording is open" && none.saveRequests.isEmpty)
         #expect(!model.canSaveProject)
 
         await model.open([try recordingFile()])

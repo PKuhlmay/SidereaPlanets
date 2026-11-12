@@ -14,7 +14,7 @@ mac/
   project.yml            xcodegen-Spezifikation (Ziele SidereaPlanets und SidereaPlanetsTests, MARKETING_VERSION, ad-hoc-Signierung)
                          App-Icon: `docs/design/icon/AppIcon.icon` (Debug: `AppIconDev.icon` mit DEV-Abzeichen), gemeinsam mit Windows, neu erzeugen mit `scripts/make-icons.sh` (MAC-012)
   App/                   SwiftUI-Oberfläche (MAC-005)
-    SidereaPlanetsApp.swift  Szenen (Hauptfenster, Help, Settings), Menüleiste (⌘O, Open Recent, Zoom, Frames, Process)
+    SidereaPlanetsApp.swift  Szenen (Hauptfenster, Help, Settings), Menüleiste (⌘O, Open Recent, Zoom, Frames, Run)
     Commands/            HelpCommands (Help ⌘?, About), StepMenuItems (Process > Go to Step, ⌥⌘1 bis ⌥⌘7); weitere Menüpunkte (Save …) kommen hier oder in AppCommands dazu
     Help/                Hilfe-Fenster (MAC-010): DocPage (Kopf, Gruppen, Suche), MarkdownHTML (Renderer), DocStyle (CSS aus den Tokens), HelpModel, HelpView, DocWebView (WKWebView)
     Settings/            Einstellungen (⌘,): CpuSettings (CPUs, Klemmung, Kern), SettingsView
@@ -57,7 +57,7 @@ Notarisierung), nicht über den App Store, und dafür ist die Sandbox keine Pfli
 **Debug-Argumente** (nur Debug-Builds, für Screenshots und Handproben): `open -a build/mac/Build/Products/Debug/"Siderea Planets.app" --args
 -open <Datei[:Datei…]> -appearance light|dark -step open|alignpoints|… -frame <n>`.
 Dazu für Bilder der späteren Schritte: `-run alignpoints,align,limit,stack` drückt die Schaltflächen nacheinander (`alignpaused` startet Align und
-hält es nach dem ersten Frame an, `stackpaused` dasselbe für Stack, `roidraw` drückt R.o.Interest, `bestframe` drückt Go to best frame), `-show framelist,registrationgraph`, `-roi x,y,breite,höhe`,
+hält es nach dem ersten Frame an, `stackpaused` dasselbe für Stack, `roidraw` drückt Draw Region, `bestframe` drückt Go to Best Frame), `-show framelist,registrationgraph` (interne Namen; in der App Frame List und Quality Graph), `-roi x,y,breite,höhe`,
 `-limit lowestQuality|bestPercent|framesPerPoint|bestCount`.
 
 Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik in
@@ -228,3 +228,4 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-011 | Go to best frame | erledigt |
 | MAC-012 | App-Icon (beide Apps, Debug mit DEV-Abzeichen) | erledigt |
 | MAC-013 | Name „Siderea Planets“ in beiden Apps | erledigt |
+| MAC-014 | Texte für Einsteiger (klare Namen, Tooltips, gesperrte Elemente, kein „the reference program“ in sichtbaren Texten) | erledigt |

@@ -8,9 +8,9 @@ const page = parsePage("step-stack", Object.values(files)[0]);
 const stackStep = (readFileSync as (file: URL, encoding: "utf8") => string)(new URL("../components/StackStep.vue", import.meta.url), "utf8");
 
 /** Options of the Stack step that the backend ignores (docs/stacking.md, "Nicht umgesetzt"). */
-const notAvailable = ["StackSize: Minimized", "StackSize: Maximized", "StackSize: R.of Interest", "Stretch histogram after stacking", "De-rotate images", "Resampling", "Drizzling"];
+const notAvailable = ["Output size: Smallest common area", "Output size: Largest area", "Output size: Region", "Stretch histogram after stacking", "De-rotate images", "Resampling", "Drizzling"];
 /** Options that work: the stack reads them (`StackSettings` in stack_commands.rs). */
-const works = ["StackSize: Default", "Use Nearestby Alignpoints", "Correct geometry", "Normalization of frame intensity", "Do not stack pixels at the frameedge"];
+const works = ["Output size: Default", "Use nearest points", "Correct geometry", "Even out frame brightness", "Ignore edge pixels \\(px\\)"];
 
 describe("documentation of the step Stack", () => {
   it("lists every option that does nothing yet as a table row that is not available yet, so the page greys it out", () => {

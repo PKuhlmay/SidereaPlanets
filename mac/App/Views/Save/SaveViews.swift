@@ -11,11 +11,11 @@ struct SaveStepView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("The sharpened stack with the colour and tone settings.")
+            Text("Saves the sharpened stack with your color and tone settings.")
                 .font(.rkSmall)
                 .foregroundStyle(RK.muted)
             if !model.progress.waveletsDone {
-                Text("Do All runs first with the current values.")
+                Text("Your latest changes are applied to the whole image first (Do All).")
                     .font(.rkSmall)
                     .foregroundStyle(RK.muted)
             }
@@ -33,25 +33,25 @@ struct SaveImageMenu: View {
     var body: some View {
         Menu {
             ForEach(model.formats(for: source), id: \.id) { format in
-                Button("\(format.label)  .\(format.extension)") {
+                Button("\(format.label) · .\(format.extension)…") {
                     Task { await model.chooseAndSaveImage(format) }
                 }
             }
         } label: {
             HStack(spacing: 4) {
-                Text("Save image")
+                Text("Save Image")
                 Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
             }
         }
         .menuStyle(.button)
         .buttonStyle(filled ? .rkFilled : .rkWide)
         .disabled(!model.canSaveImage)
-        .help("Save the image as a file; choose the file type first")
+        .help("Saves the image as a file; choose the file type first.")
     }
 }
 
-/// The group Create AVI of the Advanced section in the step Stack: Codec, Compress Qual and Framerate, then Save Aligned with its
-/// options and Save Integrated with its options.
+/// The group Create AVI of the Advanced section in the step Stack: Codec, Compression quality and Frame rate, then Save Aligned Video
+/// with its options and Save Averaged Video with its options.
 struct CreateAviSection: View {
     @Bindable var model: AppModel
 
@@ -59,66 +59,77 @@ struct CreateAviSection: View {
         VStack(alignment: .leading, spacing: 4) {
             RK.line.frame(height: 1).padding(.vertical, 4)
             GroupHeading(title: "Create AVI")
+                .help("Saves the aligned frames as a video, for example for animations or other software.")
+            // Locked: the video is always written uncompressed.
             HStack {
-                Text("Codec").font(.rk).foregroundStyle(RK.text)
+                Text("Codec").font(.rk).foregroundStyle(RK.off)
                 Spacer(minLength: 4)
                 Picker("Codec", selection: $model.stackOptions.codec) {
                     ForEach(aviCodecs, id: \.self) { Text($0).tag($0) }
                 }
                 .labelsHidden()
+                .disabled(true)
+                .opacity(0.45)
                 .frame(width: 120)
             }
-            wideFieldRow("Compress Qual", value: $model.stackOptions.compressQuality)
-            wideFieldRow("Framerate", value: $model.stackOptions.framerate)
+            .help("Not available yet. The video is always uncompressed.")
+            wideFieldRow("Compression quality", value: $model.stackOptions.compressQuality, isLocked: true)
+            wideFieldRow("Frame rate (fps)", value: $model.stackOptions.framerate)
 
-            Text("Create aligned Sequence").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 6)
+            Text("Aligned video").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 6)
             VStack(alignment: .leading, spacing: 2) {
-                Button("Save Aligned") { Task { await model.chooseAndSaveVideo(.aligned) } }
+                Button("Save Aligned Video…") { Task { await model.chooseAndSaveVideo(.aligned) } }
                     .buttonStyle(.rk)
                     .disabled(!model.canSaveVideo)
-                    .help("Write the frames that stay, moved onto the reference frame, as an AVI")
+                    .help("Saves the kept frames, aligned, as an AVI video.")
+                Text("Frame size").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 2)
                 VStack(alignment: .leading, spacing: 0) {
-                    ForEach(AlignedSize.allCases) { size in
-                        RadioRow(title: size.label, isSelected: model.stackOptions.alignedSize == size) {
-                            model.stackOptions.alignedSize = size
-                        }
+                    // Only the original size is written (docs/formats.md, "Create AVI"), so it is always the one that is on.
+                    RadioRow(title: AlignedSize.original.label, isSelected: true) {}
+                    ForEach(AlignedSize.allCases.filter { $0 != .original }) { size in
+                        LockedOption(title: size.label, kind: .radio)
                     }
                 }
             }
             HStack(spacing: 12) {
-                PanelCheckbox(title: "Sort On Quality", isOn: $model.stackOptions.sortOnQuality)
-                PanelCheckbox(title: "Use Prefilters", isOn: $model.stackOptions.usePrefilters)
+                PanelCheckbox(title: "Sort by quality", isOn: $model.stackOptions.sortOnQuality, help: "Puts the sharpest frames first in the video.")
+                PanelCheckbox(title: "Use prefilters", isOn: .constant(false), isLocked: true)
             }
 
-            Text("Create integrated sequence").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 6)
+            Text("Averaged video").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 6)
             VStack(alignment: .leading, spacing: 2) {
-                Button("Save Integrated") { Task { await model.chooseAndSaveVideo(.integrated) } }
+                Button("Save Averaged Video…") { Task { await model.chooseAndSaveVideo(.integrated) } }
                     .buttonStyle(.rk)
                     .disabled(!model.canSaveVideo)
-                    .help("Write the moving average over Average of n Frames aligned frames as an AVI")
+                    .help("Saves a video in which each frame is the average of several aligned frames in a row; the number is set below.")
                 VStack(alignment: .leading, spacing: 0) {
-                    RadioRow(title: "Moving average", isSelected: model.stackOptions.integratedMethod == .moving) {
+                    RadioRow(
+                        title: "Moving average", isSelected: model.stackOptions.integratedMethod == .moving,
+                        help: "Each video frame is the average of the next n aligned frames."
+                    ) {
                         model.stackOptions.integratedMethod = .moving
                     }
                     // Locked: only the moving average exists (docs/formats.md, "Create AVI").
-                    RadioRow(title: "Compressed", isSelected: false, isEnabled: false) {}
-                        .help("Not available yet")
+                    LockedOption(title: "Compressed", kind: .radio)
                 }
             }
             HStack(spacing: 6) {
                 Text("Average of").font(.rk).foregroundStyle(RK.text)
-                NumberField(label: "Average of n Frames", value: $model.stackOptions.averageFrames, width: 38)
-                Text("Frames").font(.rk).foregroundStyle(RK.text)
+                NumberField(label: "Average of n frames", value: $model.stackOptions.averageFrames, width: 38)
+                Text("frames").font(.rk).foregroundStyle(RK.text)
             }
         }
     }
 
-    /// A label with a field wide enough for four digits (Compress Qual starts at 7500).
-    private func wideFieldRow(_ title: String, value: Binding<Int>) -> some View {
+    /// A label with a field wide enough for four digits (Compression quality starts at 7500).
+    private func wideFieldRow(_ title: String, value: Binding<Int>, isLocked: Bool = false) -> some View {
         HStack(spacing: 4) {
-            Text(title).font(.rk).foregroundStyle(RK.text).lineLimit(1)
+            Text(title).font(.rk).foregroundStyle(isLocked ? RK.off : RK.text).lineLimit(1)
             Spacer(minLength: 0)
             NumberField(label: title, value: value, width: 56)
+                .disabled(isLocked)
+                .opacity(isLocked ? 0.45 : 1)
         }
+        .help(isLocked ? "Not available yet. The video is always uncompressed." : "")
     }
 }

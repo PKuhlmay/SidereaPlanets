@@ -17,7 +17,7 @@ pub enum SerError {
     BadMagic,
     #[error("unsupported pixel depth {0}")]
     BadDepth(i32),
-    #[error("unsupported colour id {0}")]
+    #[error("unsupported color id {0}")]
     BadColorId(i32),
     #[error("frame {index} out of range ({count} frames)")]
     FrameOutOfRange { index: u32, count: u32 },

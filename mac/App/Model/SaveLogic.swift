@@ -5,7 +5,7 @@ import SidereaPlanetsKit
 // core and how a project file turns into settings and back. Same rules as app/src/logic/{exporting,projectfile,stack}.ts and
 // saving.ts; the calls themselves are in AppModel+Save.swift.
 
-/// *Image size* of "Create aligned Sequence" (`alignedSize` of the Windows settings).
+/// Frame size of the aligned video (`alignedSize` of the Windows settings).
 nonisolated enum AlignedSize: String, CaseIterable, Identifiable, Sendable {
     case original, minimum, maximum, roi
 
@@ -13,15 +13,15 @@ nonisolated enum AlignedSize: String, CaseIterable, Identifiable, Sendable {
 
     var label: String {
         switch self {
-        case .original: "Original image size"
-        case .minimum: "Minimum area"
-        case .maximum: "Maximum area"
-        case .roi: "Region of Interest"
+        case .original: "Original size"
+        case .minimum: "Smallest common area"
+        case .maximum: "Largest area"
+        case .roi: "Region"
         }
     }
 }
 
-/// *Method* of "Create integrated sequence": only the moving average exists (Compressed is locked, as in the Windows app).
+/// Method of the averaged video: only the moving average exists (Compressed is locked, as in the Windows app).
 nonisolated enum IntegratedMethod: String, Sendable {
     case moving, compressed
 }
@@ -44,7 +44,7 @@ nonisolated enum VideoKind: Sendable {
     case aligned, integrated
 
     /// The name of the run in the window title and the status bar.
-    var name: String { self == .aligned ? "Save Aligned" : "Save Integrated" }
+    var name: String { self == .aligned ? "Save Aligned Video" : "Save Averaged Video" }
     /// Appended to the name of the recording in the file dialog.
     var suffix: String { self == .aligned ? "_aligned" : "_integrated" }
 }
@@ -68,7 +68,7 @@ nonisolated func fileStem(_ fileName: String) -> String {
 
 // MARK: What is sent to the core
 
-/// What Save Aligned and Save Integrated send: the request of Stack plus the options of Create AVI (`buildSequenceRequest`).
+/// What Save Aligned Video and Save Averaged Video send: the request of Stack plus the options of Create AVI (`buildSequenceRequest`).
 nonisolated func sequenceSettings(_ stack: StackOptions, align: AlignOptions, data: AlignData) -> SequenceSettings {
     SequenceSettings(
         stack: stackSettings(stack, align: align, data: data),

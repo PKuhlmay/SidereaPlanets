@@ -12,13 +12,13 @@ import Testing
     }
 
     @Test func summaryAndStepBarLineLikeTheWindowsApp() {
-        #expect(details().summary == "DIB · 2×2 · 10 frames")
-        #expect(details().stepBarLine == "JUPITER.AVI · DIB · 2×2 · 10 frames")
+        #expect(details().summary == "2×2 · 10 frames · DIB")
+        #expect(details().stepBarLine == "JUPITER.AVI · 2×2 · 10 frames · DIB")
     }
 
     @Test func rowsListObserverOnlyWhereTheFileHasOne() {
         let labels = details().rows.map(\.label)
-        #expect(labels == ["Format", "Codec", "Size", "Bit depth", "Frames", "Colour", "Frame rate"])
+        #expect(labels == ["Format", "Codec", "Size", "Bit depth", "Frames", "Color", "Frame rate"])
         #expect(details(observer: "P. K.").rows.map(\.label).last == "Observer")
         #expect(details(fps: nil).rows.map(\.label).contains("Frame rate") == false)
     }

@@ -49,8 +49,8 @@ import Testing
 
     @Test func textsAreThoseOfTheWindowsApp() {
         let messages = stackMessages(frames: 10, width: 1024, height: 680)
-        #expect(messages.action == "Stack size (n=10) - (1024x680)")
-        #expect(messages.result == "Stacking Range : 0-255")
+        #expect(messages.action == "Stacked 10 frames · 1024×680")
+        #expect(messages.result == "Value range 0–255")
         #expect(stackResultText(frames: 8, width: 1024, height: 680) == "8 frames · 1024×680")
     }
 

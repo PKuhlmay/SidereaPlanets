@@ -122,7 +122,7 @@ nonisolated func applyWaveletSection(_ section: JSON?, to options: inout Wavelet
     card.double("gamma", &tone.gamma)
 }
 
-/// The section `colour`: the check marks Colour and LRGB, which sit in the header of every tab in the original.
+/// The section `colour`: the check marks Colour and LRGB, which sit in the header of every tab.
 nonisolated func colourSection(_ options: WaveletOptions) -> JSON {
     .object(["colour": .bool(options.colour), "lrgb": .bool(options.lrgb)])
 }

@@ -5,11 +5,11 @@ order: 10
 ---
 # Supported formats
 
-What Siderea Planets can read today. Everything else in the file type list of the reference program is planned and marked **Not available yet**.
+What Siderea Planets can read today. Everything else that is planned is marked **Not available yet**.
 
 ## SER
 
-Raw video from astronomy cameras. Bit depths from 8 to 16 bit, mono as well as RGB and BGR colour. Bayer data is kept as raw data together with its pattern.
+Raw video from astronomy cameras. Bit depths from 8 to 16 bit, mono as well as RGB and BGR color. Bayer data is kept as raw data together with its pattern.
 
 ## AVI
 
@@ -24,3 +24,7 @@ Raw video from astronomy cameras. Bit depths from 8 to 16 bit, mono as well as R
 ## Single images
 
 Still frames in BMP, JPEG, TIFF, PNG and FITS format, opened as a sequence: **Not available yet**.
+
+## Wavelet scheme files
+
+The settings of the wavelet layers can be stored in small `.rwv` files, see [Wavelet sharpening](wavelet-sharpening). Project files end in `.rkproj`, see [Save and export](save-and-export).

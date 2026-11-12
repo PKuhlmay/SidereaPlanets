@@ -1,13 +1,13 @@
 import SwiftUI
 
-/// The frame bar of the Alignpoints, Align and Limit steps (docs/design.md, "Frame-Leiste"): status, Goto Frame, a slider over
+/// The frame bar of the Alignpoints, Align and Limit steps (docs/design.md, "Frame-Leiste"): status, Go to frame, a slider over
 /// all frames, previous/next and the position.
 struct FrameBar: View {
     let model: AppModel
 
     private var aligned: Bool { model.progress.step >= .aligned }
 
-    /// Goto Frame counts from 1, the slider and the model from 0.
+    /// Go to frame counts from 1, the slider and the model from 0.
     private var goto: Binding<Int> {
         Binding(
             get: { model.frameIndex + 1 },
@@ -30,8 +30,8 @@ struct FrameBar: View {
             .frame(minWidth: 76, alignment: .leading)
 
             HStack(spacing: 8) {
-                Text("Goto Frame").font(.rk)
-                TextField("Goto Frame", value: goto, format: .number.grouping(.never))
+                Text("Go to frame").font(.rk)
+                TextField("Go to frame", value: goto, format: .number.grouping(.never))
                     .textFieldStyle(.plain)
                     .multilineTextAlignment(.trailing)
                     .font(.rk)
@@ -39,8 +39,8 @@ struct FrameBar: View {
                     .frame(width: 56, height: RKMetrics.fieldHeight)
                     .background(RK.field, in: RoundedRectangle(cornerRadius: RKMetrics.radiusSmall))
                     .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusSmall).strokeBorder(RK.lineStrong, lineWidth: 1) }
-                    .accessibilityLabel("Goto Frame")
-                Stepper("Goto Frame", value: goto, in: 1...max(model.frameCount, 1)).labelsHidden()
+                    .accessibilityLabel("Go to frame")
+                Stepper("Go to frame", value: goto, in: 1...max(model.frameCount, 1)).labelsHidden()
             }
             .fixedSize()
 
@@ -61,7 +61,7 @@ struct FrameBar: View {
                 .disabled(model.frameCount < 2)
                 .accessibilityLabel("Frame")
 
-            Text("Frame (\(model.frameIndex + 1)): \(model.frameIndex + 1)/\(model.frameCount)")
+            Text("Frame \(model.frameIndex + 1) of \(model.frameCount)")
                 .font(.rk)
                 .frame(minWidth: 118, alignment: .trailing)
         }

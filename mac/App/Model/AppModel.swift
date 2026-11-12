@@ -67,7 +67,7 @@ final class AppModel {
     var tone = ToneValues() { didSet { toneChanged(from: oldValue) } }
     var waveletData = WaveletData()
     @ObservationIgnored let waveletWork = WaveletWork()
-    /// The next drag in the image draws the region (R.o.Interest).
+    /// The next drag in the image draws the region (Draw Region).
     var isDrawingRegion = false
     /// A calculation is running: no pill opens and the actions are locked.
     var run: Run? { didSet { if run == nil { waveletRunEnded() } } }
@@ -143,12 +143,12 @@ final class AppModel {
     func result(of step: ViewStep) -> String {
         switch step {
         case .open: details.map { "\($0.fileName) · \($0.info.frameCount) frames" } ?? ""
-        case .alignpoints: "\(align.points.count) set"
-        case .align: "best quality \(Int((align.bestQuality ?? 0).rounded())) %"
-        case .limit: "\(align.keptCount) of \(frameCount) kept"
+        case .alignpoints: "\(align.points.count) points"
+        case .align: "\(align.frames.filter { $0.quality != nil }.count) frames rated"
+        case .limit: "\(align.keptCount) of \(frameCount) frames kept"
         case .stack: stacked.map { stackResultText(frames: $0.frames, width: $0.width, height: $0.height) } ?? ""
         case .save: saveState.savedName
-        case .wavelets: "applied to the whole image"
+        case .wavelets: "Sharpening applied"
         }
     }
 
@@ -174,7 +174,7 @@ final class AppModel {
             info = try await backend.openRecording(urls)
         } catch {
             status.action = ""
-            status.result = "Error: \(errorText(error))"
+            status.result = failureText("Open", error)
             return
         }
         startSession(info, urls: urls)
@@ -255,7 +255,7 @@ final class AppModel {
                 if !showsStack { syncViewport() }
             } catch {
                 guard current == generation else { return }
-                status.result = "Error: \(errorText(error))"
+                status.result = failureText("Showing the frame", error)
             }
         }
     }

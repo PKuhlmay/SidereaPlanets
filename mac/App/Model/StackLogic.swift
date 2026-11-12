@@ -7,19 +7,19 @@ import SidereaPlanetsKit
 // AppModel+Stack.swift.
 
 /// The values of the Stack panel (`settings.stack` of the Windows app) and the check marks of the Show menu in this step. Only
-/// the four options at the top are read by the core; Stack Size other than Default, Stretch histogram, De-rotate, Resampling and
+/// the four options at the top are read by the core; Output size other than Default, Stretch histogram, De-rotate, Resampling and
 /// Drizzling are locked in the panel (docs/design.md, "5 Stack").
 nonisolated struct StackOptions: Equatable, Sendable {
-    /// *Use Nearestby Alignpoints*
+    /// Use nearest points
     var nearestPoints = 3
-    /// *Correct geometry*
+    /// Correct geometry
     var correctGeometry = true
-    /// *Normalization of frame intensity*
+    /// Even out frame brightness
     var normalize = false
-    /// *Do not stack n pixels at the frameedge*
+    /// Ignore edge pixels
     var edgePixels = 0
-    // Create AVI (Advanced, MAC-009): Codec and Compress Qual have no effect, the video is uncompressed; Image size other than the
-    // original and Use Prefilters are not read yet either (docs/formats.md, "Create AVI"). The Windows app offers them all the same.
+    // Create AVI (Advanced, MAC-009): Codec and Compression quality have no effect, the video is uncompressed; Frame size other than
+    // the original and Use prefilters are not read yet either, so these controls are locked (docs/formats.md, "Create AVI"). The Windows app offers them all the same.
     var codec = "DIB"
     var compressQuality = 7500
     var framerate = 25
@@ -28,7 +28,7 @@ nonisolated struct StackOptions: Equatable, Sendable {
     var usePrefilters = false
     var integratedMethod = IntegratedMethod.moving
     var averageFrames = 5
-    // The Show menu of the Stack tab; Full Image, Stackgraph and Stacklist have no function yet (they can be set, nothing shows).
+    // The Show menu of the Stack tab; Full Image, Stack Graph and Stack List have no function yet (dimmed in the menu, ShowMenuLogic.swift).
     var showFullImage = true
     var showAlignSections = true
     var showStackgraph = false
@@ -45,7 +45,7 @@ struct StackedImage {
 }
 
 /// What the Stack button sends to the core: the checked alignpoints and frames together with the options of the panel and the
-/// Align tab (*Alignmentbox size*, *Max Alignpoint movement*).
+/// Align tab (Box size per point, Max. point shift).
 nonisolated func stackSettings(_ stack: StackOptions, align: AlignOptions, data: AlignData) -> StackSettings {
     StackSettings(
         referenceFrame: UInt32(clamping: data.referenceFrame),
@@ -61,10 +61,10 @@ nonisolated func stackSettings(_ stack: StackOptions, align: AlignOptions, data:
     )
 }
 
-/// The status bar after Stack: the second field names the size ("Stack size (n=10) - (1024x680)"), the third the range of values the
-/// original prints (the stack always spans 0-255 here).
+/// The status bar after Stack: the second field names the frames and the size ("Stacked 10 frames · 1024×680"), the third the range of
+/// values (the stack always spans 0-255 here).
 nonisolated func stackMessages(frames: Int, width: Int, height: Int) -> (action: String, result: String) {
-    ("Stack size (n=\(frames)) - (\(width)x\(height))", "Stacking Range : 0-255")
+    ("Stacked \(frames) \(frames == 1 ? "frame" : "frames") · \(width)×\(height)", "Value range 0–255")
 }
 
 /// The result line of the done step and the tooltip of its pill: "10 frames · 1024×680".

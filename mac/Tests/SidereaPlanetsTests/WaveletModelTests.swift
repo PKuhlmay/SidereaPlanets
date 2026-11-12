@@ -66,12 +66,12 @@ import Testing
         #expect(model.shownImage === model.waveletData.processed?.image)
         #expect(model.imageCaption == "Sharpened stack")
         // The first preview leaves the size of the stack in the status bar; the next one tells how long it took.
-        #expect(model.status.action == "Stack size (n=3) - (1024x680)" && model.status.result == "Stacking Range : 0-255")
+        #expect(model.status.action == "Stacked 3 frames · 1024×680" && model.status.result == "Value range 0–255")
         model.moveLevel(0, to: 12)
-        #expect(model.status.action == "layer setting changed")
+        #expect(model.status.action == "Updating preview…")
         await model.settleWaveletPreview()
-        #expect(model.status.result == "Calculating wavelets done")
-        #expect(model.status.action.hasPrefix("Preview: ") && model.status.action.hasSuffix(" ms"))
+        #expect(model.status.result == "Preview updated")
+        #expect(model.status.action.hasPrefix("Preview calculated in ") && model.status.action.hasSuffix(" ms"))
     }
 
     @Test func theStackIsShownUntilThePixelsAndThePreviewAreThere() async {
@@ -106,7 +106,7 @@ import Testing
         let previews = backend.wavelets.previews
         #expect(previews.count == 2)
         #expect(previews[1].settings?.layers[0].gain == 3.2 && previews[1].settings?.layers[1].gain == 1)
-        #expect(model.status.result == "Calculating wavelets done")
+        #expect(model.status.result == "Preview updated")
     }
 
     @Test func changesWhileAPreviewRunsAreFoldedIntoOneMoreRequest() async {
@@ -184,7 +184,7 @@ import Testing
         await stackedRecording()
         await model.runProcess()
         #expect(backend.wavelets.previews.count == 2)
-        #expect(model.status.result == "Calculating wavelets done")
+        #expect(model.status.result == "Preview updated")
         #expect(model.run == nil && !model.isBusy && model.status.progress == 0)
     }
 
@@ -204,7 +204,7 @@ import Testing
         #expect(model.status.result == "Do All finished")
         #expect(model.progress.waveletsDone && model.stepStates[.wavelets]?.status == .done)
         #expect(model.viewStep == .save)
-        #expect(model.result(of: .wavelets) == "applied to the whole image")
+        #expect(model.result(of: .wavelets) == "Sharpening applied")
         // The whole image is the result: 50 everywhere, also where the preview had been.
         #expect(pixel(model.waveletData.processed?.pixels, 0, 0) == 50 && pixel(model.waveletData.processed?.pixels, 2, 1) == 50)
         #expect(model.shownImage === model.waveletData.processed?.image)
@@ -260,9 +260,9 @@ import Testing
         backend.wavelets.holdsDoAll = true
         let running = Task { await model.doAll() }
         #expect(await eventually { model.status.progress == 0.5 })
-        #expect(model.run?.name == "Wavelet" && model.run?.operation == .wavelet && model.isBusy && model.canCancel)
-        #expect(model.status.action == "Do_all processing")
-        #expect(model.windowTitle == "Siderea Planets · Wavelet 50%")
+        #expect(model.run?.name == "Do All" && model.run?.operation == .wavelet && model.isBusy && model.canCancel)
+        #expect(model.status.action == "Applying to whole image…")
+        #expect(model.windowTitle == "Siderea Planets · Do All 50%")
         model.show(.stack)
         #expect(model.viewStep == .wavelets)
 
@@ -398,7 +398,7 @@ import Testing
         defer { try? FileManager.default.removeItem(at: url) }
 
         model.saveScheme(url)
-        #expect(model.status.result == "Scheme saved: \(url.path)")
+        #expect(model.status.result == "Scheme saved: \(url.lastPathComponent)")
         #expect(FileManager.default.fileExists(atPath: url.path))
 
         model.wavelet.values = WaveletValues.defaults
@@ -407,7 +407,7 @@ import Testing
         #expect(model.wavelet.values.layers[2].level == 55 && model.wavelet.values.scheme == .dyadic)
         // The preview of the new values has run, and its message did not replace this one.
         #expect(backend.wavelets.previews.last?.settings == saved)
-        #expect(model.status.result == "Scheme loaded: \(url.path)")
+        #expect(model.status.result == "Scheme loaded: \(url.lastPathComponent)")
     }
 
     @Test func aBrokenSchemeReportsTheErrorAndChangesNothing() async throws {
@@ -417,11 +417,11 @@ import Testing
         try "this is not a scheme".write(to: url, atomically: true, encoding: .utf8)
         let before = model.wavelet.values
         await model.loadScheme(url)
-        #expect(model.status.result.hasPrefix("Error: "))
+        #expect(model.status.result.hasPrefix("Load Scheme failed: "))
         #expect(model.wavelet.values == before)
 
         await model.loadScheme(url.appendingPathExtension("missing"))
-        #expect(model.status.result.hasPrefix("Error: "))
+        #expect(model.status.result.hasPrefix("Load Scheme failed: "))
     }
 
     // MARK: Functions
@@ -586,7 +586,7 @@ import Testing
         await stackedRecording()
         #expect(model.waveletData.clipboard == nil)
         model.copyTo()
-        #expect(model.status.result == "Image copied")
+        #expect(model.status.result == "Image remembered")
         let copy = model.waveletData.clipboard?.image
         #expect(copy != nil && copy === model.waveletData.processed?.image)
 
@@ -604,9 +604,9 @@ import Testing
         model.showToneView(.clipboard)
         #expect(model.waveletData.toneView == .current)
         model.loadTo()
-        #expect(model.status.result == "Load to: nothing copied yet")
+        #expect(model.status.result == "Restore: nothing remembered yet")
         model.showDifference()
-        #expect(model.status.result == "Difference: nothing copied yet")
+        #expect(model.status.result == "Difference: nothing remembered yet")
         #expect(model.waveletData.toneView == .current)
     }
 
@@ -638,7 +638,7 @@ import Testing
         await model.settleColours()
 
         model.loadTo()
-        #expect(model.status.result == "Copied image loaded")
+        #expect(model.status.result == "Remembered image restored")
         #expect(model.waveletData.processed?.image === copy)
         #expect(isNeutral(model.tone.core) && model.waveletData.toneView == .current)
         await model.settleColours()
@@ -647,6 +647,6 @@ import Testing
 
     @Test func copyToWithoutAnImageSaysSo() {
         model.copyTo()
-        #expect(model.status.result == "Copy To: no image yet")
+        #expect(model.status.result == "Remember: no image yet")
     }
 }

@@ -2,7 +2,7 @@ import CoreGraphics
 import Foundation
 import SidereaPlanetsKit
 
-// The pure parts of the step Wavelets: the values of the panel with the defaults of the reference program, what is sent to the core, linked
+// The pure parts of the step Wavelets: the values of the panel with its defaults, what is sent to the core, linked
 // sliders, the Processing Area, and the values and helpers of the Functions cards. Same rules as app/src/logic/wavelet.ts,
 // logic/colour.ts and the tone part of logic/settings.ts; the calls themselves are in AppModel+Wavelets.swift.
 
@@ -97,7 +97,7 @@ nonisolated func colourMode(colour: Bool, lrgb: Bool) -> ColourMode {
     return lrgb ? .lrgb : .colour
 }
 
-/// Use Linked Wavelets: moving one slider moves all the others by the same amount. Which layers the original links is unobserved
+/// Use Linked Wavelets: moving one slider moves all the others by the same amount. Which layers are linked is unobserved
 /// (docs/offene-fragen.md); this is the simplest reading. Returns the new slider positions.
 nonisolated func linkedLevels(_ levels: [Int], moving index: Int, to level: Int, linked: Bool) -> [Int] {
     func clamp(_ value: Int) -> Int { min(WaveletLimits.level.upperBound, max(WaveletLimits.level.lowerBound, value)) }
@@ -113,7 +113,7 @@ nonisolated func formatPreview(_ level: Int) -> String {
     String(format: "%.1f", Double(level) / 10)
 }
 
-/// The Processing Area: the square in the middle of the image (smaller if the image is), `side` from Settings > Processing Area.
+/// The preview area: the square in the middle of the image (smaller if the image is), `side` from Settings > Preview area.
 nonisolated func processingArea(imageWidth: Int, imageHeight: Int, side: Int) -> Region {
     let width = min(side, imageWidth)
     let height = min(side, imageHeight)
@@ -148,19 +148,30 @@ nonisolated func writePreview(_ preview: WaveletPreview, into pixels: inout Data
 
 // MARK: Functions cards and Contrast/Brightness
 
-/// The buttons of the Functions panel in the order of the original (three columns, five rows).
+/// The buttons of the Adjustments panel (three columns, five rows); only the four with a card work.
 nonisolated let functionNames = [
-    "Histogram", "Gamma", "Colour Mixing",
-    "View Zoomed", "View Compare", "View Stacksize",
+    "Histogram", "Gamma", "Color Mixing",
+    "View Zoomed", "View Compare", "View Stack Size",
     "Flip and Rotate", "RGB Align", "RGB Balance",
-    "Resize Image", "Denoise/ Deringing", "Wavelet Filter",
-    "Masking", "Show Linegraph", "Cropping Area",
+    "Resize Image", "Denoise/Deringing", "Wavelet Filter",
+    "Masking", "Show Line Graph", "Cropping Area",
 ]
 
 /// The cards that exist; the other Functions buttons only report that they are not available yet.
 nonisolated let toneCards = ["Histogram", "Gamma", "RGB Align", "RGB Balance"]
 
 nonisolated func isToneCard(_ name: String) -> Bool { toneCards.contains(name) }
+
+/// The tooltip of an Adjustments button: what its card does, or that the button is locked.
+nonisolated func functionHelp(_ name: String) -> String {
+    switch name {
+    case "Histogram": "Black point, white point and brightness of the image."
+    case "Gamma": "Brightens or darkens the midtones."
+    case "RGB Align": "Shifts red, green and blue so that they lie on top of each other."
+    case "RGB Balance": "Changes the share of red, green and blue."
+    default: "Not available yet"
+    }
+}
 
 nonisolated enum ToneLimits {
     static let shift = 20.0
@@ -276,7 +287,7 @@ nonisolated enum ToneView: Equatable, Sendable {
     case current, clipboard, difference
 }
 
-/// How much the difference is amplified, so that small changes show. Our choice, the original was not observed.
+/// How much the difference is amplified, so that small changes show. Our choice.
 nonisolated let differenceGain = 4
 
 /// |a - b| per colour channel times `differenceGain`, opaque; `nil` if the sizes differ.

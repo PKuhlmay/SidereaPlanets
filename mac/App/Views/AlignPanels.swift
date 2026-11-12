@@ -2,10 +2,10 @@ import SidereaPlanetsKit
 import SwiftUI
 
 // The settings of the steps 2 to 4 in the left panel (docs/design.md, "2 Alignpoints", "3 Align", "4 Limit"): the key fields
-// first, the rest under Advanced. Values, defaults and locked options are those of the Windows app (AlignpointsStep.vue,
-// AlignStep.vue, LimitStep.vue).
+// first, the rest under Advanced. Values and defaults are those of the Windows app (AlignpointsStep.vue, AlignStep.vue,
+// LimitStep.vue); the texts follow MAC-014 (docs/design.md, "Texte und Schreibweise").
 
-/// Step 2: the Threshold slider, the two distances, R.o.Interest; under Advanced the Intensity selection with Lo and Hi.
+/// Step 2: the Threshold slider, the two distances, Draw Region; under Advanced the Point Placement with the brightness range.
 struct AlignpointsStepView: View {
     @Bindable var model: AppModel
 
@@ -21,93 +21,112 @@ struct AlignpointsStepView: View {
                 HintNote(text: bestFrameHint(frame: best))
             }
             VStack(spacing: 2) {
-                HStack {
-                    Text("weakest").foregroundStyle(RK.muted)
-                    Spacer()
-                    Text(hasPoints ? "Alignpoints: \(model.align.points.count)" : "Threshold")
-                        .font(.rk(RKMetrics.fontSizeSmall, .semibold))
-                        .foregroundStyle(RK.text)
-                    Spacer()
-                    Text("strongest").foregroundStyle(RK.muted)
-                }
-                .font(.rkSmall)
+                Text(hasPoints ? "Threshold · \(model.align.points.count) points" : "Threshold")
+                    .font(.rk(RKMetrics.fontSizeSmall, .semibold))
+                    .foregroundStyle(RK.text)
                 // No range before Set Alignpoints: the slider stays at 0 and looks locked.
                 Slider(value: threshold, in: 0...Double(max(model.align.total, 1)))
                     .controlSize(.small)
                     .tint(RK.accent)
                     .disabled(!model.canMoveThreshold)
                     .accessibilityLabel("Threshold")
+                HStack {
+                    Text("more points")
+                    Spacer()
+                    Text("fewer points")
+                }
+                .font(.rkSmall)
+                .foregroundStyle(RK.muted)
             }
-            FieldRow(title: "Minimum distance between", value: $model.options.minDistance).padding(.top, 6)
-            FieldRow(title: "Min distance from edge", value: $model.options.edgeDistance)
-            Button("R.o.Interest") { model.toggleRegionOfInterest() }
+            .help("How strong a detail must be to get an alignpoint; left keeps more points, right fewer.")
+            FieldRow(
+                title: "Min. distance between points (px)", value: $model.options.minDistance,
+                help: "Smallest distance between two alignpoints, in pixels."
+            )
+            .padding(.top, 6)
+            FieldRow(
+                title: "Min. distance from image edge (px)", value: $model.options.edgeDistance,
+                help: "Alignpoints keep at least this distance from the edge of the image or the region, in pixels."
+            )
+            Button("Draw Region") { model.toggleRegionOfInterest() }
                 .buttonStyle(.rkWide(isOn: model.isDrawingRegion))
                 .disabled(!model.canDrawRegion)
-                .help("Draw the region that alignment is based on; press again to drop it")
+                .help("Region of interest (ROI): drag a rectangle on the image so that only this area is used for placing alignpoints and aligning; press again to remove it.")
                 .accessibilityAddTraits(model.isDrawingRegion ? .isSelected : [])
                 .padding(.top, 6)
 
             AdvancedSection(model: model, step: .alignpoints, count: 5) {
                 VStack(alignment: .leading, spacing: 6) {
-                    GroupHeading(title: "Set Alignpoint parameters")
-                    Text("Intensity selection").font(.rkSmall).foregroundStyle(RK.muted)
-                    HStack(alignment: .top, spacing: 12) {
-                        VStack(alignment: .leading, spacing: 0) {
-                            RadioRow(title: "Default", isSelected: model.options.intensity == .default) { model.options.intensity = .default }
-                            RadioRow(title: "3x3 area", isSelected: model.options.intensity == .area3x3) { model.options.intensity = .area3x3 }
-                            RadioRow(title: "Lowest pixelvalue", isSelected: model.options.intensity == .lowest) { model.options.intensity = .lowest }
+                    GroupHeading(title: "Point Placement")
+                    Text("Brightness measure")
+                        .font(.rkSmall)
+                        .foregroundStyle(RK.muted)
+                        .help("How the brightness at a point is measured when alignpoints are placed.")
+                    VStack(alignment: .leading, spacing: 0) {
+                        RadioRow(title: "Default", isSelected: model.options.intensity == .default, help: "The centre pixel.") {
+                            model.options.intensity = .default
                         }
-                        Spacer(minLength: 0)
-                        VStack(spacing: 6) {
-                            HStack(spacing: 8) {
-                                Text("Lo").font(.rk)
-                                NumberField(label: "Lo", value: $model.options.lo)
-                            }
-                            HStack(spacing: 8) {
-                                Text("Hi").font(.rk)
-                                NumberField(label: "Hi", value: $model.options.hi)
-                            }
+                        RadioRow(title: "3×3 area", isSelected: model.options.intensity == .area3x3, help: "The mean of the 3×3 pixels around the centre.") {
+                            model.options.intensity = .area3x3
+                        }
+                        RadioRow(title: "Lowest pixel value", isSelected: model.options.intensity == .lowest, help: "The darkest of the 3×3 pixels around the centre.") {
+                            model.options.intensity = .lowest
                         }
                     }
+                    FieldRow(
+                        title: "Min. brightness (0–255)", value: $model.options.lo,
+                        help: "Only pixels between Min. and Max. brightness (0–255) can get an alignpoint."
+                    )
+                    FieldRow(
+                        title: "Max. brightness (0–255)", value: $model.options.hi,
+                        help: "Only pixels between Min. and Max. brightness (0–255) can get an alignpoint."
+                    )
                     HStack(spacing: 8) {
-                        Text("Number of Alignpoints").font(.rk).lineLimit(1)
+                        Text("Number of alignpoints").font(.rk).lineLimit(1)
                         Spacer(minLength: 4)
-                        ReadOnlyField(label: "Number of Alignpoints", value: model.align.points.count)
+                        ReadOnlyField(label: "Number of alignpoints", value: model.align.points.count)
                     }
-                    PanelCheckbox(title: "Keep Alignpoints inside ScanFrame", isOn: .constant(false), isLocked: true)
+                    PanelCheckbox(title: "Keep points inside the scan frame", isOn: .constant(false), isLocked: true)
                 }
             }
         }
     }
 }
 
-/// Step 3: No Align and Scan Frames (locked), the two sizes; under Advanced the rest of Alignment setup.
+/// Step 3: the two sizes; under Advanced the locked alignment modes and the rest of Alignment Setup.
 struct AlignStepView: View {
     @Bindable var model: AppModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            LockedSegments(first: "No Align", second: "Scan Frames")
-            Text("Not available yet").font(.rkSmall).foregroundStyle(RK.muted)
-            FieldRow(title: "Alignmentbox size", value: $model.options.boxSize, range: 1...1_000_000).padding(.top, 6)
-            FieldRow(title: "Max Alignpoint movement", value: $model.options.maxMovement)
+            FieldRow(
+                title: "Box size per point (px)", value: $model.options.boxSize, range: 1...1_000_000,
+                help: "Edge length of the square around each alignpoint that is searched for in the other frames, in pixels."
+            )
+            FieldRow(
+                title: "Max. point shift (px)", value: $model.options.maxMovement,
+                help: "How far an alignpoint may move from one frame to the next, in pixels."
+            )
 
-            AdvancedSection(model: model, step: .align, count: 4) {
+            AdvancedSection(model: model, step: .align, count: 5) {
                 VStack(alignment: .leading, spacing: 6) {
-                    GroupHeading(title: "Alignment setup")
-                    PanelCheckbox(title: "Show Alignment", isOn: $model.options.showAlignment)
-                    // Locked as observed in the original; what unlocks them is not known (docs/ui.md).
-                    PanelCheckbox(title: "Align by Centre of gravity", isOn: .constant(false), isLocked: true)
+                    GroupHeading(title: "Alignment Setup")
+                    Text("Alignment mode").font(.rkSmall).foregroundStyle(RK.muted)
+                    LockedSegments(first: "No Align", second: "Scan Frames")
+                    Text("Not available yet").font(.rkSmall).foregroundStyle(RK.muted)
+                    PanelCheckbox(title: "Show alignment", isOn: .constant(false), isLocked: true)
+                    // Locked because the way they work is not known (docs/ui.md).
+                    PanelCheckbox(title: "Align by center of gravity", isOn: .constant(false), isLocked: true)
                     HStack(spacing: 8) {
-                        Text("Lum. Threshold").font(.rk).foregroundStyle(RK.off)
+                        Text("Brightness threshold").font(.rk).foregroundStyle(RK.off)
                         Spacer(minLength: 4)
-                        NumberField(label: "Lum. Threshold", value: .constant(0))
+                        NumberField(label: "Brightness threshold", value: .constant(0))
                             .disabled(true)
                             .opacity(0.45)
                     }
                     .padding(.leading, 20)
                     .help("Not available yet")
-                    PanelCheckbox(title: "Estimate Rotation", isOn: .constant(false), isLocked: true)
+                    PanelCheckbox(title: "Estimate rotation", isOn: .constant(false), isLocked: true)
                 }
             }
         }
@@ -161,7 +180,7 @@ struct LimitStepView: View {
     /// A radio button; the field of its kind sits in its row, locked while the other kind of mode is chosen.
     private func limitRow(_ mode: LimitMode, value: Binding<Int>?, label: String) -> some View {
         HStack(spacing: 8) {
-            RadioRow(title: mode.label, isSelected: model.options.limitMode == mode) { model.options.limitMode = mode }
+            RadioRow(title: mode.label, isSelected: model.options.limitMode == mode, help: mode.explanation) { model.options.limitMode = mode }
             Spacer(minLength: 4)
             if let value {
                 let locked = model.options.limitMode.countsFrames != mode.countsFrames
@@ -198,15 +217,15 @@ private struct HintNote: View {
     }
 }
 
-/// Go to best frame: under the quality chart. Locked until Align has run.
+/// Go to Best Frame: under the quality chart. Locked until Align has run.
 private struct GoToBestFrameButton: View {
     let model: AppModel
 
     var body: some View {
-        Button("Go to best frame") { model.goToBestFrame() }
+        Button("Go to Best Frame") { model.goToBestFrame() }
             .buttonStyle(.rkWide)
             .disabled(!model.canGoToBestFrame)
-            .help(model.progress.step >= .aligned ? "Show the best frame and open Alignpoints to use it as reference" : "Run Align first")
+            .help(model.progress.step >= .aligned ? goToBestFrameHelp : "Run Align first")
     }
 }
 
@@ -228,9 +247,9 @@ struct QualityChartView: View {
                 .accessibilityElement()
                 .accessibilityLabel(qualityChart(frames: frames, options: options, maxBars: 240).label)
             HStack {
-                Text("best frame")
+                Text("sharpest")
                 Spacer()
-                Text("weakest")
+                Text("blurriest")
             }
             .font(.rk(10))
             .foregroundStyle(RK.muted)

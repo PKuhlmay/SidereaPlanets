@@ -1,3 +1,4 @@
+import SidereaPlanetsKit
 import Testing
 
 @testable import SidereaPlanets
@@ -65,5 +66,24 @@ import Testing
     /// Step 1 opens videos and series of images, so its button says "Select Recording…" (Philipp, 2026-11-12).
     @Test func openStepButtonSaysSelectRecording() {
         #expect(ViewStep.open.action == "Select Recording…")
+    }
+
+    /// Buttons are Title Case (HIG): the Save button reads "Save Image".
+    @Test func saveButtonIsTitleCase() {
+        #expect(ViewStep.save.action == "Save Image")
+    }
+
+    /// Every step explains itself in a tooltip, and the button of a done step is "‹Action› Again" (MAC-014).
+    @Test func stepsExplainThemselvesAndHaveAgainLabels() {
+        #expect(ViewStep.allCases.allSatisfy { !$0.explanation.isEmpty && !$0.actionExplanation.isEmpty })
+        #expect(ViewStep.wavelets.againLabel == "Do All Again")
+        #expect(ViewStep.open.againLabel == "Select Another Recording…")
+        // Step 4 is called Best Frames, its button Keep Best Frames.
+        #expect(ViewStep.limit.label == "Best Frames" && ViewStep.limit.action == "Keep Best Frames")
+        #expect(StepProgress(step: .aligned).state(of: .stack).hint == "Run Keep Best Frames first")
+    }
+
+    @Test func failuresNameWhatFailed() {
+        #expect(failureText("Align", PlanetsError.Failed(message: "disk full")) == "Align failed: disk full")
     }
 }

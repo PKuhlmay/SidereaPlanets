@@ -161,7 +161,7 @@ pub(super) fn decode(format: &FrameFormat, data: &[u8]) -> Result<Image, CodecEr
         other => {
             return Err(CodecError::Unsupported {
                 codec: NAME,
-                reason: format!("colour space {other:?}"),
+                reason: format!("color space {other:?}"),
             });
         }
     };

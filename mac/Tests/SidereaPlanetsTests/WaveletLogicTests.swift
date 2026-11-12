@@ -234,5 +234,8 @@ import Testing
         #expect(functionNames.first == "Histogram" && functionNames.last == "Cropping Area")
         #expect(toneCards.allSatisfy { functionNames.contains($0) })
         #expect(isToneCard("Gamma") && isToneCard("RGB Align") && !isToneCard("Masking"))
+        // The eleven buttons without a card are locked: their tooltip says so.
+        #expect(functionNames.filter { !isToneCard($0) }.allSatisfy { functionHelp($0) == "Not available yet" })
+        #expect(functionNames.filter(isToneCard).allSatisfy { functionHelp($0) != "Not available yet" })
     }
 }

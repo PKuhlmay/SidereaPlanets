@@ -45,6 +45,7 @@ struct SegmentItem: Identifiable {
     let title: String
     var isOn = false
     var isEnabled = true
+    var help = ""
     let action: () -> Void
 
     var id: String { title }
@@ -71,6 +72,7 @@ struct SegmentBar: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(!item.isEnabled)
+                .help(item.help)
                 .accessibilityAddTraits(item.isOn ? .isSelected : [])
             }
         }
@@ -79,18 +81,20 @@ struct SegmentBar: View {
     }
 }
 
-/// A text link in a group heading or a card (Reset Wavelets, Hold, Reset, Auto): `--accent-ink`, no frame. `isOn` for a switch that is held.
+/// A text link in a group heading or a card (Reset Wavelets, Keep, Reset, Auto): `--accent-ink`, no frame. `isOn` for a switch that is held.
 struct LinkButton: View {
     let title: String
     var isOn = false
     var isEnabled = true
+    var help = ""
     let action: () -> Void
     @State private var isHovering = false
 
-    init(_ title: String, isOn: Bool = false, isEnabled: Bool = true, action: @escaping () -> Void) {
+    init(_ title: String, isOn: Bool = false, isEnabled: Bool = true, help: String = "", action: @escaping () -> Void) {
         self.title = title
         self.isOn = isOn
         self.isEnabled = isEnabled
+        self.help = help
         self.action = action
     }
 
@@ -107,6 +111,7 @@ struct LinkButton: View {
         .buttonStyle(.plain)
         .disabled(!isEnabled)
         .onHover { isHovering = $0 }
+        .help(help)
         .accessibilityAddTraits(isOn ? .isSelected : [])
     }
 }

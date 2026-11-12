@@ -308,3 +308,41 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 | **gesamt** (ohne die 19 „—"-Zeilen = in Ordnung) | **165** |
 
 Davon global: G.6, G.9, G.10 hoch · G.1, G.3, G.5, G.7, G.11, G.12, G.13 mittel · G.2, G.4, G.8 niedrig.
+
+---
+
+## Umsetzung und Abweichungen (2026-11-12)
+
+Alle hohen und mittleren Befunde sind umgesetzt, mit diesen Abweichungen von den Vorschlägen:
+
+- **Kein „the reference program: …“-Tooltip-Zusatz** (Philipp): überall weggelassen (G.10, 3.2, 4.1, 4.3, 5.1, 5.2, 6.1, 6.11, 6.13, 6.15, 6b.8, E.2 u. a.).
+- **Schritt 4 „Limit“ → „Best Frames“, Knopf „Keep Best Frames“** (spätere Entscheidung): S.2, S.7, 4.1–4.4 und 4.8 folgen dem, nicht dem Vorschlag
+  „Min. quality (%)“ usw.; Modi „At least % of the best quality“, „Best % of frames“, „Best number of frames“, „Best frames per point“.
+- **0.2**: Menü File heißt „Select Recording…“ wie die Werkzeugleiste (statt „Open Recording…“), damit eine Aktion einen Namen hat.
+- **0.5**: Menü „Process“ heißt „Run“.
+- **S.18**: Ergebniszeile „82 points“ statt „82 alignpoints“ (die Pille nennt „Alignpoints“ schon, sonst steht das Wort doppelt).
+- **2.1**: „more points · fewer points“ stehen unter dem Regler, der Titel „Threshold · 78 points“ darüber (in einer Zeile fehlte die Breite).
+- **2.14**: Fehlertext „lower the distances or widen Min./Max. brightness under Advanced“ statt „move the Threshold slider left“: bei „keine Punkte
+  gefunden“ ist der Regler noch gesperrt und der Threshold kann nichts bewirken.
+- **2.10/2.11**: „Intensity selection“ → „Brightness measure“; Lo/Hi → „Min. brightness (0–255)“ / „Max. brightness (0–255)“ als eigene Zeilen.
+- **3.1**: die gesperrten Segmente „No Align · Scan Frames“ stehen jetzt in Advanced („Alignment mode“, 5 statt 4 weitere Einstellungen).
+- **6.10/6.14/6.15**: „Waveletscheme“ (Dyadic/Linear) heißt „Layer spacing“, damit „scheme“ nur die Datei meint (Dialog „Wavelet scheme“, Philipp);
+  „Available schemes“ → „Saved Schemes“, die Knöpfe bleiben „Load Scheme…“ / „Save Scheme…“ statt „Preset“.
+- **6.5**: der gesperrte Preview-Knopf zeigt ein Auge-Symbol, der Sliderwert steht als Text rechts neben dem Regler.
+- **6b.1**: „Functions »“ → „Adjust ›“, Panel „Adjustments“. **6b.2**: die elf Knöpfe ohne Karte sind gesperrt. **6b.8/6b.9**: „Remember · Restore ·
+  Difference“, „Show: Current image · Remembered image“. **6b.6**: Link „Hold“ → „Keep“, gesperrt, weil er keine Wirkung hat.
+- **5b.2/5b.3/5b.8**: Codec, Compression quality, die Frame-size-Radios außer Original size und Use prefilters sind gesperrt.
+- **7.3**: Dateityp-Einträge „TIFF (16 bit) · .tif…“ (Mittelpunkt statt Doppelleerzeichen, weil der Name schon eine Klammer hat).
+- **T.2**: Präfix je Schritt („Align failed: …“); der Kerntext selbst bleibt unverändert (klein geschrieben).
+- **F.5**: „Clear List“ gesperrt, die Funktion `emptyList()` samt Test entfernt.
+
+Bewusst nicht umgesetzt:
+
+- **0.12** (Absturztext, für Nutzer unsichtbar), **S.12, S.15, 2.8, 2.12, 2.16, 3.4, 4.9, 6.3, 6.7, 6.16, 7.4, 7.5, 7.7, 8.x** (in Ordnung oder kosmetisch ohne Nutzen).
+- **4.5** (Feld je Modus in eigener Zeile): Das Feld steht schon in der Zeile seiner Modi und ist beim anderen Modus gesperrt; ein Umbau der Zeilen
+  brächte keine Klarheit, der Tooltip der Radios nennt das Feld.
+- **5.10** („Stacking frame 3 of 8“): niedrig, betrifft weder Tippfehler noch Schreibweise; Zähler bleiben „Aligning frame: 10“ usw.
+- **T.1** (Zeit nur während einer Rechnung zeigen): niedrig; die zuletzt benötigte Zeit nach dem Lauf ist nützlich.
+- **S.11** („Run Do All first“): bleibt, die Sperr-Tooltips nennen den Knopf (jetzt „Run Keep Best Frames first“).
+- **6.6** („Layer (1 = finest)“): als Tooltip der Spaltenüberschrift „Layer“ umgesetzt, nicht als Text der Überschrift (Platz).
+

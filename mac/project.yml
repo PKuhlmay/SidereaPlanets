@@ -50,7 +50,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSMinimumSystemVersion: "14.0"
         LSApplicationCategoryType: public.app-category.photography
-        NSHumanReadableCopyright: "Siderea Planets, a clone of the reference program for planetary stacking."
+        NSHumanReadableCopyright: "Siderea Planets, stacking and sharpening for planetary astrophotography."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: de.kuhlmay.siderea.planets

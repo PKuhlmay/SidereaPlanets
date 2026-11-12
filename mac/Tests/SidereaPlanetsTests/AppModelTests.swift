@@ -69,7 +69,7 @@ import Testing
         await model.open([jupiter])
         await backend.setOpenError("not a recording")
         await model.open([URL(fileURLWithPath: "/data/notes.txt")])
-        #expect(model.status.result == "Error: not a recording")
+        #expect(model.status.result == "Open failed: not a recording")
         #expect(model.details?.fileName == "JUPITER.AVI")
         #expect(model.recent.entries == [["/data/JUPITER.AVI"]])
         #expect(!model.isOpening)

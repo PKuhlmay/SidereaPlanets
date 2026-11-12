@@ -77,7 +77,7 @@ struct StepPanel: View {
                     .foregroundStyle(RK.ok)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Button("Open another recording", action: select)
+                Button("Select Another Recording…", action: select)
                     .buttonStyle(.rkFilled)
                     .disabled(model.isBusy)
             } else if state.status == .done {
@@ -87,12 +87,13 @@ struct StepPanel: View {
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 actionLine {
-                    Button("\(step.action) again", action: act)
+                    Button(step.againLabel, action: act)
                         .buttonStyle(.rkWide)
                         .disabled(!step.isBuilt || model.isBusy)
+                        .help(step.actionExplanation)
                 }
                 if model.progress.againDiscards(step) {
-                    Text("Running it again discards the steps after it.")
+                    Text("Running it again discards the results of the later steps.")
                         .font(.rkSmall)
                         .foregroundStyle(RK.muted)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -109,7 +110,7 @@ struct StepPanel: View {
                         Button(step.action, action: act)
                             .buttonStyle(.rkFilled)
                             .disabled(!step.isBuilt || model.isBusy)
-                            .help(step.isBuilt ? "" : "Comes in a later version")
+                            .help(step.isBuilt ? step.actionExplanation : "Not available yet")
                     }
                 }
                 if let next = step.next {
@@ -122,16 +123,30 @@ struct StepPanel: View {
         .overlay(alignment: .top) { RK.line.frame(height: 1) }
     }
 
-    /// The action button; in the Wavelets step Process stands at its left.
+    /// The action button; in the Wavelets step Update Preview stands at its left.
     private func actionLine<Action: View>(@ViewBuilder _ action: () -> Action) -> some View {
-        HStack(spacing: 6) {
-            if step == .wavelets {
-                Button("Process") { Task { await model.runProcess() } }
-                    .buttonStyle(.rk)
-                    .disabled(model.isBusy || model.stacked == nil)
-                    .help("Calculate the preview area with the current settings")
+        // Update Preview and the action side by side; when the labels do not fit, one below the other.
+        ViewThatFits(in: .horizontal) {
+            HStack(spacing: 6) {
+                updatePreview
+                action()
             }
-            action()
+            VStack(spacing: 6) {
+                updatePreview
+                action()
+            }
+        }
+    }
+
+    /// Update Preview of the Wavelets step; nothing in the other steps.
+    @ViewBuilder
+    private var updatePreview: some View {
+        if step == .wavelets {
+            Button("Update Preview") { Task { await model.runProcess() } }
+                .buttonStyle(.rk)
+                .fixedSize(horizontal: true, vertical: false)
+                .disabled(model.isBusy || model.stacked == nil)
+                .help("Calculates the preview area with the current settings.")
         }
     }
 
@@ -171,7 +186,7 @@ private struct OpenStepView: View {
             Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 10, verticalSpacing: 3) {
                 ForEach(Array(details.rows.enumerated()), id: \.offset) { _, row in
                     GridRow {
-                        Text(row.label).foregroundStyle(RK.muted)
+                        Text(row.label).foregroundStyle(RK.muted).help(RecordingDetails.explanation(of: row.label) ?? "")
                         Text(row.value).foregroundStyle(RK.text).textSelection(.enabled)
                     }
                     .font(.rkSmall)
@@ -183,9 +198,9 @@ private struct OpenStepView: View {
 
     private var recent: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("Recent").font(.rkSmall).foregroundStyle(RK.muted).padding(.bottom, 2)
+            Text("Recent Recordings").font(.rkSmall).foregroundStyle(RK.muted).padding(.bottom, 2)
             if model.recent.entries.isEmpty {
-                Text("No recent files").font(.rkSmall).foregroundStyle(RK.muted)
+                Text("No recent recordings").font(.rkSmall).foregroundStyle(RK.muted)
             }
             ForEach(model.recent.entries, id: \.self) { paths in
                 RecentRow(paths: paths, isEnabled: !model.isBusy) {

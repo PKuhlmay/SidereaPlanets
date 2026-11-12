@@ -10,6 +10,14 @@ bleibt der interne Name: Repo und Ordner, Crates, Swift-Module (`SidereaPlanetsK
 -Schema, Tickets und die Reverse-Engineering-Doku in `docs/`. Was Nutzer sehen (Fenstertitel, Menüs, Hilfe, Bundle, Installer,
 Anwenderseiten, Changelogs), sagt „Siderea Planets“; das Original heißt weiter **the reference program**.
 
+**Kein „the reference program“ in sichtbaren Texten** (Philipp, 2026-11-12, MAC-014): Siderea Planets ist ein eigenes Programm. In keinem Text, den
+Nutzer sehen, steht „the reference program“, „the reference program“ oder „das Original“: Oberfläche und Tooltips beider Apps, Dateidialoge (`.rwv` heißt
+„Wavelet scheme“), Statusmeldungen, Datei- und Projektköpfe, About, `NSHumanReadableCopyright`, Anwenderseiten
+(`app/src/docs/pages/`) und Changelogs. Auch Tooltips tragen keinen „the reference program: …“-Zusatz. Vergleiche mit dem Original gehören in die
+interne Doku (`docs/`, z. B. `docs/offene-fragen.md`), Code-Kommentare und Bezeichner dürfen es nennen. Prüfen vor jedem Commit, der
+Texte berührt: `git grep -n -i "the reference program\|the original" -- mac/App app/src app/src-tauri/src crates/*/src` darf nur Kommentare,
+Bezeichner und Tests treffen.
+
 ## Status
 
 Die **Windows-App** (Tauri und Vue unter `app/`) läuft den ganzen Ablauf im echten Fenster: Aufnahme laden, Alignpoints, Align,

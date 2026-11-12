@@ -86,3 +86,214 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
       (`menus-and-settings.md`, Abschnitt „Recent Recordings“, und `window-at-a-glance.md`) liegen schon gemeinsam auf `main`.
       Mac: `AppToolbar` (`mac/App/Views/ContentView.swift`).
 
+
+## Verständliche Texte für Einsteiger (MAC-014, Mac 2026-11-12)
+
+- [ ] **Sammelpunkt: die ganze Oberfläche bekommt klare Namen, Tooltips und gesperrte Elemente ohne Wirkung.** Dieser Punkt gilt vor
+  allen älteren Einträgen dieser Datei: wo ein älterer Eintrag einen alten Namen nennt (Framelist, Empty List, Goto Frame, „use it as
+  reference“ …), gilt der Name aus den Tabellen unten. Die Anwenderseiten (`app/src/docs/pages/`, dazu die neue Seite **Glossary**)
+  nutzen die neuen Namen schon und liegen gemeinsam auf `main`; die Windows-Oberfläche ist in diesem Commit **nicht** geändert.
+  Mac-Quellen: `mac/App/Views/**`, `mac/App/Model/StepLogic.swift`, `AlignLogic.swift`, `StackLogic.swift`, `SaveLogic.swift`,
+  `WaveletLogic.swift`, `ShowMenuLogic.swift`, `AppModel*.swift`, `SidereaPlanetsApp.swift`, `Settings/SettingsView.swift`. Intern
+  bleiben Bezeichner, Projektdatei-Schlüssel (`showFramelist`, `alignedSize` …) und Dateiformate unverändert.
+
+  **Regeln.** (1) Der Name **the reference program**, „the reference program“ und „das Original“ steht in keinem sichtbaren Text beider Apps (Oberfläche,
+  Tooltips, Dateidialoge, Statusmeldungen, Datei- und Projektköpfe, Hilfeseiten); Tooltips tragen **keinen** „the reference program: …“-Zusatz.
+  (2) US-Englisch überall (Color, Center, gray). (3) HIG-Schreibweise: **Title Case** für Schaltflächen, Menüeinträge, Gruppen- und
+  Kartenüberschriften; **Sentence case** für Feldbeschriftungen, Häkchen, Radios, Hinweise und Tooltips; „…“ nur an Aktionen, die einen
+  Dialog öffnen (Zeichnen einer Region ist kein Dialog). (4) Einheiten an das Feld: „(px)“, „(%)“, „(fps)“; Maße mit „×“
+  („1024×680“), Prozent ohne Leerzeichen („72%“). (5) Statusmeldungen: Großbuchstabe am Anfang, kein Punkt am Ende, ein kurzer Satz.
+  (6) **Ein Schalter ohne Wirkung ist gesperrt:** gedimmt (45 %), nicht klickbar, Tooltip beginnt mit „Not available yet“ (bei
+  Optionen im Panel zusätzlich der Text „Not available yet“ rechts in der Zeile, wie bei den bisherigen gesperrten Optionen).
+
+  **Tabelle 1: Umbenennungen (alt → neu).** Nur Zeilen, in denen sich ein sichtbarer Text ändert.
+
+  | Ort | alt | neu |
+  |---|---|---|
+  | **Schritt 4** (Schrittleiste, Panelkopf, Menü Go to Step, Fenstertitel) | **Limit** | **Best Frames** |
+  | Schritt 4, Aktionsknopf | Limit | **Keep Best Frames** (fertig: „Keep Best Frames Again“; Sperr-Tooltip der Folge-Pillen „Run Keep Best Frames first“; Name des Laufs im Fenstertitel) |
+  | Werkzeugleiste | Open (Projekt) | **Open Project…** |
+  | Werkzeugleiste | Save (Projekt) | **Save Project…** |
+  | Werkzeugleiste, Pause | Pause-Tooltip „Hold the calculation; press again to go on“ | „Pause the calculation; press again to resume“ |
+  | Menü File (Mac) | Open… | Select Recording… |
+  | Menü (Mac) | Process (Cancel, Pause, Go to Step) | **Run** |
+  | Menü File (Mac) | Reihenfolge Save Project…, Open Project… | Open Project… vor Save Project… (in der Gruppe zu Open) |
+  | Menü View (Mac) | Fit Image | Zoom to Fit |
+  | Öffnen-Dialog | Prompt „Select“ | „Open“ |
+  | Schritt Open, Liste | Recent / No recent files | Recent Recordings / No recent recordings |
+  | Schritt Open, Fuß (fertig) | Open another recording | Select Another Recording… |
+  | Alle Schritte, Fuß (fertig) | „‹Aktion› again“ (Do All again) | „‹Aktion› Again“ (Do All Again, Keep Best Frames Again …); Schritt Open: Select Another Recording… |
+  | Alle Schritte, Fuß | Tooltip „Comes in a later version“ | „Not available yet“ |
+  | Alle Schritte, Hinweis | „Running it again discards the steps after it.“ | „Running it again discards the results of the later steps.“ |
+  | Schritt Save | Save image | **Save Image** (Menü der Dateitypen: „TIFF (16 bit) · .tif…“, mit „…“, ein Mittelpunkt statt zwei Leerzeichen) |
+  | Satz Open | „Choose a recording: a SER or AVI video or a series of images.“ | … + „You can also drop it onto the window.“ |
+  | Satz Alignpoints | „Marks the details the frames are lined up on. A lower threshold gives more points.“ | „Places marks on surface details that every frame is lined up on. Move the slider left for more points, right for fewer.“ |
+  | Satz Wavelets | „… then apply them to the whole image.“ | „… then press Do All to apply them to the whole image.“ |
+  | Ergebniszeile Alignpoints | „82 set“ | „82 points“ |
+  | Ergebniszeile Align | „best quality 100 %“ (**Sachfehler**, siehe unten) | „10 frames rated“ |
+  | Ergebniszeile Limit | „8 of 10 kept“ | „8 of 10 frames kept“ |
+  | Ergebniszeile Wavelets | „applied to the whole image“ | „Sharpening applied“ |
+  | Bildbereich leer | „Press Select Recording to open a video or a series of images“ / „No image yet“ | „Select a recording or drop a video or images here“ / „No image to show yet“ |
+  | Dateiinfo | Colour | Color (Zeilen Codec und Bit depth bekommen Tooltips) |
+  | Schrittleiste rechts | „DIB · 1024×680 · 10 frames“ | „1024×680 · 10 frames · DIB“ (Codec ans Ende) |
+  | Alignpoints, Regler | weakest · Threshold · strongest; danach „Alignpoints: 82“ | **more points · Threshold · fewer points**; danach „Threshold · 82 points“ |
+  | Alignpoints | Minimum distance between | **Min. distance between points (px)** |
+  | Alignpoints | Min distance from edge | **Min. distance from image edge (px)** |
+  | Alignpoints | R.o.Interest | **Draw Region** (kein „…“) |
+  | Alignpoints, Tooltip | „… press again to drop it“ | „… press again to remove it“ |
+  | Alignpoints, Hinweis nach Go to best frame | „Best frame: 7 — run Set Alignpoints and Align again to use it as reference.“ | „Best frame: 7. Run Set Alignpoints and Align again to line all frames up on this one.“ |
+  | Alignpoints, Advanced | Gruppe Set Alignpoint parameters | **Point Placement** |
+  | Alignpoints, Advanced | Intensity selection: Default · 3x3 area · Lowest pixelvalue | **Brightness measure**: Default · 3×3 area · Lowest pixel value |
+  | Alignpoints, Advanced | Lo / Hi (rechts neben den Radios) | **Min. brightness (0–255)** / **Max. brightness (0–255)**, je als eigene Zeile unter den Radios |
+  | Alignpoints, Advanced | Number of Alignpoints | Number of alignpoints |
+  | Alignpoints, Advanced (gesperrt) | Keep Alignpoints inside ScanFrame | Keep points inside the scan frame |
+  | Align | Alignmentbox size | **Box size per point (px)** |
+  | Align | Max Alignpoint movement | **Max. point shift (px)** |
+  | Align, Advanced (gesperrt) | Align by Centre of gravity / Lum. Threshold / Estimate Rotation | Align by center of gravity / Brightness threshold / Estimate rotation |
+  | Align | gesperrte Segmente „No Align · Scan Frames“ ganz oben im Panel | **in Advanced** unter der Beschriftung „Alignment mode“ (dann 5 weitere Einstellungen statt 4) |
+  | Limit | Lowest Quality (%) | **At least % of the best quality** |
+  | Limit | Best Frames (%) | **Best % of frames** |
+  | Limit | Frames/Apoint | **Best frames per point** |
+  | Limit | Best Frames (Anzahl) | **Best number of frames** |
+  | Limit, Diagramm | best frame … weakest | **sharpest … blurriest** |
+  | Limit / Framelist | Go to best frame | **Go to Best Frame**; Tooltip „Show the best frame and open Alignpoints to line all frames up on it“ |
+  | Statusleiste Limit | „Processing limited to 8 frames“ | „Keeping 8 of 10 frames“ |
+  | Statusleiste nach Limit | „Stacksize: 8  Low quality: 72.00%“ | „8 frames will be stacked · weakest kept: 72%“ (1 Frame: „1 frame will be stacked …“) |
+  | Statusleiste Align | „Loading frame: 42“ | „Aligning frame: 42“ |
+  | Statusleiste Align | „Alignment finished.“ | „Alignment finished“ |
+  | Statusleiste Stack | „Stack size (n=10) - (1024x680)“ / „Stacking Range : 0-255“ | „Stacked 10 frames · 1024×680“ / „Value range 0–255“ |
+  | Statusleiste Stack | „Stacking frame: 0“ | „Stacking frame: 0“ bleibt (Zähler wie bei Align) |
+  | Statusleiste Alignpoints | „No alignpoints found: try other Lo and Hi values“ | „No alignpoints found: lower the distances or widen Min./Max. brightness under Advanced“ |
+  | Statusleiste Alignpoints | „The region is too small for Min distance from edge“ | „The region is too small for the distance from the edge; draw a larger region“ |
+  | Statusleiste Fehler | „Error: ‹Kerntext›“ | „‹Schritt› failed: ‹Kerntext›“ (Open, Set Alignpoints, Align, Keep Best Frames, Stack, Do All, Update Preview, Save …) |
+  | Frame-Leiste | Goto Frame | **Go to frame** |
+  | Frame-Leiste | „Frame (5): 5/10“ | **„Frame 5 of 10“** |
+  | Karte | Framelist | **Frame List** (Show-Eintrag „Show Frame List“) |
+  | Karte Frame List | Check all · Check none · Empty List | **Check All · Check None · Clear List** (Clear List gesperrt) |
+  | Karte Frame List | Frame00010 | **Frame 10** |
+  | Karte | Registrationgraph | **Quality Graph** (Show-Eintrag „Show Quality Graph“) |
+  | Karte Stack | Alignmentpoints / „Point 1“ | **Alignpoints Used for Stacking** / „Alignpoint 1“ |
+  | Show-Menü | Show ROI | Show Region |
+  | Show-Menü | Show Aligndata · Show Prefilter · Show Stackgraph · Show Stacklist · Show AlignSections · Show AlignPoints · Show Registrationgraph · Show Framelist | Show Align Data · Show Prefilter · Show Stack Graph · Show Stack List · **Show Alignpoints** (Stack-Schritt, öffnet die Karte) · Show Alignpoints · Show Quality Graph · Show Frame List |
+  | Show-Menü | Show Processing Area | **Show Preview Area** |
+  | Zoomleiste | Before | **Before/After** |
+  | Stack | StackSize: Default · Minimized · Maximized · R.of Interest | **Output size**: Default · Smallest common area · Largest area · Region |
+  | Stack | Use Nearestby Alignpoints | **Use nearest points** |
+  | Stack, Advanced | Normalization of frame intensity | **Even out frame brightness** |
+  | Stack, Advanced | Do not stack pixels at the frameedge | **Ignore edge pixels (px)** (eine Zeile) |
+  | Stack, Advanced | Create AVI: Compress Qual / Framerate | Compression quality / **Frame rate (fps)** |
+  | Stack, Advanced | Create aligned Sequence / Save Aligned | Aligned video / **Save Aligned Video…** |
+  | Stack, Advanced | Create integrated sequence / Save Integrated | Averaged video / **Save Averaged Video…** |
+  | Stack, Advanced | Radios ohne Überschrift: Original image size · Minimum area · Maximum area · Region of Interest | Überschrift **Frame size**: Original size · Smallest common area · Largest area · Region |
+  | Stack, Advanced | Sort On Quality / Use Prefilters | Sort by quality / Use prefilters (gesperrt) |
+  | Stack, Advanced | Average of [5] Frames | Average of [5] frames |
+  | Stack, Namen der Läufe | Save Aligned / Save Integrated (Fenstertitel, Status) | Save Aligned Video / Save Averaged Video |
+  | Wavelets | Colour / LRGB | **Color / Sharpen brightness only** |
+  | Wavelets, Spalten | Layer · Denoise · Sharpen · Preview (Preview zeigt den Sliderwert) | Layer · Denoise · Sharpen · Preview; der **Sliderwert steht als Text rechts neben dem Regler** („10.0“), der gesperrte Preview-Knopf bekommt ein Auge-Symbol |
+  | Wavelets, Advanced | Gruppe Wavelets | Wavelet Settings |
+  | Wavelets, Advanced | Automatic | **Run Do All automatically** |
+  | Wavelets, Advanced | Hold Wavelet Setting | **Keep layer values for a new stack** |
+  | Wavelets, Advanced | Waveletscheme: Dyadic (2^n) · Linear | **Layer spacing**: Dyadic (2^n) · Linear (damit „scheme“ nur noch die Datei meint) |
+  | Wavelets, Advanced | Initial Layer / Step Incr. | **First layer size / Size step** |
+  | Wavelets, Advanced | Use Linked Wavelets | **Move all sliders together** |
+  | Wavelets, Advanced | Available schemes (gesperrte Liste) | **Saved Schemes** |
+  | Wavelets, Advanced | Load Scheme / Save Scheme | Load Scheme… / Save Scheme… |
+  | Wavelets, Dateidialog | Meldung „the reference program Wavelet scheme settings“ (Filtername `.rwv`) | **„Wavelet scheme“** (`app/src/wavelet.ts`, `schemeFilter`) |
+  | Wavelets, Fuß | Process | **Update Preview**; Do All wie bisher |
+  | Statusleiste Wavelets | layer setting changed | Updating preview… |
+  | Statusleiste Wavelets | „Preview: 85 ms“ / „Calculating wavelets done“ | „Preview calculated in 85 ms“ / „Preview updated“ |
+  | Statusleiste Wavelets | Do_all processing | Applying to whole image… |
+  | Statusleiste Wavelets | „Do All: the stack changed“ | „Do All stopped: the stack changed, run it again“ |
+  | Statusleiste Wavelets | „Scheme loaded: ‹voller Pfad›“ (auch saved) | nur der Dateiname |
+  | Statusleiste Wavelets | „Error: no stacked image“ | „No stacked image: run Stack first“ |
+  | Fenstertitel / Lauf | Wavelet | Do All bzw. Update Preview |
+  | Bildbereich | Functions » (Knopf) / Functions (Panel) | **Adjust ›** / **Adjustments** |
+  | Functions-Knöpfe | Colour Mixing · Denoise/ Deringing · View Stacksize · Show Linegraph | Color Mixing · Denoise/Deringing · View Stack Size · Show Line Graph |
+  | Contrast/Brightness | Regler ohne Beschriftung, darunter zwei Felder | je **Beschriftung + Feld über dem Regler** (Contrast, dann Brightness) |
+  | Contrast/Brightness | Link Hold | **Keep** (gesperrt, siehe Tabelle 3) |
+  | Panel Adjustments | Copy To · Load to · Difference / Toggle: Current Image · Clipboard Image | **Remember · Restore · Difference** / **Show:** Current image · Remembered image |
+  | Statusleiste Adjustments | Image copied · Load to: nothing copied yet · Copy To: no image yet · Copied image loaded · Difference: nothing copied yet | Image remembered · Restore: nothing remembered yet · Remember: no image yet · Remembered image restored · Difference: nothing remembered yet |
+  | Karte Histogram | Black / White / Clip % | **Black point / White point / Clip (%)** |
+  | Karte RGB Align | X · Y · Max shift | **X (px) · Y (px) · Max shift (px)** |
+  | Karte RGB Balance | Felder Red/Green/Blue ohne Einheit | „%“ hinter dem Feld |
+  | Alle Tooltips | „… needs a colour image“ | „… needs a color image“ |
+  | Save, Satz | „The sharpened stack with the colour and tone settings.“ | „Saves the sharpened stack with your color and tone settings.“ |
+  | Save, Satz | „Do All runs first with the current values.“ | „Your latest changes are applied to the whole image first (Do All).“ |
+  | Save, Status | „Open project: file not found: …“ | „Open project: the recording was not found: ‹Datei›“ |
+  | Zahlen | „100 %“ in Tooltips und Limit-Diagramm | „100%“ ohne Leerzeichen |
+  | Einstellungen (Mac, Fenster) | CPUs / Processing Area „512 x 512“ | CPU cores to use / **Preview area** „512 × 512 px“ |
+  | Einstellungen | Schemes … Initial Layer, Step Incr. | Wavelet schemes … First layer size, Size step |
+  | About (Mac) | „A rebuild of the workflow of the reference program … Not affiliated with the original.“ | „Stacking and sharpening of planetary and lunar recordings.“ (auch `NSHumanReadableCopyright`) |
+
+  **Tabelle 2: Tooltips (neu; Sentence case, ohne „the reference program: …“).** Schritte (Pille und Aktionsknopf):
+  Alignpoints „Reference marks on surface details that every frame is lined up on“, Align „Lines up every frame on the alignpoints and
+  rates how sharp each frame is“, Best Frames „Choose which frames go into the stack, the sharpest ones“, Stack „Averages the kept frames
+  into one image with far less noise“, Wavelets „Sharpens the stack in layers from fine to coarse detail“, Open „Choose the video or
+  the images to work on“, Save „Writes the finished image to a file“. Eine Pille nennt dazu in der zweiten Zeile den fehlenden Schritt
+  (gesperrt) bzw. das Ergebnis (fertig). Aktionsknöpfe: Set Alignpoints „Places alignpoints automatically on the frame that is shown“,
+  Keep Best Frames „Keeps the frames chosen in the settings above and leaves out the others“, Do All „Applies the sharpening to the whole image
+  (the preview shows only the preview area)“, Update Preview „Calculates the preview area with the current settings“.
+  Felder und Optionen: Threshold „How strong a detail must be to get an alignpoint; left keeps more points, right fewer“; Min.
+  distance between points „Smallest distance between two alignpoints, in pixels“; Min. distance from image edge „Alignpoints keep at
+  least this distance from the edge of the image or the region, in pixels“; Draw Region „Region of interest (ROI): drag a rectangle on
+  the image so that only this area is used for placing alignpoints and aligning; press again to remove it“; Brightness measure „How the
+  brightness at a point is measured when alignpoints are placed“ (Default „The centre pixel“, 3×3 area „The mean of the 3×3 pixels
+  around the centre“, Lowest pixel value „The darkest of the 3×3 pixels around the centre“); Min./Max. brightness „Only pixels between
+  Min. and Max. brightness (0–255) can get an alignpoint“; Box size per point „Edge length of the square around each alignpoint that is
+  searched for in the other frames, in pixels“; Max. point shift „How far an alignpoint may move from one frame to the next, in
+  pixels“; At least % of the best quality „Keep every frame whose quality is at least this share of the best frame“; Best % of frames „Keep this share of
+  all frames, the sharpest ones“; Best frames per point „Each alignpoint uses its own sharpest frames; the field sets how many“; Best
+  number of frames „Keep exactly this many frames, the sharpest ones“; Output size „Size of the stacked image“; Use nearest points „How
+  many of the nearest alignpoints decide how a pixel is shifted: more is smoother, fewer is more local“; Correct geometry „Shifts each
+  part of the image by its own movement; off moves every frame as a whole“; Even out frame brightness „Levels the brightness of the
+  frames before stacking; helps when clouds pass by“; Ignore edge pixels „Pixels at the edge of each frame that are left out of the
+  stack, in pixels“; Create AVI „Saves the aligned frames as a video, for example for animations or other software“; Save Aligned
+  Video „Saves the kept frames, aligned, as an AVI video“; Save Averaged Video „Saves a video in which each frame is the average of
+  several aligned frames in a row; the number is set below“; Moving average „Each video frame is the average of the next n aligned
+  frames“; Sharpen brightness only „Sharpens only the brightness of the stack and keeps its colors“; Color „Processes the channels in
+  color; off gives grayscale“; Layer „Layer 1 holds the finest detail, higher layers coarser structures; switch a layer off to leave
+  it out“; Denoise „Smooths the noise in this layer“; Sharpen „Fine adjustment of this layer; the slider sets the main strength“;
+  Slider „Strength of layer n“; Run Do All automatically „Applies the sharpening to the whole image half a second after each change“;
+  Keep layer values for a new stack „Keeps the layer values when a new stack is made“; Layer spacing „Linear: the layers grow evenly.
+  Dyadic: each layer doubles in size“; First layer size / Size step „Size of the finest layer and how much each further layer grows“;
+  Wavelet filter „Gaussian is smoother than Default“; Move all sliders together „Moving one slider moves all the others by the same
+  amount“; Load/Save Scheme „… a wavelet scheme file (.rwv)“; Adjust „Show or hide the panel with color, tone and other image
+  adjustments“; Histogram „Black point, white point and brightness of the image“; Gamma „Brightens or darkens the midtones“; RGB Align
+  „Shifts red, green and blue so that they lie on top of each other“; RGB Balance „Changes the share of red, green and blue“; Remember
+  „Remembers the current image so that it can be compared later“; Restore „Brings the remembered image back“; Difference „Shows where
+  the current image differs from the remembered one, amplified“; Before/After „Switches between the stack without any sharpening and
+  the sharpened image“; Clip (%) „Share of the darkest and brightest pixels that Auto may cut off“; Difference (Legende Quality Graph)
+  „How much a frame differs from the frame all the others are lined up on; higher is worse“; Dateiinfo Codec „How the frames are
+  stored in the file“, Bit depth „Brightness levels per pixel“. Locked (Tooltip beginnt mit „Not available yet“): bei Stretch
+  histogram, De-rotate images, Resampling, Drizzling zusätzlich eine Erklärung („Spreads the brightness over the full range after
+  stacking“, „Turns the frames back against the rotation of the planet“, „Enlarges the result“, „Enlarges the result by combining
+  shifted frames“).
+
+  **Tabelle 3: Bedienelemente ohne Wirkung → sperren (gedimmt, „Not available yet“).** (a) Show-Menü: *Show Full Image* (in allen drei
+  Varianten), *Show Align Data*, *Show Prefilter*, *Show Stack Graph*, *Show Stack List*: im Menü unter einem Abschnittskopf „Not
+  available yet“, nicht anwählbar (Mac: `ShowItem.isAvailable`, `mac/App/Model/ShowMenuLogic.swift`). (b) Align, Advanced: *Show
+  Alignment*. (c) Stack, Advanced: *Codec*, *Compression quality*, die Radios *Smallest common area / Largest area / Region* unter
+  Frame size (nur *Original size* wirkt, immer gewählt), *Use prefilters*. (d) Framelist-Karte: *Clear List*. (e) Wavelets, Advanced:
+  *Stack Again* bekommt den Tooltip „Not available yet“ (war gesperrt ohne Hinweis). (f) Panel Adjustments: die elf Knöpfe ohne Karte
+  (*Color Mixing, View Zoomed, View Compare, View Stack Size, Flip and Rotate, Resize Image, Denoise/Deringing, Wavelet Filter,
+  Masking, Show Line Graph, Cropping Area*) sind gedimmt und nicht klickbar; nur *Histogram, Gamma, RGB Align, RGB Balance* bleiben
+  aktiv. (g) Contrast/Brightness: der Link *Keep* (früher *Hold*) hat in der Mac-App keine Wirkung (der Zustand wird nur gespeichert)
+  und ist gesperrt; Windows prüft, ob *Hold* dort etwas tut, sonst ebenfalls sperren. Schon gesperrt und unverändert: Stretch histogram,
+  De-rotate images, Resampling, Drizzling, Compressed, Estimate rotation, Align by center of gravity, Brightness threshold, die Liste
+  *Saved Schemes*, Realign with Processed, Alignment mode (No Align · Scan Frames), Keep points inside the scan frame, der Preview-Knopf
+  der Wavelet-Ebenen.
+
+  **Sachfehler Align-Ergebnis.** Die Ergebniszeile des Schritts Align (Panel-Fuß, Pille, Tooltip) zeigte „best quality 100 %“. Die
+  Qualität ist aber auf den besten Frame normiert (`qualityPercent`), der beste hat also immer 100 %: die Angabe war leer. Neu:
+  **„‹n› frames rated“** (n = Zahl der bewerteten Frames). Windows: `app/src/logic/workflow.ts` bzw. wo die Ergebniszeile des Schritts
+  Align gebildet wird.
+
+  **the reference program-Erwähnungen in Windows-Texten (Stand dieses Commits, `grep -rn -i "the reference program" app/src app/src-tauri/src`).** Sichtbar
+  und zu ändern: `app/src/wavelet.ts:142`: Filtername des Dateidialogs „the reference program Wavelet scheme settings“ → „Wavelet scheme“. Alle
+  anderen Treffer sind Kommentare, Bezeichner (`planets_session`, `planets_app_lib`) oder Testbeschreibungen und bleiben:
+  `app/src/align.ts:4`, `app/src/components/AlignStep.vue:24`, `NumberField.vue:5`, `Toolbar.vue:128,147`,
+  `app/src/logic/{align.ts:96, colour.ts:113, exporting.ts:1, settings.ts:1,2,29,125, wavelet.ts:81, workflow.ts:18}`,
+  `app/src/recording.ts:9,112`, `app/src/wavelet.ts:180`, `app/src-tauri/src/export_commands.rs:21,41`; Tests:
+  `app/src/logic/{align,stack,settings,numbers,workflow}.test.ts`. Dazu die Windows-Beschriftungen aus den Tabellen oben (alle Texte
+  der Spalte „alt“, die in `app/src/components/*.vue`, `app/src/logic/*.ts`, `app/src/App.vue` stehen). Der Windows-Installer
+  (`tauri.conf.json`) nennt the reference program nirgends.

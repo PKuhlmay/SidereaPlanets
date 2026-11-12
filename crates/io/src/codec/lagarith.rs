@@ -89,7 +89,7 @@ pub(super) fn decode(format: &FrameFormat, data: &[u8]) -> Result<Image, CodecEr
         FRAME_SOLID_COLOR | FRAME_SOLID_RGBA => {
             // Colour bytes are in DIB order (B, G, R, A); alpha is dropped.
             let &[b, g, r, ..] = body else {
-                return Err(corrupt("solid colour frame too short"));
+                return Err(corrupt("solid color frame too short"));
             };
             Ok(solid_image(w, h, rgb_to_unit(r, g, b)))
         }

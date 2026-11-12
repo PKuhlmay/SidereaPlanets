@@ -55,3 +55,8 @@ extension PlanetsSession: SessionBackend {
 func errorText(_ error: Error) -> String {
     (error as? PlanetsError)?.message ?? error.localizedDescription
 }
+
+/// A failure in the status bar: what failed, then the text of the error ("Align failed: …").
+func failureText(_ what: String, _ error: Error) -> String {
+    "\(what) failed: \(errorText(error))"
+}

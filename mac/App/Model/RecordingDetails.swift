@@ -5,9 +5,9 @@ nonisolated struct RecordingDetails: Equatable, Sendable {
     let fileName: String
     let info: RecordingInfo
 
-    /// "DIB · 1024×680 · 10 frames": the line at the right of the step bar (after the file name).
+    /// "1024×680 · 10 frames · DIB": the line at the right of the step bar (after the file name); the codec stands last, it means little to a newcomer.
     var summary: String {
-        [info.codec, size, "\(info.frameCount) frames"].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
+        [size, "\(info.frameCount) frames", info.codec].compactMap { $0 }.filter { !$0.isEmpty }.joined(separator: " · ")
     }
 
     /// The step bar line: file name first.
@@ -24,12 +24,21 @@ nonisolated struct RecordingDetails: Equatable, Sendable {
         rows.append(("Size", size))
         rows.append(("Bit depth", "\(info.bitDepth) bit"))
         rows.append(("Frames", "\(info.frameCount)"))
-        rows.append(("Colour", info.color))
+        rows.append(("Color", info.color))
         if let fps = info.fps { rows.append(("Frame rate", Self.formatRate(fps))) }
         for (label, value) in [("Observer", info.observer), ("Instrument", info.instrument), ("Telescope", info.telescope)] {
             if let value, !value.isEmpty { rows.append((label, value)) }
         }
         return rows
+    }
+
+    /// The tooltip of a row label that needs one.
+    static func explanation(of label: String) -> String? {
+        switch label {
+        case "Codec": "How the frames are stored in the file."
+        case "Bit depth": "Brightness levels per pixel."
+        default: nil
+        }
     }
 
     /// "25 fps", "29.97 fps": up to two decimals, none for whole numbers.

@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// The right panel of step 6 (docs/design.md, "6 Wavelets"): the Functions buttons, Contrast/Brightness and Copy To. Every Functions
-/// button is a switch for its own card over the image (`FunctionCards`); the buttons whose card does not exist yet say so in the status
-/// bar. Functions » at the top of the image area shows and hides this panel.
+/// The right panel of step 6 (docs/design.md, "6 Wavelets"): the Adjustments buttons, Contrast/Brightness and Remember. Every button
+/// is a switch for its own card over the image (`FunctionCards`); the buttons whose card does not exist yet are dimmed. Adjust › at the
+/// top of the image area shows and hides this panel.
 struct FunctionsPanel: View {
     @Bindable var model: AppModel
 
@@ -16,7 +16,7 @@ struct FunctionsPanel: View {
                 RK.line.frame(height: 1)
                 contrastBrightness
                 RK.line.frame(height: 1)
-                copyTo
+                remember
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(RKMetrics.panelPadding)
@@ -25,14 +25,14 @@ struct FunctionsPanel: View {
         .background(RK.panel)
         .overlay(alignment: .leading) { RK.line.frame(width: 1) }
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Functions")
+        .accessibilityLabel("Adjustments")
     }
 
     // MARK: Functions
 
     private var functions: some View {
         VStack(alignment: .leading, spacing: 8) {
-            GroupHeading(title: "Functions")
+            GroupHeading(title: "Adjustments")
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
                 ForEach(functionNames, id: \.self) { name in
                     FunctionButton(title: name, isOn: model.wavelet.functions.contains(name)) { model.toggleFunction(name) }
@@ -48,8 +48,19 @@ struct FunctionsPanel: View {
             HStack(spacing: 0) {
                 GroupHeading(title: "Contrast/Brightness")
                 Spacer()
-                LinkButton("Hold", isOn: model.tone.holdContrast) { model.tone.holdContrast.toggle() }
+                // Keep has no effect yet (the state is only stored), so it is locked.
+                LinkButton("Keep", isEnabled: false, help: "Not available yet") {}
                 LinkButton("Reset") { model.resetContrast() }
+            }
+            // Each slider has its label and its field right above it.
+            HStack {
+                Text("Contrast").font(.rk).foregroundStyle(RK.text)
+                Spacer()
+                NumberField(
+                    label: "Contrast",
+                    value: Binding(get: { contrastField(model.tone.contrast) }, set: { model.tone.contrast = contrastSlider($0) }),
+                    width: 62
+                )
             }
             Slider(
                 value: Binding(get: { Double(model.tone.contrast) }, set: { model.tone.contrast = Int($0.rounded()) }),
@@ -58,6 +69,12 @@ struct FunctionsPanel: View {
             .controlSize(.small)
             .tint(RK.accent)
             .accessibilityLabel("Contrast")
+            HStack {
+                Text("Brightness").font(.rk).foregroundStyle(RK.text)
+                Spacer()
+                NumberField(label: "Brightness", value: $model.tone.brightness, range: ToneLimits.brightness, width: 62)
+            }
+            .padding(.top, 2)
             Slider(
                 value: Binding(get: { Double(model.tone.brightness) }, set: { model.tone.brightness = Int($0.rounded()) }),
                 in: Double(ToneLimits.brightness.lowerBound)...Double(ToneLimits.brightness.upperBound), step: 1
@@ -65,43 +82,32 @@ struct FunctionsPanel: View {
             .controlSize(.small)
             .tint(RK.accent)
             .accessibilityLabel("Brightness")
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Contrast").font(.rk).foregroundStyle(RK.text)
-                    NumberField(
-                        label: "Contrast",
-                        value: Binding(get: { contrastField(model.tone.contrast) }, set: { model.tone.contrast = contrastSlider($0) }),
-                        width: 62
-                    )
-                }
-                VStack(alignment: .leading, spacing: 3) {
-                    Text("Brightness").font(.rk).foregroundStyle(RK.text)
-                    NumberField(label: "Brightness", value: $model.tone.brightness, range: ToneLimits.brightness, width: 62)
-                }
-            }
-            .padding(.top, 2)
         }
     }
 
-    // MARK: Copy To
+    // MARK: Remember
 
-    private var copyTo: some View {
+    private var remember: some View {
         VStack(alignment: .leading, spacing: 6) {
             SegmentBar(items: [
-                SegmentItem(title: "Copy To", isEnabled: hasImage) { model.copyTo() },
-                SegmentItem(title: "Load to", isEnabled: hasCopy) { model.loadTo() },
-                SegmentItem(title: "Difference", isOn: model.waveletData.toneView == .difference, isEnabled: hasCopy) { model.showDifference() },
+                SegmentItem(title: "Remember", isEnabled: hasImage, help: "Remembers the current image so that it can be compared later.") { model.copyTo() },
+                SegmentItem(title: "Restore", isEnabled: hasCopy, help: "Brings the remembered image back.") { model.loadTo() },
+                SegmentItem(
+                    title: "Difference", isOn: model.waveletData.toneView == .difference, isEnabled: hasCopy,
+                    help: "Shows where the current image differs from the remembered one, amplified."
+                ) { model.showDifference() },
             ])
-            Text("Toggle").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 2)
-            RadioRow(title: "Current Image", isSelected: model.waveletData.toneView != .clipboard) { model.showToneView(.current) }
-            RadioRow(title: "Clipboard Image", isSelected: model.waveletData.toneView == .clipboard, isEnabled: hasCopy) {
+            Text("Show").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 2)
+            RadioRow(title: "Current image", isSelected: model.waveletData.toneView != .clipboard) { model.showToneView(.current) }
+            RadioRow(title: "Remembered image", isSelected: model.waveletData.toneView == .clipboard, isEnabled: hasCopy) {
                 model.showToneView(.clipboard)
             }
         }
     }
 }
 
-/// A Functions button: a switch that is on while its card is open (amber outline and text on `--accent-soft`). The names wrap to two lines.
+/// An Adjustments button: a switch that is on while its card is open (amber outline and text on `--accent-soft`). The names wrap to two
+/// lines; a button without a card is dimmed and locked.
 private struct FunctionButton: View {
     let title: String
     let isOn: Bool
@@ -123,8 +129,10 @@ private struct FunctionButton: View {
                 .contentShape(RoundedRectangle(cornerRadius: RKMetrics.radius))
         }
         .buttonStyle(.plain)
+        .disabled(!isToneCard(title))
+        .opacity(isToneCard(title) ? 1 : 0.45)
         .onHover { isHovering = $0 }
         .accessibilityAddTraits(isOn ? .isSelected : [])
-        .help(isToneCard(title) ? "" : "Not available yet")
+        .help(functionHelp(title))
     }
 }

@@ -11,8 +11,8 @@ const alignPages = ["align-your-frames", "frame-quality-and-limit"].map((slug) =
   return page;
 });
 
-describe("documentation of the steps Alignpoints, Align and Limit", () => {
-  it("sits in the group Using the window, the Limit page after the Align page", () => {
+describe("documentation of the steps Alignpoints, Align and Best Frames", () => {
+  it("sits in the group Using the window, the Best Frames page after the Align page", () => {
     expect(alignPages.map((p) => p.group)).toEqual(["Using the window", "Using the window"]);
     expect(alignPages[0].order).toBeLessThan(alignPages[1].order);
     expect(alignPages.every((p) => Number.isFinite(p.order))).toBe(true);
@@ -32,42 +32,51 @@ describe("documentation of the steps Alignpoints, Align and Limit", () => {
     for (const term of [
       "Set Alignpoints",
       "Align",
-      "Limit",
-      "R.o.Interest",
-      "Show ROI",
+      "Keep Best Frames",
+      "Draw Region",
+      "Show Region",
       "Threshold",
-      "Minimum distance between",
-      "Min distance from edge",
-      "Intensity selection",
-      "Alignmentbox size",
-      "Max Alignpoint movement",
-      "Lowest Quality (%)",
-      "Best Frames (%)",
-      "Best Frames",
-      "Frames/Apoint",
-      "Framelist",
-      "Registrationgraph",
+      "Min. distance between points",
+      "Min. distance from image edge",
+      "Brightness measure",
+      "Box size per point",
+      "Max. point shift",
+      "At least % of the best quality",
+      "Best % of frames",
+      "Best number of frames",
+      "Best frames per point",
+      "Frame List",
+      "Quality Graph",
     ]) {
       expect(text, term).toContain(term);
     }
   });
 
-  it("describes all four limit modes in one table", () => {
+  it("describes all four modes of the step Best Frames in one table", () => {
     const html = renderBody(alignPages[1].body);
-    for (const mode of ["Lowest Quality (%)", "Best Frames (%)", "Best Frames", "Frames/Apoint"]) {
+    for (const mode of ["At least % of the best quality", "Best % of frames", "Best number of frames", "Best frames per point"]) {
       expect(html).toMatch(new RegExp(`<td>${mode.replace(/[()%/]/g, "\\$&")}</td>`));
     }
   });
 
-  it("says what does not work yet only on the overview page: No Align, Scan Frames and Empty List", () => {
+  it("says what does not work yet only on the overview page: No Align, Scan Frames and Clear List", () => {
     expect(alignPages.every((p) => !p.body.includes("Not available yet"))).toBe(true);
     const overview = bySlug.get("steps-alignpoints-align-limit")?.body ?? "";
     const open = overview.split("\n").filter((line) => line.includes("Not available yet")).join("\n");
-    for (const name of ["No Align", "Scan Frames", "Empty List"]) expect(open, name).toContain(name);
+    for (const name of ["No Align", "Scan Frames", "Clear List"]) expect(open, name).toContain(name);
   });
 
   it("is found by searching for an alignpoint", () => {
     expect(searchPages(pages, "alignpoint").map((p) => p.slug)).toEqual(expect.arrayContaining(["align-your-frames"]));
-    expect(searchPages(pages, "frames/apoint").map((p) => p.slug)).toContain("frame-quality-and-limit");
+    expect(searchPages(pages, "best frames per point").map((p) => p.slug)).toContain("frame-quality-and-limit");
+  });
+
+  it("names no other program and has a glossary that the overview pages link to", () => {
+    for (const page of pages) {
+      expect(page.body, page.slug).not.toMatch(/regi\s?stax/i);
+    }
+    expect(bySlug.get("glossary")?.group).toBe("Reference");
+    expect(bySlug.get("welcome")?.body).toContain("](glossary)");
+    expect(bySlug.get("window-at-a-glance")?.body).toContain("](glossary)");
   });
 });

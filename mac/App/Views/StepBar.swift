@@ -110,10 +110,10 @@ private struct StepPill: View {
         return isHovering && isClickable ? RK.raisedHover : .clear
     }
 
-    /// A locked pill names the step that is missing; a done pill names its result.
+    /// What the step is; a locked pill adds the step that is missing, a done pill its result.
     private var tooltip: String {
-        if isLocked { return state.hint }
-        if state.status == .done, !result.isEmpty { return "\(step.label) · \(result)" }
-        return ""
+        if isLocked { return "\(step.explanation)\n\(state.hint)" }
+        if state.status == .done, !result.isEmpty { return "\(step.explanation)\n\(step.label) · \(result)" }
+        return step.explanation
     }
 }

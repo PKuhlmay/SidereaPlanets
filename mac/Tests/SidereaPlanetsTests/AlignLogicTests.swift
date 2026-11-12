@@ -96,10 +96,10 @@ import Testing
     }
 
     @Test func limitReportsTheStackSizeAndTheWeakestKeptQuality() {
-        let both = limitMessages(kept: 8, keptQualities: [100, 87.2, 99])
-        #expect(both.action == "Processing limited to 8 frames")
-        #expect(both.result == "Stacksize: 8  Low quality: 87.20%")
-        #expect(limitMessages(kept: 3, keptQualities: []).result == "Stacksize: 3")
+        let both = limitMessages(kept: 8, of: 10, keptQualities: [100, 87.2, 99])
+        #expect(both.action == "Keeping 8 of 10 frames")
+        #expect(both.result == "8 frames will be stacked · weakest kept: 87%")
+        #expect(limitMessages(kept: 3, of: 10, keptQualities: []).result == "3 frames will be stacked")
     }
 
     @Test func timeLeftFollowsElapsedTimeAndProgress() {
@@ -120,9 +120,9 @@ import Testing
 
     // MARK: Framelist
 
-    @Test func theFramelistHasTheNamesOfTheOriginalAndTheBestFrameFirstAfterAlign() {
+    @Test func theFrameListNamesTheFramesAndPutsTheBestFirstAfterAlign() {
         var data = AlignData(frameCount: 3)
-        #expect(data.listed.map(\.name) == ["Frame00001", "Frame00002", "Frame00003"])
+        #expect(data.listed.map(\.name) == ["Frame 1", "Frame 2", "Frame 3"])
         data.frames[0].quality = 90
         data.frames[1].quality = 100
         data.frames[2].quality = 90
@@ -144,8 +144,8 @@ import Testing
     }
 
     @Test func theBestFrameHintCountsFromOneLikeTheFrameBar() {
-        #expect(bestFrameHint(frame: 294) == "Best frame: 295 — run Set Alignpoints and Align again to use it as reference.")
-        #expect(bestFrameHint(frame: 0).hasPrefix("Best frame: 1 — "))
+        #expect(bestFrameHint(frame: 294) == "Best frame: 295. Run Set Alignpoints and Align again to line all frames up on this one.")
+        #expect(bestFrameHint(frame: 0).hasPrefix("Best frame: 1. "))
     }
 
     @Test func discardingTheRatingTakesBackTheBestFrameHint() {
@@ -191,7 +191,7 @@ import Testing
 
     @Test func theLimitLineIsHorizontalForLowestQualityAndVerticalAfterTheLastKeptFrameOtherwise() {
         let level = qualityChart(frames: frames(Self.quality), options: options(.lowestQuality, percent: 90), maxBars: 240)
-        #expect(level.line == .level(0.9) && level.value == "90 %")
+        #expect(level.line == .level(0.9) && level.value == "90%")
         let after = qualityChart(frames: frames(Self.quality), options: options(.bestCount, count: 4), maxBars: 240)
         #expect(after.line == .after(0.4) && after.value == "4")
     }

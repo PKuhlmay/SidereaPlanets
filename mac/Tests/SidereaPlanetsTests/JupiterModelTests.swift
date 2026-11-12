@@ -50,16 +50,16 @@ struct JupiterModelTests {
         #expect(model.align.frames[0].quality == 100)
         // The order of the Windows clone (docs/testdaten.md): the same core, so the same Framelist.
         #expect(model.align.listed.map(\.index) == [0, 2, 9, 1, 7, 8, 3, 4, 5, 6])
-        #expect(model.status.result == "Alignment finished.")
-        #expect(model.status.action == "Loading frame: 10")
+        #expect(model.status.result == "Alignment finished")
+        #expect(model.status.action == "Aligning frame: 10")
 
         // Limit at the default (Lowest Quality 80 %) keeps all ten frames.
         await model.runLimit()
         #expect(model.progress.step == .limited && model.viewStep == .stack)
         #expect(model.align.keptCount == 10)
-        #expect(model.status.action == "Processing limited to 10 frames")
-        #expect(model.status.result.hasPrefix("Stacksize: 10  Low quality: "))
-        #expect(model.result(of: .limit) == "10 of 10 kept")
+        #expect(model.status.action == "Keeping 10 of 10 frames")
+        #expect(model.status.result.hasPrefix("10 frames will be stacked · weakest kept: "))
+        #expect(model.result(of: .limit) == "10 of 10 frames kept")
     }
 
     @Test func stackOfTheDefaultsHas1024x680AndTenFramesAndAReAlignTakesItBack() async throws {
@@ -74,8 +74,8 @@ struct JupiterModelTests {
         #expect(model.progress.step == .stacked && model.viewStep == .wavelets)
         #expect(model.stacked?.frames == 10 && model.stacked?.width == 1024 && model.stacked?.height == 680)
         #expect(model.stacked?.image.width == 1024 && model.stacked?.image.height == 680)
-        #expect(model.status.action == "Stack size (n=10) - (1024x680)")
-        #expect(model.status.result == "Stacking Range : 0-255")
+        #expect(model.status.action == "Stacked 10 frames · 1024×680")
+        #expect(model.status.result == "Value range 0–255")
         #expect(model.result(of: .stack) == "10 frames · 1024×680")
         model.show(.stack)
         #expect(model.imageCaption == "Stack of 10 frames")
@@ -109,6 +109,6 @@ struct JupiterModelTests {
 
         // The next run is not stopped by the old Cancel.
         await model.runAlign()
-        #expect(model.progress.step == .aligned && model.status.result == "Alignment finished.")
+        #expect(model.progress.step == .aligned && model.status.result == "Alignment finished")
     }
 }

@@ -30,7 +30,7 @@ extension AppModel {
             result = try await job()
         } catch {
             let cancelled = run?.cancelled == true || (error as? PlanetsError)?.isCancelled == true
-            result = cancelled ? "Cancelled" : "Error: \(errorText(error))"
+            result = cancelled ? "Cancelled" : failureText(name, error)
         }
         ticker?.cancel()
         ticker = nil
@@ -90,7 +90,7 @@ extension AppModel {
     func setAlignpoints() async {
         guard hasRecording, !isBusy else { return }
         if let roi = align.roi, !roomForPoints(roi, edgeDistance: options.edgeDistance) {
-            status.result = "The region is too small for Min distance from edge"
+            status.result = "The region is too small for the distance from the edge; draw a larger region"
             return
         }
         // The frame is read now: the frame bar may move on while the points are searched, but they belong to this one.
@@ -105,7 +105,7 @@ extension AppModel {
             align.discardRating()
             if answer.points.isEmpty {
                 progress = StepProgress(step: .loaded)
-                return "No alignpoints found: try other Lo and Hi values"
+                return "No alignpoints found: lower the distances or widen Min./Max. brightness under Advanced"
             }
             progress = StepProgress(step: .points)
             advance()
@@ -120,14 +120,14 @@ extension AppModel {
         do {
             align.show(try backend.setAlignpointThreshold(UInt64(max(threshold, 0))))
         } catch {
-            status.result = "Error: \(errorText(error))"
+            status.result = failureText("Threshold", error)
         }
     }
 
     /// The slider moves once Set Alignpoints has found points and until Align has run.
     var canMoveThreshold: Bool { align.total > 0 && progress.step == .points && !isBusy }
 
-    // MARK: R.o.Interest
+    // MARK: Region of interest
 
     /// The region is part of Set Alignpoints and Align, so it only changes before Align.
     var canDrawRegion: Bool { (progress.step == .loaded || progress.step == .points) && !isBusy }
@@ -161,7 +161,7 @@ extension AppModel {
             align.discardRating()
             if progress.step >= .aligned { progress = StepProgress(step: .points) }
             let aligned = try await backend.align(settings) { [weak self] update in
-                Task { @MainActor in self?.jobProgress(update) }
+                Task { @MainActor in self?.jobProgress(update, label: "Aligning frame") }
             }
             let percent = qualityPercent(aligned.frames.map(\.quality))
             for rating in aligned.frames {
@@ -172,7 +172,7 @@ extension AppModel {
             }
             progress = StepProgress(step: .aligned)
             advance()
-            return "Alignment finished."
+            return "Alignment finished"
         }
     }
 
@@ -182,7 +182,7 @@ extension AppModel {
     func runLimit() async {
         guard progress.step >= .aligned, !isBusy else { return }
         let settings = limitSettings(options)
-        await runJob("Limit") {
+        await runJob("Keep Best Frames") {
             let answer = try await backend.limit(settings)
             let kept = Set(answer.frames.map(Int.init))
             for i in align.frames.indices { align.frames[i].checked = kept.contains(i) }
@@ -190,7 +190,7 @@ extension AppModel {
             progress = StepProgress(step: .limited)
             advance()
             let qualities = answer.frames.compactMap { align.frames.indices.contains(Int($0)) ? align.frames[Int($0)].quality : nil }
-            let messages = limitMessages(kept: answer.frames.count, keptQualities: qualities)
+            let messages = limitMessages(kept: answer.frames.count, of: align.frames.count, keptQualities: qualities)
             status.action = messages.action
             return messages.result
         }
@@ -198,11 +198,11 @@ extension AppModel {
 
     // MARK: Framelist
 
-    /// Go to best frame needs the ranking, so it waits for Align.
+    /// Go to Best Frame needs the ranking, so it waits for Align.
     var canGoToBestFrame: Bool { progress.step >= .aligned && align.bestFrame != nil && !isBusy }
 
     /// Shows the best frame (first of the ranking) in the image and the frame bar and opens the step Alignpoints, so that Set Alignpoints
-    /// takes it as reference. The results stay until Set Alignpoints or Align runs again.
+    /// takes it as reference frame. The results stay until Set Alignpoints or Align runs again.
     func goToBestFrame() {
         guard canGoToBestFrame, let best = align.bestFrame else { return }
         align.bestFrameHint = best
@@ -219,8 +219,4 @@ extension AppModel {
         for i in align.frames.indices { align.frames[i].checked = checked }
     }
 
-    /// No function yet: the reference program was never observed emptying the list (docs/offene-fragen.md).
-    func emptyList() {
-        status.result = "Empty List: not available yet"
-    }
 }

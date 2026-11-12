@@ -58,7 +58,7 @@ import Testing
         #expect(await backend.pointCalls.map(\.frame) == [3])
         #expect(await backend.pointCalls[0].settings == pointSettings(AlignOptions(), roi: nil))
         #expect(model.status.result == "6 alignpoints set")
-        #expect(model.result(of: .alignpoints) == "6 set")
+        #expect(model.result(of: .alignpoints) == "6 points")
         #expect(model.status.progress == 0 && model.run == nil && !model.isBusy)
     }
 
@@ -68,7 +68,7 @@ import Testing
         await model.setAlignpoints()
         #expect(model.progress.step == .loaded)
         #expect(model.viewStep == .alignpoints)
-        #expect(model.status.result == "No alignpoints found: try other Lo and Hi values")
+        #expect(model.status.result == "No alignpoints found: lower the distances or widen Min./Max. brightness under Advanced")
         #expect(model.stepStates[.align]?.status == .locked)
     }
 
@@ -76,7 +76,7 @@ import Testing
         await model.open([jupiter])
         model.selectRegion(RoiSettings(x: 10, y: 10, width: 40, height: 100))
         await model.setAlignpoints()
-        #expect(model.status.result == "The region is too small for Min distance from edge")
+        #expect(model.status.result == "The region is too small for the distance from the edge; draw a larger region")
         #expect(await backend.pointCalls.isEmpty)
         #expect(model.progress.step == .loaded)
     }
@@ -132,9 +132,9 @@ import Testing
         #expect(model.align.frames[9].quality == 100)  // percent of the best frame
         #expect(model.align.frames[0].quality ?? 0 > 92.0 && model.align.frames[0].quality ?? 0 < 92.2)
         #expect(model.align.listed.first?.index == 9)
-        #expect(model.result(of: .align) == "best quality 100 %")
-        #expect(model.status.action == "Loading frame: 10")
-        #expect(model.status.result == "Alignment finished.")
+        #expect(model.result(of: .align) == "10 frames rated")
+        #expect(model.status.action == "Aligning frame: 10")
+        #expect(model.status.result == "Alignment finished")
         #expect(model.status.progress == 0 && model.run == nil)  // the bar is empty again after a run
         #expect(await backend.alignCalls == [AlignSettings(boxSize: 30, maxMovement: 5, roi: nil)])
     }
@@ -146,7 +146,7 @@ import Testing
         let running = Task { await model.runAlign() }
         #expect(await eventually { await backend.isAlignHeld && model.status.progress == 0.5 })
 
-        #expect(model.status.action == "Loading frame: 5")
+        #expect(model.status.action == "Aligning frame: 5")
         #expect(model.windowTitle == "Siderea Planets · Align 50%")
         #expect(model.isBusy && model.canCancel && model.run?.operation == .align)
         model.show(.open)  // no pill opens during a calculation
@@ -208,7 +208,7 @@ import Testing
         await model.setAlignpoints()
         await backend.setAlignError("no alignpoints")
         await model.runAlign()
-        #expect(model.status.result == "Error: no alignpoints")
+        #expect(model.status.result == "Align failed: no alignpoints")
         #expect(model.progress.step == .points)
         #expect(model.run == nil && model.status.progress == 0)
     }
@@ -229,9 +229,9 @@ import Testing
         #expect(model.progress.nextOpen == .stack)
         #expect(await backend.limitCalls == [.lowestQuality(value: 80)])
         #expect(model.align.frames.filter(\.checked).map(\.index) == [2, 5, 9])
-        #expect(model.result(of: .limit) == "3 of 10 kept")
-        #expect(model.status.action == "Processing limited to 3 frames")
-        #expect(model.status.result.hasPrefix("Stacksize: 3  Low quality: 97.30"))
+        #expect(model.result(of: .limit) == "3 of 10 frames kept")
+        #expect(model.status.action == "Keeping 3 of 10 frames")
+        #expect(model.status.result == "3 frames will be stacked · weakest kept: 97%")
     }
 
     @Test func limitSendsTheChosenModeAndValue() async {
@@ -319,7 +319,7 @@ import Testing
         #expect(model.viewStep == .alignpoints)
         #expect(model.showsFrameBar)
         #expect(model.align.bestFrameHint == 9)
-        #expect(bestFrameHint(frame: 9) == "Best frame: 10 — run Set Alignpoints and Align again to use it as reference.")
+        #expect(bestFrameHint(frame: 9) == "Best frame: 10. Run Set Alignpoints and Align again to line all frames up on this one.")
     }
 
     @Test func goToBestFrameKeepsTheResults() async {
@@ -333,7 +333,7 @@ import Testing
         #expect(model.align.frames == before.frames)
         #expect(model.align.points == before.points && model.align.pointShifts == before.pointShifts)
         #expect(model.align.referenceFrame == before.referenceFrame)
-        #expect(model.result(of: .limit) == "3 of 10 kept")
+        #expect(model.result(of: .limit) == "3 of 10 frames kept")
         #expect(await backend.pointCalls.count == pointCalls)
         #expect(await backend.alignCalls.count == alignCalls)
     }
@@ -400,7 +400,7 @@ import Testing
         #expect(model.progress.step == .loaded)
     }
 
-    @Test func theFramelistChecksAndEmptyListSaysItIsNotAvailable() async {
+    @Test func theFrameListChecksAllAndNone() async {
         await model.open([jupiter])
         model.setFrameChecked(2, false)
         #expect(model.align.keptCount == 9)
@@ -410,8 +410,6 @@ import Testing
         #expect(model.align.keptCount == 10)
         model.setFrameChecked(99, false)  // outside the list: ignored
         #expect(model.align.keptCount == 10)
-        model.emptyList()
-        #expect(model.status.result == "Empty List: not available yet")
     }
 
     @Test func theStepsUpToStackAreBuilt() {

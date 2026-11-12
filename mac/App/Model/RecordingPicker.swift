@@ -1,8 +1,8 @@
 import AppKit
 import UniformTypeIdentifiers
 
-/// The native dialog for Select / Open (⌘O). The types are the ones of the "Open file(s)" dialog of the reference program
-/// (docs/formats.md): SER and AVI videos, still frames (BMP, JPEG, TIFF, PNG) and FITS frames. Several still frames
+/// The native dialog for Select Recording (⌘O). The types are those listed in
+/// docs/formats.md: SER and AVI videos, still frames (BMP, JPEG, TIFF, PNG) and FITS frames. Several still frames
 /// together form one sequence, so multiple selection is on.
 @MainActor
 enum RecordingPicker {
@@ -14,7 +14,7 @@ enum RecordingPicker {
     static func choose() async -> [URL] {
         let panel = NSOpenPanel()
         panel.message = ViewStep.open.sentence
-        panel.prompt = "Select"
+        panel.prompt = "Open"
         panel.canChooseFiles = true
         panel.canChooseDirectories = false
         panel.allowsMultipleSelection = true

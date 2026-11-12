@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The Framelist and the Registrationgraph (steps up to Limit) and Alignmentpoints (Stack step) as cards over the image (docs/design.md, "Schwebende Karten"): top right, one below the
+/// The Frame List and the Quality Graph (steps up to Limit) and Alignpoints Used for Stacking (Stack step) as cards over the image (docs/design.md, "Schwebende Karten"): top right, one below the
 /// other, 236 pt wide, with a title and a cross that takes the check mark out of the Show menu. Not movable.
 struct FloatingCards: View {
     @Bindable var model: AppModel
@@ -64,25 +64,27 @@ extension FloatCard where Actions == EmptyView {
     }
 }
 
-/// Check all · Check none · Empty List, and every frame with a check mark; after Align the best frame first, its quality at the right.
+/// Check All · Check None · Clear List (locked), and every frame with a check mark; after Align the best frame first, its quality at the right.
 private struct FramelistCard: View {
     @Bindable var model: AppModel
 
     var body: some View {
-        FloatCard(title: "Framelist", close: { model.show.framelist = false }) {
+        FloatCard(title: "Frame List", close: { model.show.framelist = false }) {
             VStack(spacing: 4) {
                 HStack(spacing: 4) {
-                    Button("Check all") { model.checkAllFrames(true) }
-                    Button("Check none") { model.checkAllFrames(false) }
-                    Button("Empty List") { model.emptyList() }
+                    Button("Check All") { model.checkAllFrames(true) }
+                    Button("Check None") { model.checkAllFrames(false) }
+                    Button("Clear List") {}
+                        .disabled(true)
+                        .help("Not available yet")
                 }
                 .buttonStyle(.rkCompact)
                 .padding(.horizontal, 8)
                 .padding(.top, 6)
-                Button("Go to best frame") { model.goToBestFrame() }
+                Button("Go to Best Frame") { model.goToBestFrame() }
                     .buttonStyle(.rkCompact)
                     .disabled(!model.canGoToBestFrame)
-                    .help(model.progress.step >= .aligned ? "Show the best frame and open Alignpoints to use it as reference" : "Run Align first")
+                    .help(model.progress.step >= .aligned ? goToBestFrameHelp : "Run Align first")
                     .padding(.horizontal, 8)
                 ScrollView {
                     LazyVStack(spacing: 0) {
@@ -116,12 +118,12 @@ private struct AlignmentpointsCard: View {
     @Bindable var model: AppModel
 
     var body: some View {
-        FloatCard(title: "Alignmentpoints", close: { model.stackOptions.showAlignSections = false }) {
+        FloatCard(title: "Alignpoints Used for Stacking", close: { model.stackOptions.showAlignSections = false }) {
             ScrollView {
                 LazyVStack(spacing: 0) {
                     ForEach(model.align.points.indices, id: \.self) { index in
                         Toggle(isOn: Binding(get: { model.align.pointsChecked[safe: index] ?? true }, set: { model.setPointChecked(index, $0) })) {
-                            Text("Point \(index + 1)").font(.rk).foregroundStyle(RK.text)
+                            Text("Alignpoint \(index + 1)").font(.rk).foregroundStyle(RK.text)
                         }
                         .toggleStyle(.checkbox)
                         .frame(maxWidth: .infinity, minHeight: 23, alignment: .leading)
@@ -139,20 +141,20 @@ private extension Array {
     subscript(safe index: Int) -> Element? { indices.contains(index) ? self[index] : nil }
 }
 
-/// Quality and Difference per frame as two lines (the reference program calls it the registration graph); before Align a note instead of empty axes.
+/// Quality and Difference per frame as two lines; before Align a note instead of empty axes.
 private struct RegistrationgraphCard: View {
     @Bindable var model: AppModel
 
     var body: some View {
-        FloatCard(title: "Registrationgraph", close: { model.show.registrationgraph = false }) {
+        FloatCard(title: "Quality Graph", close: { model.show.registrationgraph = false }) {
             VStack(alignment: .leading, spacing: 4) {
                 Canvas { context, size in draw(&context, size: size) }
                     .aspectRatio(214.0 / 96.0, contentMode: .fit)
                     .accessibilityElement()
                     .accessibilityLabel("Quality and difference per frame")
                 HStack(spacing: 14) {
-                    legend("Quality", color: RK.accent)
-                    legend("Difference", color: RK.info)
+                    legend("Quality", color: RK.accent, help: "How sharp a frame is, in percent of the best frame.")
+                    legend("Difference", color: RK.info, help: "How much a frame differs from the frame all the others are lined up on; higher is worse.")
                 }
                 .font(.rkSmall)
                 .foregroundStyle(RK.muted)
@@ -162,11 +164,12 @@ private struct RegistrationgraphCard: View {
         }
     }
 
-    private func legend(_ title: String, color: Color) -> some View {
+    private func legend(_ title: String, color: Color, help: String) -> some View {
         HStack(spacing: 6) {
             RoundedRectangle(cornerRadius: 1).fill(color).frame(width: 14, height: 2)
             Text(title)
         }
+        .help(help)
     }
 
     private func draw(_ context: inout GraphicsContext, size: CGSize) {
@@ -175,7 +178,7 @@ private struct RegistrationgraphCard: View {
             context.draw(note, at: CGPoint(x: size.width / 2, y: size.height / 2))
             return
         }
-        // The viewBox of the original, 214 x 96, scaled to the card.
+        // The graph is drawn in a box of 214 x 96 and scaled to the card.
         let k = size.width / 214
         var axes = Path()
         axes.move(to: CGPoint(x: 8 * k, y: 10 * k))

@@ -184,7 +184,7 @@ extension AppModel {
             baseChanged()
         } catch {
             guard waveletData.stackVersion == version else { return }
-            status.result = "Error: \(errorText(error))"
+            status.result = failureText("Showing the stack", error)
         }
     }
 
@@ -214,7 +214,7 @@ extension AppModel {
             work.previewWaitsForRun = true
             return
         }
-        if !work.quietPreview { status.action = "layer setting changed" }
+        if !work.quietPreview { status.action = "Updating preview…" }
         work.previewAgain = true
         // Automatic: once the values stop changing, apply them to the whole image as well.
         work.automaticTask?.cancel()
@@ -244,7 +244,7 @@ extension AppModel {
     /// One preview into the image; returns the text for the status bar. `cancelled` is asked once the area is calculated: the core
     /// does not stop in the middle of such a small area, so Cancel drops the result when it arrives.
     func renderPreview(reportsTime: Bool = true, cancelled: () -> Bool = { false }) async -> String {
-        guard let stack = waveletData.stack, let area = processingAreaRegion else { return "Error: no stacked image" }
+        guard let stack = waveletData.stack, let area = processingAreaRegion else { return "No stacked image: run Stack first" }
         let version = waveletData.stackVersion
         let doAllCount = waveletWork.doAllCount
         // Time from the request to the finished drawing in the image area, shown in the status bar (docs/gui-toolkit.md).
@@ -258,15 +258,15 @@ extension AppModel {
             writePreview(preview, into: &pixels, imageWidth: Int(stack.pixels.width))
             waveletWork.working = pixels
             guard let shot = Shot(RgbaImage(width: stack.pixels.width, height: stack.pixels.height, rgba: pixels)) else {
-                return "Error: \(FrameConversionError().localizedDescription)"
+                return "Preview failed: \(FrameConversionError().localizedDescription)"
             }
             setProcessed(shot)
             let elapsed = ContinuousClock.now - started
             let milliseconds = Int((Double(elapsed.components.seconds) * 1000 + Double(elapsed.components.attoseconds) / 1e15).rounded())
-            if reportsTime { status.action = "Preview: \(milliseconds) ms" }
-            return "Calculating wavelets done"
+            if reportsTime { status.action = "Preview calculated in \(milliseconds) ms" }
+            return "Preview updated"
         } catch {
-            return "Error: \(errorText(error))"
+            return failureText("Preview", error)
         }
     }
 
@@ -275,10 +275,10 @@ extension AppModel {
         baseChanged()
     }
 
-    /// Process: calculates the Processing Area now. Cancel drops the result.
+    /// Update Preview: calculates the preview area now. Cancel drops the result.
     func runProcess() async {
         guard stacked != nil, !isBusy else { return }
-        await runJob("Wavelet", operation: .wavelet) {
+        await runJob("Update Preview", operation: .wavelet) {
             guard await ensureWaveletSource() else { throw PlanetsError.Failed(message: "no stacked image") }
             return await renderPreview(cancelled: { run?.cancelled == true })
         }
@@ -299,14 +299,14 @@ extension AppModel {
         // The values are read now: they belong to this run even if a slider moves while it works.
         let key = currentDoAllKey
         var finished = false
-        await runJob("Wavelet", operation: .wavelet) {
-            status.action = "Do_all processing"
+        await runJob("Do All", operation: .wavelet) {
+            status.action = "Applying to whole image…"
             _ = await ensureWaveletSource()
             let result = try await backend.waveletDoAll(key.settings, mode: key.mode) { [weak self] update in
                 Task { @MainActor in self?.doAllProgress(update) }
             }
             guard let shot = Shot(result) else { throw FrameConversionError() }
-            guard waveletData.stackVersion == key.stack else { return "Do All: the stack changed" }
+            guard waveletData.stackVersion == key.stack else { return "Do All stopped: the stack changed, run it again" }
             // The next preview starts from the stack again, so that its area is not painted over this result.
             waveletWork.working = nil
             waveletWork.doAllCount += 1
@@ -319,7 +319,7 @@ extension AppModel {
         return finished
     }
 
-    /// The core reports each finished layer; the text stays "Do_all processing".
+    /// The core reports each finished layer; the text stays "Applying to whole image…".
     private func doAllProgress(_ update: OperationProgress) {
         guard run != nil, update.total > 0, update.fraction >= status.progress else { return }
         status.progress = update.fraction
@@ -347,18 +347,18 @@ extension AppModel {
             let loaded = WaveletValues(core: try loadWaveletScheme(path: url.path))
             wavelet.values = loaded
             await settleWaveletPreview()
-            status.result = "Scheme loaded: \(url.path)"
+            status.result = "Scheme loaded: \(url.lastPathComponent)"
         } catch {
-            status.result = "Error: \(errorText(error))"
+            status.result = failureText("Load Scheme", error)
         }
     }
 
     func saveScheme(_ url: URL) {
         do {
             try saveWaveletScheme(path: url.path, settings: wavelet.values.core)
-            status.result = "Scheme saved: \(url.path)"
+            status.result = "Scheme saved: \(url.lastPathComponent)"
         } catch {
-            status.result = "Error: \(errorText(error))"
+            status.result = failureText("Save Scheme", error)
         }
     }
 
@@ -452,7 +452,7 @@ extension AppModel {
             }
         } catch {
             waveletData.adjusted = nil
-            status.result = "Error: \(errorText(error))"
+            status.result = failureText("Color and tone", error)
         }
     }
 
@@ -467,7 +467,7 @@ extension AppModel {
             } catch is CancellationError {
                 return false
             } catch {
-                status.result = "Error: \(errorText(error))"
+                status.result = failureText("Color and tone", error)
                 return false
             }
         }
@@ -483,7 +483,7 @@ extension AppModel {
             // The card asked for a newer one meanwhile.
             return nil
         } catch {
-            status.result = "Error: \(errorText(error))"
+            status.result = failureText("Color and tone", error)
             return nil
         }
     }
@@ -498,7 +498,7 @@ extension AppModel {
             tone.shifts = try await backend.estimateRgbAlign(maxShift: wholeNumber(tone.maxShift, minimum: 1))
             status.result = "RGB Align: shifts found"
         } catch {
-            status.result = "Error: \(errorText(error))"
+            status.result = failureText("RGB Align", error)
         }
     }
 
@@ -513,7 +513,7 @@ extension AppModel {
             tone.black = Int(found.black.rounded())
             tone.white = Int(found.white.rounded())
         } catch {
-            status.result = "Error: \(errorText(error))"
+            status.result = failureText("Histogram", error)
         }
     }
 
@@ -527,20 +527,20 @@ extension AppModel {
     /// Copy To: keeps the image on screen (with all cards and Contrast/Brightness) as the Clipboard Image.
     func copyTo() {
         guard let image = waveletData.current else {
-            status.result = "Copy To: no image yet"
+            status.result = "Remember: no image yet"
             return
         }
         waveletData.clipboard = image
         waveletData.difference = nil
         waveletData.toneView = .current
-        status.result = "Image copied"
+        status.result = "Image remembered"
     }
 
     /// Load to: the copied image becomes the processed image. Its cards are in it already, so they go back to unchanged; applying them
     /// again would count twice.
     func loadTo() {
         guard let copy = waveletData.clipboard else {
-            status.result = "Load to: nothing copied yet"
+            status.result = "Restore: nothing remembered yet"
             return
         }
         waveletData.processed = copy
@@ -548,13 +548,13 @@ extension AppModel {
         resetTone()
         waveletData.toneView = .current
         baseChanged()
-        status.result = "Copied image loaded"
+        status.result = "Remembered image restored"
     }
 
     /// Difference: the amount of the difference between the image and the copy, amplified; it follows the current image while shown.
     func showDifference() {
         guard waveletData.clipboard != nil else {
-            status.result = "Difference: nothing copied yet"
+            status.result = "Difference: nothing remembered yet"
             return
         }
         guard updateDifference() else {

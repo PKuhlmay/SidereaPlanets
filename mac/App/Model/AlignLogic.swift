@@ -2,11 +2,11 @@ import CoreGraphics
 import Foundation
 import SidereaPlanetsKit
 
-// The pure parts of the steps Alignpoints, Align and Limit: the values of the panels with the defaults of the reference program, what is
+// The pure parts of the steps Alignpoints, Align and Limit: the values of the panels with their defaults, what is
 // sent to the core, and how its answers become what the window shows. Same rules as app/src/logic/align.ts, qualityChart.ts and
 // chart.ts; the calls themselves are in AppModel+Align.swift.
 
-/// *Limit Setup*: which frames stay.
+/// The settings of the step Best Frames: which frames stay.
 nonisolated enum LimitMode: String, CaseIterable, Identifiable, Sendable {
     case lowestQuality, bestPercent, framesPerPoint, bestCount
 
@@ -14,10 +14,20 @@ nonisolated enum LimitMode: String, CaseIterable, Identifiable, Sendable {
 
     var label: String {
         switch self {
-        case .lowestQuality: "Lowest Quality (%)"
-        case .bestPercent: "Best Frames (%)"
-        case .framesPerPoint: "Frames/Apoint"
-        case .bestCount: "Best Frames"
+        case .lowestQuality: "At least % of the best quality"
+        case .bestPercent: "Best % of frames"
+        case .framesPerPoint: "Best frames per point"
+        case .bestCount: "Best number of frames"
+        }
+    }
+
+    /// The tooltip of the radio button.
+    var explanation: String {
+        switch self {
+        case .lowestQuality: "Keep every frame whose quality is at least this share of the best frame."
+        case .bestPercent: "Keep this share of all frames, the sharpest ones."
+        case .framesPerPoint: "Each alignpoint uses its own sharpest frames; the field sets how many."
+        case .bestCount: "Keep exactly this many frames, the sharpest ones."
         }
     }
 
@@ -25,8 +35,7 @@ nonisolated enum LimitMode: String, CaseIterable, Identifiable, Sendable {
     var countsFrames: Bool { self == .framesPerPoint || self == .bestCount }
 }
 
-/// The values of the panels Alignpoints, Align and Limit (`settings.align` of the Windows app), with the defaults observed in
-/// the reference program (docs/ui.md). Typed values outside the usual ranges are accepted; they are only held to what the core can take
+/// The values of the panels Alignpoints, Align and Limit (`settings.align` of the Windows app), with the defaults of docs/ui.md. Typed values outside the usual ranges are accepted; they are only held to what the core can take
 /// (`wholeNumber`) when they are sent.
 nonisolated struct AlignOptions: Equatable, Sendable {
     // Alignpoints
@@ -45,7 +54,7 @@ nonisolated struct AlignOptions: Equatable, Sendable {
     var limitCount = 200
 }
 
-/// The check marks of the Show menu in the steps Alignpoints, Align and Limit (the ones of the Align tab of the original).
+/// The check marks of the Show menu in the steps Alignpoints, Align and Limit (the ones of the Align tab).
 nonisolated struct ShowOptions: Equatable, Sendable {
     var fullImage = false
     var roi = false
@@ -65,8 +74,8 @@ nonisolated struct FrameEntry: Equatable, Identifiable, Sendable {
     var difference: Double?
 
     var id: Int { index }
-    /// "Frame00010": the name the Framelist shows.
-    var name: String { String(format: "Frame%05d", index + 1) }
+    /// "Frame 10": the name the Frame List shows.
+    var name: String { "Frame \(index + 1)" }
 }
 
 /// What the Align tab has found: the points, the rating of the frames and the region.
@@ -78,13 +87,13 @@ nonisolated struct AlignData: Equatable, Sendable {
     /// The frame the points were set on; Align and Stack register the other frames against it.
     var referenceFrame = 0
     var frames: [FrameEntry] = []
-    /// One check mark per point of `points` (the card *Alignmentpoints* of the Stack step); only checked points go into the stack.
+    /// One check mark per point of `points` (the card Alignpoints Used for Stacking of the Stack step); only checked points go into the stack.
     var pointsChecked: [Bool] = []
     /// How far each point moved over the kept frames, known after Limit; `nil` for a point that was never found.
     var pointShifts: [PointShift?] = []
     /// The region of interest of Set Alignpoints and Align, in image pixels; `nil` is the whole frame.
     var roi: RoiSettings?
-    /// The frame (0-based) that *Go to best frame* jumped to, so that the step Alignpoints can name it. A new Set Alignpoints or Align
+    /// The frame (0-based) that Go to Best Frame jumped to, so that the step Alignpoints can name it. A new Set Alignpoints or Align
     /// makes it obsolete (`discardRating`).
     var bestFrameHint: Int?
 
@@ -202,22 +211,26 @@ nonisolated func isRegion(_ rect: RoiSettings) -> Bool {
     rect.width >= minimumRegionSide && rect.height >= minimumRegionSide
 }
 
-/// Whether a region leaves room for any point: it must be wider and higher than twice *Min distance from edge*.
+/// Whether a region leaves room for any point: it must be wider and higher than twice the minimum distance from the image edge.
 nonisolated func roomForPoints(_ rect: RoiSettings, edgeDistance: Int) -> Bool {
     Int(rect.width) > 2 * edgeDistance && Int(rect.height) > 2 * edgeDistance
 }
 
-/// The status bar after Limit: how many frames stay and, as "Low quality", the quality of the weakest of them in percent of the
-/// best frame. That meaning is a conjecture (docs/workflow.md): with all ten frames of the reference case the original reads 100,00 %.
-nonisolated func limitMessages(kept: Int, keptQualities: [Double]) -> (action: String, result: String) {
-    let action = "Processing limited to \(kept) frames"
-    guard let weakest = keptQualities.min() else { return (action, "Stacksize: \(kept)") }
-    return (action, "Stacksize: \(kept)  Low quality: \(String(format: "%.2f", weakest))%")
+/// The status bar after Limit: how many frames will be stacked and the quality of the weakest kept one in percent of the best frame.
+/// That meaning is a conjecture (docs/workflow.md).
+nonisolated func limitMessages(kept: Int, of total: Int, keptQualities: [Double]) -> (action: String, result: String) {
+    let action = "Keeping \(kept) of \(total) frames"
+    let stacked = "\(kept) \(kept == 1 ? "frame" : "frames") will be stacked"
+    guard let weakest = keptQualities.min() else { return (action, stacked) }
+    return (action, "\(stacked) · weakest kept: \(String(format: "%.0f", weakest))%")
 }
 
-/// The note in the step Alignpoints after *Go to best frame*; the number counts from 1 like the frame bar.
+/// The tooltip of Go to Best Frame.
+nonisolated let goToBestFrameHelp = "Show the best frame and open Alignpoints, to line all frames up on it."
+
+/// The note in the step Alignpoints after Go to Best Frame; the number counts from 1 like the frame bar.
 nonisolated func bestFrameHint(frame: Int) -> String {
-    "Best frame: \(frame + 1) — run Set Alignpoints and Align again to use it as reference."
+    "Best frame: \(frame + 1). Run Set Alignpoints and Align again to line all frames up on this one."
 }
 
 /// "00:00:03" left of a run that is `progress` (0...1) done after `elapsed` seconds; unknown at the very start.
@@ -333,14 +346,14 @@ nonisolated func qualityChart(frames: [FrameEntry], options: AlignOptions, maxBa
         options.limitMode == .lowestQuality
         ? .level(min(1, max(0, Double(options.limitPercent) / 100)))
         : .after(Double(lastKept) / Double(n))
-    let value = options.limitMode.countsFrames ? String(options.limitCount) : "\(options.limitPercent) %"
+    let value = options.limitMode.countsFrames ? String(options.limitCount) : "\(options.limitPercent)%"
     return QualityChart(
         bars: bars, frames: n, kept: keptTotal, line: line, value: value,
         label: "Quality of \(n) frames, best first. \(keptTotal) \(keptTotal == 1 ? "is" : "are") kept."
     )
 }
 
-/// The points of one series of the Registrationgraph, scaled to its own maximum; the first value sits left, the last right.
+/// The points of one series of the Quality Graph, scaled to its own maximum; the first value sits left, the last right.
 /// `y` counts from the top of `box`.
 nonisolated func seriesPoints(_ values: [Double], in box: CGRect) -> [CGPoint] {
     let maximum = values.max() ?? 0

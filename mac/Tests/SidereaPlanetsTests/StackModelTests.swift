@@ -56,8 +56,8 @@ import Testing
         #expect(model.stepStates[.save]?.status == .possible)
         #expect(model.stacked?.frames == 3 && model.stacked?.width == 1024 && model.stacked?.height == 680)
         #expect(await backend.stackImageCalls == 1)
-        #expect(model.status.action == "Stack size (n=3) - (1024x680)")
-        #expect(model.status.result == "Stacking Range : 0-255")
+        #expect(model.status.action == "Stacked 3 frames · 1024×680")
+        #expect(model.status.result == "Value range 0–255")
         #expect(model.result(of: .stack) == "3 frames · 1024×680")
         #expect(model.status.progress == 0 && model.run == nil && !model.isBusy)
     }
@@ -150,7 +150,7 @@ import Testing
         await limitedRecording()
         await backend.setStackError("no alignpoints are checked")
         await model.runStack()
-        #expect(model.status.result == "Error: no alignpoints are checked")
+        #expect(model.status.result == "Stack failed: no alignpoints are checked")
         #expect(model.progress.step == .limited && model.viewStep == .stack && model.stacked == nil)
         #expect(model.stepStates[.wavelets]?.status == .locked)
     }

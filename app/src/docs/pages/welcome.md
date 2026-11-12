@@ -5,7 +5,7 @@ order: 1
 ---
 # Welcome
 
-Siderea Planets rebuilds the reference program for planetary and lunar astrophotography: it aligns the frames of a video, stacks the best ones and sharpens the result with wavelets. The buttons and settings carry the names of the original, so the reference program users find them quickly; the window guides you step by step instead of spreading the controls over tabs.
+Siderea Planets is made for planetary and lunar astrophotography: it aligns the frames of a video, stacks the best ones and sharpens the result with wavelets. The window guides you step by step instead of spreading the controls over tabs. If a term is new to you, the [Glossary](glossary) explains it in plain words.
 
 ## The seven steps
 
@@ -14,7 +14,7 @@ The window leads you from left to right through seven steps in the step bar. The
 1. **Open** – choose a recording.
 2. **Alignpoints** – mark the details the frames are lined up on.
 3. **Align** – line up every frame and rate how sharp it is.
-4. **Limit** – keep the sharpest frames.
+4. **Best Frames** – keep the sharpest frames.
 5. **Stack** – add up the kept frames into one sharper image.
 6. **Wavelets** – bring out fine detail in the stacked image.
 7. **Save** – write the finished image to a file.

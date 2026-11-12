@@ -33,14 +33,14 @@ extension AppModel {
     }
 }
 
-/// The menu bar: ⌘O Open and Open Recent in File, zoom and frame stepping in View, Cancel (⌘.) and Pause in Process
+/// The menu bar: ⌘O Select Recording and Open Recent in File, zoom and frame stepping in View, Cancel (⌘.) and Pause in Run
 /// (docs/design.md, "Bewusste Abweichungen").
 struct AppCommands: Commands {
     let model: AppModel
 
     var body: some Commands {
         CommandGroup(replacing: .newItem) {
-            Button("Open…") { Task { await model.select() } }
+            Button("Select Recording…") { Task { await model.select() } }
                 .keyboardShortcut("o")
                 .disabled(model.isBusy)
             Menu("Open Recent") {
@@ -49,6 +49,8 @@ struct AppCommands: Commands {
                 Button("Clear Menu") { model.clearRecent() }
                     .disabled(model.recent.entries.isEmpty)
             }
+            Button("Open Project…") { Task { await model.chooseAndOpenProject() } }
+                .disabled(model.isBusy)
         }
         CommandGroup(replacing: .saveItem) {
             Button("Save Image…") { Task { await model.chooseAndSaveImage() } }
@@ -56,10 +58,8 @@ struct AppCommands: Commands {
                 .disabled(!model.canSaveImage)
             Button("Save Project…") { Task { await model.chooseAndSaveProject() } }
                 .disabled(!model.canSaveProject)
-            Button("Open Project…") { Task { await model.chooseAndOpenProject() } }
-                .disabled(model.isBusy)
         }
-        CommandMenu("Process") {
+        CommandMenu("Run") {
             Button("Cancel") { model.cancelRun() }
                 .keyboardShortcut(".")
                 .disabled(!model.canCancel)
@@ -76,7 +76,7 @@ struct AppCommands: Commands {
             Button("Zoom Out") { model.viewport.zoom(by: 1 / 1.25) }
                 .keyboardShortcut("-")
                 .disabled(model.image == nil)
-            Button("Fit Image") { model.viewport.fit() }
+            Button("Zoom to Fit") { model.viewport.fit() }
                 .keyboardShortcut("0")
                 .disabled(model.image == nil)
             Button("Actual Size") { model.viewport.showActualSize() }

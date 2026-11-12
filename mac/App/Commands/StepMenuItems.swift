@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Process > Go to Step: the seven steps of the step bar. ⌥⌘1 to ⌥⌘7, because ⌘1 is Actual Size in the View menu.
+/// Run > Go to Step: the seven steps of the step bar. ⌥⌘1 to ⌥⌘7, because ⌘1 is Actual Size in the View menu.
 struct StepMenuItems: View {
     let model: AppModel
 

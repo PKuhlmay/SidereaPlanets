@@ -61,7 +61,7 @@ extension AppModel {
         if source == .wavelet, !(await ensureProcessedImage()) { return }
         // Fail before the dialog if there is nothing to write (the core knows, the window may be behind).
         do { try backend.requireImage(source) } catch {
-            status.result = "Save image: \(errorText(error))"
+            status.result = failureText("Save Image", error)
             return
         }
         let request = SaveRequest(name: fileStem(details?.fileName ?? ""), directory: recordingFolder, fileExtension: format.extension)
@@ -80,7 +80,7 @@ extension AppModel {
                 advance()
             }
         } catch {
-            status.result = "Save image: \(errorText(error))"
+            status.result = failureText("Save Image", error)
         }
     }
 
@@ -142,7 +142,7 @@ extension AppModel {
     /// Save project: the recording and the settings of the steps. The results of Align and Stack are not stored; they are calculated again.
     func saveProject(choose: SaveChooser) async {
         guard hasRecording else {
-            status.result = "Save project: no recording is open"
+            status.result = "Save Project: no recording is open"
             return
         }
         guard !isBusy else { return }
@@ -156,7 +156,7 @@ extension AppModel {
             let written = try projectSave(project: project, path: url.path)
             status.result = "Saved \(URL(fileURLWithPath: written).lastPathComponent)"
         } catch {
-            status.result = "Save project: \(errorText(error))"
+            status.result = failureText("Save Project", error)
         }
     }
 
@@ -169,11 +169,11 @@ extension AppModel {
             let project = loaded.project
             if !loaded.missingFiles.isEmpty {
                 let names = loaded.missingFiles.map { URL(fileURLWithPath: $0).lastPathComponent }
-                status.result = "Open project: file not found: \(names.joined(separator: ", "))"
+                status.result = "Open Project: the recording was not found: \(names.joined(separator: ", "))"
                 return
             }
             if project.recording.isEmpty {
-                status.result = "Open project: the project has no recording"
+                status.result = "Open Project: the project has no recording"
                 return
             }
             await open(project.recording.map { URL(fileURLWithPath: $0) })
@@ -182,7 +182,7 @@ extension AppModel {
             applyProjectSections(sections(of: project))
             status.result = "Opened \(url.lastPathComponent)"
         } catch {
-            status.result = "Open project: \(errorText(error))"
+            status.result = failureText("Open Project", error)
         }
     }
 

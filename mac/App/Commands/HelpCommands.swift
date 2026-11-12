@@ -18,8 +18,7 @@ struct HelpCommands: Commands {
     /// The standard About panel (name, version and copyright come from the Info.plist) with a short credit.
     static func showAbout() {
         let credits = NSAttributedString(
-            string: "A rebuild of the workflow of the reference program for stacking and sharpening planetary and lunar recordings. "
-                + "Not affiliated with the original.",
+            string: "Aligns, stacks and sharpens planetary and lunar recordings.",
             attributes: [.font: NSFont.systemFont(ofSize: NSFont.smallSystemFontSize), .foregroundColor: NSColor.secondaryLabelColor]
         )
         NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])

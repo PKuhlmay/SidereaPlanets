@@ -15,18 +15,18 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent("CPUs") {
+                LabeledContent("CPU cores to use") {
                     HStack(spacing: 8) {
-                        TextField("CPUs", value: Binding(get: { cpus.value }, set: { cpus.set($0) }), format: .number.grouping(.never))
+                        TextField("CPU cores to use", value: Binding(get: { cpus.value }, set: { cpus.set($0) }), format: .number.grouping(.never))
                             .labelsHidden()
                             .multilineTextAlignment(.trailing)
                             .frame(width: 56)
-                        Stepper("CPUs", value: Binding(get: { cpus.value }, set: { cpus.set($0) }), in: 1...cpus.maximum)
+                        Stepper("CPU cores to use", value: Binding(get: { cpus.value }, set: { cpus.set($0) }), in: 1...cpus.maximum)
                             .labelsHidden()
                     }
                 }
                 Text(
-                    "The number of threads all calculations use, from 1 to \(cpus.maximum) (all cores of this Mac). "
+                    "How many CPU cores all calculations use, from 1 to \(cpus.maximum) (all cores of this Mac). "
                         + "A change applies to the next calculation; a running one finishes with the number it started with."
                 )
                 .font(.rkSmall)
@@ -37,21 +37,21 @@ struct SettingsView: View {
                 }
             }
             Section("Wavelets") {
-                Picker("Processing Area", selection: $model.wavelet.processingAreaSide) {
-                    ForEach([2048, 1024, 512, 256, 128], id: \.self) { side in Text("\(side) x \(side)").tag(side) }
+                Picker("Preview area", selection: $model.wavelet.processingAreaSide) {
+                    ForEach([2048, 1024, 512, 256, 128], id: \.self) { side in Text("\(side) × \(side) px").tag(side) }
                 }
-                Text("The square in the middle of the image the live preview of the Wavelets step calculates.")
+                Text("Size of the square in the middle of the image that the Wavelets preview calculates. Smaller is faster.")
                     .font(.rkSmall)
                     .foregroundStyle(RK.muted)
                     .fixedSize(horizontal: false, vertical: true)
-                LabeledContent("Schemes") {
+                LabeledContent("Wavelet schemes") {
                     HStack(spacing: 8) {
                         Button("Load Scheme…") { Task { await model.chooseSchemeToLoad() } }
                             .disabled(model.isBusy)
                         Button("Save Scheme…") { model.chooseSchemeToSave() }
                     }
                 }
-                Text("A scheme is a .rwv file with the scheme, filter, Initial Layer, Step Incr. and the six layers of the Wavelets step, the format of the reference program.")
+                Text("A wavelet scheme is a .rwv file with the layer spacing, filter, first layer size, size step and the six layers of the Wavelets step.")
                     .font(.rkSmall)
                     .foregroundStyle(RK.muted)
                     .fixedSize(horizontal: false, vertical: true)

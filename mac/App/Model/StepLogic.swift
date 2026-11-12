@@ -23,38 +23,67 @@ nonisolated enum ViewStep: Int, CaseIterable, Identifiable, Sendable {
         case .open: "Open"
         case .alignpoints: "Alignpoints"
         case .align: "Align"
-        case .limit: "Limit"
+        case .limit: "Best Frames"
         case .stack: "Stack"
         case .wavelets: "Wavelets"
         case .save: "Save"
         }
     }
 
-    /// Label of the action button: the one of the original.
+    /// Label of the action button.
     var action: String {
         switch self {
         case .open: "Select Recording…"
         case .alignpoints: "Set Alignpoints"
         case .align: "Align"
-        case .limit: "Limit"
+        case .limit: "Keep Best Frames"
         case .stack: "Stack"
         case .wavelets: "Do All"
-        case .save: "Save image"
+        case .save: "Save Image"
         }
     }
 
     /// The sentence under the name in the panel header.
     var sentence: String {
         switch self {
-        case .open: "Choose a recording: a SER or AVI video or a series of images."
-        case .alignpoints: "Marks the details the frames are lined up on. A lower threshold gives more points."
+        case .open: "Choose a recording: a SER or AVI video or a series of images. You can also drop it onto the window."
+        case .alignpoints: "Places marks on surface details that every frame is lined up on. Move the slider left for more points, right for fewer."
         case .align: "Lines up every frame on the alignpoints and rates how sharp each one is."
         case .limit: "Keeps the sharpest frames and drops the rest. Only the kept frames go into the stack."
         case .stack: "Adds the kept frames into one image with far less noise."
-        case .wavelets: "Sharpens the stack. Raise the first layers for fine detail, then apply them to the whole image."
+        case .wavelets: "Sharpens the stack. Raise the first layers for fine detail, then press Do All to apply them to the whole image."
         case .save: "Writes the finished image to a file."
         }
     }
+
+    /// What the step is, for the tooltip of its pill (docs/design.md, "Texte und Schreibweise").
+    var explanation: String {
+        switch self {
+        case .open: "Open: choose the video or the images to work on."
+        case .alignpoints: "Alignpoints: reference marks on surface details that every frame is lined up on."
+        case .align: "Align: lines up every frame on the alignpoints and rates how sharp each frame is."
+        case .limit: "Best Frames: choose which frames go into the stack, the sharpest ones."
+        case .stack: "Stack: averages the kept frames into one image with far less noise."
+        case .wavelets: "Wavelets: sharpens the stack in layers from fine to coarse detail."
+        case .save: "Save: writes the finished image to a file."
+        }
+    }
+
+    /// What the action button does, for its tooltip.
+    var actionExplanation: String {
+        switch self {
+        case .open: "Choose the video or the images to work on."
+        case .alignpoints: "Places alignpoints automatically on the frame that is shown."
+        case .align: "Lines up every frame on the alignpoints and rates how sharp each frame is."
+        case .limit: "Keeps the frames chosen in the settings above and leaves out the others."
+        case .stack: "Averages the kept frames into one image with far less noise."
+        case .wavelets: "Applies the sharpening to the whole image (the preview shows only the preview area)."
+        case .save: "Writes the finished image to a file."
+        }
+    }
+
+    /// The label of the button of a done step: running it again.
+    var againLabel: String { self == .open ? "Select Another Recording…" : "\(action) Again" }
 
     /// The step before this one in the bar, `nil` before Open.
     var previous: ViewStep? { ViewStep(rawValue: rawValue - 1) }

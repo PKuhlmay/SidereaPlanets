@@ -23,7 +23,7 @@ struct ImageArea: View {
                 isSelecting: model.isDrawingRegion, onDraft: { draft = $0 }, onSelect: { model.selectRegion($0) }
             )
             if model.shownImage == nil {
-                Text(model.hasRecording ? "No image yet" : "Press Select Recording to open a video or a series of images")
+                Text(model.hasRecording ? "No image to show yet" : "Select a recording or drop a video or images here")
                     .font(.rk)
                     .foregroundStyle(RK.onCanvas.opacity(0.6))
             } else {
@@ -52,7 +52,7 @@ struct ImageArea: View {
         .accessibilityLabel("Image")
     }
 
-    /// The Processing Area as a dashed rectangle, with Show Processing Area in the Wavelets and Save steps.
+    /// The preview area as a dashed rectangle, with Show Preview Area in the Wavelets and Save steps.
     private var processingAreaMark: RoiSettings? {
         guard isWaveletView, model.wavelet.showProcessingArea, let area = model.processingAreaRegion else { return nil }
         return RoiSettings(x: area.x, y: area.y, width: area.width, height: area.height)
@@ -75,8 +75,8 @@ struct ImageArea: View {
     }
 }
 
-/// The Show menu at the top right (docs/design.md, "Show am Bild"): the check marks of the Align tab of the original, in the Stack
-/// step those of the Stack tab. Show ROI is locked until a region is drawn.
+/// The Show menu at the top right (docs/design.md, "Show am Bild"): the check marks of the Align tab, in the Stack
+/// step those of the Stack tab. Show Region is locked until a region is drawn; entries without an effect are dimmed.
 private struct ShowMenu: View {
     @Bindable var model: AppModel
 
@@ -93,7 +93,7 @@ private struct ShowMenu: View {
     private var functionsToggle: some View {
         let isOn = model.wavelet.functionsOpen
         return Button { model.wavelet.functionsOpen.toggle() } label: {
-            Text("Functions »")
+            Text("Adjust ›")
                 .font(.rk(RKMetrics.fontSizeSmall, .medium))
                 .foregroundStyle(isOn ? RK.accentInk : RK.onCanvas)
                 .padding(.horizontal, 10)
@@ -102,29 +102,42 @@ private struct ShowMenu: View {
                 .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusLarge).strokeBorder(isOn ? RK.accent : RK.canvasLine, lineWidth: 1) }
         }
         .buttonStyle(.plain)
-        .help("Show or hide the Functions panel")
+        .help("Show or hide the panel with color, tone and other image adjustments")
         .accessibilityAddTraits(isOn ? .isSelected : [])
+    }
+
+    /// The check mark of an entry that works; which setting it is depends on the step.
+    private func binding(_ item: ShowItem) -> Binding<Bool> {
+        switch item {
+        case .region: $model.show.roi
+        case .alignpoints:
+            switch model.viewStep {
+            case .wavelets, .save: $model.wavelet.showAlignpoints
+            case .stack: $model.stackOptions.showAlignSections
+            default: $model.show.alignpoints
+            }
+        case .frameList: $model.show.framelist
+        case .qualityGraph: $model.show.registrationgraph
+        case .previewArea: $model.wavelet.showProcessingArea
+        case .fullImage, .alignData, .prefilter, .stackGraph, .stackList: .constant(false)
+        }
     }
 
     private var menu: some View {
         Menu {
-            if model.viewStep == .wavelets || model.viewStep == .save {
-                Toggle("Show Full Image", isOn: $model.wavelet.showFullImage)
-                Toggle("Show AlignPoints", isOn: $model.wavelet.showAlignpoints)
-                Toggle("Show Processing Area", isOn: $model.wavelet.showProcessingArea)
-            } else if model.viewStep == .stack {
-                Toggle("Show Full Image", isOn: $model.stackOptions.showFullImage)
-                Toggle("Show AlignSections", isOn: $model.stackOptions.showAlignSections)
-                Toggle("Show Stackgraph", isOn: $model.stackOptions.showStackgraph)
-                Toggle("Show Stacklist", isOn: $model.stackOptions.showStacklist)
-            } else {
-                Toggle("Show Full Image", isOn: $model.show.fullImage)
-                Toggle("Show ROI", isOn: $model.show.roi).disabled(model.align.roi == nil)
-                Toggle("Show Alignpoints", isOn: $model.show.alignpoints)
-                Toggle("Show Aligndata", isOn: $model.show.aligndata)
-                Toggle("Show Framelist", isOn: $model.show.framelist)
-                Toggle("Show Registrationgraph", isOn: $model.show.registrationgraph)
-                Toggle("Show Prefilter", isOn: $model.show.prefilter)
+            let items = showItems(for: model.viewStep)
+            ForEach(items.filter(\.isAvailable), id: \.self) { item in
+                Toggle(item.title, isOn: binding(item)).disabled(item == .region && model.align.roi == nil)
+            }
+            // The check marks that change nothing on screen are dimmed under their own heading.
+            let locked = items.filter { !$0.isAvailable }
+            if !locked.isEmpty {
+                Divider()
+                Section("Not available yet") {
+                    ForEach(locked, id: \.self) { item in
+                        Toggle(item.title, isOn: .constant(false)).disabled(true)
+                    }
+                }
             }
         } label: {
             HStack(spacing: 5) {
@@ -145,7 +158,7 @@ private struct ShowMenu: View {
     }
 }
 
-/// − · scale (a click shows 100 %) · + · Fit, bottom centre.
+/// − · scale (a click shows 100%) · + · Fit, bottom centre.
 private struct ZoomBar: View {
     let viewport: ImageViewport
     /// Before in the Wavelets and Save steps: the stack without anything applied; `nil` in the other steps.
@@ -154,12 +167,12 @@ private struct ZoomBar: View {
     var body: some View {
         HStack(spacing: 2) {
             ZoomButton("−", help: "Zoom out (⌘-)", label: "Zoom out") { viewport.zoom(by: 1 / 1.25) }
-            ZoomButton(viewport.transform.label, help: "Show at 100 % (⌘1)", label: "Zoom, show at 100 percent") { viewport.showActualSize() }
+            ZoomButton(viewport.transform.label, help: "Show at 100% (⌘1)", label: "Zoom, show at 100 percent") { viewport.showActualSize() }
             ZoomButton("+", help: "Zoom in (⌘+)", label: "Zoom in") { viewport.zoom(by: 1.25) }
             RK.canvasLine.frame(width: 1, height: 16).padding(.horizontal, 3)
             ZoomButton("Fit", help: "Fit the image into the area (⌘0)", label: "Fit") { viewport.fit() }
             if let before {
-                ZoomButton("Before", help: "Show the unprocessed stack", label: "Before", isOn: before.wrappedValue) { before.wrappedValue.toggle() }
+                ZoomButton("Before/After", help: "Switch between the stack without any sharpening and the sharpened image", label: "Before and after", isOn: before.wrappedValue) { before.wrappedValue.toggle() }
             }
         }
         .padding(3)
