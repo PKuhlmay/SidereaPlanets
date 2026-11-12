@@ -1,0 +1,50 @@
+#!/bin/bash
+# Keeps the two follow-up lists honest (see "Mac und Windows" in CLAUDE.md):
+# - no commit may delete or rename docs/parity/WINDOWS_PARITY.md or docs/parity/MAC_PARITY.md;
+# - a commit that changes the Mac app (mac/) also touches one of the lists, unless its message carries [mac-only];
+# - a commit that changes the Windows app (app/src, app/src-tauri/src) also touches one of the lists, unless its message
+#   carries [windows-only]. Touching the other platform's list counts too: that is the commit deleting a caught-up item.
+# Shared files need no entry: the Rust core (crates/), the user documentation pages (app/src/docs/pages), tests, tickets.
+# Runs with the bash 3.2 of macOS. Active through core.hooksPath = .githooks (set once per clone).
+set -euo pipefail
+
+windows_list="docs/parity/WINDOWS_PARITY.md"
+mac_list="docs/parity/MAC_PARITY.md"
+message_file="$1"
+
+for list in "$windows_list" "$mac_list"; do
+  if git diff --cached --name-status -M | awk -F '\t' -v f="$list" '$1 ~ /^[DR]/ && $2 == f { found = 1 } END { exit !found }'; then
+    echo "commit-msg: $list must not be deleted or renamed — it is the checklist the other app works through." >&2
+    exit 1
+  fi
+done
+
+staged="$(git diff --cached --name-only)"
+message="$(grep -v '^#' "$message_file" || true)"
+touches_list() { grep -qxF "$windows_list" <<<"$staged" || grep -qxF "$mac_list" <<<"$staged"; }
+
+# Mac UI: everything under mac/ except tickets, notes, the changelog and the version setting.
+mac_ui="$(grep '^mac/' <<<"$staged" \
+  | grep -v -e '^mac/tickets/' -e '^mac/README.md$' -e '^mac/Handprobe.md$' -e '^mac/CHANGELOG.md$' -e '^mac/project.yml$' || true)"
+if [ -n "$mac_ui" ] && ! touches_list && ! grep -qF '[mac-only]' <<<"$message"; then
+  cat >&2 <<EOF
+commit-msg: this commit changes the Mac app (mac/) but neither $windows_list nor $mac_list.
+  - Changes what users see or do? Append its Windows counterpart to $windows_list in this commit.
+  - Catches up a Windows feature? Delete its item from $mac_list in this commit.
+  - Mac-only (SwiftUI glue, build script, refactoring without visible change)? Put [mac-only] in the message.
+EOF
+  exit 1
+fi
+
+# Windows UI: the Vue front end and the Tauri shell, without the user documentation pages, tests and the dev preview.
+windows_ui="$(grep -e '^app/src/' -e '^app/src-tauri/src/' <<<"$staged" \
+  | grep -v -e '^app/src/docs/pages/' -e '\.test\.ts$' -e '^app/src/preview\.ts$' || true)"
+if [ -n "$windows_ui" ] && ! touches_list && ! grep -qF '[windows-only]' <<<"$message"; then
+  cat >&2 <<EOF
+commit-msg: this commit changes the Windows app (app/src, app/src-tauri/src) but neither $mac_list nor $windows_list.
+  - Changes what users see or do? Append its Mac counterpart to $mac_list in this commit.
+  - Catches up a Mac feature? Delete its item from $windows_list in this commit.
+  - Windows-only (Tauri glue, installer, refactoring without visible change)? Put [windows-only] in the message.
+EOF
+  exit 1
+fi

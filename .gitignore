@@ -9,3 +9,9 @@ node_modules/
 dist/
 app/src-tauri/gen/
 tauri-dev.log
+
+# Mac app build output (xcodegen project, derived data)
+mac/build.noindex/
+mac/*.xcodeproj/
+mac/DerivedData/
+*.xcuserstate

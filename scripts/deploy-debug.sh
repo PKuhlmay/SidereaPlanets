@@ -8,6 +8,8 @@
 # Tests are off by default (temporary request, see CLAUDE.md); DEPLOY_TESTS=1 runs `cargo test --workspace` first.
 # Output goes to deploy-debug.log and tauri-dev.log in the repo root (both git-ignored).
 set -u
+# DEPLOY_DEBUG=0 switches the deploy off (e.g. on the Mac, where the SwiftUI app is the one that matters).
+[ "${DEPLOY_DEBUG:-1}" = "0" ] && exit 0
 export PATH="$HOME/.cargo/bin:$PATH"
 
 root=$(git rev-parse --show-toplevel)

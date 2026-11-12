@@ -7,18 +7,23 @@ vergleichbare Resultate. Es ist zunächst nur ein Prototyp, um zu prüfen, ob da
 
 ## Status
 
-Gerüst steht (RK-001, RK-002): Workspace, SER-Reader, Tauri-Shell mit Platzhalter-UI. the reference program ist unter
+Die **Windows-App** (Tauri und Vue unter `app/`) läuft den ganzen Ablauf im echten Fenster: Aufnahme laden, Alignpoints, Align,
+Limit, Stack, Wavelets mit Do All, Save image, dazu Projektdatei, Save Aligned/Integrated, Schemes, CPU-Auswahl und ein Installer
+(`pnpm tauri build`, NSIS). Stand und offene Kriterien stehen in `tickets/`. the reference program ist unter
 `C:\Program Files (x86)\the reference program` installiert; die Spezifikation daraus steht in `docs/` (RK-003), Referenzergebnisse
 in `re-local/reference/` (beschrieben in `docs/testdaten.md`).
 Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens, klickbarer Entwurf und Soll-Bilder in
-`docs/design/`) und für jede Arbeit an der Oberfläche verbindlich — **modern**, nicht der Delphi-Look. Umgesetzt wird es
-getrennt von anderen Agenten (RK-010).
+`docs/design/`) und für jede Arbeit an der Oberfläche verbindlich — **modern**, nicht der Delphi-Look.
+Die **Mac-App** (native SwiftUI auf dem Rust-Kern, `mac/`) entsteht als Nächstes am Mac und führt danach; die Windows-App zieht nach
+(siehe „Mac und Windows“).
 
 ## Tech Stack
 
 - Rust stable (Edition 2024), Cargo-Workspace, `unsafe_code` verboten (Workspace-Lint)
 - App-Shell: **Tauri 2** (Rust-Kern + Web-UI), Frontend **Vue 3 + TypeScript + Vite** (`pnpm`)
-- Ziel-Plattformen: Windows, macOS, Linux — nichts Windows-Spezifisches im Code; Mehrplattform-Build später per CI
+- Plattformen: **Windows** (Tauri-App `app/`, jetzt) und **macOS** (native SwiftUI-App `mac/` auf dem Rust-Kern über eine
+  Schnittstelle `crates/ffi`, geplant mit `mac/tickets/MAC-001-…`). Der Rechenkern (`crates/`) bleibt plattformunabhängig:
+  nichts Windows-Spezifisches im Code, er muss am Mac bauen und testen
 - Bildverarbeitung: eigene Implementierung der Algorithmen, keine Delphi-Quellen
 - Entscheidung und Begründung: `docs/gui-toolkit.md`
 
@@ -50,8 +55,10 @@ nicht in Git. „Deploy“ heißt nur lokal starten, kein Release-Build und kein
 - Aktivieren, einmal je Klon: `git config core.hooksPath .githooks`
 - Nur der Haupt-Checkout auf `main` löst aus; Worktrees und andere Branches nicht. Der Squash-Merge eines Worktrees
   deployt also genau einmal, mit dem Ticket-Commit.
-- Testläufe sind vorübergehend aus (Philipp, 2026-11-10). Mit `DEPLOY_TESTS=1` läuft vor dem Bau `cargo test --workspace`;
-  fällt die Pause weg, wird das im Skript zum Standard.
+- Testläufe waren vorübergehend aus (Philipp, 2026-11-10) und laufen seit dem Abschluss der Tickets am 2026-11-12 wieder, von Hand
+  und in den Agenten. Mit `DEPLOY_TESTS=1` läuft vor dem Bau auch `cargo test --workspace`; als Standard im Skript ist das noch nicht
+  gesetzt.
+- `DEPLOY_DEBUG=0` schaltet den Deploy aus (am Mac, wo die Debug-App der Windows-App nicht gebraucht wird).
 - Von Hand deployen: `scripts/deploy-debug.sh --run`
 
 ## Doku in der App
@@ -62,17 +69,52 @@ Commit mitgepflegt, wo die Änderung sie betrifft** (neue Funktion, geändertes 
 Die Doku beschreibt Bedienung und Ergebnis, nicht die Reverse-Engineering-Notizen — die bleiben in `docs/`.
 Die Seiten liegen als Markdown in `app/src/docs/pages/` (Kopf mit `title`, `group`, `order`), die Ansicht ist `app/src/docs/DocsView.vue`; Help in der Werkzeugleiste öffnet sie. Eine neue Seite ist nur eine neue Datei.
 
+## Mac und Windows
+
+Zwei Oberflächen auf einem gemeinsamen Rechenkern, wie bei Siderea: Die **Mac-App** (`mac/`, SwiftUI) führt, die **Windows-App**
+(`app/`, Tauri und Vue) zieht nach. Beide liegen auf `main`; was nur die eine kann, steht als Checkbox in der Liste der anderen:
+
+- `docs/parity/WINDOWS_PARITY.md`: was der Mac bekommen hat und Windows noch übernehmen muss.
+- `docs/parity/MAC_PARITY.md`: was Windows bekommen hat und der Mac noch übernehmen muss. Bis `MAC-001` fertig ist, steht dort der
+  Verweis auf den ganzen Funktionsumfang der Windows-App (Spezifikationen und Tickets).
+- `docs/parity/Handprobe.md`: was nur ein Mensch von Hand prüfen kann; `[ ]` offen, `[x]` klappt, `[!]` klappt nicht.
+
+Jede Änderung, die verändert, was Nutzer sehen oder tun (Schaltflächen, Texte, Tastenkürzel, Schritte, Werte), hinterlässt **im selben
+Commit** eine Checkbox für die andere App: eine Mac-Änderung in `WINDOWS_PARITY.md`, eine Windows-Änderung in `MAC_PARITY.md`. Ein
+Punkt je Verhalten, mit den Werten, den Dateien und den Texten; der Commit, der nachzieht, löscht ihn (die Listen enthalten nur offene
+Punkte, die Git-Historie zeigt das Erledigte). Gemeinsames braucht keinen Eintrag: Rechenkern (`crates/`), Anwenderseiten unter
+`app/src/docs/pages/` (beide Apps zeigen dieselben Markdown-Dateien), Tests und Tickets.
+
+`.githooks/commit-msg` erzwingt das: Ein Commit, der `mac/` oder die Windows-Oberfläche (`app/src`, `app/src-tauri/src`) ändert, ohne
+eine der beiden Listen anzufassen, wird abgelehnt, außer die Nachricht trägt `[mac-only]` bzw. `[windows-only]` (Glue-Code, Installer,
+Umbau ohne sichtbare Wirkung). Keine Liste darf gelöscht oder umbenannt werden. Der Hook ist über `core.hooksPath = .githooks`
+aktiv; einmal je Klon `git config core.hooksPath .githooks`.
+
+- `/nachzug [mac]` (`scripts/parity-status.sh [liste]`) zeigt die offenen Punkte je Version und schlägt die nächste Stufe vor.
+- `/release mac|windows <version>` setzt die Version, prüft, baut (Windows: NSIS-Installer), committet und taggt. Tags: `v<version>`
+  für den Mac, `windows-v<version>` für Windows. Haupt- und Nebennummer heißen Funktionsumfang, Patch-Nummern zählt jede Plattform
+  für sich. Pushen nur nach Philipps OK.
+- Der Rechenkern ist die einzige Kopplung. Was eine Oberfläche sonst nachbauen müsste (Sitzungszustand, Verwerfen der Ergebnisse,
+  Thread-Pool, Abbrechen und Pausieren), gehört in den Kern (`crates/`, geplant `crates/session`, `crates/ffi`), nicht in die
+  Oberfläche. Eine Änderung an einer Kern-Schnittstelle, die die andere App benutzt, bekommt einen eigenen Commit mit Hinweis.
+- Mac-Tickets: `mac/tickets/MAC-NNN-kurzer-titel.md`, Commits `[TYPE] MAC-NNN - Message`. Das Startticket ist
+  `mac/tickets/MAC-001-mac-app-aufbauen.md`; Aufbau, Voraussetzungen und Arbeitsweise am Mac stehen in `mac/README.md`.
+- Worktrees: **nicht unter Windows** (Speicher, langsames Löschen), am Mac erlaubt.
+
 ## Verzeichnisstruktur
 
 ```
-crates/core/ Bildtyp und (später) Algorithmen: Ausrichtung, Stacking, Wavelets — GUI-frei
-crates/io/   Leser für Aufnahmen (SER und unkomprimiertes AVI fertig; Bildserien, FITS, komprimierte AVI-Codecs folgen)
-app/         Tauri-App: `app/src` = Vue-Frontend (hier entsteht das Design), `app/src-tauri` = Rust-Shell mit Commands
-scripts/   Skripte, z. B. `deploy-debug.sh` für den Deploy-Hook (`.githooks/post-commit`)
-tickets/   Aufgaben als Markdown-Dateien (RK-NNN-kurzer-titel.md), kein Jira
-docs/      Spezifikation, die beim Reverse Engineering entsteht (Workflow, UI, Algorithmen, Formate)
+crates/core/ Bildtyp und Algorithmen: Ausrichtung, Stacking, Wavelets, Farbe — GUI-frei, auf allen Plattformen gleich
+crates/io/   Leser und Schreiber für Aufnahmen und Ergebnisse (SER, AVI, Bildserien, FITS, Export, Projektdatei)
+app/         Windows-App (Tauri): `app/src` = Vue-Frontend (hier entsteht das Design), `app/src-tauri` = Rust-Shell mit Commands
+mac/         Mac-App (SwiftUI) und ihre Tickets (`mac/tickets/MAC-NNN-…`); noch ohne Code, siehe `mac/README.md`
+scripts/   Skripte, z. B. `deploy-debug.sh` für den Deploy-Hook (`.githooks/post-commit`), `parity-status.sh` für `/nachzug`
+tickets/   Aufgaben der Windows-App und des Kerns als Markdown-Dateien (RK-NNN-kurzer-titel.md), kein Jira
+docs/      Spezifikation, die beim Reverse Engineering entsteht (Workflow, UI, Algorithmen, Formate), `docs/parity/` mit den
+           Nachzug-Listen und der Handprobe
 re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, Mitschnitte
-.claude/   Hooks, Skills und Einstellungen aus `npx github:PKuhlmay/claude-kit install` (nicht von Hand ändern)
+.claude/   Hooks, Skills und Einstellungen aus `npx github:PKuhlmay/claude-kit install` (nicht von Hand ändern). Projekteigen und nicht aus
+           dem Kit: die Skills `nachzug` und `release` unter `.claude/skills/`
 ```
 
 ## Tickets
@@ -83,7 +125,8 @@ re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, M
   (Test grün, Verhalten geprüft), wird es im selben Commit abgehakt. Status `erledigt` erst, wenn alle abgehakt sind;
   bewusst gestrichene Kriterien bleiben offen und bekommen eine Begründung im Text.
 - Status-Änderung direkt in der Datei und im selben Commit wie die Umsetzung.
-- Commits: `[TYPE] RK-NNN - Message in English` (Types wie in den globalen Regeln).
+- Commits: `[TYPE] RK-NNN - Message in English` (Types wie in den globalen Regeln); Mac-Tickets `[TYPE] MAC-NNN - …`.
+- Mac-Tickets liegen getrennt unter `mac/tickets/` (gleiche Regeln für Kopf, Kriterien und Status).
 
 ## Reverse Engineering
 
