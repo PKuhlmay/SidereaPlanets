@@ -173,7 +173,7 @@ final class ImageCanvasView: NSView {
         guard let rect = editableCrop else { return }
         let reach = rect.effectiveTolerance(cropGrabReach)
         let x = Double(rect.minX), y = Double(rect.minY), w = Double(rect.width), h = Double(rect.height)
-        addCursorRect(viewRect(x: x, y: y, width: w, height: h).intersection(bounds), cursor: .openHand)
+        addVisibleCursorRect(viewRect(x: x, y: y, width: w, height: h), cursor: .openHand)
         let bands: [(CGRect, CropRectangle.Handle)] = [
             (viewRect(x: x + reach, y: y - reach, width: w - 2 * reach, height: 2 * reach), .top),
             (viewRect(x: x + reach, y: y + h - reach, width: w - 2 * reach, height: 2 * reach), .bottom),
@@ -186,7 +186,20 @@ final class ImageCanvasView: NSView {
             (viewRect(x: x - reach, y: y + h - reach, width: 2 * reach, height: 2 * reach), .bottomLeft),
             (viewRect(x: x + w - reach, y: y + h - reach, width: 2 * reach, height: 2 * reach), .bottomRight),
         ]
-        for (area, handle) in bands + corners { addCursorRect(area.intersection(bounds), cursor: Self.cursor(for: handle)) }
+        for (area, handle) in bands + corners { addVisibleCursorRect(area, cursor: Self.cursor(for: handle)) }
+    }
+
+    /// Adds a cursor rect for the part of `area` inside the view, or nothing when none of it is visible.
+    private func addVisibleCursorRect(_ area: CGRect, cursor: NSCursor) {
+        guard let visible = Self.visibleCursorArea(area, in: bounds) else { return }
+        addCursorRect(visible, cursor: cursor)
+    }
+
+    /// The part of `area` inside `bounds`, `nil` when they do not overlap. AppKit throws on the null rect that `intersection` returns
+    /// for disjoint rectangles (a crop edge zoomed or panned out of sight), which crashed the app.
+    static func visibleCursorArea(_ area: CGRect, in bounds: CGRect) -> CGRect? {
+        let visible = area.intersection(bounds)
+        return visible.isNull || visible.isEmpty ? nil : visible
     }
 
     /// The resize cursors with a diagonal arrow need macOS 15; before that the corners show the same arrows as the edges.
