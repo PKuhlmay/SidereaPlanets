@@ -8,7 +8,7 @@ Das Herzstück von the reference program: mehrschichtige Wavelet-Zerlegung mit R
 
 ## Akzeptanzkriterien
 - [x] Zerlegung in Ebenen mit Verstärkung und Rauschunterdrückung je Ebene (Anzahl und Details laut `docs/`)
-- [ ] Vorschau reagiert flüssig auf Reglerbewegung (Maßnahmen und Messwerte: `docs/gui-toolkit.md`, Abschnitt Spike: Vorschau auf Ausschnitt begrenzen, RGBA-Umwandlung mit `rayon`, Übertragung neu messen). Rechenkern gemessen (Reglerschritt 4,8 ms bei 512 px, 20 Bilder/s verlangen 50 ms); **offen:** die Übertragung ins Fenster und das Bild im laufenden Programm sind nicht gemessen
+- [ ] Vorschau reagiert flüssig auf Reglerbewegung (Maßnahmen und Messwerte: `docs/gui-toolkit.md`, Abschnitt Spike: Vorschau auf Ausschnitt begrenzen, RGBA-Umwandlung mit `rayon`, Übertragung neu messen). Rechenkern gemessen (Reglerschritt 4,8 ms bei 512 px, 20 Bilder/s verlangen 50 ms); im Release-Fenster gemessen (Statusleiste „Preview: n ms“, Anfrage bis Zeichnen): 38, 49 und 79 ms je Reglerschritt, also um das Ziel von 50 ms; ein flüssiges Ziehen des Reglers von Hand wurde nicht beurteilt, deshalb bleibt das Kriterium offen
 - [x] Ergebnis bei gleichen Reglerwerten gegen das Original verglichen (PSNR-Schwelle in `docs/` festlegen): Standardwerte 98,81 dB, Ebene 1 = 10.0 84,73 dB, Schwellen 45/65/85 dB (`docs/wavelets.md`)
 - [ ] Einstellungen speicher- und ladbar. `.rwv` lesen und schreiben ist getestet (byteidentisch zur Datei des Originals), Befehle und Dateidialog sind im laufenden Programm **nicht** ausprobiert
 
