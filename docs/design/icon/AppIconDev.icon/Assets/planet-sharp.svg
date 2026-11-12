@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- SidereaPlanets icon layer: the sharp right half of the planet with its bands and the thin divider line, the "after" half. -->
+  <defs>
+    <radialGradient id="pl" cx=".36" cy=".32" r=".8"><stop offset="0" stop-color="#FFE7C2"/><stop offset=".5" stop-color="#E9B26A"/><stop offset="1" stop-color="#8A5320"/></radialGradient>
+    <clipPath id="half"><rect x="460" y="400" width="200" height="340"/></clipPath>
+    <clipPath id="disc"><circle cx="460" cy="570" r="96"/></clipPath>
+  </defs>
+  <g transform="scale(1.242718) translate(-100 -100)"><g clip-path="url(#half)"><circle cx="460" cy="570" r="96" fill="url(#pl)"/>
+  <g clip-path="url(#disc)" opacity=".42" fill="#6b3a10"><rect x="360" y="540" width="200" height="12"/><rect x="360" y="588" width="200" height="16"/><rect x="360" y="622" width="200" height="6"/></g></g>
+  <line x1="460" y1="455" x2="460" y2="685" stroke="#FFF6EA" stroke-width="7" stroke-opacity=".92"/></g>
+</svg>

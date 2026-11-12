@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- SidereaPlanets icon layer: the orange glow behind the planet. -->
+  <defs><radialGradient id="glow"><stop offset="0" stop-color="#F0963C" stop-opacity=".55"/><stop offset=".45" stop-color="#F0963C" stop-opacity=".16"/><stop offset="1" stop-color="#F0963C" stop-opacity="0"/></radialGradient></defs>
+  <g transform="scale(1.242718) translate(-100 -100)"><circle cx="460" cy="570" r="150" fill="url(#glow)"/></g>
+</svg>

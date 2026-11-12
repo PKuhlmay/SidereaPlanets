@@ -1,0 +1,36 @@
+{
+  "fill" : {
+    "linear-gradient" : [
+      "srgb:0.20392,0.18824,0.17255,1.00000",
+      "srgb:0.07843,0.07451,0.07059,1.00000"
+    ]
+  },
+  "groups" : [
+    {
+      "layers" : [
+        { "glass" : false, "image-name" : "planet-sharp.svg", "name" : "Planet sharp" },
+        { "glass" : false, "image-name" : "planet-blur.png", "name" : "Planet blurred" },
+        { "glass" : false, "image-name" : "planet-glow.svg", "name" : "Planet glow" },
+        { "glass" : false, "image-name" : "frame-front.svg", "name" : "Front frame" }
+      ],
+      "shadow" : { "kind" : "neutral", "opacity" : 0.5 }
+    },
+    {
+      "layers" : [
+        { "glass" : false, "image-name" : "frame-middle.svg", "name" : "Middle frame" }
+      ],
+      "shadow" : { "kind" : "neutral", "opacity" : 0.4 }
+    },
+    {
+      "layers" : [
+        { "glass" : false, "image-name" : "frame-back.svg", "name" : "Rear frame" }
+      ],
+      "shadow" : { "kind" : "neutral", "opacity" : 0.3 }
+    }
+  ],
+  "supported-platforms" : {
+    "squares" : [
+      "macOS"
+    ]
+  }
+}

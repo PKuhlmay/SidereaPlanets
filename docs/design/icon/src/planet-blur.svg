@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Source of AppIcon.icon/Assets/planet-blur.png (scripts/make-icons.sh): the unsharp planet, the "before" half.
+       Icon Composer ignores SVG filters, so the blur is baked into a PNG; the orange glow is its own SVG layer. -->
+  <defs>
+    <radialGradient id="pl" cx=".36" cy=".32" r=".8"><stop offset="0" stop-color="#FFE7C2"/><stop offset=".5" stop-color="#E9B26A"/><stop offset="1" stop-color="#8A5320"/></radialGradient>
+    <filter id="blur" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="9"/></filter>
+  </defs>
+  <g transform="scale(1.242718) translate(-100 -100)">
+  <g filter="url(#blur)" opacity=".85"><circle cx="460" cy="570" r="96" fill="url(#pl)"/></g></g>
+</svg>

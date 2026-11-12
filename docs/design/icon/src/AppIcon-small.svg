@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- Windows icon at 16, 24 and 32 px (scripts/make-icons.sh). At these sizes the three stacked frames melt into one dark blob and
+       the divider and bands vanish, so this variant keeps only the front frame, enlarged, with a heavier stroke, a bigger planet,
+       a thicker divider and stronger bands. Same colours and motif as the layers in AppIcon.icon. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#34302C"/><stop offset="1" stop-color="#141312"/></linearGradient>
+    <radialGradient id="glow"><stop offset="0" stop-color="#F0963C" stop-opacity=".55"/><stop offset=".45" stop-color="#F0963C" stop-opacity=".16"/><stop offset="1" stop-color="#F0963C" stop-opacity="0"/></radialGradient>
+    <radialGradient id="pl" cx=".36" cy=".32" r=".8"><stop offset="0" stop-color="#FFE7C2"/><stop offset=".5" stop-color="#E9B26A"/><stop offset="1" stop-color="#8A5320"/></radialGradient>
+    <clipPath id="half"><rect x="512" y="250" width="300" height="520"/></clipPath>
+    <clipPath id="disc"><circle cx="512" cy="512" r="236"/></clipPath>
+    <filter id="blur" color-interpolation-filters="sRGB" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="20"/></filter>
+  </defs>
+  <rect x="40" y="40" width="944" height="944" rx="215" fill="url(#bg)"/>
+  <rect x="130" y="130" width="764" height="764" rx="130" fill="#121110" stroke="#F0963C" stroke-width="76"/>
+  <circle cx="512" cy="512" r="330" fill="url(#glow)"/>
+  <g filter="url(#blur)" opacity=".85"><circle cx="512" cy="512" r="236" fill="url(#pl)"/></g>
+  <g clip-path="url(#half)"><circle cx="512" cy="512" r="236" fill="url(#pl)"/>
+    <g clip-path="url(#disc)" opacity=".5" fill="#6b3a10"><rect x="260" y="430" width="500" height="40"/><rect x="260" y="540" width="500" height="50"/></g></g>
+  <line x1="512" y1="250" x2="512" y2="774" stroke="#FFF6EA" stroke-width="40" stroke-opacity=".9"/>
+</svg>

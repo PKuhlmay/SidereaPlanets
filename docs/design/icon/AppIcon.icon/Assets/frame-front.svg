@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- SidereaPlanets icon layer: front frame with its faint stars. -->
+  <g transform="scale(1.242718) translate(-100 -100)"><rect x="260" y="370" width="400" height="400" rx="44" fill="#121110" stroke="#F0963C" stroke-width="12"/>
+  <g fill="#E8E3DC"><circle cx="330" cy="440" r="6" opacity=".6"/><circle cx="600" cy="440" r="5" opacity=".55"/><circle cx="330" cy="710" r="5" opacity=".5"/><circle cx="605" cy="715" r="7" opacity=".7"/></g></g>
+</svg>

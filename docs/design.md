@@ -25,6 +25,7 @@ Bei Widersprüchen gewinnt für Begriffe und Werte `docs/ui.md`, für Aussehen u
 | `docs/design/siderea-planets.figcraft` | Die sieben Schritte (Open, Alignpoints, Align, Limit, Stack, Wavelets, Save) als FigCraft-Datei, je dunkel und hell, dazu Limit mit geöffnetem Menü Show, Stack im erledigten Zustand und das Help-Fenster: 20 Frames, 18 davon 1440×900, die zwei Help-Fenster 1000×720. Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
 | `docs/design/vorschlag-gefuehrter-ablauf.html` | Überholt: die drei Vorschläge, aus denen die Schrittleiste (RK-014) gewählt wurde |
 | `docs/design/figcraft-build.mjs` | Baut die FigCraft-Datei neu und liest die Farben dabei aus `tokens.css`. Aufruf: `node docs/design/figcraft-build.mjs` |
+| `docs/design/icon/` | App-Icon beider Apps: Icon-Composer-Dokumente `AppIcon.icon` und `AppIconDev.icon`, 1024-px-Master `AppIcon-1024.png`, Quellen in `src/` (siehe [App-Icon](#app-icon)) |
 
 Alle Frames, auch die zwei Help-Fenster (RK-012, siehe [Doku](#doku)), entstehen aus dem Skript. Ein Lauf schreibt die
 Datei neu und verliert nichts; Änderungen gehören deshalb ins Skript, nicht von Hand in die Datei.
@@ -648,6 +649,31 @@ Dokuments. Bedienelemente und Eingaben folgen dort, wo es eine Mac-Konvention gi
 Die Dateiangaben im Schritt Open zeigen auf dem Mac zusätzlich zu Dateiname, Codec, Größe und Frame-Zahl auch Format, Bittiefe,
 Farbe, Bildrate und (wo die Datei sie hat) Beobachter, Instrument und Teleskop; Windows zieht das nach
 (`docs/parity/WINDOWS_PARITY.md`).
+
+## App-Icon
+
+Das Icon gehört zur Familie mit Siderea (gleicher Hintergrund, gleiche drei gestapelten Rahmen mit Orange-Kontur) und zeigt
+das Thema des Programms: ein Planet im vorderen Rahmen, **links unscharf, rechts scharf mit Bändern**, dazwischen eine dünne helle
+Trennlinie, dahinter ein oranger Schein. Mac und Windows tragen dasselbe Bild.
+
+| Ebene (`docs/design/icon/AppIcon.icon/Assets`) | Inhalt |
+|---|---|
+| `frame-back.svg`, `frame-middle.svg` | hinterer und mittlerer Rahmen, wie bei Siderea |
+| `frame-front.svg` | vorderer Rahmen mit vier blassen Sternen |
+| `planet-glow.svg` | oranger Schein hinter dem Planeten |
+| `planet-blur.png` | der unscharfe Planet. Icon Composer ignoriert SVG-Filter, deshalb wird die Unschärfe aus `src/planet-blur.svg` in ein PNG gerechnet |
+| `planet-sharp.svg` | rechte Planetenhälfte mit Bändern und die Trennlinie |
+
+Alle SVG-Ebenen liegen auf dem 824-Einheiten-Raster des Mac-Icons (`transform="scale(1.242718) translate(-100 -100)"`).
+`AppIconDev.icon` ist dieselbe Ebenenfolge mit einem orangen **DEV-Abzeichen**: Der Debug-Build der Mac-App trägt es
+(`ASSETCATALOG_COMPILER_APPICON_NAME[config=Debug]` in `mac/project.yml`), damit er im Dock nicht mit der installierten App
+verwechselt wird. Die Windows-App hat kein Abzeichen.
+
+**Neu erzeugen** nach einer Änderung an den Ebenen: `scripts/make-icons.sh`. Es rechnet das PNG der Unschärfe, gleicht
+`AppIconDev.icon` an, setzt `AppIcon-1024.png` zusammen (Quadrat mit abgerundeten Ecken, 40 px Rand) und schreibt über
+`pnpm tauri icon` den Windows-Satz nach `app/src-tauri/icons/`. Die Größen 16, 24 und 32 px der `icon.ico` (und `32x32.png`)
+kommen aus der vereinfachten `src/AppIcon-small.svg`: nur der vordere Rahmen, dicker Rand, größerer Planet, kräftigere Trennlinie.
+Die Mac-App braucht keinen Schritt, `xcodegen` und `xcodebuild` bauen die `.icon`-Ordner selbst.
 
 ## Was im Entwurf nur Platzhalter ist
 

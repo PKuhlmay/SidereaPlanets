@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- SidereaPlanets icon layer: rear frame (same as Siderea). Coordinates are from the 824-unit design grid. -->
+  <g transform="scale(1.242718) translate(-100 -100)"><rect x="370" y="230" width="400" height="400" rx="44" fill="#2B2724" stroke="#F0963C" stroke-opacity=".3" stroke-width="10"/></g>
+</svg>

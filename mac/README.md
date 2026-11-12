@@ -9,6 +9,7 @@ Native Mac-App in **SwiftUI** auf dem gemeinsamen **Rust-Kern** (`crates/`), ana
 ```
 mac/
   project.yml            xcodegen-Spezifikation (Ziele SidereaPlanets und SidereaPlanetsTests, MARKETING_VERSION, ad-hoc-Signierung)
+                         App-Icon: `docs/design/icon/AppIcon.icon` (Debug: `AppIconDev.icon` mit DEV-Abzeichen), gemeinsam mit Windows, neu erzeugen mit `scripts/make-icons.sh` (MAC-012)
   App/                   SwiftUI-Oberfläche (MAC-005)
     SidereaPlanetsApp.swift  Szenen (Hauptfenster, Help, Settings), Menüleiste (⌘O, Open Recent, Zoom, Frames, Process)
     Commands/            HelpCommands (Help ⌘?, About), StepMenuItems (Process > Go to Step, ⌥⌘1 bis ⌥⌘7); weitere Menüpunkte (Save …) kommen hier oder in AppCommands dazu
@@ -219,3 +220,4 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-009 | Save, Export, Projektdatei | erledigt |
 | MAC-010 | Hilfe, Menüs, CPUs, Release | erledigt |
 | MAC-011 | Go to best frame | erledigt |
+| MAC-012 | App-Icon (beide Apps, Debug mit DEV-Abzeichen) | erledigt |
