@@ -391,7 +391,8 @@ Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und
 
 *„Lines up every frame on the alignpoints and rates how sharp each one is.“*
 
-- Wichtig: Segmente No Align · Scan Frames; Alignmentbox size; Max Alignpoint movement.
+- Wichtig: Segmente No Align · Scan Frames (beide noch ohne Funktion: gesperrt, Tooltip und Hinweis „Not available yet“
+  darunter); Alignmentbox size; Max Alignpoint movement.
 - Advanced: der Rest der Gruppe Alignment setup.
 - Aktion: **Align**. Frame-Leiste sichtbar.
 
@@ -435,9 +436,11 @@ Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und
 - Wichtig: die Häkchen **Colour** und **LRGB** (Sperren wie bisher); die sechs Ebenen mit **Reset Wavelets** als
   Textlink in der Überschrift. Eine Ebene belegt zwei Zeilen: oben Häkchen mit Ebenennummer, Denoise, Sharpen und die
   Preview-Schaltfläche mit dem Reglerwert, darunter der Regler in voller Breite. Über der ersten Ebene stehen die
-  Spaltenköpfe Layer · Denoise · Sharpen · Preview.
+  Spaltenköpfe Layer · Denoise · Sharpen · Preview. Die Preview-Schaltfläche ist noch ohne Funktion und gesperrt (Tooltip
+  „Not available yet“, der Reglerwert bleibt lesbar).
 - Advanced: Automatic, Hold Wavelet Setting, Waveletscheme, Initial Layer und Step Incr. in einer Zeile, Wavelet
-  filter, Use Linked Wavelets; Available schemes mit Load Scheme und Save Scheme; Realign with Processed und Stack Again.
+  filter, Use Linked Wavelets; Available schemes mit Load Scheme und Save Scheme; Realign with Processed und Stack Again. Beide sind gesperrt; Realign
+  trägt wie die gesperrten Stack-Optionen Tooltip und den Hinweis „Not available yet“ (darunter), Stack Again ist wie im Original gesperrt.
 - Aktion: **Do All**, links daneben **Process** als Standard-Schaltfläche in derselben Zeile.
 - Rechtes Panel: Functions als Raster aus drei Spalten und fünf Zeilen in der Reihenfolge des Originals, jede
   Schaltfläche ein Umschalter für ihr Panel · Contrast/Brightness mit zwei Reglern und zwei Zahlenfeldern · Copy To /

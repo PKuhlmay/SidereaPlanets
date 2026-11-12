@@ -27,6 +27,13 @@ belegt (Tests an Assertionen gescheitert, dann grün).
 - Tests: `crates/core/src/wavelet/mod.rs` (`do_all_until_*`), `app/src-tauri/src/wavelet_commands.rs`, `app/src/flow.test.ts`.
 - Doku: *Progress, Cancel and Pause*, *The Wavelet tab*, *Wavelet sharpening*.
 
+## Stand (Gesperrte Schaltflächen, 2026-11-12)
+Fund aus dem Durchlauf der Release-App: Realign with Processed war bedienbar und meldete nur „not available yet“. Gleich behandelt wie die gesperrten
+Stack-Optionen (ausgegraut, Tooltip und Hinweis „Not available yet“): Realign with Processed, No Align und Scan Frames (Schritt Align) und die
+Preview-Schaltfläche je Ebene (Tooltip, der Reglerwert bleibt lesbar). Die Aktionen `realign`, `noAlign`, `scanFrames` und `previewLayer` sind aus
+`actions.ts` entfernt. Empty List (Karte Framelist, kein Schrittpanel) und die Functions-Schaltflächen ohne Karte melden weiter nur in der Statusleiste.
+Test: `app/src/docs/locked-buttons.test.ts`, rot an Assertionen gesehen, dann grün.
+
 ## Stand (Load Scheme meldet sich, 2026-11-12)
 Fund aus dem Durchlauf der Release-App: Save Scheme meldete „Scheme saved: …“, Load Scheme nichts. `loadScheme` setzte die Meldung, aber die geladenen
 Werte starten im Schritt Wavelets eine neue Vorschau, und deren Meldung („Calculating wavelets done“) überschrieb sie. `loadScheme` wartet jetzt

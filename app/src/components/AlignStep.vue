@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { runAction } from "../actions";
-import { atLeast } from "../logic/workflow";
-import { session, settings } from "../state";
+import { settings } from "../state";
 import NumberField from "./NumberField.vue";
 import StepPanel from "./StepPanel.vue";
 
@@ -11,10 +9,11 @@ const align = settings.align;
 
 <template>
   <StepPanel id="align" :more="4">
-    <div class="seg">
-      <button type="button" @click="runAction('noAlign')">No Align</button>
-      <button type="button" :disabled="!atLeast(session.step, 'aligned')" @click="runAction('scanFrames')">Scan Frames</button>
+    <div class="seg" title="Not available yet">
+      <button type="button" disabled>No Align</button>
+      <button type="button" disabled>Scan Frames</button>
     </div>
+    <span class="factor">Not available yet</span>
     <label class="row gap">Alignmentbox size <NumberField v-model="align.boxSize" /></label>
     <label class="row">Max Alignpoint movement <NumberField v-model="align.maxMovement" /></label>
 
@@ -32,6 +31,12 @@ const align = settings.align;
 </template>
 
 <style scoped>
+.factor {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-s);
+  color: var(--muted);
+}
 .gap {
   margin-top: 6px;
 }

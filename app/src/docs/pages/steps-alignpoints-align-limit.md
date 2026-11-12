@@ -25,7 +25,7 @@ The steps follow the order of the reference program: **Align** is possible after
 | Align | **No Align**, **Scan Frames**, Alignmentbox size, Max Alignpoint movement | The rest of *Alignment setup* |
 | Limit | *Limit Setup* with Lowest Quality (%), Best Frames (%), Frames/Apoint and Best Frames and their fields, and the quality chart. See [Frame quality and Limit](frame-quality-and-limit) | Nothing |
 
-**R.o.Interest** works, see [Align your frames](align-your-frames). **No Align** and **Scan Frames** are **Not available yet**.
+**R.o.Interest** works, see [Align your frames](align-your-frames). **No Align** and **Scan Frames** are greyed out and marked **Not available yet**.
 
 *Keep Alignpoints inside ScanFrame*, *Align by Centre of gravity*, *Lum. Threshold* and *Estimate Rotation* are locked, as they are in the reference program.
 

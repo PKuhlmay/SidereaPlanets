@@ -14,7 +14,7 @@ Steps 6 and 7: bring out fine detail in the stacked image, then write the result
 | Do All | Wavelets, bottom of the panel | Applies the settings to the whole image. Then the Save step opens | Works, with progress; **Cancel** and **Pause** work, see [Progress, Cancel and Pause](progress-cancel-pause) |
 | Process | Wavelets, left of Do All | Calculates the preview area with the current settings | Works. **Cancel** drops the result |
 | Save image | Save, bottom of the panel | Saves the sharpened image with the current settings, with the colour and tone values applied; runs **Do All** first if the settings changed since the last one (see [Save and export](save-and-export)) | Works |
-| Realign with Processed | Wavelets, under Advanced | Aligns again with the sharpened image | Not available yet |
+| Realign with Processed | Wavelets, under Advanced | Aligns again with the sharpened image | Greyed out: Not available yet |
 | Stack Again | Wavelets, under Advanced | Stacks again | Locked, as in the reference program |
 | Functions » | Top of the image area | Shows or hides the Functions panel on the right | Works |
 

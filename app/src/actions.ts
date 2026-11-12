@@ -1,13 +1,16 @@
 // The one place where later tickets plug in the computing functions. Every button whose function does not exist
-// yet reports "Not available yet" in the status bar; a ticket that builds a function registers its handler here.
+// yet (menu entries, floating cards) reports "Not available yet" in the status bar; a ticket that builds a function
+// registers its handler here.
 //
-//   RK-005  setAlignpoints, align, limit, noAlign, regionOfInterest, scanFrames, emptyList
+//   RK-005  setAlignpoints, align, limit, regionOfInterest, emptyList
 //   RK-006  stack
-//   RK-007  process, doAll, loadScheme, saveScheme (registered below, wavelet.ts); realign and stackAgain wait for
-//           RK-005/RK-006; resetWavelets is done in the panel
+//   RK-007  process, doAll, loadScheme, saveScheme (registered below, wavelet.ts); resetWavelets is done in the panel
 //   RK-008  functions panels, copyTo, loadTo, difference
 //   RK-009  saveImage, saveAligned, saveIntegrated (saving.ts); the
 //           darkframe/flatfield/reference menu entries are still open
+//
+// Buttons of the step panels whose function does not exist (No Align, Scan Frames, Realign with Processed, the Preview
+// button of a layer) are locked and marked "Not available yet" in the panel; they have no action here.
 //
 // A handler normally calls runJob (jobs.ts) so that progress, Cancel and Pause work.
 
@@ -21,9 +24,7 @@ export const actionLabels = {
   setAlignpoints: "Set Alignpoints",
   align: "Align",
   limit: "Limit",
-  noAlign: "No Align",
   regionOfInterest: "R.o.Interest",
-  scanFrames: "Scan Frames",
   emptyList: "Empty List",
   stack: "Stack",
   saveImage: "Save image",
@@ -31,13 +32,11 @@ export const actionLabels = {
   saveIntegrated: "Save Integrated",
   process: "Process",
   doAll: "Do All",
-  realign: "Realign with Processed",
   loadScheme: "Load Scheme",
   saveScheme: "Save Scheme",
   copyTo: "Copy To",
   loadTo: "Load to",
   difference: "Difference",
-  previewLayer: "Preview",
   loadDarkframe: "Load Darkframe",
   loadFlatfield: "Load Flatfield",
   loadReferenceframe: "Load Referenceframe",

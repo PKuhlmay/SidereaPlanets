@@ -87,6 +87,6 @@ These three check boxes (under **Advanced**) are not fully known from the refere
 | **Colour** and **LRGB** in the preview and in **Do All** | Works. What the original does with LRGB is not known; the behaviour above is our reading of the name |
 | **Save Scheme** and **Load Scheme** | Works |
 | List **Available schemes** | **Not available yet** |
-| **Preview** button of a layer | **Not available yet** |
-| **Realign with Processed** | **Not available yet** |
+| **Preview** button of a layer | Greyed out: **Not available yet** |
+| **Realign with Processed** | Greyed out: **Not available yet** |
 | Matching the reference program exactly | With the start values and with layer 1 at 10.0 the result matches the original on the Jupiter test image. The tone curve is measured only up to about 60 percent of full brightness; above it, it is an extension. Layers 2 to 6, Dyadic, the Default filter, Denoise, Automatic, Hold and Linked are built from observation and guesses and not yet compared |

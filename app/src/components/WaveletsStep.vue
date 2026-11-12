@@ -4,7 +4,7 @@ import { runAction } from "../actions";
 import { isMono } from "../colour";
 import { defaultLayer, formatPreview, LAYER_RANGE } from "../logic/settings";
 import { linkedLevels } from "../logic/wavelet";
-import { settings, status } from "../state";
+import { settings } from "../state";
 import NumberField from "./NumberField.vue";
 import StepPanel from "./StepPanel.vue";
 
@@ -13,7 +13,6 @@ import StepPanel from "./StepPanel.vue";
 const wavelet = settings.wavelet;
 // Grayscale recordings have no colour to process: Colour and LRGB are locked, LRGB also without Colour.
 const mono = computed(() => isMono());
-const busy = computed(() => status.busy !== null);
 
 function resetWavelets() {
   wavelet.layers.forEach((layer) => Object.assign(layer, defaultLayer()));
@@ -44,7 +43,7 @@ function moveSlider(index: number, event: Event) {
         <label class="chk"><input v-model="layer.enabled" type="checkbox" />{{ i + 1 }}</label>
         <NumberField v-model="layer.denoise" :decimals="2" :step="0.01" :label="`Denoise layer ${i + 1}`" />
         <NumberField v-model="layer.sharpen" :decimals="3" :step="0.005" :label="`Sharpen layer ${i + 1}`" />
-        <button type="button" class="btn small" :title="`Preview layer ${i + 1}`" @click="runAction('previewLayer')">{{ formatPreview(layer.level) }}</button>
+        <button type="button" class="btn small" :title="`Preview layer ${i + 1}: Not available yet`" disabled>{{ formatPreview(layer.level) }}</button>
         <input :value="layer.level" type="range" :min="LAYER_RANGE.min" :max="LAYER_RANGE.max" :aria-label="`Layer ${i + 1}`" @input="moveSlider(i, $event)" />
       </div>
     </div>
@@ -84,7 +83,10 @@ function moveSlider(index: number, event: Event) {
 
       <div class="grp">
         <div class="col buttons">
-          <button type="button" class="btn" :disabled="busy" @click="runAction('realign')">Realign with Processed</button>
+          <div class="locked" title="Not available yet">
+            <button type="button" class="btn" disabled>Realign with Processed</button>
+            <span class="factor">Not available yet</span>
+          </div>
           <button type="button" class="btn" disabled>Stack Again</button>
         </div>
       </div>
@@ -130,5 +132,14 @@ function moveSlider(index: number, event: Event) {
 .buttons {
   gap: 6px;
   margin-top: 8px;
+}
+.locked {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.factor {
+  font-size: var(--fs-s);
+  color: var(--muted);
 }
 </style>
