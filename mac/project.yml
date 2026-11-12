@@ -50,6 +50,13 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSMinimumSystemVersion: "14.0"
         LSApplicationCategoryType: public.app-category.photography
+        # The project file is a type of its own (JSON inside), so a saved .rkproj is recognised and selectable in Open Project.
+        UTExportedTypeDeclarations:
+          - UTTypeIdentifier: de.kuhlmay.siderea.planets.project
+            UTTypeDescription: Siderea Planets project
+            UTTypeConformsTo: [public.json]
+            UTTypeTagSpecification:
+              public.filename-extension: [rkproj]
         NSHumanReadableCopyright: "Siderea Planets, stacking and sharpening for planetary astrophotography."
     settings:
       base:
