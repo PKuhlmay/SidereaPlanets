@@ -619,7 +619,7 @@ Dokuments. Bedienelemente und Eingaben folgen dort, wo es eine Mac-Konvention gi
 
 | Entwurf (Windows) | Mac-App | Grund |
 |---|---|---|
-| Werkzeugleiste als eigene Leiste, 44 px, Fenstertitel nur der des Systems | Native Werkzeugleiste im Fenster (Select, MRU, in der Mitte Cancel und Pause); Titel `SidereaPlanets — ‹Datei›` in der Titelleiste | Mac-Fensteraufbau; Help, CPUs und die Projekt-Schaltflächen kommen mit MAC-009 und MAC-010 |
+| Werkzeugleiste als eigene Leiste, 44 px, Fenstertitel nur der des Systems | Native Werkzeugleiste im Fenster (Select, MRU, in der Mitte Cancel und Pause); Titel `SidereaPlanets — ‹Datei›` in der Titelleiste | Mac-Fensteraufbau; Open und Save (Projekt) stehen links neben Cancel und Pause, Help und CPUs kommen mit MAC-010 |
 | Select und MRU nur in der Werkzeugleiste | zusätzlich **⌘O** „Open…“ und **Datei > Open Recent** (mit „Clear Menu“) | Menüleiste und ⌘-Kürzel (Mac-Konvention) |
 | Dateidialog des Betriebssystems | `NSOpenPanel`, Mehrfachauswahl; die Dateien einer Bildserie gehen nach Namen sortiert an den Kern | nativ |
 | Mausrad zoomt, Ziehen verschiebt | Pinch auf dem Trackpad zoomt um die Finger, **⌥ oder ⌘ + Scrollen** zoomt um den Zeiger, einfaches Scrollen und Ziehen verschieben, Zwei-Finger-Doppeltipp schaltet zwischen Fit und 100 % | Mac-Gesten; ein Mausrad ohne Taste zoomt nicht |
@@ -630,6 +630,7 @@ Dokuments. Bedienelemente und Eingaben folgen dort, wo es eine Mac-Konvention gi
 | Thema in Settings > Theme umschaltbar | folgt der Darstellung von macOS (hell und dunkel), kein Theme-Eintrag | Systemeinstellung gilt |
 | Felder, Regler, Stepper, Menüs der Oberfläche | Systemschrift (SF) in 13 und 12 pt, native Steuerelemente (`Stepper`, `Slider`, `TextField`) mit Akzent `--accent`; eigene Gestaltung nur dort, wo dieses Dokument sie festlegt (Pillen, Schaltflächen, Zoom-Leiste, Statusleiste) | Mac-Steuerelemente, Fokus und Bedienungshilfen kommen vom System |
 | – | Eine Datei aus dem Finder auf das Fenster ziehen öffnet sie | Mac-Konvention |
+| Save image nur als Schaltfläche mit Menü der Dateitypen; Open und Save (Projekt) nur in der Werkzeugleiste | zusätzlich im Menü File: **Save Image… (⌘S)** im zuletzt gewählten Dateityp (Start: TIFF 16 bit; bietet der Schritt ihn nicht an, TIFF), **Save Project…** und **Open Project…**; Speichern-Dialog `NSSavePanel` mit dem gewählten Typ, Öffnen-Dialog `NSOpenPanel` für `.rkproj`; Save Aligned und Save Integrated laufen wie Stack mit Fortschritt, Cancel (⌘.) und Pause | Mac-Konvention ⌘S und native Dateidialoge |
 | Ansicht der Doku im Help-Fenster | Help-Fenster, About im App-Menü, Einstellungen im Menü (⌘,) und Vollbild nach Mac-Art | folgt mit MAC-010 |
 
 Die Dateiangaben im Schritt Open zeigen auf dem Mac zusätzlich zu Dateiname, Codec, Größe und Frame-Zahl auch Format, Bittiefe,

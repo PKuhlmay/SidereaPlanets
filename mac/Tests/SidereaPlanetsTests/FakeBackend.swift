@@ -13,7 +13,10 @@ final class CallLog: @unchecked Sendable {
     private var cancelled: [SessionOperation] = []
     private var pauses: [Bool] = []
     private var cancelHandler: (@Sendable () -> Void)?
+    private var imageError: String?
 
+    func setImageError(_ message: String?) { lock.withLock { imageError = message } }
+    var missingImage: String? { lock.withLock { imageError } }
     func setThreshold(_ value: Int) { lock.withLock { thresholdValue = value } }
     var threshold: Int { lock.withLock { thresholdValue } }
     var cancelledOperations: [SessionOperation] { lock.withLock { cancelled } }
@@ -203,6 +206,73 @@ actor FakeBackend: SessionBackend {
     private func failHeldStack() {
         stackWaiter?.resume(throwing: PlanetsError.Cancelled(message: "cancelled"))
         stackWaiter = nil
+    }
+
+    // MARK: Save
+
+    struct ImageSave {
+        var source: ImageSource
+        var format: ExportFormat
+        var url: URL
+        var adjustments: ColorSettings?
+    }
+
+    struct VideoSave {
+        var integrated: Bool
+        var url: URL
+        var settings: SequenceSettings
+    }
+
+    var saveError: String?
+    var holdsVideo = false
+    private(set) var imageSaves: [ImageSave] = []
+    private(set) var videoSaves: [VideoSave] = []
+    private var videoWaiter: CheckedContinuation<Void, Error>?
+
+    func setSaveError(_ message: String?) { saveError = message }
+    func setHoldsVideo(_ hold: Bool) { holdsVideo = hold }
+    var isVideoHeld: Bool { videoWaiter != nil }
+
+    nonisolated func requireImage(_ source: ImageSource) throws {
+        if let message = log.missingImage { throw Failure(message: message) }
+    }
+
+    func saveImage(_ source: ImageSource, format: ExportFormat, to url: URL, adjustments: ColorSettings?) async throws -> URL {
+        imageSaves.append(ImageSave(source: source, format: format, url: url, adjustments: adjustments))
+        if let saveError { throw Failure(message: saveError) }
+        return url
+    }
+
+    func saveAligned(to url: URL, _ settings: SequenceSettings, progress: ProgressHandler?) async throws -> SavedVideo {
+        try await writeVideo(integrated: false, to: url, settings, progress: progress)
+    }
+
+    func saveIntegrated(to url: URL, _ settings: SequenceSettings, progress: ProgressHandler?) async throws -> SavedVideo {
+        try await writeVideo(integrated: true, to: url, settings, progress: progress)
+    }
+
+    private func writeVideo(integrated: Bool, to url: URL, _ settings: SequenceSettings, progress: ProgressHandler?) async throws -> SavedVideo {
+        videoSaves.append(VideoSave(integrated: integrated, url: url, settings: settings))
+        if let saveError { throw Failure(message: saveError) }
+        let total = UInt32(settings.stack.frames.count)
+        progress?(OperationProgress(operation: .sequence, done: max(total / 2, 1), total: total, elapsed: .milliseconds(100)))
+        if holdsVideo {
+            log.onCancel { [weak self] in Task { await self?.failHeldVideo() } }
+            try await withCheckedThrowingContinuation { videoWaiter = $0 }
+        }
+        progress?(OperationProgress(operation: .sequence, done: total, total: total, elapsed: .seconds(1)))
+        return SavedVideo(path: url.path, frames: total)
+    }
+
+    /// Lets a held video finish.
+    func finishVideo() {
+        videoWaiter?.resume()
+        videoWaiter = nil
+    }
+
+    private func failHeldVideo() {
+        videoWaiter?.resume(throwing: PlanetsError.Cancelled(message: "cancelled"))
+        videoWaiter = nil
     }
 
     nonisolated func cancel(_ operation: SessionOperation) { log.recordCancel(operation) }

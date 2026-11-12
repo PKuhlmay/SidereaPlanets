@@ -2,7 +2,7 @@ import SwiftUI
 
 // The settings of step 5 in the left panel (docs/design.md, "5 Stack"): StackSize, Use Nearestby Alignpoints and Correct geometry
 // first, the rest of the Stacking options under Advanced. Values, defaults and locked options are those of the Windows app
-// (StackStep.vue); the group Create AVI with Save Aligned and Save Integrated comes with MAC-009.
+// (StackStep.vue); the group Create AVI with Save Aligned and Save Integrated is in Views/Save/SaveViews.swift.
 
 struct StackStepView: View {
     @Bindable var model: AppModel
@@ -19,7 +19,7 @@ struct StackStepView: View {
             PanelCheckbox(title: "Correct geometry", isOn: $model.stackOptions.correctGeometry)
                 .padding(.top, 2)
 
-            AdvancedSection(model: model, step: .stack, count: 6) {
+            AdvancedSection(model: model, step: .stack, count: 14) {
                 VStack(alignment: .leading, spacing: 4) {
                     GroupHeading(title: "Stacking options")
                     PanelCheckbox(title: "Normalization of frame intensity", isOn: $model.stackOptions.normalize)
@@ -34,6 +34,7 @@ struct StackStepView: View {
                     // Locked: the stack does not enlarge the result yet (docs/stacking.md).
                     LockedOption(title: "Resampling", kind: .checkbox)
                     LockedOption(title: "Drizzling", kind: .checkbox)
+                    CreateAviSection(model: model)
                 }
             }
         }

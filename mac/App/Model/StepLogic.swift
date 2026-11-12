@@ -75,7 +75,7 @@ nonisolated enum ViewStep: Int, CaseIterable, Identifiable, Sendable {
     }
 
     /// Whether the step is built in this version; the others show their panel frame and a note.
-    var isBuilt: Bool { self == .open || self == .alignpoints || self == .align || self == .limit || self == .stack }
+    var isBuilt: Bool { self == .open || self == .alignpoints || self == .align || self == .limit || self == .stack || self == .save }
 }
 
 /// Everything the step states depend on. `waveletsDone`: the result of Do All matches the stack and the current wavelet

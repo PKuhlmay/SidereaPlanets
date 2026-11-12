@@ -57,6 +57,8 @@ final class AppModel {
     var align = AlignData()
     /// The values of the Stack panel and the check marks of its Show menu.
     var stackOptions = StackOptions()
+    /// What the step Save keeps: the file type of Save image, the name it wrote last, a write under way.
+    var saveState = SaveState()
     /// The stack, from Stack until Set Alignpoints, Align or Limit runs again.
     var stacked: StackedImage?
     /// The next drag in the image draws the region (R.o.Interest).
@@ -99,7 +101,7 @@ final class AppModel {
         Dictionary(uniqueKeysWithValues: ViewStep.allCases.map { ($0, progress.state(of: $0)) })
     }
     /// Opening or a calculation is running: no pill opens and the actions are locked.
-    var isBusy: Bool { isOpening || run != nil }
+    var isBusy: Bool { isOpening || run != nil || saveState.isWriting }
 
     var windowTitle: String {
         makeWindowTitle(fileName: details?.fileName ?? "", busy: run.map { (name: $0.name, progress: status.progress) })
@@ -134,6 +136,7 @@ final class AppModel {
         case .align: "best quality \(Int((align.bestQuality ?? 0).rounded())) %"
         case .limit: "\(align.keptCount) of \(frameCount) kept"
         case .stack: stacked.map { stackResultText(frames: $0.frames, width: $0.width, height: $0.height) } ?? ""
+        case .save: saveState.savedName
         default: ""
         }
     }

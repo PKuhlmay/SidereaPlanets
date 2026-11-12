@@ -59,6 +59,7 @@ struct StepPanel: View {
         case .align: AlignStepView(model: model)
         case .limit: LimitStepView(model: model)
         case .stack: StackStepView(model: model)
+        case .save: SaveStepView(model: model)
         default:
             Text("Comes in a later version")
                 .font(.rkSmall)
@@ -68,9 +69,21 @@ struct StepPanel: View {
 
     // MARK: Foot
 
+    /// After Save image everything is done and Save stays open with its result.
+    private var isFinished: Bool { step == .save && state.status == .done && model.progress.nextOpen == .save }
+
     private var foot: some View {
         VStack(spacing: 8) {
-            if state.status == .done {
+            if isFinished {
+                Text(model.result(of: step))
+                    .font(.rkSmall)
+                    .foregroundStyle(RK.ok)
+                    .lineLimit(1)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                Button("Open another recording", action: select)
+                    .buttonStyle(.rkFilled)
+                    .disabled(model.isBusy)
+            } else if state.status == .done {
                 Text(model.result(of: step))
                     .font(.rkSmall)
                     .foregroundStyle(RK.ok)
@@ -85,14 +98,19 @@ struct StepPanel: View {
                         .foregroundStyle(RK.muted)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
+                if step == .stack { SaveImageMenu(model: model, source: .stack) }
                 Button("Continue: \(model.progress.nextOpen.label) ›") { model.show(model.progress.nextOpen) }
                     .buttonStyle(.rkFilled)
                     .disabled(model.progress.nextOpen == step || model.isBusy)
             } else {
-                Button(step.action, action: act)
-                    .buttonStyle(.rkFilled)
-                    .disabled(!step.isBuilt || model.isBusy)
-                    .help(step.isBuilt ? "" : "Comes in a later version")
+                if step == .save {
+                    SaveImageMenu(model: model, source: .wavelet, filled: true)
+                } else {
+                    Button(step.action, action: act)
+                        .buttonStyle(.rkFilled)
+                        .disabled(!step.isBuilt || model.isBusy)
+                        .help(step.isBuilt ? "" : "Comes in a later version")
+                }
                 if let next = step.next {
                     Text("Then: \(next.label)").font(.rkSmall).foregroundStyle(RK.muted)
                 }

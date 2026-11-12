@@ -33,7 +33,7 @@ struct ContentView: View {
 }
 
 /// The toolbar: Select and MRU at the left, Cancel and Pause in the middle (they act on a running Align; Cancel is ⌘. in the
-/// Process menu). Open project, Save, Help and CPUs follow with their tickets.
+/// Process menu), Open project and Save project. Help and CPUs follow with their tickets.
 struct AppToolbar: ToolbarContent {
     let model: AppModel
 
@@ -46,6 +46,15 @@ struct AppToolbar: ToolbarContent {
                 RecentMenuItems(model: model)
             }
             .help("Recently opened recordings")
+            // Not in the original: the project file keeps the recording and the settings of a session (docs/formats.md).
+            Button { Task { await model.chooseAndOpenProject() } } label: { Label("Open", systemImage: "folder") }
+                .labelStyle(.titleAndIcon)
+                .disabled(model.isBusy)
+                .help("Open project")
+            Button { Task { await model.chooseAndSaveProject() } } label: { Label("Save", systemImage: "square.and.arrow.down") }
+                .labelStyle(.titleAndIcon)
+                .disabled(!model.canSaveProject)
+                .help("Save project")
         }
         ToolbarItemGroup(placement: .principal) {
             CancelButton(model: model)

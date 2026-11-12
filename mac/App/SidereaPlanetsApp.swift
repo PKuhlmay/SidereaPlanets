@@ -45,6 +45,15 @@ struct AppCommands: Commands {
                     .disabled(model.recent.entries.isEmpty)
             }
         }
+        CommandGroup(replacing: .saveItem) {
+            Button("Save Image…") { Task { await model.chooseAndSaveImage() } }
+                .keyboardShortcut("s")
+                .disabled(!model.canSaveImage)
+            Button("Save Project…") { Task { await model.chooseAndSaveProject() } }
+                .disabled(!model.canSaveProject)
+            Button("Open Project…") { Task { await model.chooseAndOpenProject() } }
+                .disabled(model.isBusy)
+        }
         CommandMenu("Process") {
             Button("Cancel") { model.cancelRun() }
                 .keyboardShortcut(".")

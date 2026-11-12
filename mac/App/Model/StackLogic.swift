@@ -18,6 +18,16 @@ nonisolated struct StackOptions: Equatable, Sendable {
     var normalize = false
     /// *Do not stack n pixels at the frameedge*
     var edgePixels = 0
+    // Create AVI (Advanced, MAC-009): Codec and Compress Qual have no effect, the video is uncompressed; Image size other than the
+    // original and Use Prefilters are not read yet either (docs/formats.md, "Create AVI"). The Windows app offers them all the same.
+    var codec = "DIB"
+    var compressQuality = 7500
+    var framerate = 25
+    var alignedSize = AlignedSize.original
+    var sortOnQuality = false
+    var usePrefilters = false
+    var integratedMethod = IntegratedMethod.moving
+    var averageFrames = 5
     // The Show menu of the Stack tab; Full Image, Stackgraph and Stacklist have no function yet (they can be set, nothing shows).
     var showFullImage = true
     var showAlignSections = true
