@@ -416,3 +416,24 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
       `geometry` (serde-Typen fehlen noch: `Orientation`, `Resize`, `Geometry` brauchen dann `Deserialize` mit camelCase) und den Befehl für die Vorschau.
       Anwenderseiten (`color-and-tones.md`, `save-and-export.md`, `step-wavelets-save.md`, `image-area.md`, `glossary.md`) liegen schon gemeinsam auf `main`.
       Mac: `mac/App/Views/Wavelets/GeometryCards.swift`, `mac/App/Model/AppModel+Geometry.swift`.
+
+## De-rotate images (Mac: MAC-020)
+
+- [ ] Das Häkchen **De-rotate images** (Advanced im Schritt Stack) ist frei und zeigt eingeschaltet die Felder **Planet** (Segmente Jupiter · Saturn · Mars, beim Öffnen
+      aus dem Dateinamen vorgeschlagen), **Start time** (nur wenn die Datei keine Zeit je Frame hat; Datum und Uhrzeit in der Ortszeit, darunter dieselbe Zeit in UTC und bei einem
+      Vorschlag aus dem Dateidatum „taken from the file date, check it“), **Camera angle (°)** (−360 … 360, eine Nachkommastelle, Standard 0, positiv gegen den Uhrzeigersinn),
+      das Häkchen **Mirrored image** und die Zeile **„Span 3 min 12 s · rotation 5.8°“** mit dem Hinweis **„Too short to matter“** unter 1°. Aufbau, Werte und Texte in `docs/design.md`,
+      Abschnitt „Derotation (MAC-020)“. In `StackStep.vue` wird aus dem gesperrten Häkchen (`stack-pages.test.ts` zählt bisher sieben gesperrte Optionen, danach sechs) die
+      Gruppe; `settings.stack.derotate` ist der Schalter, die übrigen Werte kommen neu dazu (`planet`, `cameraAngle`, `mirrored`, `startTime`).
+- [ ] **Overlay** im Schritt Stack, solange das Häkchen an ist: gemessene Scheibe als Ellipse (`--accent`, 1,5 px), für Saturn die Außenkante des Rings gestrichelt, kurzer Strich mit **N**
+      über dem Nordpol des Planeten; der Schritt zeigt dazu das Bezugsframe (dort wurde gemessen). Mac: `mac/App/Views/ImageOverlays.swift` (`drawDisc`),
+      `mac/App/Model/AppModel+Derotation.swift` (`refreshDerotation`, 120 ms verzögert, nach jeder Änderung der Felder und der Frame-Auswahl).
+- [ ] **Projektdatei:** optionaler Abschnitt `derotation` (`enabled`, `planet`, `cameraAngle`, `mirrored`, `startTimeUtc` in Sekunden seit 1970 UTC); fehlt er oder ein Schlüssel,
+      bleiben die Werte. Mac: `mac/App/Model/StackLogic.swift` (`derotationSection`, `applyDerotationSection`).
+- [ ] **Rechenkern schon gemeinsam auf `main`:** `StackSettings.derotation: Option<DerotationSettings>` (`#[serde(default)]`, die Tauri-Befehle reichen den Wert durch, die Windows-App
+      schickt bisher keinen: `{ "planet": "jupiter" | "saturn" | "mars", "cameraAngleDeg": 0, "mirrored": false, "startTimeUtc": <Sekunden seit 1970 oder null>, "useFileTimestamps": true }`),
+      `Session::derotation_info(settings, referenceFrame, frames)` (Span, Drehung, gemessene Scheibe; ein Befehl dafür fehlt in `app/src-tauri` noch), `RecordingInfo` mit
+      `hasTimestamps`, `startTime` (Unix-Sekunden) und `startTimeFromFileDate`; SER-Zeitstempel (Nachspann der Datei) in `planets_io::ser`. Die Hilfeseiten `step-stack.md` und
+      `glossary.md` beschreiben die Funktion schon (Zeile in `step-stack.md`: „Works in the Mac version“; die Windows-Version nennt sie bis dahin gesperrt, dann ist die Zeile
+      und der Test `describes De-rotate images as working in the Mac version` anzupassen). *Save Aligned* und *Save Integrated* derotieren nicht.
+

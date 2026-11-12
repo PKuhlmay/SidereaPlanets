@@ -8,6 +8,10 @@ publish.workspace = true
 rayon = "1.12.0"
 serde = { version = "1", features = ["derive"] }
 
+[features]
+# A synthetic rotating planet for the tests of other crates (`synthetic.rs`).
+synthetic-planet = []
+
 [dev-dependencies]
 serde_json = "1"
 

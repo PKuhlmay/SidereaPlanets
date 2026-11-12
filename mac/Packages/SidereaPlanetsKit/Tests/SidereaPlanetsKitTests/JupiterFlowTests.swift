@@ -107,6 +107,54 @@ struct JupiterFlowTests {
     }
 }
 
+@Suite("De-rotation through SidereaPlanetsKit", .enabled(if: jupiter != nil, "JUPITER.AVI not found in re-local/"))
+struct DerotationFlowTests {
+    private func pointsAndStackSettings(_ session: PlanetsSession, derotation: DerotationSettings?) async throws -> StackSettings {
+        let points = try await session.setAlignpoints(frame: 0, defaultPointSettings)
+        return StackSettings(
+            referenceFrame: 0, points: points.points.map { PointPosition(x: $0.x, y: $0.y) }, frames: Array(0..<10),
+            boxSize: 30, maxMovement: 5, nearestPoints: 3, correctGeometry: true, normalize: false, edgeSkip: 0, roi: nil,
+            derotation: derotation)
+    }
+
+    @Test("The recording suggests a start time, the panel gets span, rotation and the disc, and Stack runs with De-rotate images")
+    func derotationOnTheRealRecording() async throws {
+        let session = try PlanetsSession()
+        let info = try await session.openRecording([jupiter!])
+        // An AVI has no time stamps: the start is guessed from the date of the file and says so.
+        #expect(!info.hasTimestamps && info.startTime != nil && info.startTimeFromFileDate)
+        #expect(derotationPlanetFromName(text: jupiter!.lastPathComponent) == .jupiter)
+
+        let settings = DerotationSettings(
+            planet: .jupiter, cameraAngleDeg: 0, mirrored: false, startTimeUtc: info.startTime, useFileTimestamps: true)
+        let stackSettings = try await pointsAndStackSettings(session, derotation: settings)
+        let answer = try await session.derotationInfo(settings, referenceFrame: 0, frames: Array(0..<10))
+        #expect(answer.problem == nil)
+        // Ten frames of a video are a fraction of a second: nothing turns, and the panel says so.
+        #expect(answer.spanSeconds > 0 && answer.spanSeconds < 2 && answer.rotationDegrees < 0.1)
+        let disc = try #require(answer.disc)
+        #expect(disc.semiMajor > 50 && disc.semiMinor <= disc.semiMajor && disc.x > 0 && disc.x < 1024 && disc.y > 0 && disc.y < 680)
+        #expect(disc.ring.isEmpty)
+
+        let stacked = try await session.stack(stackSettings)
+        #expect(stacked.width == 1024 && stacked.height == 680 && stacked.frames == 10)
+    }
+
+    @Test("Without a start time the panel says what is missing and Stack fails with the same words")
+    func missingStartTime() async throws {
+        let session = try PlanetsSession()
+        _ = try await session.openRecording([jupiter!])
+        let settings = DerotationSettings(
+            planet: .jupiter, cameraAngleDeg: 0, mirrored: false, startTimeUtc: nil, useFileTimestamps: true)
+        let answer = try await session.derotationInfo(settings, referenceFrame: 0, frames: Array(0..<10))
+        #expect(answer.problem == "De-rotation needs the start time of the recording" && answer.disc == nil)
+        let stackSettings = try await pointsAndStackSettings(session, derotation: settings)
+        await #expect(throws: PlanetsError.Failed(message: "De-rotation needs the start time of the recording")) {
+            _ = try await session.stack(stackSettings)
+        }
+    }
+}
+
 @Suite("PlanetsSession without a recording")
 struct SessionBasicsTests {
     @Test("A step without its input fails with the text of the session")

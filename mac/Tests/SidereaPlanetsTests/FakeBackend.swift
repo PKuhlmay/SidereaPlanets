@@ -199,6 +199,22 @@ actor FakeBackend: SessionBackend {
         return try #require(rgba.makeCGImage())
     }
 
+    // MARK: De-rotation
+
+    /// What De-rotate images answers, and what it was asked.
+    static let discShape = DiscShape(
+        x: 512, y: 340, semiMajor: 140, semiMinor: 131, angle: -24.8, ring: [], northX: -0.42, northY: -0.91)
+    var derotation = DerotationInfo(
+        spanSeconds: 192, rotationDegrees: 5.8, subEarthLatitude: -2.5, poleAngle: 24.8, disc: FakeBackend.discShape, problem: nil)
+    private(set) var derotationCalls: [(settings: DerotationSettings, referenceFrame: UInt32, frames: [UInt32])] = []
+
+    func setDerotation(_ info: DerotationInfo) { derotation = info }
+
+    func derotationInfo(_ settings: DerotationSettings, referenceFrame: UInt32, frames: [UInt32]) async throws -> DerotationInfo {
+        derotationCalls.append((settings, referenceFrame, frames))
+        return derotation
+    }
+
     /// Lets a held Stack finish.
     func finishStack() {
         stackWaiter?.resume()

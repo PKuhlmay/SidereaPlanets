@@ -13,6 +13,7 @@ use crate::{
     Image,
     align::{AlignPoint, Control, FrameAlignment, Reference},
     batch::{Stop, batch_size, for_each_batch},
+    derotate::Derotator,
 };
 use rayon::prelude::*;
 
@@ -447,6 +448,13 @@ pub struct StackResult {
     pub frames: u32,
 }
 
+/// What de-rotation needs while stacking: the measured planet and the time of every frame of the selection.
+pub struct Derotation<'a> {
+    pub derotator: &'a Derotator,
+    /// For the frame at position `i` of the selection: its time minus the reference time, in seconds.
+    pub offsets: &'a [f64],
+}
+
 /// Registers the frames `selection` (indices as `read` takes them) against `reference` and stacks
 /// them. The frames are read in the order of `selection`, one batch of about one frame per thread of the
 /// current `rayon` pool at a time (`read` may borrow a file; the next batch is read while the current one
@@ -460,6 +468,29 @@ pub fn stack_sequence<E: Send>(
     params: &StackParams,
     selection: &[u32],
     read: impl FnMut(u32) -> Result<Image, E> + Send,
+    progress: impl FnMut(u32) -> Control + Send,
+) -> Result<StackResult, StackError<E>> {
+    stack_sequence_derotated(
+        reference,
+        reference_frame,
+        params,
+        None,
+        selection,
+        read,
+        progress,
+    )
+}
+
+/// [`stack_sequence`] with de-rotation (MAC-020): every frame of a batch is turned back to the reference time first, in parallel,
+/// and then registered and added. `reference` and `reference_frame` must be the reference frame already turned to that time, or
+/// the alignpoints would follow features that moved.
+pub fn stack_sequence_derotated<E: Send>(
+    reference: &Reference,
+    reference_frame: &Image,
+    params: &StackParams,
+    derotation: Option<&Derotation>,
+    selection: &[u32],
+    read: impl FnMut(u32) -> Result<Image, E> + Send,
     mut progress: impl FnMut(u32) -> Control + Send,
 ) -> Result<StackResult, StackError<E>> {
     if selection.is_empty() {
@@ -469,11 +500,27 @@ pub fn stack_sequence<E: Send>(
     let frame_bytes = reference_frame.data.len() * std::mem::size_of::<f32>();
     let mut done = 0u32;
     for_each_batch(selection, batch_size(frame_bytes), read, |frames| {
-        let alignments: Vec<FrameAlignment> = frames
+        let first = done as usize;
+        let turned: Option<Vec<Image>> = derotation.map(|d| {
+            frames
+                .par_iter()
+                .enumerate()
+                .map(|(i, frame)| {
+                    let offset = d.offsets.get(first + i).copied().unwrap_or(0.0);
+                    d.derotator.derotate(frame, offset)
+                })
+                .collect()
+        });
+        let source: Vec<&Image> = match &turned {
+            Some(images) => images.iter().collect(),
+            None => frames.iter().collect(),
+        };
+        let alignments: Vec<FrameAlignment> = source
             .par_iter()
             .map(|frame| reference.align_frame(frame))
             .collect();
-        let batch: Vec<(&Image, &FrameAlignment)> = frames.iter().zip(&alignments).collect();
+        let batch: Vec<(&Image, &FrameAlignment)> =
+            source.iter().copied().zip(&alignments).collect();
         stacker.add_aligned(&batch);
         for _ in frames {
             done += 1;
@@ -1207,5 +1254,101 @@ mod tests {
         b.data.iter_mut().for_each(|v| *v += 0.01);
         // MSE 1e-4 at peak 1.0 is 40 dB.
         assert!((psnr(&a, &b).unwrap() - 40.0).abs() < 0.01);
+    }
+
+    /// Three frames of a rotating, synthetic Jupiter five minutes apart, the middle one as the reference.
+    fn rotating_planet() -> (Vec<Image>, Vec<AlignPoint>) {
+        use crate::synthetic::synthetic_jupiter;
+        let frames: Vec<Image> = [0.0, 300.0, 600.0]
+            .iter()
+            .map(|&t| synthetic_jupiter(t).0)
+            .collect();
+        // Alignpoints on a grid over the disc (centre 160, 120; radius 100).
+        let points = points_from_positions(
+            (60..=180)
+                .step_by(30)
+                .flat_map(|y| (80..=240).step_by(30).map(move |x| (x, y))),
+        );
+        (frames, points)
+    }
+
+    #[test]
+    fn de_rotated_frames_stack_to_the_reference_time_not_a_smear() {
+        use crate::{derotate::Derotator, synthetic::synthetic_jupiter};
+        let (frames, points) = rotating_planet();
+        let view = synthetic_jupiter(0.0).1;
+        let middle = &frames[1];
+        let derotator = Derotator::new(view, middle).unwrap();
+        let offsets = [-300.0, 0.0, 300.0];
+        let reference = reference_of(middle, &points);
+        let params = StackParams {
+            correct_geometry: false,
+            ..StackParams::default()
+        };
+        let run = |derotation: Option<&Derotation>| {
+            stack_sequence_derotated(
+                &reference,
+                middle,
+                &params,
+                derotation,
+                &[0, 1, 2],
+                |i| Ok::<_, ()>(frames[i as usize].clone()),
+                |_| Control::Continue,
+            )
+            .unwrap()
+            .image
+        };
+        let plain = run(None);
+        let turned = run(Some(&Derotation {
+            derotator: &derotator,
+            offsets: &offsets,
+        }));
+        // Only the disc counts: the dark sky around it is the same in all of them.
+        let inside = |img: &Image| -> Image {
+            let mut out = img.clone();
+            for y in 0..240usize {
+                for x in 0..320usize {
+                    if ((x as f64 - 160.3).hypot(y as f64 - 120.6)) > 97.0 {
+                        out.data[y * 320 + x] = 0.0;
+                    }
+                }
+            }
+            out
+        };
+        let target = inside(middle);
+        let (with, without) = (
+            psnr(&inside(&turned), &target).unwrap(),
+            psnr(&inside(&plain), &target).unwrap(),
+        );
+        eprintln!("stack of 3 frames over 10 min: with {with:.2} dB, without {without:.2} dB");
+        assert!(with > without + 4.0, "with {with} dB, without {without} dB");
+        assert!(with > 45.0, "with {with} dB");
+    }
+
+    #[test]
+    fn without_time_differences_de_rotation_changes_nothing() {
+        use crate::derotate::Derotator;
+        let (frames, points) = rotating_planet();
+        let view = crate::synthetic::synthetic_jupiter(0.0).1;
+        let derotator = Derotator::new(view, &frames[1]).unwrap();
+        let reference = reference_of(&frames[1], &points);
+        let run = |derotation: Option<&Derotation>| {
+            stack_sequence_derotated(
+                &reference,
+                &frames[1],
+                &StackParams::default(),
+                derotation,
+                &[0, 1, 2],
+                |i| Ok::<_, ()>(frames[i as usize].clone()),
+                |_| Control::Continue,
+            )
+            .unwrap()
+        };
+        let none = run(None);
+        let zero = run(Some(&Derotation {
+            derotator: &derotator,
+            offsets: &[0.0, 0.0, 0.0],
+        }));
+        assert_eq!(none, zero);
     }
 }

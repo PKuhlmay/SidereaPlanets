@@ -126,6 +126,8 @@ extension AppModel {
             "refine": refineSection(tone.refine),
             // Mac only (MAC-017): Flip and Rotate and Resize Image.
             "geometry": geometrySection(geometry),
+            // Mac only (MAC-020): De-rotate images with its planet, camera angle and start time.
+            "derotation": derotationSection(stackOptions),
         ]
     }
 
@@ -134,6 +136,7 @@ extension AppModel {
     func applyProjectSections(_ sections: [String: JSON]) {
         applyAlignSection(sections["align"], to: &options, show: &show)
         applyStackSection(sections["stack"], to: &stackOptions)
+        applyDerotationSection(sections["derotation"], to: &stackOptions)
         var waveletOptions = wavelet
         var toneValues = tone
         applyWaveletSection(sections["wavelet"], to: &waveletOptions, tone: &toneValues)

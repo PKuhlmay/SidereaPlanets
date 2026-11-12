@@ -43,6 +43,15 @@ pub struct RecordingInfo {
     pub observer: Option<String>,
     pub instrument: Option<String>,
     pub telescope: Option<String>,
+    /// The file has a time for every frame (SER trailer).
+    #[uniffi(default = false)]
+    pub has_timestamps: bool,
+    /// When the recording started, seconds since 1970-01-01 UTC.
+    #[uniffi(default = None)]
+    pub start_time: Option<f64>,
+    /// `start_time` is a guess from the date of the file.
+    #[uniffi(default = false)]
+    pub start_time_from_file_date: bool,
 }
 
 impl From<session::RecordingInfo> for RecordingInfo {
@@ -59,6 +68,9 @@ impl From<session::RecordingInfo> for RecordingInfo {
             observer: i.observer,
             instrument: i.instrument,
             telescope: i.telescope,
+            has_timestamps: i.has_timestamps,
+            start_time: i.start_time,
+            start_time_from_file_date: i.start_time_from_file_date,
         }
     }
 }
@@ -445,6 +457,9 @@ pub struct StackSettings {
     pub normalize: bool,
     pub edge_skip: u32,
     pub roi: Option<RoiSettings>,
+    /// *De-rotate images*; `None` is off.
+    #[uniffi(default = None)]
+    pub derotation: Option<DerotationSettings>,
 }
 
 impl From<StackSettings> for session::StackSettings {
@@ -464,6 +479,119 @@ impl From<StackSettings> for session::StackSettings {
             normalize: s.normalize,
             edge_skip: s.edge_skip,
             roi: s.roi.map(Into::into),
+            derotation: s.derotation.map(Into::into),
+        }
+    }
+}
+
+// --- De-rotation -------------------------------------------------------------------------------
+
+/// The planets whose rotation can be taken out of a stack.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
+pub enum DerotatePlanet {
+    Jupiter,
+    Saturn,
+    Mars,
+}
+
+impl From<DerotatePlanet> for session::Planet {
+    fn from(p: DerotatePlanet) -> Self {
+        match p {
+            DerotatePlanet::Jupiter => Self::Jupiter,
+            DerotatePlanet::Saturn => Self::Saturn,
+            DerotatePlanet::Mars => Self::Mars,
+        }
+    }
+}
+
+impl From<session::Planet> for DerotatePlanet {
+    fn from(p: session::Planet) -> Self {
+        match p {
+            session::Planet::Jupiter => Self::Jupiter,
+            session::Planet::Saturn => Self::Saturn,
+            session::Planet::Mars => Self::Mars,
+        }
+    }
+}
+
+/// *De-rotate images* of the stacking options.
+#[derive(Debug, Clone, PartialEq, uniffi::Record)]
+pub struct DerotationSettings {
+    pub planet: DerotatePlanet,
+    /// Degrees counter-clockwise on the screen; 0 means celestial north is up.
+    pub camera_angle_deg: f64,
+    pub mirrored: bool,
+    /// When the first frame was taken, seconds since 1970-01-01 UTC; only used without time stamps in the file.
+    pub start_time_utc: Option<f64>,
+    pub use_file_timestamps: bool,
+}
+
+impl From<DerotationSettings> for session::DerotationSettings {
+    fn from(d: DerotationSettings) -> Self {
+        Self {
+            planet: d.planet.into(),
+            camera_angle_deg: d.camera_angle_deg,
+            mirrored: d.mirrored,
+            start_time_utc: d.start_time_utc,
+            use_file_timestamps: d.use_file_timestamps,
+        }
+    }
+}
+
+/// The disc of the planet as ellipses to draw over the image (pixels of the frame, y down).
+#[derive(Debug, Clone, PartialEq, uniffi::Record)]
+pub struct DiscShape {
+    pub x: f64,
+    pub y: f64,
+    /// Along the equator.
+    pub semi_major: f64,
+    /// Along the axis of the planet.
+    pub semi_minor: f64,
+    /// Direction of the major axis, degrees clockwise on the screen from pointing right.
+    pub angle: f64,
+    /// Outer edge of the ring as `[semi_major, semi_minor]` (Saturn), else empty.
+    pub ring: Vec<f64>,
+    /// Unit vector from the centre towards the north pole of the planet (x right, y down).
+    pub north_x: f64,
+    pub north_y: f64,
+}
+
+impl From<session::DiscShape> for DiscShape {
+    fn from(d: session::DiscShape) -> Self {
+        Self {
+            x: d.x,
+            y: d.y,
+            semi_major: d.semi_major,
+            semi_minor: d.semi_minor,
+            angle: d.angle,
+            ring: d.ring.map(|(a, b)| vec![a, b]).unwrap_or_default(),
+            north_x: d.north.0,
+            north_y: d.north.1,
+        }
+    }
+}
+
+/// What the Stack panel says about de-rotation.
+#[derive(Debug, Clone, PartialEq, uniffi::Record)]
+pub struct DerotationInfo {
+    pub span_seconds: f64,
+    pub rotation_degrees: f64,
+    pub sub_earth_latitude: f64,
+    pub pole_angle: f64,
+    pub disc: Option<DiscShape>,
+    /// Why de-rotation cannot work yet, in the words the window shows.
+    pub problem: Option<String>,
+}
+
+impl From<session::DerotationInfo> for DerotationInfo {
+    fn from(i: session::DerotationInfo) -> Self {
+        Self {
+            span_seconds: i.span_seconds,
+            rotation_degrees: i.rotation_degrees,
+            sub_earth_latitude: i.sub_earth_latitude,
+            pole_angle: i.pole_angle,
+            disc: i.disc.map(Into::into),
+            problem: i.problem,
         }
     }
 }
@@ -1141,5 +1269,51 @@ mod tests {
             Core::from(LimitSettings::LowestQuality { value: 0.5 }),
             Core::LowestQuality(0.5)
         );
+    }
+
+    #[test]
+    fn de_rotation_settings_cross_unchanged_and_are_off_by_default() {
+        let settings = DerotationSettings {
+            planet: DerotatePlanet::Saturn,
+            camera_angle_deg: -12.5,
+            mirrored: true,
+            start_time_utc: Some(1_700_000_000.25),
+            use_file_timestamps: false,
+        };
+        let session: session::DerotationSettings = settings.into();
+        assert_eq!(session.planet, session::Planet::Saturn);
+        assert_eq!(session.camera_angle_deg, -12.5);
+        assert!(session.mirrored && !session.use_file_timestamps);
+        assert_eq!(session.start_time_utc, Some(1_700_000_000.25));
+        assert_eq!(
+            DerotatePlanet::from(session::Planet::Mars),
+            DerotatePlanet::Mars
+        );
+    }
+
+    #[test]
+    fn the_ring_of_a_disc_becomes_a_list() {
+        let shape = session::DiscShape {
+            x: 1.0,
+            y: 2.0,
+            semi_major: 3.0,
+            semi_minor: 2.5,
+            angle: -7.0,
+            ring: Some((6.0, 1.5)),
+            north: (0.6, -0.8),
+        };
+        assert_eq!(DiscShape::from(shape).ring, vec![6.0, 1.5]);
+        assert_eq!(
+            (
+                DiscShape::from(shape).north_x,
+                DiscShape::from(shape).north_y
+            ),
+            (0.6, -0.8)
+        );
+        let plain = session::DiscShape {
+            ring: None,
+            ..shape
+        };
+        assert!(DiscShape::from(plain).ring.is_empty());
     }
 }

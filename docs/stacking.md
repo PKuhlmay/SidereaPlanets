@@ -133,14 +133,81 @@ mit starker Luftunruhe (RK-011) würde das klären. Die Ursache der Streuung lie
 Strukturen, breiter Korrelationsrücken), nicht im Stacken; eine robustere Zuordnung (Punkte nach Schärfe der Korrelationsspitze
 wählen oder gewichten) würde die lokale Korrektur erst nutzbar machen.
 
+## Derotation (MAC-020)
+
+Planeten drehen sich während der Aufnahme: Jupiter in 9 h 55 min 40,6 s (System II), Saturn in 10 h 33 min 38 s (System III), Mars in
+24 h 37 min 22,7 s. **Eigene Umsetzung, nicht am Original beobachtet: alles hier ist Vermutung, bis ein Vergleich mit dem Original sie
+bestätigt.** (Das Original hat *De-rotate images* als Häkchen; was es rechnet, ist unbekannt.) Code: `crates/core/src/planet.rs`
+(Ephemeride), `derotate.rs` (Scheibe messen, Frame drehen), `stack.rs` (`stack_sequence_derotated`), `crates/session/src/derotate.rs`
+(Zeiten, Plan, Angaben für das Panel), SER-Zeitstempel in `crates/io/src/ser.rs`.
+
+**Zeit je Frame.** SER: der Nachspann der Datei hat je Frame einen 64-Bit-Wert in .NET-Ticks (100 ns seit 0001-01-01, UTC); er gilt nur,
+wenn alle Werte zwischen 1990 und 2100 liegen (Kameras ohne Uhr schreiben Nullen), der Kopf (`DateTimeUTC`) liefert sonst die Startzeit.
+Alles andere (AVI, Bildserien): Startzeit plus Frame-Nummer durch Bildrate. Die Startzeit gibt der Nutzer an; der Vorschlag ist die
+Änderungszeit der Datei minus Länge der Aufnahme (die Datei wurde zuletzt am Ende geschrieben), der Mac markiert ihn als Schätzung.
+Ohne Bildrate und ohne Zeitstempel (SER ohne Nachspann) gibt es keine Zeiten: Fehler „De-rotation needs time stamps or a frame rate, and this recording has neither“.
+Bezugszeit ist die Mitte zwischen dem ersten und dem letzten der ausgewählten Frames; das Bezugsframe, auf dem die Alignpoints stehen,
+wird auf diese Zeit gedreht, bevor das `Reference` entsteht, sonst folgten die Alignpoints Strukturen, die gewandert sind.
+
+**Achse.** Aus den mittleren Bahnelementen von Erde und Planet (Meeus, *Astronomical Algorithms*, 2. Aufl., Tabelle 31.A, auf das Äquinoktium
+des Datums bezogen), der Lichtlaufzeit (Kap. 42, 43, 45) und dem IAU-Pol (Jupiter 268,0566° / 64,4953°, Saturn 40,589° / 83,537°, Mars
+317,681° / 52,886°, jeweils mit der Änderung je Jahrhundert) folgen `D_E` (Breite der Erde im Planetensystem, bei Saturn Meeus' `B`) und der
+Positionswinkel `P` des Nordpols. Störungen, Nutation und Aberration fehlen. Gegen **JPL Horizons** (geozentrisch, 0 h UT, 10 Daten von 1992
+bis 2030 je Planet, Test `agrees_with_jpl_horizons_over_forty_years`): größte Abweichung **0,23° bei `D_E`** (Saturn 2026) und **0,32° bei
+`P`**; Jupiter bleibt unter 0,02° bei `D_E`. Meeus' Beispiele (Test `meeus_worked_examples`, Toleranz 0,15° bis 0,3°; das Buch lag beim Schreiben nicht vor, die Zahlen sind deshalb zusätzlich gegen Horizons abgeglichen):
+Jupiter 16.12.1992 0 h: `D_E` −2,48°, `P` 24,80°; Saturn 16.12.1992: `B` 16,42°, `P` 6,74°; Mars 9.11.1992: `D_E` 12,43°, `P` 347,64°. (Meeus' `D_E` ist die Breite des
+Richtungsvektors zur Erde; Horizons' „ObsSub-LAT“ ist die planetographische Breite der Scheibenmitte und größer, `tan D_E = (1 − f)² tan φ`.)
+Zeitbasis ist UTC statt TT (69 s, ohne Wirkung).
+
+**Scheibe.** Im Bezugsframe: Otsu-Schwelle auf dem 3 × 3-geglätteten Grauwert, größter 4-zusammenhängender Fleck, Löcher gefüllt (dunkle
+Bänder), Randpunkte jeweils auf halbem Weg zwischen Fleckpixel und Außenpixel (Punkte am Bildrand fallen weg, der Planet ist dort
+abgeschnitten). An diese Punkte wird die Ellipse angepasst, die der Planet zeigen muss: Achsenverhältnis `sqrt(sin² D + (1 − f)² cos² D)`,
+Richtung aus `P` und „Camera angle“ (zuerst Positionswinkel, dann gegebenenfalls Spiegelung, dann Kamerawinkel; Orientierung: bei Norden
+oben ist Osten links). RANSAC (600 Dreierproben, deterministisch) findet die Ellipse, auf der die meisten Randpunkte liegen, wenige
+Tukey-Schritte (Grenze 3 px) verfeinern sie: so ziehen ein Terminator (Mars) oder ein Mondrand nicht. **Saturn:** angepasst wird die
+Vereinigung aus der Kugel (`1`, `k`) und der Außenkante des A-Rings (2,27 Äquatorradien, Verhältnis `|sin D|`); jeder Punkt gehört zum
+Modell, dem er näher liegt, beide haben dieselbe Mitte und dasselbe `a`. Grenzen: der Ring muss sich von der Kugel abheben (die
+Schwelle verläuft an der Außenkante des A-Rings, ± 1–2 % im Radius), eine Ringkante von fast 0° Neigung ist nur eine Linie (das Modell
+wird dort auf `|sin D| ≥ 0,03` gehalten). Jeder weitere Frame: Mitte = Mitte der Bezugsscheibe plus Verschiebung seines Flecks
+(Schwerpunkt) gegen den des Bezugsframes; das hebt alles auf, was die Schwelle der Form antut (Phase, Ring).
+
+**Drehung.** Ein Pixel der Scheibe wird auf das abgeplattete Rotationsellipsoid zurückverfolgt (orthografische Projektion, Abplattung
+0,06487 / 0,09796 / 0,00589), um Δλ = 360° · Δt / Periode um die Achse gedreht (Δt = Zeit des Frames minus Bezugszeit, die Oberfläche
+läuft linksherum vom Nordpol aus gesehen, ein Merkmal wandert also vom Ost- zum Westrand: Test `the_wrong_direction_is_clearly_worse`),
+zurückprojiziert und bilinear abgetastet; Pixel außerhalb der Scheibe bleiben, bei Δt = 0 wird der Frame unverändert (bitgleich)
+zurückgegeben. Quelle hinter dem Limb (Tiefe ≤ 0) → Pixel bleibt. Saturn: wo der Ring vor der Kugel liegt (Strahl zum Beobachter
+schneidet die Ringebene zwischen 1,239 und 2,27 Radien), bleibt der Pixel, am Ziel wie an der Quelle. Läuft im Batch vor `align_frame`,
+parallel über die Frames (`rayon`), Frame für Frame gestreamt wie bisher; für Δt = 0 ist das Ergebnis bitgleich zum Stack ohne Derotation
+(Test `without_time_differences_de_rotation_changes_nothing`). Nicht modelliert: Schatten des Rings und der Kugel, Wind
+(Merkmale, die gegen die Oberfläche driften), Änderung von `D_E` und `P` während der Aufnahme (Hundertstelgrad in einer Stunde).
+*Save Aligned* und *Save Integrated* derotieren nicht.
+
+**Prüfung.** Synthetische, texturierte, abgeplattete Kugel (Bänder, Flecken, Sturm; Strahlverfolgung im Kamerasystem, unabhängig von den
+Formeln des Moduls), PSNR nur innerhalb der Scheibe gegen das Bild zur Bezugszeit:
+
+| Fall | mit Derotation | ohne |
+|---|---|---|
+| Jupiter (`D_E` −2,5°, `P` 24,8°), Frame 5 min später | 43,8 dB | 30,5 dB |
+| Saturn mit Ring (`B` 19°), Frame 10 min später | 34,3 dB | 26,2 dB |
+| Jupiter, Stack aus 3 Frames über 10 min, Bezug die Mitte (Kern) | 58,7 dB | 37,7 dB |
+| dasselbe über die Sitzung mit einer SER-Datei samt Zeitstempeln | 52,1 dB | 35,6 dB |
+
+Δt = 0 ist bitgleich; die falsche Drehrichtung ist um mehr als 10 dB schlechter; Kamerawinkel und Spiegelung sind mit einer um 40°
+gedrehten und einer gespiegelten Szene geprüft. Alle neuen Tests waren zuerst rot (Stub oder umgekehrtes Vorzeichen, siehe Ticket).
+
+**Laufzeit** mit `SaturnVideo.avi` (800 × 600, 3051 Frames, 30 fps, alle Frames, 12 Kerne, Profil `ffi-dev`): ohne Derotation 8,5 und 11,0 s,
+mit Derotation 10,7 und 9,7 s (zwei Läufe je Fall; der Unterschied liegt im Rauschen der Plattenzugriffe). In dieser Aufnahme dreht sich
+Saturn nur um 0,9°: das Panel sagt „Too short to matter“.
+
 ## Nicht umgesetzt
 
 Nicht Teil der Akzeptanzkriterien und nie beobachtet; jeweils nur der Name bekannt:
 
-- *StackSize* (Minimized, Maximized, R.of Interest), *Stretch histogram after stacking*, *De-rotate images*. In der App
+- *StackSize* (Minimized, Maximized, R.of Interest), *Stretch histogram after stacking*. In der App
   sind sie gesperrt und mit „Not available yet“ gekennzeichnet (Default bei StackSize bleibt wählbar und ist das, was der
-  Klon tut); die Einstellungen `stackSize`, `stretchHistogram` und `derotate` bleiben im Datenmodell, sind aber nicht Teil
-  von `StackRequest` und das Backend kennt sie nicht.
+  Klon tut); die Einstellungen `stackSize` und `stretchHistogram` bleiben im Datenmodell, sind aber nicht Teil
+  von `StackRequest` und das Backend kennt sie nicht. *De-rotate images* ist seit MAC-020 gebaut (nächster Abschnitt; in der
+  Windows-App noch gesperrt, `derotate` bleibt dort im Datenmodell).
 - **Resampling** (Bell, Bspline, Lanczos, Mitchell, Faktor) und **Drizzling**, die das Ergebnis vergrößern. In der App sind
   beide Häkchen gesperrt und mit „Not available yet“ gekennzeichnet; die Einstellungen `resampling`/`drizzling` bleiben im
   Datenmodell, das Backend ignoriert sie.

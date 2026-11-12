@@ -17,6 +17,7 @@ The words of planetary photography in plain language, with the name each one has
 | Frame quality | Quality, Quality Graph | A number for how sharp a frame is: the more detail and the crisper its edges, the higher it is. Only the order of the frames matters, not the number itself |
 | Best Frames, Keep Best Frames | Best Frames, Keep Best Frames, Keep Best Frames Again | The step that chooses the frames that go into the stack. Blurry frames are left out, because they would soften the result. See [Frame quality and Best Frames](frame-quality-and-limit) |
 | Stack | Stack | Averages the kept frames into one image. Random noise cancels out, so the stack is much smoother than any single frame and can be sharpened further. See [The Stack step](step-stack) |
+| De-rotation | De-rotate images, Camera angle, Start time | Turns every frame back by the rotation of the planet to the middle of the recording before it is stacked, so that details at the edge of the disc stay sharp. Jupiter turns by 36° an hour, so it matters for recordings longer than a minute or two. See [The Stack step](step-stack) |
 | Wavelets, layers | Wavelets, Layer 1 to 6 | A way to split the image into layers of detail. Layer 1 holds the finest detail, the higher layers hold coarser structures. Each layer can be strengthened or weakened on its own. See [Wavelet sharpening](wavelet-sharpening) |
 | Denoise | Denoise | Smooths the noise in one layer before it is strengthened |
 | Sharpen | Sharpen | Fine adjustment of one layer. The slider of the layer sets the main strength |

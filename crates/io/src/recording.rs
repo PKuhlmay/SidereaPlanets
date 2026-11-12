@@ -41,6 +41,22 @@ pub struct RecordingInfo {
     pub observer: Option<String>,
     pub instrument: Option<String>,
     pub telescope: Option<String>,
+    /// The file has a time for every frame (the trailer of a SER file).
+    pub has_timestamps: bool,
+    /// When the recording started, Unix seconds (UTC), if the file says so (SER); see [`start_time_from_file_date`] otherwise.
+    pub start_time: Option<f64>,
+}
+
+/// A guess at the start of a recording from the modification time of its file: the file was last written when the recording
+/// ended, so the start is that minus the length of the recording. `None` without a frame rate or a readable file date.
+pub fn start_time_from_file_date(path: &Path, frame_count: u32, fps: Option<f64>) -> Option<f64> {
+    let modified = std::fs::metadata(path).ok()?.modified().ok()?;
+    let unix = modified
+        .duration_since(std::time::UNIX_EPOCH)
+        .ok()?
+        .as_secs_f64();
+    let fps = fps.filter(|&f| f > 0.0)?;
+    Some(unix - f64::from(frame_count) / fps)
 }
 
 pub enum Recording {
@@ -104,6 +120,8 @@ impl Recording {
                     observer: text(&h.observer),
                     instrument: text(&h.instrument),
                     telescope: text(&h.telescope),
+                    has_timestamps: r.timestamps().is_some(),
+                    start_time: r.start_time(),
                 }
             }
             Self::Avi(r) => {
@@ -120,6 +138,8 @@ impl Recording {
                     observer: None,
                     instrument: None,
                     telescope: None,
+                    has_timestamps: false,
+                    start_time: None,
                 }
             }
             Self::Images(r) => {
@@ -136,8 +156,18 @@ impl Recording {
                     observer: None,
                     instrument: None,
                     telescope: None,
+                    has_timestamps: false,
+                    start_time: None,
                 }
             }
+        }
+    }
+
+    /// The time of every frame in Unix seconds (UTC), if the file holds them (SER trailer).
+    pub fn frame_timestamps(&self) -> Option<&[f64]> {
+        match self {
+            Self::Ser(r) => r.timestamps(),
+            _ => None,
         }
     }
 
@@ -231,5 +261,26 @@ mod tests {
         let paths = [temp_png("mix.png", 1), PathBuf::from("video.ser")];
         let err = Recording::open_files(&paths).err().unwrap();
         assert!(matches!(err, RecordingError::NotAnImageSeries(p) if p == "video.ser"));
+    }
+
+    #[test]
+    fn the_start_is_guessed_from_the_file_date_minus_the_length() {
+        let path = temp_png("dated.png", 1);
+        let end = std::time::UNIX_EPOCH + std::time::Duration::from_secs(1_700_000_000);
+        std::fs::File::options()
+            .write(true)
+            .open(&path)
+            .unwrap()
+            .set_modified(end)
+            .unwrap();
+        // 500 frames at 25 per second is 20 seconds.
+        let start = start_time_from_file_date(&path, 500, Some(25.0)).unwrap();
+        assert!((start - 1_699_999_980.0).abs() < 1e-6, "{start}");
+        // Without a frame rate there is no length to take off.
+        assert_eq!(start_time_from_file_date(&path, 500, None), None);
+        assert_eq!(
+            start_time_from_file_date(Path::new("missing.avi"), 5, Some(25.0)),
+            None
+        );
     }
 }

@@ -4,10 +4,14 @@ pub mod align;
 mod batch;
 pub mod color;
 pub mod crop;
+pub mod derotate;
 pub mod geometry;
+pub mod planet;
 pub mod refine;
 pub mod sequence;
 pub mod stack;
+#[cfg(any(test, feature = "synthetic-planet"))]
+pub mod synthetic;
 pub mod tone;
 pub mod wavelet;
 

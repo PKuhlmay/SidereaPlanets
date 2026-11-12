@@ -120,6 +120,20 @@ impl CoreSession {
             .into())
     }
 
+    /// What the Stack panel says about *De-rotate images* for the kept frames: the span of the recording, how far the planet turns
+    /// and the disc measured in the reference frame. A problem the user can fix (no start time) comes back in `problem`.
+    pub fn derotation_info(
+        &self,
+        settings: DerotationSettings,
+        reference_frame: u32,
+        frames: Vec<u32>,
+    ) -> Result<DerotationInfo> {
+        Ok(self
+            .inner
+            .derotation_info(&settings.into(), reference_frame, &frames)?
+            .into())
+    }
+
     /// The stacked image.
     pub fn stacked_image(&self) -> Result<RgbaImage> {
         Ok(self.inner.stacked_image()?.into())
@@ -358,6 +372,12 @@ pub fn orientation_size(width: u32, height: u32, orientation: OrientationSetting
 pub fn resize_size(width: u32, height: u32, resize: ResizeSettings) -> ImageSize {
     let (width, height) = session::Resize::from(resize).output_size(width, height);
     ImageSize { width, height }
+}
+
+/// The planet a file name or an observer's note refers to ("JUPITER.AVI", "sat_2023"), if it names one.
+#[uniffi::export]
+pub fn derotation_planet_from_name(text: String) -> Option<DerotatePlanet> {
+    session::Planet::from_name(&text).map(Into::into)
 }
 
 /// `path` with the extension `.avi` added when it is missing.

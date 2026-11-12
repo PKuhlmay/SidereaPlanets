@@ -16,6 +16,8 @@ protocol SessionBackend: WaveletBackend {
     func align(_ settings: AlignSettings, progress: ProgressHandler?) async throws -> Aligned
     func limit(_ settings: LimitSettings) async throws -> Limited
     func stack(_ settings: StackSettings, progress: ProgressHandler?) async throws -> Stacked
+    /// De-rotate images: the span of the kept frames, how far the planet turns and the disc measured in the reference frame.
+    func derotationInfo(_ settings: DerotationSettings, referenceFrame: UInt32, frames: [UInt32]) async throws -> DerotationInfo
     /// The picture of the last stack, ready for display.
     func stackImage() async throws -> CGImage
     /// Stops a running operation; it then throws `PlanetsError.Cancelled`.

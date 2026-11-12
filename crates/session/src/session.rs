@@ -12,7 +12,7 @@ use crate::{
     wavelet::WaveletState,
 };
 use planets_core::Image;
-use planets_io::recording::{Recording, RecordingInfo as IoInfo};
+use planets_io::recording::{Recording, RecordingInfo as IoInfo, start_time_from_file_date};
 use serde::Serialize;
 use std::{path::PathBuf, sync::Mutex};
 
@@ -31,6 +31,13 @@ pub struct RecordingInfo {
     pub observer: Option<String>,
     pub instrument: Option<String>,
     pub telescope: Option<String>,
+    /// The file has a time for every frame (SER trailer), which De-rotate images uses.
+    pub has_timestamps: bool,
+    /// When the recording started, Unix seconds (UTC): from the SER file, else guessed from the file date (see
+    /// `start_time_from_file_date`).
+    pub start_time: Option<f64>,
+    /// `start_time` is a guess from the date of the file, not a time the file records.
+    pub start_time_from_file_date: bool,
 }
 
 impl From<IoInfo> for RecordingInfo {
@@ -47,6 +54,9 @@ impl From<IoInfo> for RecordingInfo {
             observer: i.observer,
             instrument: i.instrument,
             telescope: i.telescope,
+            has_timestamps: i.has_timestamps,
+            start_time: i.start_time,
+            start_time_from_file_date: false,
         }
     }
 }
@@ -87,7 +97,11 @@ impl Session {
     /// Set Alignpoints (the window starts over at Open).
     pub fn open_recording(&self, paths: &[PathBuf]) -> Result<RecordingInfo, SessionError> {
         let recording = Recording::open_files(paths).map_err(SessionError::failed)?;
-        let info = recording.info().into();
+        let mut info: RecordingInfo = recording.info().into();
+        if let ([path], None) = (paths, info.start_time) {
+            info.start_time = start_time_from_file_date(path, info.frame_count, info.fps);
+            info.start_time_from_file_date = info.start_time.is_some();
+        }
         *crate::error::lock(&self.recording)? = Some(recording);
         Ok(info)
     }

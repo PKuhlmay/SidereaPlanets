@@ -17,6 +17,8 @@ extension AppModel {
     /// `-layers 32,22,14,10,10,10` sets the sliders, `-functions Histogram,Gamma` opens cards, `-colour colour|lrgb|gray`,
     /// `-tone black=10,white=240,gamma=1.3,red=110,contrast=300,brightness=20` sets card values (also `denoise`, `deringing`, `radius`, `mask`, `threshold`, `feather`, `invert`, `showmask`), `-before 1` shows Before; `-show` also knows
     /// `processingarea` and `wavealignpoints`. `-advanced wavelets,stack` (or `all`) opens those Advanced sections.
+    /// `-derotate jupiter,angle=20,start=2023-03-10T21:00:00Z,mirrored=1` turns De-rotate images on (planet `jupiter`, `saturn` or `mars`;
+    /// default: the one the file name suggests) and sets its fields.
     /// `-crop 4:3[,done]` and `-croprect x,y,w,h` open the crop tool (Wavelets and Save). `-geometry angle=15,fit=1,percent=50` sets Flip and Rotate
     /// and Resize Image (more in `applyWaveletArguments`).
     func applyLaunchArguments() async {
@@ -29,6 +31,7 @@ extension AppModel {
         if let paths = defaults.string(forKey: "open") {
             await open(paths.split(separator: ":").map { URL(fileURLWithPath: String($0)) })
         }
+        if let spec = defaults.string(forKey: "derotate") { applyDerotateArgument(spec) }
         if let list = defaults.string(forKey: "show") {
             let names = list.split(separator: ",").map(String.init)
             show.framelist = names.contains("framelist")
@@ -102,6 +105,22 @@ extension AppModel {
         let box = (rectangle ?? "").split(separator: ",").compactMap { Int($0) }
         if box.count == 4 { setCropDraft(CropRectangle(minX: box[0], minY: box[1], maxX: box[0] + box[2], maxY: box[1] + box[3])) }
         if tokens.contains("done") { finishCrop() }
+    }
+
+    private func applyDerotateArgument(_ spec: String) {
+        stackOptions.derotate = true
+        for token in spec.split(separator: ",") {
+            let parts = token.split(separator: "=", maxSplits: 1).map(String.init)
+            switch (parts[0], parts.count == 2 ? parts[1] : "") {
+            case ("jupiter", _): stackOptions.derotatePlanet = .jupiter
+            case ("saturn", _): stackOptions.derotatePlanet = .saturn
+            case ("mars", _): stackOptions.derotatePlanet = .mars
+            case ("angle", let value): if let angle = Double(value) { stackOptions.cameraAngle = angle }
+            case ("mirrored", let value): stackOptions.mirrored = value == "1"
+            case ("start", let value): if let date = ISO8601DateFormatter().date(from: value) { stackOptions.startTime = date }
+            default: break
+            }
+        }
     }
 
     /// The Wavelets arguments: values of the layers and cards, applied once the stack is there.

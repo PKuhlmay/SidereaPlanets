@@ -213,10 +213,12 @@ extension AppModel {
     func setFrameChecked(_ index: Int, _ checked: Bool) {
         guard align.frames.indices.contains(index) else { return }
         align.frames[index].checked = checked
+        if stackOptions.derotate { refreshDerotation() }
     }
 
     func checkAllFrames(_ checked: Bool) {
         for i in align.frames.indices { align.frames[i].checked = checked }
+        if stackOptions.derotate { refreshDerotation() }
     }
 
 }

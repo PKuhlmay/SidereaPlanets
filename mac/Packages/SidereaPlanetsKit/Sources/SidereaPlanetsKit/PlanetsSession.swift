@@ -100,6 +100,12 @@ public final class PlanetsSession: Sendable {
         return try await run(cancelling: .stack) { try $0.stack(settings: settings, progress: listener) }
     }
 
+    /// What the Stack panel says about De-rotate images for the kept frames: the span, how far the planet turns, and the disc measured in the
+    /// reference frame. A problem the user can fix (no start time) comes back in `problem`, not as an error.
+    public func derotationInfo(_ settings: DerotationSettings, referenceFrame: UInt32, frames: [UInt32]) async throws -> DerotationInfo {
+        try await run { try $0.derotationInfo(settings: settings, referenceFrame: referenceFrame, frames: frames) }
+    }
+
     public func stackedImage() async throws -> RgbaImage {
         try await run { try $0.stackedImage() }
     }

@@ -16,7 +16,7 @@ Step 5: add up the best frames into one sharper image. The step opens after **Ke
 
 ## How the stack is made
 
-1. Every frame that is checked in the Frame List is shifted back onto the reference frame, the frame you set the alignpoints on.
+1. Every frame that is checked in the Frame List is shifted back onto the reference frame, the frame you set the alignpoints on. With **De-rotate images** on, each frame is first turned back by the rotation of the planet (see below).
 2. The shift is not the same everywhere. A planet that wobbles in the seeing is moved a little differently in each part of the picture, so Siderea Planets takes the movement of the alignpoints **nearest** to each pixel and blends it. That straightens the frame locally before it is added. The movements of the points are only followed as far as neighbouring points agree with each other; on soft, blurred frames, where the points scatter, the whole frame moves by one value instead.
 3. The shifted frames are averaged. The brightness stays that of the frames, it is not added up beyond the range.
 
@@ -44,12 +44,41 @@ Options that do nothing yet are locked: they are dimmed, cannot be switched on, 
 | Correct geometry | on | Works. Shifts each part of the picture by its own movement; off, the whole frame moves by one value |
 | Even out frame brightness | off | Works. Brightens or dims each frame to the brightness of the reference frame before adding, useful when clouds pass by |
 | Stretch histogram after stacking | off | Not available yet. The check box is locked |
-| De-rotate images | off | Not available yet. The check box is locked |
+| De-rotate images | off | Works in the Mac version (see *De-rotate images* below). In the Windows version the check box is locked for now |
 | Ignore edge pixels (px) | 0 | Works. Leaves this border of every frame out of the stack |
 | Resampling | off | Not available yet. The check box is locked; the method (Bell, Bspline, Lanczos, Mitchell) and the factor belong to it |
 | Drizzling | off | Not available yet. The check box is locked; the factor belongs to it |
 
-The stack always keeps the size of the frames. **Output size** other than Default, **Stretch histogram after stacking**, **De-rotate images**, **Resampling** and **Drizzling** are locked and marked *Not available yet*. **Resampling** and **Drizzling** would enlarge the result.
+The stack always keeps the size of the frames. **Output size** other than Default, **Stretch histogram after stacking**, **Resampling** and **Drizzling** are locked and marked *Not available yet*. **Resampling** and **Drizzling** would enlarge the result.
+
+## De-rotate images
+
+A planet turns while you record it: Jupiter once in about 9 hours 56 minutes, which is 36° an hour, Saturn once in 10 hours 34 minutes, Mars once in 24 hours 37 minutes. Over a few minutes the details towards the edge of the disc move by several pixels and blur in the stack, and the alignpoints can only follow the small shifts of the whole frame. **De-rotate images** turns every frame back to one moment, the middle of the recording, before it is stacked. Details at the edge of the disc then stay sharp. You do not need data from the telescope.
+
+It pays off for recordings that last more than a minute or two. When the planet turns by less than 1° in the frames you keep, the panel says *Too short to matter*, and the result hardly changes.
+
+Settings, shown below the check box when it is on:
+
+| Setting | What it is |
+|---|---|
+| Planet | Jupiter, Saturn or Mars. Siderea Planets suggests the planet when its name is in the file name. It decides how fast the planet turns and how flattened it is |
+| Start time | When the first frame was taken. It is only asked for when the file has no time for each frame (most AVI videos; SER files from most capture programs do have the times and the field stays away). The field shows the time of your Mac; below it you see the same time in UTC. The suggestion is the time the file was last saved minus the length of the recording, and the line says so: check it. Only the date and the time of day to within a few minutes matter, because they decide how the axis of the planet is tilted towards the Earth |
+| Camera angle (°) | 0 when celestial north is up in your picture (east is then on the left). If you turned the camera, enter how far, in degrees counter-clockwise on the screen |
+| Mirrored image | On when your picture is a mirror image, as a single mirror in the light path makes it: east is on the right when north is up. Wrong settings turn the planet the wrong way and make the stack worse, so check the outline (below) |
+
+Below the settings a line tells *Span 3 min 12 s · rotation 5.8°*: the time from the first to the last kept frame and how far the planet turns in it.
+
+In the Stack step the picture shows the reference frame with an orange outline: the planet as Siderea Planets measured it, a dashed outline for the outer edge of Saturn's rings, and an **N** where the north pole of the planet points. If the outline does not sit on the planet, or **N** points the wrong way, correct the planet, the camera angle or the mirror setting.
+
+How it works: the planet is measured in the reference frame (its center and its radius, from the edge of the disc; a Mars that is not full or the rings of Saturn do not matter). The tilt and the direction of its axis in the sky are worked out from the date and time, to about one degree. Every pixel of the disc is traced to the surface of the flattened sphere, turned by the rotation between the time of the frame and the middle of the recording, and read from the frame there. Pixels off the disc stay as they are. The rings of Saturn do not change when the planet turns, so where they pass in front of the globe nothing is moved.
+
+Good to know:
+
+- The first and the last frame of a long recording are turned the most. A feature that has just turned round the edge of the disc has nothing to be read from, the pixels at the edge stay as they are.
+- Clouds that drift against the surface (wind) and the shadows of the rings are not taken into account.
+- The measured planet needs to lie fully inside the picture in the reference frame. Use the sharpest frame as the reference (*Go to Best Frame*).
+- **Save Aligned Video…** and **Save Averaged Video…** do not de-rotate.
+- The settings are stored in the project file in a section of their own; the Windows version ignores it.
 
 ## Check boxes in the Show menu
 

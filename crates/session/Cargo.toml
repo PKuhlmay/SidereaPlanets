@@ -16,6 +16,7 @@ serde = { version = "1", features = ["derive"] }
 thiserror = "2"
 
 [dev-dependencies]
+planets-core = { path = "../core", features = ["synthetic-planet"] }
 serde_json = "1"
 
 [lints]

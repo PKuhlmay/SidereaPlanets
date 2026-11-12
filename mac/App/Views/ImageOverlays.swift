@@ -11,6 +11,9 @@ struct ImageOverlays: View {
     var sections: [AlignSection] = []
     let region: RoiSettings?
     let draft: RoiSettings?
+    /// The planet as measured for De-rotate images (the Stack step): the ellipse of the globe, for Saturn the outer edge of the ring, and a
+    /// short stroke with an "N" where the north pole of the planet points.
+    var disc: DiscShape?
 
     var body: some View {
         Canvas { context, _ in
@@ -42,8 +45,38 @@ struct ImageOverlays: View {
                 )
                 context.stroke(Path(frame), with: .color(RK.accent), style: StrokeStyle(lineWidth: 1.5, dash: [6, 5]))
             }
+            if let disc {
+                var layer = context
+                drawDisc(disc, in: &layer)
+            }
         }
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+    }
+
+    private func drawDisc(_ disc: DiscShape, in context: inout GraphicsContext) {
+        let scale = transform.scale
+        let center = CGPoint(x: disc.x * scale + transform.x, y: disc.y * scale + transform.y)
+        var rotated = context
+        rotated.translateBy(x: center.x, y: center.y)
+        rotated.rotate(by: .degrees(disc.angle))
+        func ellipse(_ a: Double, _ b: Double) -> Path {
+            Path(ellipseIn: CGRect(x: -a * scale, y: -b * scale, width: 2 * a * scale, height: 2 * b * scale))
+        }
+        rotated.stroke(ellipse(disc.semiMajor, disc.semiMinor), with: .color(RK.accent), style: StrokeStyle(lineWidth: 1.5))
+        if disc.ring.count == 2 {
+            rotated.stroke(ellipse(disc.ring[0], max(disc.ring[1], 0.5)), with: .color(RK.accent.opacity(0.7)), style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
+        }
+        // The north pole of the planet: a stroke out of the globe, so that the orientation can be checked at a glance.
+        let north = CGPoint(x: disc.northX, y: disc.northY)
+        let pole = disc.semiMinor * scale
+        var axis = Path()
+        axis.move(to: CGPoint(x: center.x + north.x * pole, y: center.y + north.y * pole))
+        axis.addLine(to: CGPoint(x: center.x + north.x * (pole + 14), y: center.y + north.y * (pole + 14)))
+        context.stroke(axis, with: .color(RK.accent), style: StrokeStyle(lineWidth: 1.5, lineCap: .round))
+        context.draw(
+            Text("N").font(.rk(RKMetrics.fontSizeSmall, .semibold)).foregroundStyle(RK.accent),
+            at: CGPoint(x: center.x + north.x * (pole + 24), y: center.y + north.y * (pole + 24))
+        )
     }
 }

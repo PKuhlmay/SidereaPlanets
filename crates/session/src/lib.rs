@@ -14,6 +14,7 @@
 mod align;
 mod color;
 mod compute;
+mod derotate;
 mod error;
 mod export;
 mod geometry;
@@ -32,6 +33,7 @@ pub use color::{
     ChannelShift, ChannelShifts, ColorMix, ColorSettings, HistogramData, HistogramPoints,
 };
 pub use compute::logical_cores;
+pub use derotate::{DerotationInfo, DerotationSettings};
 pub use error::SessionError;
 pub use export::{
     FormatInfo, ImageSource, LoadedProject, export_formats, project_load, project_save,
@@ -39,7 +41,9 @@ pub use export::{
 pub use image::RgbaImage;
 pub use progress::{NoProgress, Operation, ProgressSink};
 pub use planets_core::crop::CropRect;
+pub use planets_core::derotate::DiscShape;
 pub use planets_core::geometry::{Geometry, Orientation, Resampling, Resize, ResizeTarget};
+pub use planets_core::planet::{Planet, PoleGeometry, unix_seconds};
 pub use sequence::{SavedVideo, SequenceSettings, with_avi_extension};
 pub use session::{RecordingInfo, Session};
 pub use stack::{PointPosition, StackSettings, Stacked};

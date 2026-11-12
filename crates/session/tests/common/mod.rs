@@ -99,6 +99,7 @@ pub fn stack_settings(points: &Alignpoints) -> StackSettings {
         normalize: false,
         edge_skip: 0,
         roi: None,
+        derotation: None,
     }
 }
 

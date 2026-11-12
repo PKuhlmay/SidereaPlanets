@@ -37,7 +37,8 @@ struct ImageArea: View {
                             : (isWaveletView && model.wavelet.showAlignpoints && !model.orientationApplies ? model.align.points : []),
                         sections: isStackStep ? model.alignSections : [],
                         region: showsFrameMarks && model.show.roi ? model.align.roi : processingAreaMark,
-                        draft: draft
+                        draft: draft,
+                        disc: isStackStep ? model.derotationDisc : nil
                     )
                 }
                 cropMark

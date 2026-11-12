@@ -51,6 +51,20 @@ pub struct SerHeader {
     pub observer: String,
     pub instrument: String,
     pub telescope: String,
+    /// `DateTimeUTC` of the header: .NET ticks (100 ns since 0001-01-01), 0 if the program did not write it.
+    pub date_time_utc: i64,
+}
+
+/// .NET ticks (100 ns since 0001-01-01) per second, and the ticks at the Unix epoch.
+const TICKS_PER_SECOND: f64 = 1e7;
+const UNIX_EPOCH_TICKS: i64 = 621_355_968_000_000_000;
+
+/// Unix seconds of a .NET tick count, `None` if it is not a time between 1990 and 2100 (cameras that write no time leave zeros).
+fn unix_from_ticks(ticks: i64) -> Option<f64> {
+    let seconds = (ticks - UNIX_EPOCH_TICKS) as f64 / TICKS_PER_SECOND;
+    (631_152_000.0..4_102_444_800.0)
+        .contains(&seconds)
+        .then_some(seconds)
 }
 
 fn i32_at(b: &[u8], off: usize) -> i32 {
@@ -92,6 +106,7 @@ impl SerHeader {
             observer: text_at(bytes, 42),
             instrument: text_at(bytes, 82),
             telescope: text_at(bytes, 122),
+            date_time_utc: i64::from_le_bytes(bytes[170..178].try_into().unwrap_or([0; 8])),
         })
     }
 
@@ -111,10 +126,31 @@ impl SerHeader {
     }
 }
 
+/// The trailer after the last frame: one 64-bit tick count (UTC) per frame.
+fn read_timestamps(file: &mut File, header: &SerHeader) -> Result<Option<Vec<f64>>, SerError> {
+    let count = header.frame_count as usize;
+    let start = (HEADER_LEN + count * header.frame_len()) as u64;
+    if count == 0 || file.metadata()?.len() < start + 8 * count as u64 {
+        return Ok(None);
+    }
+    let mut raw = vec![0u8; 8 * count];
+    file.seek(SeekFrom::Start(start))?;
+    file.read_exact(&mut raw)?;
+    let times: Option<Vec<f64>> = raw
+        .as_chunks::<8>()
+        .0
+        .iter()
+        .map(|c| unix_from_ticks(i64::from_le_bytes(*c)))
+        .collect();
+    Ok(times)
+}
+
 /// A SER recording opened for random frame access.
 pub struct SerReader {
     file: File,
     header: SerHeader,
+    /// The time of every frame in Unix seconds (UTC) from the trailer, if the file has one.
+    timestamps: Option<Vec<f64>>,
 }
 
 impl SerReader {
@@ -123,7 +159,26 @@ impl SerReader {
         let mut buf = [0u8; HEADER_LEN];
         let n = file.read(&mut buf)?;
         let header = SerHeader::parse(&buf[..n])?;
-        Ok(Self { file, header })
+        let timestamps = read_timestamps(&mut file, &header)?;
+        Ok(Self {
+            file,
+            header,
+            timestamps,
+        })
+    }
+
+    /// The time of every frame in Unix seconds (UTC), from the trailer of the file. `None` if the file has none or the times
+    /// are not plausible (all zero, or not between 1990 and 2100).
+    pub fn timestamps(&self) -> Option<&[f64]> {
+        self.timestamps.as_deref()
+    }
+
+    /// When the recording started in Unix seconds (UTC): the first frame's time, else the `DateTimeUTC` of the header.
+    pub fn start_time(&self) -> Option<f64> {
+        self.timestamps
+            .as_ref()
+            .and_then(|t| t.first().copied())
+            .or_else(|| unix_from_ticks(self.header.date_time_utc))
     }
 
     pub fn header(&self) -> &SerHeader {
@@ -287,5 +342,66 @@ mod tests {
         let path = temp_file("second", &build(0, 1, 1, 1, 8, &[vec![0], vec![255]]));
         let img = SerReader::open(&path).unwrap().read_frame(1).unwrap();
         assert_eq!(img.data, vec![1.0]);
+    }
+
+    /// The .NET ticks of a Unix time.
+    fn ticks(unix: f64) -> i64 {
+        (unix * TICKS_PER_SECOND) as i64 + UNIX_EPOCH_TICKS
+    }
+
+    /// A SER file of `frames` 1 x 1 8-bit frames with the given header time and trailer ticks.
+    fn timed(tag: &str, header_ticks: i64, trailer: &[i64]) -> std::path::PathBuf {
+        let frames: Vec<Vec<u8>> = (0..trailer.len().max(2)).map(|i| vec![i as u8]).collect();
+        let mut bytes = build(0, 1, 1, 1, 8, &frames);
+        bytes[170..178].copy_from_slice(&header_ticks.to_le_bytes());
+        for t in trailer {
+            bytes.extend_from_slice(&t.to_le_bytes());
+        }
+        temp_file(&format!("timed-{tag}"), &bytes)
+    }
+
+    #[test]
+    fn reads_the_frame_timestamps_of_the_trailer() {
+        let t0 = planets_core::planet::unix_seconds(2023, 3, 10, 21, 5, 0.0);
+        let path = timed("trailer", 0, &[ticks(t0), ticks(t0 + 0.1), ticks(t0 + 0.2)]);
+        let r = SerReader::open(&path).unwrap();
+        let times = r.timestamps().expect("the trailer is read");
+        assert_eq!(times.len(), 3);
+        assert!((times[0] - t0).abs() < 1e-6, "{}", times[0]);
+        assert!((times[2] - (t0 + 0.2)).abs() < 1e-6);
+        assert_eq!(r.start_time(), Some(times[0]));
+    }
+
+    #[test]
+    fn a_file_without_trailer_has_no_timestamps() {
+        let path = temp_file("notrailer", &build(0, 1, 1, 1, 8, &[vec![0], vec![1]]));
+        let r = SerReader::open(&path).unwrap();
+        assert!(r.timestamps().is_none());
+        assert_eq!(r.start_time(), None);
+    }
+
+    #[test]
+    fn the_header_time_is_the_start_when_there_is_no_trailer() {
+        let t0 = planets_core::planet::unix_seconds(2024, 9, 20, 3, 30, 15.0);
+        let path = timed("header", ticks(t0), &[]);
+        let r = SerReader::open(&path).unwrap();
+        assert!(r.timestamps().is_none());
+        assert!((r.start_time().unwrap() - t0).abs() < 1e-6);
+    }
+
+    #[test]
+    fn a_trailer_of_zeros_is_not_a_time() {
+        let path = timed("zeros", 0, &[0, 0]);
+        let r = SerReader::open(&path).unwrap();
+        assert!(r.timestamps().is_none());
+        assert_eq!(r.start_time(), None);
+    }
+
+    #[test]
+    fn frames_are_still_read_with_a_trailer() {
+        let t0 = planets_core::planet::unix_seconds(2023, 3, 10, 21, 5, 0.0);
+        let path = timed("read", 0, &[ticks(t0), ticks(t0 + 1.0)]);
+        let mut r = SerReader::open(&path).unwrap();
+        assert_eq!(r.read_frame(1).unwrap().data, vec![1.0 / 255.0]);
     }
 }

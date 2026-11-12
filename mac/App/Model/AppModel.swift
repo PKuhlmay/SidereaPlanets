@@ -49,6 +49,7 @@ final class AppModel {
             viewport.fit()
             waveletViewChanged()
             cropViewChanged()
+            if viewStep == .stack, stackOptions.derotate { refreshDerotation() }
         }
     }
 
@@ -58,7 +59,10 @@ final class AppModel {
     /// The points, the rating of the frames and the region of the Align tab.
     var align = AlignData()
     /// The values of the Stack panel and the check marks of its Show menu.
-    var stackOptions = StackOptions()
+    var stackOptions = StackOptions() { didSet { derotationOptionsChanged(from: oldValue) } }
+    /// What De-rotate images says about the kept frames (span, rotation, measured disc); `nil` while the option is off or Limit has not run.
+    var derotation: DerotationInfo?
+    @ObservationIgnored var derotationTask: Task<Void, Never>?
     /// What the step Save keeps: the file type of Save image, the name it wrote last, a write under way.
     var saveState = SaveState()
     /// The stack, from Stack until Set Alignpoints, Align or Limit runs again.
@@ -201,6 +205,8 @@ final class AppModel {
         align = AlignData(frameCount: Int(info.frameCount))
         isDrawingRegion = false
         details = RecordingDetails(fileName: urls[0].lastPathComponent, info: info)
+        derotation = nil
+        suggestDerotation(for: info, fileName: urls[0].lastPathComponent)
         fileURLs = urls
         frameIndex = 0
         image = nil

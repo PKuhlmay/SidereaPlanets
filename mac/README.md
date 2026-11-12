@@ -21,7 +21,7 @@ mac/
     Design/              Tokens.swift (Spiegel von docs/design/tokens.css, hell und dunkel), RKButtonStyle
     Model/               AppModel (@Observable, MainActor: Sitzung, Schritt, Frame, Bild, Statustexte), AppModel+Align (Set Alignpoints, Align,
                          Limit, Cancel, Pause, Framelist), AlignLogic (Werte, Diagramm, Meldungen), AppModel+Stack (Stack, Karte
-                         Alignmentpoints, Ringe), StackLogic (Werte, Anfrage, Texte), StepLogic (Schrittzustände),
+                         Alignmentpoints, Ringe), StackLogic (Werte, Anfrage, Texte, Abschnitt derotation), AppModel+Derotation (De-rotate images, MAC-020), StepLogic (Schrittzustände),
                          RecentList (MRU), RecordingDetails (Dateiangaben), ViewTransform und ImageViewport (Zoom und Pan),
                          SessionBackend (was die App vom Kern braucht), RecordingPicker (NSOpenPanel), DebugLaunch (nur Debug),
                          AppModel+Save (Save image, Save Aligned/Integrated, Save und Open project), SaveLogic (Create-AVI-Werte,
@@ -33,7 +33,7 @@ mac/
                          AppModel+Geometry und GeometryLogic (Flip and Rotate, Resize Image: Werte, Größen, gedrehtes Bild für den Bildbereich, Projektabschnitt `geometry`, MAC-017)
     Views/               ContentView (Fenster und Werkzeugleiste), StepBar, StepPanel, AlignPanels (Alignpoints, Align, Limit mit
                          Qualitätsdiagramm), StackPanel, Controls (Zahlenfeld, Auswahl), ImageArea (mit Show-Menü), ImageCanvas (NSView mit einer
-                         CALayer für das Bild, zieht auch die R.o.Interest-Region), ImageOverlays (Punkte, Ringe, Region), FloatingCards
+                         CALayer für das Bild, zieht auch die R.o.Interest-Region), ImageOverlays (Punkte, Ringe, Region, gemessene Scheibe), FloatingCards
                          (Framelist, Registrationgraph, Alignmentpoints), FrameBar, StatusBar, Save/SaveViews (Schritt Save, Menü Save image,
                          Gruppe Create AVI im Stack-Panel, CropViews: Karte und Gruppe des Zuschneidens, MAC-016), CropOverlay (Rechteck über dem Bild), Wavelets/ (WaveletsPanel mit Ebenen und Schemes, FunctionsPanel rechts,
                          FunctionCards Histogram, Gamma, RGB Align, RGB Balance, ColorMixingCard, CompareOverlay (View Compare), RefineCards
@@ -63,6 +63,7 @@ Dazu für Bilder der späteren Schritte: `-run alignpoints,align,limit,stack` dr
 hält es nach dem ersten Frame an, `stackpaused` dasselbe für Stack, `roidraw` drückt Draw Region, `bestframe` drückt Go to Best Frame), `-show framelist,registrationgraph` (interne Namen; in der App Frame List und Quality Graph), `-roi x,y,breite,höhe`,
 `-limit lowestQuality|bestPercent|framesPerPoint|bestCount`, `-advanced wavelets,stack` (oder `all`) klappt Advanced dieser Schritte auf, ohne es zu merken.
 Für das Zuschneiden (MAC-016) öffnet `-crop free|1:1|3:2|4:3` (dazu `,done` zum Übernehmen) im Schritt Wavelets oder Save das Werkzeug, `-croprect x,y,breite,höhe` setzt das Rechteck.
+Für De-rotate images (MAC-020) schaltet `-derotate jupiter,angle=20,start=2023-03-10T21:00:00Z,mirrored=1` das Häkchen ein (Planet `jupiter`, `saturn` oder `mars`, sonst der aus dem Dateinamen) und setzt die Felder.
 Für Flip and Rotate und Resize Image (MAC-017) setzt `-geometry angle=15,fit=1,percent=50` (auch `fliph=1`, `flipv=1`, `method=bilinear`, `width=800`, `height=600`, `lock=0`) die Werte; `-functions "Flip and Rotate,Resize Image"` öffnet die Karten.
 
 Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik in
@@ -239,3 +240,4 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-018 | Adjustments „Denoise/Deringing“ und „Masking“ | erledigt |
 | MAC-017 | Adjustments: Flip and Rotate (Spiegeln, 90°, freier Winkel, Crop to fit) und Resize Image (Prozent oder Pixel, Lanczos3 u. a.); Reihenfolge Refine, Farben, Drehen, Crop, Resize | erledigt |
 | MAC-019 | Adjustments: Color Mixing (3 × 3 Kanalmischer im Kern) und View Compare (geteilte Ansicht Before/After) | erledigt |
+| MAC-020 | Derotation beim Stacken (Jupiter, Saturn, Mars; Ephemeride nach Meeus, SER-Zeitstempel, Scheibenmessung, Overlay) | erledigt |

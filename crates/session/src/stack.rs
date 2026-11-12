@@ -6,6 +6,7 @@
 use crate::{
     Session, SessionError,
     align::RoiSettings,
+    derotate::DerotationSettings,
     error::lock,
     image::RgbaImage,
     progress::{JobControl, Operation, ProgressSink},
@@ -13,7 +14,7 @@ use crate::{
 use planets_core::{
     Image,
     align::{AlignParams, Reference, Roi},
-    stack::{StackError, StackParams, points_from_positions, stack_sequence},
+    stack::{Derotation, StackError, StackParams, points_from_positions, stack_sequence_derotated},
 };
 use serde::{Deserialize, Serialize};
 use std::{sync::Mutex, time::Instant};
@@ -69,6 +70,9 @@ pub struct StackSettings {
     pub edge_skip: u32,
     /// The *R.o.Interest* the alignpoints were set in, if any.
     pub roi: Option<RoiSettings>,
+    /// *De-rotate images*: turn the frames back to a common time before they are stacked. Absent means off.
+    #[serde(default)]
+    pub derotation: Option<DerotationSettings>,
 }
 
 impl StackSettings {
@@ -122,8 +126,26 @@ impl Session {
             return Err(SessionError::NoAlignpoints);
         }
         let reference_frame = self.read(settings.reference_frame)?;
+        // With de-rotation the reference frame is turned to the middle of the recording too, so that the alignpoints see the same
+        // features in every frame.
+        let plan = match &settings.derotation {
+            Some(derotation) => Some(self.derotation_for_stack(
+                derotation,
+                settings.reference_frame,
+                &settings.frames,
+                &reference_frame,
+            )?),
+            None => None,
+        };
+        let reference_frame = plan
+            .as_ref()
+            .map_or(reference_frame, |(_, turned)| turned.clone());
         let reference = settings.reference(&reference_frame);
         let params = settings.params();
+        let derotation = plan.as_ref().map(|(plan, _)| Derotation {
+            derotator: &plan.derotator,
+            offsets: &plan.offsets,
+        });
 
         self.stack.control.begin();
         let total = settings.frames.len() as u32;
@@ -131,10 +153,11 @@ impl Session {
         let stacked = self
             .compute
             .install(|| {
-                stack_sequence(
+                stack_sequence_derotated(
                     &reference,
                     &reference_frame,
                     &params,
+                    derotation.as_ref(),
                     &settings.frames,
                     |index| self.read(index),
                     |done| {

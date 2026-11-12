@@ -463,7 +463,7 @@ Seit MAC-014 heißt der Schritt in der App **Best Frames** (Pille, Panelkopf, Me
   umgesetzt: die Häkchen sind gesperrt (Tooltip und Hinweis „Not available yet“ rechts in der Zeile), die Zusatzfelder
   bleiben deshalb ausgeblendet (RK-006-Prüflauf: eingeschaltet wirkten sie nicht); die Gruppe Create AVI vollständig mit Save Aligned und Save Integrated (in der App: Save Aligned Video… und Save Averaged Video…; Compress Qual: Compression quality, Framerate: Frame rate (fps), die Radios unter der Überschrift Frame size).
 - Ebenso gesperrt, weil das Backend sie nicht auswertet: StackSize Minimized, Maximized und R.of Interest (in der App: Smallest common area, Largest area, Region; Default bleibt
-  wählbar), Stretch histogram after stacking und De-rotate images. Gleiche Behandlung wie Resampling: ausgegraut, Tooltip und
+  wählbar) und Stretch histogram after stacking. **De-rotate images** ist in der Mac-App seit MAC-020 frei (Abschnitt „Derotation (MAC-020)“); in der Windows-App bleibt es gesperrt. Gleiche Behandlung wie Resampling: ausgegraut, Tooltip und
   „Not available yet“ rechts in der Zeile (bei langem Namen darunter, rechtsbündig), Wert bleibt im Datenmodell. Es wirken:
   Use Nearestby Alignpoints, Correct geometry, Normalization of frame intensity (in der App: Even out frame brightness) und Do not stack n pixels at the frameedge (in der App: Ignore edge pixels (px)).
   Seit MAC-014 sind auch Codec, Compression quality, die Frame-size-Radios außer Original size und Use prefilters gesperrt.
@@ -729,6 +729,37 @@ Standard: Percent, 100% (keine Änderung), Lock an, Lanczos3 · Prozent 10 … 4
 **Dauer:** die Werte beider Karten sind Einstellungen wie die Farbwerte: sie bleiben bei einem neuen Stack und einer anderen Aufnahme (anders als der
 Zuschnitt, der auf einem bestimmten Bild liegt) und stehen als Abschnitt `geometry` in der Projektdatei (nur Mac, Windows ignoriert ihn).
 
+## Derotation (MAC-020)
+
+**De-rotate images** (Advanced im Schritt Stack, Mac; im Original nur als Häkchen bekannt) dreht jeden Frame vor dem Stacken auf die Mitte der
+Aufnahme zurück (`docs/stacking.md`, „Derotation“). Das Häkchen ist nicht mehr gesperrt, Tooltip: „Turns every frame back to the middle of the
+recording by the rotation of the planet, so that details at the edge of the disc stay sharp. Needs the date and time of the recording.“ Eingeschaltet
+erscheinen darunter, **18 px eingerückt**, in dieser Reihenfolge (alle 6 px Abstand):
+
+1. Beschriftung **Planet** (12 px, `--muted`) und die Segmentleiste **Jupiter · Saturn · Mars** (Segmente wie Limit Setup; das gewählte `--accent-soft`).
+   Beim Öffnen einer Aufnahme steht der Planet vor, den der Dateiname nennt („jup“, „sat“, „mar“, jede Schreibweise); das Häkchen schaltet der Vorschlag nie ein.
+2. **Start time** (Beschriftung links, rechts ein `DatePicker` im Feldstil mit Datum und Uhrzeit in der Zeitzone des Macs, Minuten genau) **nur wenn die
+   Datei keine Zeit je Frame hat** (SER mit Zeitstempeln: das Feld entfällt, darunter steht „The file has a time for every frame.“). Darunter (12 px, `--muted`)
+   dieselbe Zeit in UTC („2026-11-12 08:38 UTC“), bei einem Vorschlag aus dem Dateidatum dazu „ · taken from the file date, check it“; ohne Zeit steht dort
+   „Enter the time of the first frame“. Intern ist es der UTC-Zeitpunkt (Sekunden seit 1970).
+3. **Camera angle (°)**: Dezimalfeld mit Pfeilen, −360 … 360, eine Nachkommastelle, Standard 0 (Norden oben, Osten links); positiv gegen den Uhrzeigersinn
+   auf dem Bildschirm. Tooltip nennt das.
+4. Häkchen **Mirrored image** (Spiegelbild, Osten rechts bei Norden oben, etwa bei einem einzelnen Spiegel im Strahlengang). Nicht in der Vorlage des Tickets,
+   aber nötig: ein Spiegelbild würde sonst in die falsche Richtung gedreht.
+5. Zeile **„Span 3 min 12 s · rotation 5.8°“** (12 px, `--text`): Zeit vom ersten bis zum letzten der behaltenen Frames (`45 s`, `3 min 12 s`, `1 h 05 min`) und
+   wie weit sich der Planet in ihr dreht. Dreht er sich um **weniger als 1°**, steht darunter (`--muted`) **„Too short to matter“**. Fehlt etwas (keine
+   Startzeit, kein Planet im Bezugsframe, keine Bildrate), steht stattdessen der Satz des Kerns in `--accent-ink`.
+
+Die Zahlen kommen aus dem Kern (`Session::derotation_info`), sobald Limit gelaufen ist und das Häkchen an ist; sie werden nach jeder Änderung der
+Einstellungen (Planet, Camera angle, Mirrored image, Start time) und der Frame-Auswahl neu gebildet, 120 ms verzögert, damit Tippen nicht je Taste misst.
+
+**Overlay** im Schritt Stack (vor und nach dem Stacken), solange das Häkchen an ist: die gemessene Scheibe als Ellipse in `--accent` (1,5 px), für Saturn
+zusätzlich die Außenkante des Rings gestrichelt (1 px, 70 % Deckkraft), und ein kurzer Strich mit **N** über dem Nordpol des Planeten. Es liegt in Bildpixeln und
+zoomt mit. Die Scheibe ist im Bezugsframe gemessen; sobald die Zahlen da sind, zeigt der Schritt Stack deshalb dieses Frame, nicht das zuletzt betrachtete.
+
+**Projektdatei:** optionaler Abschnitt `derotation` (`enabled`, `planet`, `cameraAngle`, `mirrored`, `startTimeUtc` in Sekunden seit 1970 UTC); fehlt er oder ein
+Schlüssel, bleiben die Werte; die Windows-App kennt ihn nicht und lässt ihn stehen. Der Abschnitt `stack` bleibt der der Windows-App.
+
 ## Texte und Schreibweise (MAC-014)
 
 Die Oberfläche soll für Einsteiger verständlich sein (Philipp, 2026-11-12). Die Zuordnung alt → neu aller Namen, die Tooltips und die
@@ -871,6 +902,7 @@ dieses Dokument im selben Commit.
 | RK-010 Oberfläche | alles in diesem Dokument außer der Doku | 01–12 |
 | RK-012 Doku in der App | Help in der Werkzeugleiste, Doku-Ansicht | 13, 14 |
 | MAC-017 Drehen und Größe | Karten Flip and Rotate und Resize Image, Gruppe Size im Schritt Save | – |
+| MAC-020 Derotation | De-rotate images mit Planet, Start time, Camera angle, Mirrored image im Schritt Stack, Overlay der gemessenen Scheibe | – |
 | RK-014 Geführter Ablauf | Schrittleiste, Schrittpanel, Show am Bild, Qualitätsdiagramm in Limit; ersetzt die Reiter in den Zeilen darüber (Bildnummern dort sind die alten) | 01–12, 15, 16 |
 
 ## Zustände im Klon ansehen (Dev-Build)
