@@ -250,7 +250,7 @@ bei der Mindestbreite von 1120 px sonst überläuft; der Tooltip und das Label f
 wieder nur die Einträge des Originals.
 
 **Save image** gibt es zweimal: gefüllt als Aktion des Schritts Save (das geschärfte Bild, fünf Dateitypen) und als
-Standard-Schaltfläche im erledigten Schritt Stack unter dem Ergebnis (das Summenbild, sieben Dateitypen). Beide öffnen
+Standard-Schaltfläche im erledigten Schritt Stack unter dem Ergebnis (das Summenbild, sieben Dateitypen). Beide tragen den Pfeil nach unten und öffnen
 beim Anklicken ein Menü mit der Auswahl des Dateityps (rechts steht die Endung). Ein Klick auf einen Eintrag öffnet den
 Speichern-Dialog des Betriebssystems für genau diesen Typ. Beim Original wählt man den Typ im Dialog; das Dialog-Plugin meldet
 den gewählten Filter nicht zurück, deshalb steht die Auswahl davor.
@@ -352,7 +352,9 @@ Limit nach Stack verwirft den Stack. Regler, Wavelet-Einstellungen und das Bild 
 **Während einer Berechnung** (Align, Stack, Process, Do All): die Aktion im Fuß des Schrittpanels ist gesperrt, keine
 Pille ist anklickbar, Cancel ist
 gefüllt, Pause ist aktiv und heißt nach dem Anhalten „Resume“. Der Balken in der Statusleiste läuft, Feld 2 nennt
-den aktuellen Frame, Feld 5 die Zeiten. Außerhalb einer Berechnung sind Cancel und Pause gesperrt.
+den aktuellen Frame, Feld 5 die Zeiten. Außerhalb einer Berechnung sind Cancel und Pause gesperrt und der Balken steht auf
+0 % (auch nach einem Abbruch oder Fehler; die Soll-Bilder der fertigen Schritte zeigen noch 100 %, RK-010-Prüflauf). Das Ergebnis
+von Limit steht im Ergebnisfeld als „Stacksize: 8  Low quality: 87.20%“ (Qualität des schwächsten behaltenen Frames).
 
 ## Bildschirme
 

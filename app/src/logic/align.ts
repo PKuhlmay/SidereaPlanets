@@ -91,6 +91,13 @@ export const isRegion = (rect: Rect): boolean => rect.width >= MIN_ROI_SIDE && r
 export const roomForPoints = (rect: Rect, edgeDistance: number): boolean =>
   rect.width > 2 * edgeDistance && rect.height > 2 * edgeDistance;
 
-export function limitMessages(kept: number): { action: string; result: string } {
-  return { action: `Processing limited to ${kept} frames`, result: `Stacksize: ${kept}` };
+/**
+ * The status bar after Limit: how many frames stay and, as "Low quality", the quality of the weakest of them in percent
+ * of the best frame (`keptQualities`, the percentages of the Framelist). That meaning is a conjecture: the original shows
+ * the field, but with all ten frames of the reference case it reads 100,00 % (docs/workflow.md).
+ */
+export function limitMessages(kept: number, keptQualities: number[]): { action: string; result: string } {
+  const action = `Processing limited to ${kept} frames`;
+  if (keptQualities.length === 0) return { action, result: `Stacksize: ${kept}` };
+  return { action, result: `Stacksize: ${kept}  Low quality: ${Math.min(...keptQualities).toFixed(2)}%` };
 }

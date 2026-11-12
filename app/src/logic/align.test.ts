@@ -134,8 +134,16 @@ describe("roomForPoints", () => {
 });
 
 describe("limitMessages", () => {
-  it("reports the frames that stay like the original", () => {
-    expect(limitMessages(10)).toEqual({ action: "Processing limited to 10 frames", result: "Stacksize: 10" });
+  it("reports the frames that stay and the quality of the weakest of them", () => {
+    expect(limitMessages(8, [100, 93.5, 87.2, 90])).toEqual({
+      action: "Processing limited to 8 frames",
+      result: "Stacksize: 8  Low quality: 87.20%",
+    });
+    expect(limitMessages(1, [100]).result).toBe("Stacksize: 1  Low quality: 100.00%");
+  });
+
+  it("leaves the quality out when no kept frame has one", () => {
+    expect(limitMessages(10, [])).toEqual({ action: "Processing limited to 10 frames", result: "Stacksize: 10" });
   });
 });
 

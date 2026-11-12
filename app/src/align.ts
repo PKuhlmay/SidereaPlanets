@@ -123,7 +123,8 @@ async function limit() {
     }
     session.step = "limited";
     advance();
-    const messages = limitMessages(answer.frames.length);
+    const qualities = answer.frames.flatMap((index) => session.frames[index]?.quality ?? []);
+    const messages = limitMessages(answer.frames.length, qualities);
     status.action = messages.action;
     return messages.result;
   });

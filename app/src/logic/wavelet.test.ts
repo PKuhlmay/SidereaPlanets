@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createSettings, defaultLayer } from "./settings";
-import { colourMode, fromBackend, linkedLevels, parsePreview, toBackend, writePreview } from "./wavelet";
+import { colourMode, fromBackend, linkedLevels, parsePreview, previewWanted, toBackend, writePreview } from "./wavelet";
 
 describe("values for the backend", () => {
   it("turns slider positions into factors and renames the fields", () => {
@@ -111,5 +111,26 @@ describe("colour mode", () => {
 
   it("ignores LRGB without Colour", () => {
     expect(colourMode(false, true)).toBe("gray");
+  });
+});
+
+describe("previewWanted", () => {
+  const ready = { view: "wavelets", hasStack: true, busy: false, doAllCurrent: false };
+
+  it("is true in the Wavelets step with a stack, while nothing runs and Do All is not up to date", () => {
+    expect(previewWanted(ready)).toBe(true);
+  });
+
+  it("is false in the Save step, so entering it keeps the result and the message of Do All", () => {
+    expect(previewWanted({ ...ready, view: "save" })).toBe(false);
+  });
+
+  it("is false when Do All already made the image for these values, also when coming back to Wavelets", () => {
+    expect(previewWanted({ ...ready, doAllCurrent: true })).toBe(false);
+  });
+
+  it("is false without a stack and while a job runs", () => {
+    expect(previewWanted({ ...ready, hasStack: false })).toBe(false);
+    expect(previewWanted({ ...ready, busy: true })).toBe(false);
   });
 });

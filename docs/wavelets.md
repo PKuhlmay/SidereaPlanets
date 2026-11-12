@@ -153,6 +153,10 @@ Helligkeitssprung zu sehen.
 - Jede Änderung der Werte (Regler, Denoise, Sharpen, Häkchen, Scheme, Filter, Initial, Step), der Processing Area oder des
   Summenbilds fordert `wavelet_preview` für die Processing Area an (`processingArea` aus `logic/viewport.ts`, gleiche
   Rundung wie `Region::centered`). Es läuft immer nur eine Anfrage, weitere Änderungen werden zu einer zusammengefasst.
+  Gerechnet wird nur im Schritt Wavelets (`previewWanted`), nicht im Schritt Save, und nicht, solange ein Do All für diese
+  Werte und dieses Summenbild vorliegt: Sonst würde das Betreten von Save oder Wavelets das Ergebnis von Do All durch
+  Summenbild plus Vorschau-Ausschnitt ersetzen und „Do All finished“ in der Statusleiste überschreiben
+  (RK-010-Prüflauf: Wechsel nach Save zeigte „Preview: 79 ms“).
 - Die Antwort wird in einen Puffer geschrieben, der eine Kopie des Summenbilds ist; `session.processedImage` teilt sich
   diesen Puffer, eine Vorschau kostet also nur den Bereich. Außerhalb der Processing Area bleibt das Summenbild.
 - Die Statusleiste zeigt die Zeit von Anfrage bis Zeichnen (`Preview: n ms`). Das ist die Messung der Übertragung, die

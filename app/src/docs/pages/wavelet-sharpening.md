@@ -58,7 +58,7 @@ LRGB only counts together with Colour. Both are greyed out for grayscale recordi
 
 ## Preview, Process and Do All
 
-Moving a slider updates the preview at once. Only the *Processing Area* is calculated, a square of 512 pixels by default that you can change under Settings > Processing Area and show with **Show Processing Area**. The status bar tells how long the last preview took. That keeps the preview fast, even for large images. The area is calculated together with a small border around it, so what you see matches what the whole image will look like.
+Moving a slider updates the preview at once. Only the *Processing Area* is calculated, a square of 512 pixels by default that you can change under Settings > Processing Area and show with **Show Processing Area**. The status bar tells how long the last preview took. The preview only runs in the step Wavelets: when you open Save, or come back to Wavelets after **Do All** with the same values, the image from **Do All** stays as it is. That keeps the preview fast, even for large images. The area is calculated together with a small border around it, so what you see matches what the whole image will look like.
 
 **Process** calculates the Processing Area once more with the current settings. **Do All**, the button at the bottom of the step, applies the settings to the whole image and opens the Save step (you can cancel or pause it, see [Progress, Cancel and Pause](progress-cancel-pause)); after it, moving a slider shows the preview of the area on the stacked image again. **Before** shows the stacked image without any change, to compare.
 

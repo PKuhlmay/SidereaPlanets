@@ -9,8 +9,7 @@ import { shallowRef, watch } from "vue";
 import { runJob } from "./jobs";
 import { defaultLayer } from "./logic/settings";
 import { processingArea } from "./logic/viewport";
-import { imageKind } from "./logic/workflow";
-import { colourMode, doAllIsCurrent, doAllKey, fromBackend, parsePreview, toBackend, writePreview, type BackendSettings } from "./logic/wavelet";
+import { colourMode, doAllIsCurrent, doAllKey, fromBackend, parsePreview, previewWanted, toBackend, writePreview, type BackendSettings } from "./logic/wavelet";
 import { session, settings, status } from "./state";
 
 // The design preview of dev builds runs in a plain browser; there is no backend to ask.
@@ -94,9 +93,6 @@ export const doAllIsUpToDate = (): boolean => doAllIsCurrent(lastDoAll.value, se
 export function markDoAllCurrent(): void {
   if (session.stackImage) lastDoAll.value = { stack: session.stackImage, key: doAllKey(settings.wavelet, mode()) };
 }
-
-/** Whether the image area shows the sharpened stack (Wavelets and Save steps). */
-const showsWavelets = (): boolean => imageKind(session.view) === "wavelet";
 
 /**
  * Do All: applies the values to the whole image. Cancel and Pause reach the backend between two layers; a cancelled
@@ -189,9 +185,16 @@ const AUTOMATIC_DELAY_MS = 600;
 let automatic: number | undefined;
 
 watch(
-  [() => JSON.stringify(toBackend(settings.wavelet)), mode, () => settings.menu.processingArea, () => session.stackImage, showsWavelets],
+  [() => JSON.stringify(toBackend(settings.wavelet)), mode, () => settings.menu.processingArea, () => session.stackImage, () => session.view],
   () => {
-    if (!inTauri() || !showsWavelets() || !session.stackImage || status.busy) return;
+    if (!inTauri()) return;
+    const wanted = previewWanted({
+      view: session.view,
+      hasStack: session.stackImage !== null,
+      busy: status.busy !== null,
+      doAllCurrent: doAllIsUpToDate(),
+    });
+    if (!wanted) return;
     status.action = "layer setting changed";
     void refreshPreview();
     // Automatic: once the values stop changing, apply them to the whole image as well.

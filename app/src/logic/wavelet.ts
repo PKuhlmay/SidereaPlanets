@@ -44,6 +44,15 @@ export function doAllIsCurrent<T>(done: { stack: T; key: string } | null, stack:
   return done !== null && stack !== null && done.stack === stack && done.key === key;
 }
 
+/**
+ * Whether the preview of the Processing Area is calculated now. Only in the Wavelets step, where the values are changed:
+ * the Save step shows what Do All made, and entering a step with a finished Do All for these values must not paint the
+ * preview over that image or replace the status bar text of that run.
+ */
+export function previewWanted(state: { view: string; hasStack: boolean; busy: boolean; doAllCurrent: boolean }): boolean {
+  return state.view === "wavelets" && state.hasStack && !state.busy && !state.doAllCurrent;
+}
+
 /** The slider position is ten times the factor of the layer (10 = 1.0). */
 export function toBackend(values: WaveletValues): BackendSettings {
   return {

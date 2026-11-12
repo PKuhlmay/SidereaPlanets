@@ -57,16 +57,13 @@ export async function runJob(name: string, job: (context: JobContext) => Promise
         return busy.cancelled;
       },
     });
-    if (busy.cancelled) {
-      status.result = "Cancelled";
-    } else {
-      status.progress = 1;
-      status.result = result ?? "";
-    }
+    status.result = busy.cancelled ? "Cancelled" : (result ?? "");
   } catch (e) {
     status.result = busy.cancelled ? "Cancelled" : `Error: ${String(e)}`;
   } finally {
     window.clearInterval(timer);
+    // The bar only runs during a calculation: it is empty again after a finished, cancelled or failed one.
+    status.progress = 0;
     tick();
     status.busy = null;
   }

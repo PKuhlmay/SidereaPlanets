@@ -174,6 +174,8 @@ describe("Set Alignpoints, Align, Limit, Stack", () => {
     expect(session.alignpoints[0]).toMatchObject({ shiftX: 0.5, shiftY: -0.5 });
     expect(session.alignpoints[1]?.shiftX).toBeUndefined();
     expect(status.action).toBe("Processing limited to 3 frames");
+    // The weakest kept frame is the second one (quality 11 of 13 at best).
+    expect(status.result).toBe("Stacksize: 3  Low quality: 84.62%");
 
     await runAction("stack");
     expect(status.result).toBe("Stacking Range : 0-255");
@@ -206,6 +208,26 @@ describe("Set Alignpoints, Align, Limit, Stack", () => {
     await runAction("align");
     expect(seen).toEqual([{ progress: 0.5, action: "Loading frame: 2" }]);
     expect(backend.listeners["align-progress"]).toBeUndefined();
+  });
+
+  it("shows an empty progress bar again once a job is over, finished or cancelled", async () => {
+    status.progress = 0.7;
+    await runAction("setAlignpoints");
+    expect(status.busy).toBeNull();
+    expect(status.progress).toBe(0);
+
+    const running = pending();
+    backend.handlers.align = () => {
+      backend.listeners["align-progress"]?.({ payload: { done: 2, total: 4, elapsedMs: 5 } });
+      return running.promise;
+    };
+    const job = runAction("align");
+    await vi.waitFor(() => expect(status.progress).toBe(0.5));
+    const cancelling = cancelJob();
+    running.reject("cancelled");
+    await Promise.all([job, cancelling]);
+    expect(status.result).toBe("Cancelled");
+    expect(status.progress).toBe(0);
   });
 
   it("stays at the step before when Align fails, and says why", async () => {

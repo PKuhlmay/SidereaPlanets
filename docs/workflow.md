@@ -52,6 +52,9 @@ Ebenso fehlt der frühere Reiter „Final“, dessen Funktionen im Wavelet-Reite
 - Begrenzt die Frames nach *Limit Setup*. Standard: *Lowest Quality (%)* = 80.
 - the reference program wechselt danach **selbst in den Stack-Reiter**. Die Statusleiste meldet
   „Processing limited to 10 frames“ und „Stacksize: 10 Low quality :100,00%“.
+  Der Klon zeigt „Stacksize: n  Low quality: x.xx%“ mit x = Qualität des schwächsten behaltenen Frames in Prozent des besten
+  (Prozentwerte der Frameliste). Das ist eine **Vermutung**: Beim Referenzfall steht im Original bei allen zehn Frames 100,00 %,
+  der Klon käme dort auf den Wert des schwächsten Frames (etwa 97 %), weil die zehn Qualitätswerte nur etwa 3 % streuen.
 - Im Bild erscheinen die Alignpoints als gelbe Kreise mit grünen Strichen. Die Striche zeigen _vermutlich_ den
   mittleren Versatz des Punkts.
 

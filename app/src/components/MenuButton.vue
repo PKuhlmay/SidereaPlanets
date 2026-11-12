@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
+import { openerClass } from "../logic/menu";
 
-// A toolbar menu: borderless button with an arrow, the list opens below it. Escape and a click outside close it.
-// With `plain` the opener is a standard button instead of a borderless one with an arrow (a button that offers a choice),
+// A button that opens a menu, with an arrow: borderless in the toolbar, the list opens below it. Escape and a click outside close it.
+// With `plain` the opener is a standard button instead of a borderless one (a button that offers a choice),
 // with `filled` the filled action of a step panel. `block` takes the full width, `up` opens the list above the button
 // (foot of the step panel), `end` aligns it to the right edge of the button (Show at the right of the image area).
 const props = defineProps<{
@@ -15,11 +16,6 @@ const props = defineProps<{
   end?: boolean;
   disabled?: boolean;
 }>();
-
-const opener = () => {
-  if (props.filled) return "next";
-  return props.plain ? "" : "ghost caret";
-};
 
 const open = ref(false);
 const root = ref<HTMLElement | null>(null);
@@ -51,7 +47,7 @@ onBeforeUnmount(() => {
     <button
       type="button"
       class="btn"
-      :class="opener()"
+      :class="openerClass(props)"
       aria-haspopup="menu"
       :aria-expanded="open"
       :disabled="disabled"
