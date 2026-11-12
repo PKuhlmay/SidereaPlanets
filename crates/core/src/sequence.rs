@@ -11,7 +11,6 @@ use crate::{
     align::{Control, FrameAlignment, Reference},
     stack::{StackParams, Stacker},
 };
-use rayon::prelude::*;
 use std::collections::VecDeque;
 
 /// Why [`aligned_frames`] stopped early.
@@ -31,7 +30,8 @@ pub enum SequenceError<E> {
 /// indexed by frame, when it has one for the frame), moves each onto the reference like the stack
 /// does and passes the result to `sink` in the order of `selection`. Frames of another size or
 /// channel count than the reference frame are left out. Returns how many frames reached `sink`.
-/// `progress` receives the number of finished frames after each batch.
+/// Frames go one after the other (the work inside a frame is parallel); `progress` receives the number of
+/// finished frames after each frame, and a cancel takes effect within one frame.
 #[allow(clippy::too_many_arguments)]
 pub fn aligned_frames<E>(
     reference: &Reference,
@@ -47,31 +47,18 @@ pub fn aligned_frames<E>(
         return Err(SequenceError::NoFrames);
     }
     let stacker = Stacker::new(reference, reference_frame, params.clone());
-    let batch = (rayon::current_num_threads() * 2).max(1);
-    let (mut done, mut written) = (0u32, 0u32);
-    for indices in selection.chunks(batch) {
-        let frames = indices
-            .iter()
-            .map(|&i| read(i))
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(SequenceError::Read)?;
-        let warped: Vec<Option<Image>> = indices
-            .par_iter()
-            .zip(frames.par_iter())
-            .map(|(&index, frame)| {
-                let alignment = known
-                    .and_then(|k| k.get(index as usize))
-                    .cloned()
-                    .unwrap_or_else(|| reference.align_frame(frame));
-                stacker.warp(frame, &alignment)
-            })
-            .collect();
-        for image in warped.into_iter().flatten() {
+    let mut written = 0u32;
+    for (done, &index) in selection.iter().enumerate() {
+        let frame = read(index).map_err(SequenceError::Read)?;
+        let alignment = known
+            .and_then(|k| k.get(index as usize))
+            .cloned()
+            .unwrap_or_else(|| reference.align_frame(&frame));
+        if let Some(image) = stacker.warp(&frame, &alignment) {
             sink(image).map_err(SequenceError::Write)?;
             written += 1;
         }
-        done += indices.len() as u32;
-        if progress(done) == Control::Cancel {
+        if progress(done as u32 + 1) == Control::Cancel {
             return Err(SequenceError::Cancelled);
         }
     }
@@ -272,6 +259,55 @@ mod tests {
             |_| Control::Cancel,
         );
         assert_eq!(cancelled, Err(SequenceError::Cancelled));
+    }
+
+    #[test]
+    fn progress_comes_after_every_frame_and_a_cancel_stops_at_once() {
+        let base = dot(10, 10);
+        let reference = Reference::new(&base, &[], &AlignParams::default());
+        let params = StackParams::default();
+        let alignments = vec![uniform((0.0, 0.0)); 6];
+        let selection = [0, 1, 2, 3, 4, 5];
+        let pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(8)
+            .build()
+            .unwrap();
+        let mut reported = Vec::new();
+        pool.install(|| {
+            aligned_frames::<()>(
+                &reference,
+                &base,
+                &params,
+                &selection,
+                Some(&alignments),
+                |_| Ok(base.clone()),
+                |_| Ok(()),
+                |done| {
+                    reported.push(done);
+                    Control::Continue
+                },
+            )
+            .unwrap()
+        });
+        assert_eq!(reported, vec![1, 2, 3, 4, 5, 6]);
+        let mut reads = 0;
+        let cancelled = pool.install(|| {
+            aligned_frames::<()>(
+                &reference,
+                &base,
+                &params,
+                &selection,
+                Some(&alignments),
+                |_| {
+                    reads += 1;
+                    Ok(base.clone())
+                },
+                |_| Ok(()),
+                |_| Control::Cancel,
+            )
+        });
+        assert_eq!(cancelled, Err(SequenceError::Cancelled));
+        assert_eq!(reads, 1);
     }
 
     #[test]

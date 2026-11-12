@@ -490,7 +490,8 @@ pub struct FrameAlignment {
 }
 
 impl Reference {
-    /// Finds every point of the reference in `frame` and rates the frame.
+    /// Finds every point of the reference in `frame` and rates the frame. The points are matched in
+    /// parallel.
     pub fn align_frame(&self, frame: &Image) -> FrameAlignment {
         let luma = frame.to_luma();
         let same_size = frame.width == self.width && frame.height == self.height;
@@ -501,7 +502,7 @@ impl Reference {
         };
         let mut matches: Vec<Option<PointShift>> = if same_size {
             self.templates
-                .iter()
+                .par_iter()
                 .map(|t| t.as_ref().and_then(|t| self.match_point(t, &luma, drift)))
                 .collect()
         } else {
@@ -753,39 +754,28 @@ pub enum AlignError<E> {
     Cancelled,
 }
 
-/// Whether [`align_sequence`] goes on after a batch of frames.
+/// Whether a job goes on after a frame (or, for the wavelets, a layer).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Control {
     Continue,
     Cancel,
 }
 
-/// Registers all frames against `reference`. Frames are read one after the other (`read` may borrow a
-/// file) but aligned in parallel, a batch at a time, so that only a few frames are in memory.
-/// `progress` receives the number of finished frames after each batch.
+/// Registers all frames against `reference`, one frame after the other: `read` may borrow a file, and
+/// the points of a frame are matched in parallel ([`Reference::align_frame`]), so all cores work on
+/// the current frame. That way `progress` receives the number of finished frames after each frame and
+/// a cancel takes effect within one frame, not only after a whole batch.
 pub fn align_sequence<E>(
     reference: &Reference,
     frame_count: u32,
     mut read: impl FnMut(u32) -> Result<Image, E>,
     mut progress: impl FnMut(u32) -> Control,
 ) -> Result<Vec<FrameAlignment>, AlignError<E>> {
-    let batch = (rayon::current_num_threads() * 2).max(1) as u32;
     let mut results = Vec::with_capacity(frame_count as usize);
-    let mut next = 0;
-    while next < frame_count {
-        let end = (next + batch).min(frame_count);
-        let frames = (next..end)
-            .map(&mut read)
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(AlignError::Read)?;
-        results.extend(
-            frames
-                .par_iter()
-                .map(|f| reference.align_frame(f))
-                .collect::<Vec<_>>(),
-        );
-        next = end;
-        if progress(next) == Control::Cancel {
+    for index in 0..frame_count {
+        let frame = read(index).map_err(AlignError::Read)?;
+        results.push(reference.align_frame(&frame));
+        if progress(index + 1) == Control::Cancel {
             return Err(AlignError::Cancelled);
         }
     }
@@ -1083,6 +1073,53 @@ mod tests {
             |_| Control::Continue,
         );
         assert_eq!(failed.err(), Some(AlignError::Read("broken")));
+    }
+
+    /// A pool wide enough that the whole sequence would fit in one batch of frames.
+    fn wide_pool() -> rayon::ThreadPool {
+        rayon::ThreadPoolBuilder::new()
+            .num_threads(8)
+            .build()
+            .unwrap()
+    }
+
+    #[test]
+    fn progress_is_reported_for_every_frame_even_when_few_frames_run() {
+        let reference = reference_of(&blobs(300, 240, (0.0, 0.0), 0.0));
+        let mut progress = Vec::new();
+        wide_pool().install(|| {
+            align_sequence::<()>(
+                &reference,
+                6,
+                |i| Ok(blobs(300, 240, (i as f32, 0.0), 0.0)),
+                |done| {
+                    progress.push(done);
+                    Control::Continue
+                },
+            )
+            .unwrap()
+        });
+        assert_eq!(progress, vec![1, 2, 3, 4, 5, 6]);
+    }
+
+    #[test]
+    fn cancel_after_the_first_frame_stops_before_the_others_are_read() {
+        let reference = reference_of(&blobs(300, 240, (0.0, 0.0), 0.0));
+        let frame = blobs(300, 240, (0.0, 0.0), 0.0);
+        let mut reads = 0;
+        let result = wide_pool().install(|| {
+            align_sequence::<()>(
+                &reference,
+                6,
+                |_| {
+                    reads += 1;
+                    Ok(frame.clone())
+                },
+                |_| Control::Cancel,
+            )
+        });
+        assert_eq!(result.err(), Some(AlignError::Cancelled));
+        assert_eq!(reads, 1);
     }
 
     #[test]

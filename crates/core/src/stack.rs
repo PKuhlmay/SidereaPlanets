@@ -444,8 +444,9 @@ pub struct StackResult {
 }
 
 /// Registers the frames `selection` (indices as `read` takes them) against `reference` and stacks
-/// them. Frames are read one after the other (`read` may borrow a file), registered and added in
-/// parallel, a batch at a time. `progress` receives the number of finished frames after each batch.
+/// them. Frames are read and added one after the other (`read` may borrow a file); registering and
+/// adding work in parallel inside a frame, so all cores are busy. `progress` receives the number of
+/// finished frames after each frame, and a cancel takes effect within one frame.
 pub fn stack_sequence<E>(
     reference: &Reference,
     reference_frame: &Image,
@@ -458,22 +459,11 @@ pub fn stack_sequence<E>(
         return Err(StackError::NoFrames);
     }
     let mut stacker = Stacker::new(reference, reference_frame, params.clone());
-    let batch = (rayon::current_num_threads() * 2).max(1);
-    let mut done = 0;
-    for indices in selection.chunks(batch) {
-        let frames = indices
-            .iter()
-            .map(|&i| read(i))
-            .collect::<Result<Vec<_>, _>>()
-            .map_err(StackError::Read)?;
-        let alignments: Vec<FrameAlignment> = frames
-            .par_iter()
-            .map(|f| reference.align_frame(f))
-            .collect();
-        let pairs: Vec<(&Image, &FrameAlignment)> = frames.iter().zip(&alignments).collect();
-        stacker.add_aligned(&pairs);
-        done += indices.len() as u32;
-        if progress(done) == Control::Cancel {
+    for (done, &index) in selection.iter().enumerate() {
+        let frame = read(index).map_err(StackError::Read)?;
+        let alignment = reference.align_frame(&frame);
+        stacker.add_aligned(&[(&frame, &alignment)]);
+        if progress(done as u32 + 1) == Control::Cancel {
             return Err(StackError::Cancelled);
         }
     }
@@ -1019,6 +1009,49 @@ mod tests {
             |_| Control::Continue,
         );
         assert_eq!(empty.err(), Some(StackError::NoFrames));
+    }
+
+    #[test]
+    fn stack_sequence_reports_every_frame_and_stops_right_after_a_cancel() {
+        let frame = scene(60, 50, (0.0, 0.0));
+        let points = grid_points(60, 50, 12);
+        let reference = reference_of(&frame, &points);
+        let pool = rayon::ThreadPoolBuilder::new()
+            .num_threads(8)
+            .build()
+            .unwrap();
+        let mut reported = Vec::new();
+        pool.install(|| {
+            stack_sequence(
+                &reference,
+                &frame,
+                &StackParams::default(),
+                &[0, 0, 0, 0, 0, 0],
+                |_| Ok::<_, ()>(frame.clone()),
+                |done| {
+                    reported.push(done);
+                    Control::Continue
+                },
+            )
+            .unwrap()
+        });
+        assert_eq!(reported, vec![1, 2, 3, 4, 5, 6]);
+        let mut reads = 0;
+        let cancelled = pool.install(|| {
+            stack_sequence(
+                &reference,
+                &frame,
+                &StackParams::default(),
+                &[0, 0, 0, 0, 0, 0],
+                |_| {
+                    reads += 1;
+                    Ok::<_, ()>(frame.clone())
+                },
+                |_| Control::Cancel,
+            )
+        });
+        assert_eq!(cancelled.err(), Some(StackError::Cancelled));
+        assert_eq!(reads, 1);
     }
 
     #[test]

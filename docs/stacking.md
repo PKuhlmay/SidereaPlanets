@@ -54,8 +54,11 @@ Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist
 - Die Summe liegt in `f64`, die Zählung in `u32` je Pixel. Samples sind in `f32` auf `0..1` normiert; tausende 16-Bit-Frames
   laufen ohne Überlauf und ohne sichtbares Rundungsrauschen auf (Test mit 70 000 Frames voller Aussteuerung).
   Der Preis ist Speicher: 8 Byte je Messwert, bei 4096 × 4096 RGB etwa 400 MB. Bei Bedarf auf `f32` mit Blocksummen umstellen.
-- Gestreamt wird in Stapeln von `2 × Threads` Frames: lesen nacheinander (die Datei wird nur von einem Thread gelesen),
-  registrieren parallel (`rayon`), addieren parallel nach Bildzeilen. Im Speicher liegen nur der Stapel und die Summen.
+- Gestreamt wird Frame für Frame: lesen (die Datei wird nur von einem Thread gelesen), dann registrieren parallel über die
+  Alignpoints (`rayon`) und addieren parallel nach Bildzeilen. Fortschritt und Abbruch/Pause greifen so nach jedem Frame
+  (RK-005-Prüflauf: vorher Stapel von `2 × Threads` Frames, bei 10 Frames kam der Fortschritt einmal am Ende und ein Abbruch
+  erst nach dem ganzen Lauf). Gleiches gilt für Align und für Save Aligned/Integrated. Im Speicher liegen nur der Stapel
+  und die Summen.
 - Frames anderer Größe oder Kanalzahl werden ausgelassen und nicht mitgezählt (`StackResult::frames`).
 
 ### Schnittstelle für Folgetickets
