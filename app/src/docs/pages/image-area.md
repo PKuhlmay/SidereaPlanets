@@ -33,6 +33,10 @@ In the Wavelets step **Adjust ›** sits to the left of **Show ▾**. It hides a
 
 A recording starts fitted and follows the size of the window until you zoom or move (a click on the image without dragging does not count). Each time you go to another step the image is fitted again, because the space around it changes from step to step. Beyond 200% single pixels are shown as squares.
 
+## Flipped and turned pictures
+
+With **Flip and Rotate** (Adjustments panel) the Wavelets and Save steps show the picture mirrored and turned as it will be saved; a free angle makes the canvas bigger, with black corners unless **Crop to fit** is on, and the picture fits the area again. The marks that belong to the stack, alignpoints and the preview area, are not drawn on such a picture. **Before/After** and **View Compare** show the stack flipped and turned in the same way. **Resize Image** does not change the picture in the area, see [Color and tones](color-and-tones).
+
 ## Before and after
 
 In the steps Wavelets and Save the zoom bar has a **Before/After** switch. In the position *Before* the window shows the stack as it was before sharpening; switch back to see the sharpened image. Both views differ as soon as you have pressed **Update Preview** or **Do All**. To see both at once, press **View Compare** in the Adjustments panel: a divider splits the image into the stack on the left and the result on the right, see [Color and tones](color-and-tones). Pressing **Before/After** ends it.

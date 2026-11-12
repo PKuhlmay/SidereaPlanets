@@ -9,6 +9,7 @@ use planets_core::{
     Image,
     color::{Adjustments, adjust},
     crop::CropRect,
+    geometry::Geometry,
     refine::{RefineSettings, refine as refine_image},
 };
 use planets_io::{
@@ -98,22 +99,33 @@ pub fn export_formats(source: ImageSource) -> Vec<FormatInfo> {
         .collect()
 }
 
-/// Writes the image of `source`; with `adjustments` it is written as the colour and tone panels
-/// show it (`docs/formats.md`), not as it came out of Stack or Wavelet. `refine` (*Denoise/Deringing* and *Masking*) finishes the
-/// processed image first, against the stack it was made from; it does not apply to the stack itself. With `crop` only that part of the
-/// image is written, cut last (after refine and the adjustments, so the edge pixels are treated like all others).
+/// What *Save image* does to the image before it is written, in this order: `refine`, `adjustments`, the orientation of `geometry`,
+/// `crop`, the resize of `geometry`.
+#[derive(Default)]
+struct SaveOptions<'a> {
+    /// The colour and tone panels: the image is written as they show it (`docs/formats.md`), not as it came out of Stack or Wavelet.
+    adjustments: Option<&'a Adjustments>,
+    /// *Denoise/Deringing* and *Masking* finish the processed image first, against the stack it was made from; they do not apply to
+    /// the stack itself.
+    refine: Option<&'a RefineSettings>,
+    /// Only that part of the image is written, in pixels of the oriented image (what the window shows). It is cut after the colours, so
+    /// the edge pixels are treated like all others.
+    crop: Option<CropRect>,
+    /// *Flip and Rotate* (before the crop) and *Resize Image* (after it).
+    geometry: Option<&'a Geometry>,
+}
+
+/// Writes the image of `source` as `options` say.
 fn save(
     state: &ExportState,
     source: ImageSource,
     format: ExportFormat,
     path: &Path,
-    adjustments: Option<&Adjustments>,
-    refine: Option<&RefineSettings>,
-    crop: Option<CropRect>,
+    options: &SaveOptions,
 ) -> Result<String, SessionError> {
     let image = state.get(source)?;
     let refined;
-    let image = match refine {
+    let image = match options.refine {
         Some(r) if source == ImageSource::Wavelet && !r.is_neutral() => {
             let stack = state.get(ImageSource::Stack).ok();
             refined = refine_image(&image, stack.as_deref(), r);
@@ -122,22 +134,24 @@ fn save(
         _ => &*image,
     };
     let adjusted;
-    let image = match adjustments {
+    let image = match options.adjustments {
         Some(a) => {
             adjusted = adjust(image, a);
             &adjusted
         }
         None => image,
     };
-    let cropped;
-    let image = match crop {
-        Some(rect) => {
-            cropped = image
-                .cropped(rect)
-                .ok_or_else(|| SessionError::failed("the crop rectangle is outside the image"))?;
-            &cropped
-        }
-        None => image,
+    let finished;
+    let image = if options.crop.is_some() || options.geometry.is_some() {
+        finished = options
+            .geometry
+            .copied()
+            .unwrap_or_default()
+            .finish(image, options.crop)
+            .ok_or_else(|| SessionError::failed("the crop rectangle is outside the image"))?;
+        &finished
+    } else {
+        image
     };
     write_image(image, path, format)
         .map(|p| p.to_string_lossy().into_owned())
@@ -181,7 +195,8 @@ impl Session {
     }
 
     /// Writes the image of `source` to `path` in `format`; with `crop` only that part of it. The extension is
-    /// corrected to match the format; the result is the path that was written.
+    /// corrected to match the format; the result is the path that was written. The order is refine, colours, orientation (in
+    /// `geometry`), crop, resize (in `geometry`): the crop rectangle is in pixels of the oriented image.
     pub fn save_image(
         &self,
         source: ImageSource,
@@ -189,6 +204,7 @@ impl Session {
         path: &Path,
         adjustments: Option<&ColorSettings>,
         crop: Option<CropRect>,
+        geometry: Option<&Geometry>,
     ) -> Result<String, SessionError> {
         let refine = adjustments.map(|a| a.refine);
         let adjustments = adjustments.map(|a| Adjustments::from(*a));
@@ -198,9 +214,12 @@ impl Session {
                 source,
                 format,
                 path,
-                adjustments.as_ref(),
-                refine.as_ref(),
-                crop,
+                &SaveOptions {
+                    adjustments: adjustments.as_ref(),
+                    refine: refine.as_ref(),
+                    crop,
+                    geometry,
+                },
             )
         })
     }
@@ -230,9 +249,7 @@ mod tests {
             ImageSource::Stack,
             ExportFormat::Png16,
             &path,
-            None,
-            None,
-            None,
+            &SaveOptions::default(),
         )
         .unwrap_err();
         assert_eq!(err, SessionError::NoStackedImage);
@@ -242,9 +259,7 @@ mod tests {
             ImageSource::Wavelet,
             ExportFormat::Png16,
             &path,
-            None,
-            None,
-            None,
+            &SaveOptions::default(),
         )
         .unwrap_err();
         assert_eq!(err, SessionError::NoProcessedImage);
@@ -266,9 +281,7 @@ mod tests {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &dir.join("s.bmp"),
-            None,
-            None,
-            None,
+            &SaveOptions::default(),
         )
         .unwrap();
         // The format wins over the typed extension.
@@ -278,9 +291,7 @@ mod tests {
             ImageSource::Wavelet,
             ExportFormat::Tiff16,
             &dir.join("w.tif"),
-            None,
-            None,
-            None,
+            &SaveOptions::default(),
         )
         .unwrap();
         let read = |p: &str| {
@@ -313,9 +324,10 @@ mod tests {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &dir.join("a.tif"),
-            Some(&brighter),
-            None,
-            None,
+            &SaveOptions {
+                adjustments: Some(&brighter),
+                ..SaveOptions::default()
+            },
         )
         .unwrap();
         let read = ImageSequenceReader::open(vec![PathBuf::from(path)])
@@ -361,9 +373,10 @@ mod tests {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &dir.join("c.tif"),
-            None,
-            None,
-            Some(crop),
+            &SaveOptions {
+                crop: Some(crop),
+                ..SaveOptions::default()
+            },
         )
         .unwrap();
         let out = read_back(&path);
@@ -390,9 +403,10 @@ mod tests {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &dir.join("o.tif"),
-            None,
-            None,
-            Some(over),
+            &SaveOptions {
+                crop: Some(over),
+                ..SaveOptions::default()
+            },
         )
         .unwrap();
         let out = read_back(&path);
@@ -410,9 +424,10 @@ mod tests {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &dir.join("f.tif"),
-            None,
-            None,
-            Some(full),
+            &SaveOptions {
+                crop: Some(full),
+                ..SaveOptions::default()
+            },
         )
         .unwrap();
         assert_eq!((read_back(&path).width, read_back(&path).height), (4, 3));
@@ -436,9 +451,10 @@ mod tests {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &path,
-            None,
-            None,
-            Some(outside),
+            &SaveOptions {
+                crop: Some(outside),
+                ..SaveOptions::default()
+            },
         )
         .unwrap_err();
         assert!(err.to_string().contains("crop"), "{err}");
@@ -466,15 +482,181 @@ mod tests {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &dir.join("b.tif"),
-            Some(&brighter),
-            None,
-            Some(crop),
+            &SaveOptions {
+                adjustments: Some(&brighter),
+                crop: Some(crop),
+                ..SaveOptions::default()
+            },
         )
         .unwrap();
         let out = read_back(&path);
         assert_eq!((out.width, out.height), (2, 1));
         for (got, want) in out.data.iter().zip([0.25, 0.25 + 1.0 / 12.0]) {
             assert!((got - want).abs() < 1e-4, "{got} vs {want}");
+        }
+    }
+
+    use planets_core::geometry::{Orientation, Resampling, Resize, ResizeTarget};
+
+    fn turned(angle: f32) -> Geometry {
+        Geometry {
+            orientation: Orientation {
+                angle,
+                ..Orientation::default()
+            },
+            resize: None,
+        }
+    }
+
+    fn save_with(name: &str, options: &SaveOptions) -> Result<String, SessionError> {
+        let state = ExportState::default();
+        state.set_stack(ramp());
+        let dir = std::env::temp_dir().join(format!("planets-cmd-geo-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let path = dir.join(name);
+        let _ = std::fs::remove_file(&path);
+        save(
+            &state,
+            ImageSource::Stack,
+            ExportFormat::Tiff16,
+            &path,
+            options,
+        )
+    }
+
+    #[test]
+    fn a_turned_image_is_written_turned() {
+        let geometry = turned(90.0);
+        let path = save_with(
+            "t.tif",
+            &SaveOptions {
+                geometry: Some(&geometry),
+                ..SaveOptions::default()
+            },
+        )
+        .unwrap();
+        let out = read_back(&path);
+        // 4 x 3 turned clockwise is 3 x 4: 8 4 0 / 9 5 1 / 10 6 2 / 11 7 3 (twelfths).
+        assert_eq!((out.width, out.height), (3, 4));
+        for (got, want) in out
+            .data
+            .iter()
+            .zip([8.0, 4.0, 0.0, 9.0, 5.0, 1.0, 10.0, 6.0, 2.0, 11.0, 7.0, 3.0])
+        {
+            assert!((got - want / 12.0).abs() < 1e-4, "{got} vs {}", want / 12.0);
+        }
+    }
+
+    #[test]
+    fn the_crop_is_set_on_the_turned_image() {
+        let geometry = turned(90.0);
+        let crop = CropRect {
+            x: 1,
+            y: 1,
+            width: 2,
+            height: 2,
+        };
+        let path = save_with(
+            "tc.tif",
+            &SaveOptions {
+                crop: Some(crop),
+                geometry: Some(&geometry),
+                ..SaveOptions::default()
+            },
+        )
+        .unwrap();
+        let out = read_back(&path);
+        // The part 5 1 / 6 2 of the turned picture; cut from the unturned one the same rectangle would hold 5 6 / 9 10.
+        assert_eq!((out.width, out.height), (2, 2));
+        for (got, want) in out.data.iter().zip([5.0, 1.0, 6.0, 2.0]) {
+            assert!((got - want / 12.0).abs() < 1e-4, "{got} vs {}", want / 12.0);
+        }
+    }
+
+    #[test]
+    fn a_crop_that_only_lies_inside_the_unturned_image_is_an_error() {
+        let geometry = turned(90.0);
+        let crop = CropRect {
+            x: 3,
+            y: 0,
+            width: 1,
+            height: 1,
+        };
+        let err = save_with(
+            "tx.tif",
+            &SaveOptions {
+                crop: Some(crop),
+                geometry: Some(&geometry),
+                ..SaveOptions::default()
+            },
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("crop"), "{err}");
+        let dir = std::env::temp_dir().join(format!("planets-cmd-geo-{}", std::process::id()));
+        assert!(!dir.join("tx.tif").exists());
+    }
+
+    #[test]
+    fn the_resize_comes_after_the_crop() {
+        let geometry = Geometry {
+            orientation: Orientation::default(),
+            resize: Some(Resize {
+                target: ResizeTarget::Percent(200.0),
+                method: Resampling::Nearest,
+            }),
+        };
+        let crop = CropRect {
+            x: 1,
+            y: 1,
+            width: 2,
+            height: 2,
+        };
+        let path = save_with(
+            "r.tif",
+            &SaveOptions {
+                crop: Some(crop),
+                geometry: Some(&geometry),
+                ..SaveOptions::default()
+            },
+        )
+        .unwrap();
+        let out = read_back(&path);
+        // 200 % of the 2 x 2 crop, not of the 4 x 3 image.
+        assert_eq!((out.width, out.height), (4, 4));
+        let want = [
+            5.0, 5.0, 6.0, 6.0, 5.0, 5.0, 6.0, 6.0, 9.0, 9.0, 10.0, 10.0, 9.0, 9.0, 10.0, 10.0,
+        ];
+        for (got, want) in out.data.iter().zip(want) {
+            assert!((got - want / 12.0).abs() < 1e-4, "{got} vs {}", want / 12.0);
+        }
+    }
+
+    #[test]
+    fn the_orientation_is_applied_to_the_adjusted_image() {
+        let geometry = Geometry {
+            orientation: Orientation {
+                flip_horizontal: true,
+                ..Orientation::default()
+            },
+            resize: None,
+        };
+        let brighter = Adjustments {
+            brightness: 0.25,
+            ..Adjustments::default()
+        };
+        let path = save_with(
+            "ab.tif",
+            &SaveOptions {
+                adjustments: Some(&brighter),
+                geometry: Some(&geometry),
+                ..SaveOptions::default()
+            },
+        )
+        .unwrap();
+        let out = read_back(&path);
+        // First row 0 1 2 3 twelfths, brightened by a quarter and mirrored.
+        for (got, want) in out.data.iter().take(4).zip([3.0, 2.0, 1.0, 0.0]) {
+            assert!((got - (0.25 + want / 12.0)).abs() < 1e-4, "{got}");
         }
     }
 
@@ -507,9 +689,10 @@ mod tests {
                 source,
                 ExportFormat::Tiff16,
                 &dir.join(name),
-                None,
-                Some(&refine),
-                None,
+                &SaveOptions {
+                    refine: Some(&refine),
+                    ..SaveOptions::default()
+                },
             )
             .unwrap();
             ImageSequenceReader::open(vec![PathBuf::from(path)])

@@ -19,14 +19,16 @@ After stacking, the Wavelets step has a set of tools to fix the color and the br
 | Masking | Limits the sharpening to the planet, so the sky stays as it is in the stack |
 | Remember, Restore, Difference | Keep an image and compare it with the one you are working on |
 | View Compare | Shows the stack and the result side by side in one image, with a divider you drag |
+| Flip and Rotate | Mirrors the picture, turns it by 90° or by any angle |
+| Resize Image | Makes the saved picture bigger or smaller, by a percentage or to a size in pixels |
 
-**Crop** opens a tool of its own, see [Cropping before you save](save-and-export). The other six **Adjustments** buttons (View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Wavelet Filter and Show Line Graph) are dimmed and cannot be pressed: **Not available yet**.
+**Crop** opens a tool of its own, see [Cropping before you save](save-and-export). The other four **Adjustments** buttons (View Zoomed, View Stack Size, Wavelet Filter and Show Line Graph) are dimmed and cannot be pressed: **Not available yet**.
 
 ## How the cards work
 
 - An **Adjustments** button stays pressed while its card is open. Press it again, or press the cross in the card, to close the card.
 - Closing a card keeps its values. **Reset** in the card sets the values back so that the image is not changed.
-- All values are applied to the stacked (or sharpened) image in this order: Deringing, Denoise, Masking, RGB Align, Color Mixing, RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** shows the image without any of them.
+- All values are applied to the stacked (or sharpened) image in this order: Deringing, Denoise, Masking, RGB Align, Color Mixing, RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** shows the image without any of them. Flip and Rotate, Crop and Resize Image come after these, in that order, and only when a file is written (Flip and Rotate is also in the picture on screen).
 - The values change what the window shows, and **Save Image** in the Save step writes the image with them applied. **Do All** itself does not include them: the sharpened image stays as it is and the cards apply on top of it.
 - RGB Align and RGB Balance need a color image. With a grayscale recording they are grayed out. Color Mixing also works on grayscale images, see below.
 - The cards work on the stacked image, or on the sharpened image once there is one. Pressing **Update Preview** or **Do All** puts a new sharpened image in the window; the cards then apply to that image.
@@ -75,6 +77,32 @@ Every color of the result is built from the colors of the image. The card has a 
 - **Reset** puts the start values back.
 
 Typical uses: a color cast that is the same in all channels (lower the share of the channel that is too strong in the other outputs), data from a monochrome camera or an infrared-pass filter where one channel carries the picture (*Red to All Channels*, then give each output its own share for a false-color tint), or a quick trial of a different color look. On a grayscale recording all three inputs are equal, so each output simply gets its own total percentage, which tints the image.
+
+## Flip and Rotate
+
+Planets are usually saved with north up, or in the orientation of a chart or of another picture of the same planet. This card mirrors the picture and turns it, and the image shows the result at once, so you see what will be saved.
+
+- **Flip** has two switches: **Horizontal** mirrors the picture from left to right, **Vertical** from top to bottom. A switch stays pressed while the picture is mirrored; press it again to undo it. Both act on what you see, also after you have turned the picture.
+- **Rotate** has **Left 90°**, **Right 90°** and **180°**. Each press turns the picture by that much.
+- **Angle (°)** turns the picture by any angle from −180° to 180° in steps of 0.1°. A positive angle turns clockwise, a negative one counterclockwise. The buttons above change this field: Right 90° adds 90°. Turns by 0°, 90°, 180° and 270° only move pixels and lose nothing; any other angle makes new pixels between the old ones.
+- **Interpolation** is how those new pixels are calculated. **Bicubic** (the start value) keeps the most detail; **Bilinear** is smoother and cannot add a faint halo next to a bright edge.
+- A picture turned by a free angle gets a bigger canvas, so nothing is cut off, and the corners are black. **Crop to fit** cuts the picture to the largest rectangle of the original shape that has no black corners; it has no effect on turns by 90°, 180° or 270°.
+- **Picture** shows the size of the picture after flipping and turning. **Reset** puts the card back to no flip and no turn.
+
+The turned picture is the one in the image area, in the steps Wavelets and Save, and also the left side of **View Compare**. The marks that belong to the stack (alignpoints and the preview area) are not drawn on a flipped or turned picture. **Remember**, **Restore** and **Difference** work on the picture as it is before flipping and turning.
+
+Flip and Rotate is applied last: after all other cards, but before the crop. The crop rectangle is therefore set on the picture as you see it. If you flip or turn the picture after you pressed **Done** in the crop tool, the rectangle is removed (the status bar says so). While the crop tool is open, the card cannot be changed and says *Finish or cancel the crop first*. Changing only the **Interpolation** keeps the crop. The values stay for a new stack and are stored in the project file; the Windows version of Siderea Planets ignores them.
+
+## Resize Image
+
+**Resize Image** changes the size of the picture that **Save Image** writes. It does not change what the window shows: the image area stays at the size of the stack (turned and cropped if you did so), and the card tells the result.
+
+- **Percent** scales both sides by the same share, from 10% to 400%. 100% changes nothing.
+- **Pixels** scales to a **Width (px)** and a **Height (px)**. With **Lock aspect ratio** (the start value) you type one side and the other follows, so the picture keeps its shape; the fields show both. Without the lock both sides are yours, and the picture is stretched or squeezed. A side is at least 1 and at most 16384 pixels.
+- **Method** is how the new pixels are calculated: **Lanczos3** (the start value) keeps the most detail, **Bicubic** is a little softer, **Bilinear** softer still, and **Nearest Neighbor** copies pixels, which is for enlarging pixel by pixel. When the picture becomes smaller, the method averages the pixels it replaces, so the result does not get jagged.
+- **Result** shows the size of the file that **Save Image** writes. **Reset** brings back the original size.
+
+Resize Image is the very last thing before a file is written: **Do All** (or the preview) → color and tone cards → Flip and Rotate → Crop → Resize Image. With a crop, 50% means half of the cropped rectangle, not half of the whole picture. The values stay for a new stack and are stored in the project file; the Windows version of Siderea Planets ignores them.
 
 ## RGB Balance
 

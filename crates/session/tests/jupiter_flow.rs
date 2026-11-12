@@ -3,7 +3,11 @@
 //! for a plausible result, not for a match with the original (that is what the `*_reference.rs`
 //! tests of `crates/io` do).
 
-use planets_core::{crop::CropRect, wavelet::ColourMode};
+use planets_core::{
+    crop::CropRect,
+    geometry::{Geometry, Orientation, Resampling, Resize, ResizeTarget},
+    wavelet::ColourMode,
+};
 use planets_io::{export::ExportFormat, images::ImageSequenceReader};
 use planets_session::{
     ColorSettings, ImageSource, LimitSettings, Operation, PointSettings, RoiSettings, Session,
@@ -141,6 +145,7 @@ fn jupiter_runs_from_select_to_save_image() {
             &dir.join(name),
             Some(&identity_colors()),
             None,
+            None,
         );
         assert!(written.is_ok(), "Save image {name}: {written:?}");
         let written = written.unwrap();
@@ -170,6 +175,7 @@ fn jupiter_runs_from_select_to_save_image() {
             &dir.join("cropped"),
             Some(&identity_colors()),
             Some(crop),
+            None,
         )
         .unwrap();
     let cropped = ImageSequenceReader::open(vec![PathBuf::from(&written)])
@@ -179,6 +185,58 @@ fn jupiter_runs_from_select_to_save_image() {
     assert_eq!((cropped.width, cropped.height), (600, 450));
     assert_eq!(Some(cropped), whole.cropped(crop));
 
+    // Turned by 90 degrees the sharpened image is 680 x 1024; the crop is set on that picture and the resize comes last (MAC-017).
+    let geometry = Geometry {
+        orientation: Orientation {
+            angle: 90.0,
+            ..Orientation::default()
+        },
+        resize: Some(Resize {
+            target: ResizeTarget::Percent(50.0),
+            method: Resampling::Lanczos3,
+        }),
+    };
+    let turned_crop = CropRect {
+        x: 40,
+        y: 100,
+        width: 600,
+        height: 800,
+    };
+    let written = session
+        .save_image(
+            ImageSource::Wavelet,
+            ExportFormat::Tiff16,
+            &dir.join("turned"),
+            Some(&identity_colors()),
+            Some(turned_crop),
+            Some(&geometry),
+        )
+        .unwrap();
+    let turned = ImageSequenceReader::open(vec![PathBuf::from(&written)])
+        .unwrap()
+        .read_frame(0)
+        .unwrap();
+    assert_eq!((turned.width, turned.height), (300, 400));
+    // Without the resize it is the part of the turned whole image.
+    let written = session
+        .save_image(
+            ImageSource::Wavelet,
+            ExportFormat::Tiff16,
+            &dir.join("turned-full"),
+            Some(&identity_colors()),
+            Some(turned_crop),
+            Some(&Geometry {
+                resize: None,
+                ..geometry
+            }),
+        )
+        .unwrap();
+    let turned_full = ImageSequenceReader::open(vec![PathBuf::from(&written)])
+        .unwrap()
+        .read_frame(0)
+        .unwrap();
+    assert_eq!(Some(turned_full), whole.turned(1).cropped(turned_crop));
+
     // Aligning again throws it all away: Save image has nothing left to write.
     session.set_alignpoints(0, &point_settings()).unwrap();
     assert_eq!(
@@ -186,6 +244,7 @@ fn jupiter_runs_from_select_to_save_image() {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &dir.join("gone"),
+            None,
             None,
             None
         ),

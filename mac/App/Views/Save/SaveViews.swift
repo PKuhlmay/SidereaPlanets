@@ -23,6 +23,8 @@ struct SaveStepView: View {
             }
             RK.line.frame(height: 1)
             CropSection(model: model)
+            RK.line.frame(height: 1)
+            SizeSection(model: model)
         }
     }
 }

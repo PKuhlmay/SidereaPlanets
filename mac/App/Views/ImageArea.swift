@@ -34,7 +34,7 @@ struct ImageArea: View {
                     ImageOverlays(
                         transform: viewport.transform,
                         points: showsFrameMarks && model.show.alignpoints && model.progress.step >= .points ? model.align.points
-                            : (isWaveletView && model.wavelet.showAlignpoints ? model.align.points : []),
+                            : (isWaveletView && model.wavelet.showAlignpoints && !model.orientationApplies ? model.align.points : []),
                         sections: isStackStep ? model.alignSections : [],
                         region: showsFrameMarks && model.show.roi ? model.align.roi : processingAreaMark,
                         draft: draft
@@ -72,7 +72,8 @@ struct ImageArea: View {
 
     /// The preview area as a dashed rectangle, with Show Preview Area in the Wavelets and Save steps.
     private var processingAreaMark: RoiSettings? {
-        guard isWaveletView, model.wavelet.showProcessingArea, let area = model.processingAreaRegion else { return nil }
+        // The marks are in the pixels of the stack; a flipped or turned picture has no place for them.
+        guard isWaveletView, model.wavelet.showProcessingArea, !model.orientationApplies, let area = model.processingAreaRegion else { return nil }
         return RoiSettings(x: area.x, y: area.y, width: area.width, height: area.height)
     }
 

@@ -127,6 +127,109 @@ impl From<CropRect> for session::CropRect {
     }
 }
 
+// --- Geometry (MAC-017) ------------------------------------------------------------------------
+
+/// How pixels are looked up between the pixels of the source.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Enum)]
+pub enum Resampling {
+    Nearest,
+    Bilinear,
+    Bicubic,
+    Lanczos3,
+}
+
+impl From<Resampling> for session::Resampling {
+    fn from(m: Resampling) -> Self {
+        match m {
+            Resampling::Nearest => Self::Nearest,
+            Resampling::Bilinear => Self::Bilinear,
+            Resampling::Bicubic => Self::Bicubic,
+            Resampling::Lanczos3 => Self::Lanczos3,
+        }
+    }
+}
+
+/// *Flip and Rotate*: mirror first, then turn clockwise by `angle` degrees.
+#[derive(Debug, Clone, Copy, PartialEq, uniffi::Record)]
+pub struct OrientationSettings {
+    pub flip_horizontal: bool,
+    pub flip_vertical: bool,
+    pub angle: f32,
+    pub crop_to_fit: bool,
+    pub method: Resampling,
+}
+
+impl From<OrientationSettings> for session::Orientation {
+    fn from(o: OrientationSettings) -> Self {
+        Self {
+            flip_horizontal: o.flip_horizontal,
+            flip_vertical: o.flip_vertical,
+            angle: o.angle,
+            crop_to_fit: o.crop_to_fit,
+            method: o.method.into(),
+        }
+    }
+}
+
+/// The size *Resize Image* asks for: a percentage, or pixels where a side that is `None` follows the other.
+#[derive(Debug, Clone, Copy, PartialEq, uniffi::Enum)]
+pub enum ResizeTarget {
+    Percent {
+        percent: f32,
+    },
+    Pixels {
+        width: Option<u32>,
+        height: Option<u32>,
+    },
+}
+
+impl From<ResizeTarget> for session::ResizeTarget {
+    fn from(t: ResizeTarget) -> Self {
+        match t {
+            ResizeTarget::Percent { percent } => Self::Percent(percent),
+            ResizeTarget::Pixels { width, height } => Self::Pixels { width, height },
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, uniffi::Record)]
+pub struct ResizeSettings {
+    pub target: ResizeTarget,
+    pub method: Resampling,
+}
+
+impl From<ResizeSettings> for session::Resize {
+    fn from(r: ResizeSettings) -> Self {
+        Self {
+            target: r.target.into(),
+            method: r.method.into(),
+        }
+    }
+}
+
+/// What Save Image does to the picture besides the colours: the orientation before the crop, the resize after it.
+#[derive(Debug, Clone, Copy, PartialEq, uniffi::Record)]
+pub struct GeometrySettings {
+    pub orientation: OrientationSettings,
+    pub resize: Option<ResizeSettings>,
+}
+
+impl From<GeometrySettings> for session::Geometry {
+    fn from(g: GeometrySettings) -> Self {
+        Self {
+            orientation: g.orientation.into(),
+            resize: g.resize.map(Into::into),
+        }
+    }
+}
+
+/// A size in pixels.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Record)]
+pub struct ImageSize {
+    pub width: u32,
+    pub height: u32,
+}
+
 // --- Align -------------------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Record)]
@@ -950,6 +1053,51 @@ mod tests {
         };
         let core = session::CropRect::from(rect);
         assert_eq!((core.x, core.y, core.width, core.height), (1, 2, 30, 40));
+    }
+
+    #[test]
+    fn the_geometry_keeps_every_field() {
+        let geometry = GeometrySettings {
+            orientation: OrientationSettings {
+                flip_horizontal: true,
+                flip_vertical: false,
+                angle: -12.5,
+                crop_to_fit: true,
+                method: Resampling::Bicubic,
+            },
+            resize: Some(ResizeSettings {
+                target: ResizeTarget::Pixels {
+                    width: Some(800),
+                    height: None,
+                },
+                method: Resampling::Nearest,
+            }),
+        };
+        let core = session::Geometry::from(geometry);
+        assert!(core.orientation.flip_horizontal && !core.orientation.flip_vertical);
+        assert_eq!(core.orientation.angle, -12.5);
+        assert!(core.orientation.crop_to_fit);
+        assert_eq!(core.orientation.method, session::Resampling::Bicubic);
+        assert_eq!(
+            core.resize,
+            Some(session::Resize {
+                target: session::ResizeTarget::Pixels {
+                    width: Some(800),
+                    height: None
+                },
+                method: session::Resampling::Nearest,
+            })
+        );
+        let percent = session::ResizeTarget::from(ResizeTarget::Percent { percent: 150.0 });
+        assert_eq!(percent, session::ResizeTarget::Percent(150.0));
+        assert_eq!(
+            session::Geometry::from(GeometrySettings {
+                resize: None,
+                ..geometry
+            })
+            .resize,
+            None
+        );
     }
 
     #[test]

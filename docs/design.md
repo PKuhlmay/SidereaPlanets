@@ -486,7 +486,7 @@ Seit MAC-014 heißt der Schritt in der App **Best Frames** (Pille, Panelkopf, Me
   Size step, Wavelet filter, Move all sliders together); Available schemes (in der App: Saved Schemes, gesperrt) mit Load Scheme und Save Scheme (in der App: Load Scheme… und Save Scheme…); Realign with Processed und Stack Again. Beide sind gesperrt; Realign
   trägt wie die gesperrten Stack-Optionen Tooltip und den Hinweis „Not available yet“ (darunter), Stack Again ist wie im Original gesperrt.
 - Aktion: **Do All**, links daneben **Process** (in der App: **Update Preview**) als Standard-Schaltfläche in derselben Zeile.
-- Rechtes Panel: Functions (in der App: Adjustments; nur Histogram, Gamma, Color Mixing, RGB Align, RGB Balance und View Compare aktiv, die neun übrigen Schaltflächen gesperrt) als Raster aus drei Spalten und fünf Zeilen in der Reihenfolge des Originals, jede
+- Rechtes Panel: Functions (in der App: Adjustments; in der Mac-App sind alle bis auf View Zoomed, View Stack Size, Wavelet Filter und Show Line Graph aktiv, diese vier gesperrt; die Windows-App hat nur Histogram, Gamma, Color Mixing, RGB Align, RGB Balance und View Compare aktiv) als Raster aus drei Spalten und fünf Zeilen in der Reihenfolge des Originals, jede
   Schaltfläche ein Umschalter für ihr Panel · Contrast/Brightness mit zwei Reglern und zwei Zahlenfeldern (in der App je Beschriftung und Feld über dem Regler; Hold heißt Keep und ist gesperrt) · Copy To /
   Load to / Difference mit der Auswahl Toggle (in der App: Remember · Restore · Difference mit „Show:“ Current image · Remembered image). **Functions »** (in der App: **Adjust ›**) oben im Bildbereich links neben Show blendet das rechte
   Panel aus und ein; der Bildbereich nimmt den frei werdenden Platz.
@@ -498,6 +498,8 @@ Seit MAC-014 heißt der Schritt in der App **Best Frames** (Pille, Panelkopf, Me
 - Wichtig: ein Satz in 12 px `--muted`, was gespeichert wird: „Saves the sharpened stack with your color and tone settings.“
   Passt das Ergebnis von Do All nicht zu den aktuellen Werten, darunter: „Your latest changes are applied to the whole image first (Do All).“
 - Advanced: entfällt.
+- Mac (MAC-016, MAC-017): unter dem Hinweis die Gruppe **Crop** (Text, **Crop…**, **Remove Crop**) und darunter die Gruppe **Size** („The picture is saved at 300 × 400 px.“, bei gedrehtem oder gespiegeltem
+  Bild „It is turned 15.0° clockwise.“, dazu ein Hinweis, wo man Flip and Rotate und Resize Image findet); beide Gruppen mit einer Linie getrennt.
 - Aktion: **Save image** (in der App: **Save Image**) mit dem Menü der fünf Dateitypen („TIFF 16-bit (.tif)…“). Im erledigten Schritt steht der Dateiname als Ergebnis.
 
 ### Soll-Bilder der Schritte
@@ -525,9 +527,9 @@ Dieser Abschnitt legt die Karten fest, die RK-008 braucht: **Histogram**, **Gamm
 dazu (MAC-019) **Color Mixing**; **View Compare** ist keine Karte, sondern eine Ansicht (Abschnitt am Ende dieses Teils).
 Contrast/Brightness bleibt das feste Panel unter dem Raster (Soll-Bild 07). **Denoise/Deringing** und **Masking** (MAC-018, Mac)
 folgen unten in Tabelle und Liste; die Verfahren dahinter stehen in `docs/wavelets.md`. Die übrigen Karten (View …,
-Flip and Rotate, Resize Image, Wavelet Filter, Show Linegraph; in der App
-View Stack Size, Show Line Graph …; die übrigen Schaltflächen sind gesperrt, „Not available yet“) legen ihre
-Tickets fest und ergänzen dieses Dokument. **Cropping Area** heißt in der Mac-App **Crop** und hat ein eigenes Werkzeug, siehe
+Wavelet Filter, Show Linegraph; in der App View Zoomed, View Stack Size, Wavelet Filter, Show Line Graph; diese vier Schaltflächen sind gesperrt,
+„Not available yet“) legen ihre Tickets fest und ergänzen dieses Dokument. **Flip and Rotate** und **Resize Image** (MAC-017) stehen im Abschnitt
+[Drehen und Größe](#drehen-und-größe-mac-017). **Cropping Area** heißt in der Mac-App **Crop** und hat ein eigenes Werkzeug, siehe
 [Zuschneiden](#zuschneiden-mac-016).
 
 **Gemeinsames Verhalten**
@@ -679,6 +681,54 @@ Aussehen und Verhalten wie im Zuschneiden von Siderea, übernommen mit den Maße
   **Reset** setzt das ganze Bild und Format Free; ein Rechteck, das das ganze Bild deckt, ist kein Zuschnitt, dann zeigt das Bild keins und
   der nächste Zug zeichnet ein neues.
 
+## Drehen und Größe (MAC-017)
+
+Die Karten **Flip and Rotate** und **Resize Image** (Panel Adjustments, Mac) sind Geometrie-Schritte am Ende von Save Image. Sie sind Karten wie die der
+Farben (oben rechts, 236 px, Reset als Textlink, Kreuz), gelten nur für das geschärfte Bild (Schritte Wavelets und Save), nie für das Stack-Bild des
+Schritts Stack, und wie die Farbwerte nicht für die Quelle der Karten: *Remember*, *Restore* und *Difference* arbeiten auf dem Bild vor dem Drehen.
+
+**Reihenfolge, festgelegt:** Refine (Denoise/Deringing, Masking) → Farb- und Tonwerte → **Flip and Rotate** → **Crop** → **Resize Image**
+(`crates/core/src/geometry.rs`, `crates/session/src/export.rs`). Das Bild im Bildbereich zeigt das gedrehte Bild (Schritte Wavelets und Save, auch die
+linke Hälfte von View Compare und Before). Das Zuschneiden arbeitet auf genau diesem Bild: sein Rechteck liegt in den Pixeln des gedrehten Bildes,
+also ist es das, was man sieht. Resize Image kommt zuletzt und skaliert, was nach dem Zuschnitt übrig ist; der Bildbereich zeigt es nicht (er bliebe
+beim Zoomen auf „Fit“ ohnehin gleich groß), die Karte und die Gruppe Size im Schritt Save nennen die Größe der Datei. Wer erst zuschneidet und dann dreht,
+bekäme ein Rechteck, das auf einem Bild liegt, das der Nutzer nicht sieht. Ändert man Spiegelung, Winkel oder Crop to fit, **nachdem** das Zuschneiden
+mit Done bestätigt war, wird das Rechteck entfernt (Statuszeile „Crop removed: the picture was flipped or turned“); solange das Werkzeug offen ist,
+sind die Bedienelemente der Karte gesperrt („Finish or cancel the crop first“). Die Interpolation ändert keine Größe und lässt den Zuschnitt stehen.
+Die Marken des Stacks (Alignpoints, Preview-Bereich) liegen in den Pixeln des Stacks und werden auf einem gedrehten Bild nicht gezeichnet.
+
+**Flip and Rotate** (von oben nach unten): Beschriftung *Flip* mit der Segmentleiste **Horizontal · Vertical** (Schalter, an solange gespiegelt),
+Beschriftung *Rotate* mit **Left 90° · Right 90° · 180°**, Zeile **Angle (°)** mit Dezimalfeld (1 Stelle, Schritt 0,1) über einem Regler, Zeile
+**Interpolation** mit den Segmenten **Bilinear · Bicubic**, das Häkchen **Crop to fit**, die Zeile *Picture* mit „W × H px“ (Größe nach dem Drehen).
+Standard: nichts gespiegelt, 0°, Bicubic, Crop to fit aus · Winkel −180 … 180 in Zehnteln, positiv = im Uhrzeigersinn.
+
+- Die Rechnung im Kern spiegelt zuerst im Rahmen des Bildes und dreht dann im Uhrzeigersinn. Die Schaltflächen wirken aber auf das Bild auf dem
+  Bildschirm: ein Spiegeln kehrt das Vorzeichen des Winkels um (`OrientationValues.flipHorizontally`), sonst würde ein gedrehtes Bild an der falschen
+  Achse gespiegelt. **Left 90°**, **Right 90°** und **180°** addieren −90, 90 und 180 zum Winkel (Bereich −180 … 180, 180 bleibt 180).
+- Vielfache von 90° (und Spiegeln) versetzen nur Pixel, nichts wird gerechnet; 0° und kein Spiegeln lassen das Bild bitgenau stehen. Jeder andere
+  Winkel zerlegt sich in ganze Vierteldrehungen und einen Rest von höchstens 45°, der mit Bilinear oder Bicubic (Catmull-Rom) gerechnet wird.
+- Der Raum eines frei gedrehten Bildes wächst auf das umschließende Rechteck (Hintergrund schwarz); seine Seiten behalten die Parität der Quelle, damit
+  die Mitte des Bildes auf der Mitte eines Pixels bleibt. **Crop to fit** nimmt statt dessen das größte Rechteck in der Form des (viertelgedrehten)
+  Bildes, das ganz im gedrehten Bild liegt.
+- Das gedrehte Bild für den Bildbereich kommt aus dem Kern (`Session::orient_preview`, 8-Bit-RGBA); gerechnet wird in voller Größe, ein verkleinertes
+  Vorschaubild gäbe dem Zuschneiden falsche Koordinaten. Eine Anfrage läuft zugleich, der neueste Wert gewinnt; das vorige gedrehte Bild bleibt stehen,
+  bis das neue da ist.
+
+**Resize Image** (von oben nach unten): Segmente **Percent · Pixels**, bei Percent die Zeile **Size (%)** mit Feld (44 px) über einem Regler, bei Pixels
+die Zeilen **Width (px)** und **Height (px)** mit Feld (52 px) und das Häkchen **Lock aspect ratio**, die Zeile **Method** (Menü: Lanczos3 · Bicubic · Bilinear ·
+Nearest Neighbor), die Zeile *Result* mit „W × H px“ und ein Hinweis, dass skaliert wird, wenn gespeichert wird.
+Standard: Percent, 100% (keine Änderung), Lock an, Lanczos3 · Prozent 10 … 400, Seiten 1 … 16384 Pixel.
+
+- Mit Lock bestimmt die zuletzt getippte Seite die andere (der Kern bekommt nur diese Seite und rechnet die andere nach der Form, gerundet, mindestens 1);
+  ohne Lock sind beide Seiten fest, das Ausschalten hält die Größen fest, die die Felder gerade zeigen. Die Felder zeigen immer die Größe, die herauskommt.
+- Die Ausgangsgröße ist der Zuschnitt (der, den man gerade zieht, sonst der angewendete) oder das ganze gedrehte Bild. Ein Wert, der die Größe nicht
+  ändert (100%, oder Pixel gleich der Größe), wird nicht an den Kern gegeben.
+- Skaliert wird getrennt in beide Richtungen; beim Verkleinern wird der Kern der Methode um den Faktor gestreckt, damit kein Pixel ausgelassen wird.
+  Bicubic und Lanczos3 können überschwingen, das Ergebnis wird auf 0 … 1 geklemmt; ein konstantes Bild bleibt konstant, gleiche Größe lässt das Bild bitgenau.
+
+**Dauer:** die Werte beider Karten sind Einstellungen wie die Farbwerte: sie bleiben bei einem neuen Stack und einer anderen Aufnahme (anders als der
+Zuschnitt, der auf einem bestimmten Bild liegt) und stehen als Abschnitt `geometry` in der Projektdatei (nur Mac, Windows ignoriert ihn).
+
 ## Texte und Schreibweise (MAC-014)
 
 Die Oberfläche soll für Einsteiger verständlich sein (Philipp, 2026-11-12). Die Zuordnung alt → neu aller Namen, die Tooltips und die
@@ -820,6 +870,7 @@ dieses Dokument im selben Commit.
 | RK-009 Speichern | Save image in Stack und Wavelet, Save Aligned, Save Integrated, Load/Save Scheme | 06, 07 |
 | RK-010 Oberfläche | alles in diesem Dokument außer der Doku | 01–12 |
 | RK-012 Doku in der App | Help in der Werkzeugleiste, Doku-Ansicht | 13, 14 |
+| MAC-017 Drehen und Größe | Karten Flip and Rotate und Resize Image, Gruppe Size im Schritt Save | – |
 | RK-014 Geführter Ablauf | Schrittleiste, Schrittpanel, Show am Bild, Qualitätsdiagramm in Limit; ersetzt die Reiter in den Zeilen darüber (Bildnummern dort sind die alten) | 01–12, 15, 16 |
 
 ## Zustände im Klon ansehen (Dev-Build)

@@ -159,8 +159,11 @@ nonisolated let functionNames = [
     "Masking", "Show Line Graph", "Crop",
 ]
 
-/// The cards that exist; the other Functions buttons only report that they are not available yet.
-nonisolated let toneCards = ["Histogram", "Gamma", "Color Mixing", "RGB Align", "RGB Balance", "Denoise/Deringing", "Masking"]
+/// The cards that exist (the colour and tone cards, and the geometry cards Flip and Rotate and Resize Image); the other Functions buttons
+/// only report that they are not available yet.
+nonisolated let toneCards = [
+    "Histogram", "Gamma", "Color Mixing", "RGB Align", "RGB Balance", "Denoise/Deringing", "Masking", flipRotateFunction, resizeFunction,
+]
 
 /// The buttons that change the view instead of opening a card: they stay pressed while they are on.
 nonisolated let viewFunctions = [compareName]
@@ -182,6 +185,8 @@ nonisolated func functionHelp(_ name: String) -> String {
     case "Denoise/Deringing": "Smooths noise without blurring edges and softens the dark ring next to bright edges."
     case "Masking": "Limits the sharpening to the planet, so the sky stays untouched."
     case cropFunction: "Cuts the picture to a rectangle when it is saved."
+    case flipRotateFunction: "Mirrors the picture or turns it, by 90° or by any angle."
+    case resizeFunction: "Makes the picture bigger or smaller when it is saved, by a percentage or to a size in pixels."
     default: "Not available yet"
     }
 }

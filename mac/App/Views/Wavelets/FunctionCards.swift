@@ -18,6 +18,8 @@ struct FunctionCards: View {
                     case "Denoise/Deringing": DenoiseCard(model: model)
                     case "Masking": MaskCard(model: model)
                     case cropFunction: CropCard(model: model)
+                    case flipRotateFunction: FlipRotateCard(model: model)
+                    case resizeFunction: ResizeCard(model: model)
                     default: RgbBalanceCard(model: model)
                     }
                 }

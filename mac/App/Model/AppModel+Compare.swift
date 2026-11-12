@@ -14,8 +14,8 @@ extension AppModel {
         viewStep == .wavelets && compareIsOn && waveletData.stack != nil && !waveletData.before && !crop.isEditing
     }
 
-    /// The left half of the split view: the stack with nothing applied. The right half is `shownImage`.
-    var compareBeforeImage: CGImage? { isComparing ? waveletData.stack?.image : nil }
+    /// The left half of the split view: the stack with nothing applied (but flipped and rotated like the right half, which is `shownImage`).
+    var compareBeforeImage: CGImage? { isComparing ? orientedImage(waveletData.stack?.image, slot: .before) : nil }
 
     /// Moves the divider to a share (0...1) of the width of the image area; it stays within `compareDividerRange`.
     func setCompareDivider(_ share: Double) {

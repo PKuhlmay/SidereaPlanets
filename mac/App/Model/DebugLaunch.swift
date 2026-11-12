@@ -17,7 +17,8 @@ extension AppModel {
     /// `-layers 32,22,14,10,10,10` sets the sliders, `-functions Histogram,Gamma` opens cards, `-colour colour|lrgb|gray`,
     /// `-tone black=10,white=240,gamma=1.3,red=110,contrast=300,brightness=20` sets card values (also `denoise`, `deringing`, `radius`, `mask`, `threshold`, `feather`, `invert`, `showmask`), `-before 1` shows Before; `-show` also knows
     /// `processingarea` and `wavealignpoints`. `-advanced wavelets,stack` (or `all`) opens those Advanced sections.
-    /// `-crop 4:3[,done]` and `-croprect x,y,w,h` open the crop tool (Wavelets and Save).
+    /// `-crop 4:3[,done]` and `-croprect x,y,w,h` open the crop tool (Wavelets and Save). `-geometry angle=15,fit=1,percent=50` sets Flip and Rotate
+    /// and Resize Image (more in `applyWaveletArguments`).
     func applyLaunchArguments() async {
         let defaults = UserDefaults.standard
         switch defaults.string(forKey: "appearance") {
@@ -120,6 +121,25 @@ extension AppModel {
         }
         tone.mix.preserveBrightness = defaults.integer(forKey: "preserve") > 0
         if defaults.object(forKey: "divider") != nil { setCompareDivider(defaults.double(forKey: "divider")) }
+        // `-geometry angle=15,fliph=1,flipv=1,fit=1,method=bilinear,percent=50` sets Flip and Rotate and Resize Image; `width=800` or `height=600`
+        // resize to pixels (the other side follows), `lock=0` frees both.
+        for pair in (defaults.string(forKey: "geometry") ?? "").split(separator: ",") {
+            let parts = pair.split(separator: "=")
+            guard parts.count == 2 else { continue }
+            let name = parts[0].lowercased(), text = String(parts[1])
+            switch name {
+            case "angle": if let value = Double(text) { geometry.orientation.setAngle(value) }
+            case "fliph": geometry.orientation.flipHorizontal = text == "1"
+            case "flipv": geometry.orientation.flipVertical = text == "1"
+            case "fit": geometry.orientation.cropToFit = text == "1"
+            case "method": if let method = RotationMethod(rawValue: text) { geometry.orientation.method = method }
+            case "percent": if let value = Int(text) { geometry.resize.mode = .percent; setResizePercent(value) }
+            case "width": if let value = Int(text) { geometry.resize.mode = .pixels; geometry.resize.setWidth(value, source: resizeSource ?? (value, value)) }
+            case "height": if let value = Int(text) { geometry.resize.mode = .pixels; geometry.resize.setHeight(value, source: resizeSource ?? (value, value)) }
+            case "lock": geometry.resize.lockAspect = text != "0"
+            default: break
+            }
+        }
         for pair in (defaults.string(forKey: "tone") ?? "").split(separator: ",") {
             let parts = pair.split(separator: "=")
             guard parts.count == 2, let value = Double(parts[1]) else { continue }

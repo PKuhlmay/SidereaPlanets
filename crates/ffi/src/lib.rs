@@ -211,7 +211,8 @@ impl CoreSession {
 
     /// Writes the image of `source` to `path` in `format`; with `adjustments` as the colour panels show
     /// it, and with `crop` only that part of the image. Returns the path that was written (the extension is
-    /// corrected to match the format).
+    /// corrected to match the format). With `geometry` the picture is flipped and rotated first (the crop is set on the result) and
+    /// resized last.
     pub fn save_image(
         &self,
         source: ImageSource,
@@ -219,6 +220,7 @@ impl CoreSession {
         path: String,
         adjustments: Option<ColorSettings>,
         crop: Option<CropRect>,
+        geometry: Option<GeometrySettings>,
     ) -> Result<String> {
         Ok(self.inner.save_image(
             source.into(),
@@ -226,7 +228,22 @@ impl CoreSession {
             Path::new(&path),
             adjustments.map(Into::into).as_ref(),
             crop.map(Into::into),
+            geometry.map(Into::into).as_ref(),
         )?)
+    }
+
+    /// The preview of *Flip and Rotate*: `rgba` (`width` x `height`) flipped and rotated; a free angle makes the canvas bigger.
+    pub fn orient_preview(
+        &self,
+        width: u32,
+        height: u32,
+        rgba: Vec<u8>,
+        orientation: OrientationSettings,
+    ) -> Result<RgbaImage> {
+        Ok(self
+            .inner
+            .orient_preview(width, height, &rgba, &orientation.into())?
+            .into())
     }
 
     /// *Save Aligned*: every frame that stays, moved onto the reference frame, as an AVI. Blocks until
@@ -327,6 +344,20 @@ pub fn save_wavelet_scheme(path: String, settings: WaveletSettings) -> Result<()
 #[uniffi::export]
 pub fn load_wavelet_scheme(path: String) -> Result<WaveletSettings> {
     Ok(session::load_wavelet_scheme(Path::new(&path))?.into())
+}
+
+/// The size of a picture of `width` x `height` after *Flip and Rotate*.
+#[uniffi::export]
+pub fn orientation_size(width: u32, height: u32, orientation: OrientationSettings) -> ImageSize {
+    let (width, height) = session::Orientation::from(orientation).output_size(width, height);
+    ImageSize { width, height }
+}
+
+/// The size of a picture of `width` x `height` after *Resize Image*.
+#[uniffi::export]
+pub fn resize_size(width: u32, height: u32, resize: ResizeSettings) -> ImageSize {
+    let (width, height) = session::Resize::from(resize).output_size(width, height);
+    ImageSize { width, height }
 }
 
 /// `path` with the extension `.avi` added when it is missing.

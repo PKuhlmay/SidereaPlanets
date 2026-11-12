@@ -19,6 +19,7 @@ final class WaveletLog: @unchecked Sendable {
     private var applied: [ColorSettings] = []
     private var histograms: [(settings: ColorSettings, after: Bool)] = []
     private var maskOverlays: [RefineSettings] = []
+    private var orients: [OrientationSettings] = []
     private var holdsDoAllFlag = false
     private var releasedDoAll = false
     private var previewDelay = Duration.zero
@@ -29,6 +30,8 @@ final class WaveletLog: @unchecked Sendable {
     var appliedColours: [ColorSettings] { lock.withLock { applied } }
     var histogramRequests: [(settings: ColorSettings, after: Bool)] { lock.withLock { histograms } }
     var maskOverlayRequests: [RefineSettings] { lock.withLock { maskOverlays } }
+    /// What Flip and Rotate was asked for.
+    var orientRequests: [OrientationSettings] { lock.withLock { orients } }
     var holdsDoAll: Bool {
         get { lock.withLock { holdsDoAllFlag } }
         set { lock.withLock { holdsDoAllFlag = newValue; releasedDoAll = false } }
@@ -45,6 +48,7 @@ final class WaveletLog: @unchecked Sendable {
     func record(applied settings: ColorSettings) { lock.withLock { applied.append(settings) } }
     func record(histogram: (settings: ColorSettings, after: Bool)) { lock.withLock { histograms.append(histogram) } }
     func record(maskOverlay settings: RefineSettings) { lock.withLock { maskOverlays.append(settings) } }
+    func record(orient settings: OrientationSettings) { lock.withLock { orients.append(settings) } }
     func releaseDoAll() { lock.withLock { releasedDoAll = true } }
 }
 
@@ -113,6 +117,14 @@ extension FakeBackend {
     func refineMaskOverlay(_ settings: RefineSettings) async throws -> RgbaImage {
         wavelets.record(maskOverlay: settings)
         return flatImage(Self.maskValue)
+    }
+
+    /// The real core turns the pictures of the fake: the tests of the model see real sizes and pixels.
+    private static let realCore = try! PlanetsSession()
+
+    func orientPreview(_ image: RgbaImage, _ orientation: OrientationSettings) async throws -> RgbaImage {
+        wavelets.record(orient: orientation)
+        return try await Self.realCore.orientPreview(image, orientation)
     }
 
     func colorHistogram(_ settings: ColorSettings, after: Bool) async throws -> HistogramData {

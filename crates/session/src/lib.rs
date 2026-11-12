@@ -16,6 +16,7 @@ mod color;
 mod compute;
 mod error;
 mod export;
+mod geometry;
 mod image;
 mod progress;
 mod sequence;
@@ -38,6 +39,7 @@ pub use export::{
 pub use image::RgbaImage;
 pub use progress::{NoProgress, Operation, ProgressSink};
 pub use planets_core::crop::CropRect;
+pub use planets_core::geometry::{Geometry, Orientation, Resampling, Resize, ResizeTarget};
 pub use sequence::{SavedVideo, SequenceSettings, with_avi_extension};
 pub use session::{RecordingInfo, Session};
 pub use stack::{PointPosition, StackSettings, Stacked};

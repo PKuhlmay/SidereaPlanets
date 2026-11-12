@@ -40,6 +40,8 @@ struct WaveletData {
     var lastDoAll: DoAllKey?
     /// Counts the base images (stack, preview, Do All result): the cards start from the base, so a new one needs a new source.
     var baseVersion = 0
+    /// Flip and Rotate (MAC-017): the shown picture and the stack as View Compare shows it, with the orientation applied.
+    var oriented: [OrientedSlot: OrientedShot] = [:]
 
     /// The image the cards start from: the sharpened one, or the stack before anything ran.
     var base: Shot? { processed ?? stack }
@@ -64,6 +66,9 @@ final class WaveletWork {
     var coloursAgain = false
     var maskTask: Task<Void, Never>?
     var maskAgain = false
+    /// The flipped and rotated copies of the shown pictures: one request at a time, the newest values win.
+    var orientTask: Task<Void, Never>?
+    var orientAgain = false
     /// The pixels the preview is written into: a copy of the stack, so a new preview costs the area, not the whole image.
     var working: Data?
     /// The base the core's colour source was made from.
@@ -79,15 +84,18 @@ extension AppModel {
     var isMono: Bool { details?.info.color == "Mono" }
 
     /// The image the steps Wavelets and Save show (what the cards and Copy To make of it, or the plain stack with Before).
-    var waveletShownImage: CGImage? {
+    var waveletShownImage: CGImage? { waveletShownShot?.image }
+
+    /// The same as pixels: Flip and Rotate starts from them.
+    var waveletShownShot: Shot? {
         let data = waveletData
-        if data.before { return (data.stack ?? data.base)?.image }
-        if maskOverlayWanted, data.toneView == .current, let overlay = data.maskOverlay { return overlay.image }
+        if data.before { return data.stack ?? data.base }
+        if maskOverlayWanted, data.toneView == .current, let overlay = data.maskOverlay { return overlay }
         let current = data.current ?? data.base
         switch data.toneView {
-        case .current: return current?.image
-        case .clipboard: return (data.clipboard ?? current)?.image
-        case .difference: return (data.difference ?? current)?.image
+        case .current: return current
+        case .clipboard: return data.clipboard ?? current
+        case .difference: return data.difference ?? current
         }
     }
 
@@ -150,7 +158,11 @@ extension AppModel {
     /// The panel changed: values, colour mode or Processing Area start a preview (and Automatic a Do All); the rest only changes the window.
     func waveletOptionsChanged(from old: WaveletOptions) {
         guard wavelet != old else { return }
-        if wavelet.functions != old.functions { requestMaskOverlay() }
+        if wavelet.functions != old.functions {
+            requestMaskOverlay()
+            // View Compare shows the stack on the left, which has to be flipped and rotated as well.
+            requestOriented()
+        }
         let decisive = wavelet.values != old.values || wavelet.mode != old.mode || wavelet.processingAreaSide != old.processingAreaSide
         guard decisive else { return }
         syncWaveletsDone()
@@ -169,6 +181,7 @@ extension AppModel {
         waveletData.before = false
         status.position = ""
         requestMaskOverlay()
+        requestOriented()
         triggerPreview()
     }
 
@@ -373,7 +386,7 @@ extension AppModel {
     /// Waits until the preview requests and the cards have caught up with the values (for tests and for the message after Load Scheme).
     func settleWaveletPreview() async {
         // Every task clears its own slot when it ends.
-        while let task = waveletWork.sourceTask ?? waveletWork.previewTask ?? waveletWork.colourTask { await task.value }
+        while let task = waveletWork.sourceTask ?? waveletWork.previewTask ?? waveletWork.colourTask ?? waveletWork.orientTask { await task.value }
     }
 
     // MARK: Functions

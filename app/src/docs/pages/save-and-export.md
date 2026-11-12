@@ -31,6 +31,17 @@ Pressing **Save Image** first opens a short list of file types, such as *TIFF 16
 
 > An existing file with the same name is replaced only when the new file was written completely. If saving fails, the old file stays as it was.
 
+## Flipping, turning and resizing before you save
+
+**Flip and Rotate** and **Resize Image** in the Adjustments panel of the Wavelets step change the picture that **Save Image** writes, for every file type of the steps *Wavelets* and *Save*. See [Color and tones](color-and-tones) for the cards. The picture goes through these steps in this order:
+
+1. **Do All** and the color and tone cards (the sharpened picture as you see it)
+2. **Flip and Rotate** (the image area shows the result at once)
+3. **Crop** (the rectangle is set on the flipped and turned picture, so it is exactly what you see)
+4. **Resize Image** (the very last step: it scales what is left after the crop; the image area does not show it, the card and the step Save tell the size)
+
+The Save step says the size of the file before you save: *The picture is saved at 300 × 400 px.* The stacked image saved from the step *Stack* is always written as it is.
+
 ## Cropping before you save
 
 Use **Crop** to save only a part of the sharpened image, for example a planet in the middle of a dark border, in a shape for printing or posting. The crop works for every file type of **Save Image** in the steps *Wavelets* and *Save*.
@@ -44,7 +55,7 @@ Open the crop tool in one of two ways: press **Crop** in the Adjustments panel o
 - **View Compare** is switched off while the crop tool is open, because the rectangle is set on one picture; press it again after **Done** or **Cancel**.
 - **Reset** brings back the whole image (the next drag draws a new rectangle). **Cancel**, or the cross of the card, closes the tool and drops your changes. **Done** keeps the rectangle.
 
-After **Done** the image shows the rectangle with a dimmed outside, and the Save step says *Only 800 × 600 px is saved.* **Remove Crop** takes it away again. **Save Image** then writes only what is inside the rectangle, at full precision and with the color and tone values applied; the rectangle is not made smaller or scaled. The rectangle belongs to the stacked image: a new **Stack**, or another recording, removes it. It is not stored in a project file. The stacked image saved from the step *Stack* is always written whole.
+After **Done** the image shows the rectangle with a dimmed outside, and the Save step says *Only 800 × 600 px is saved.* **Remove Crop** takes it away again. **Save Image** then writes only what is inside the rectangle, at full precision and with the color and tone values applied; the rectangle is not made smaller or scaled. The rectangle is set on the picture after **Flip and Rotate** (see above), so flipping or turning the picture removes it, and **Resize Image** scales what is inside it. The rectangle belongs to the stacked image: a new **Stack**, or another recording, removes it. It is not stored in a project file. The stacked image saved from the step *Stack* is always written whole.
 
 ## Saving a project
 

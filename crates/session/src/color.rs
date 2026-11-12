@@ -159,7 +159,7 @@ impl From<ColorSettings> for Adjustments {
 }
 
 /// 8-bit RGBA, as the window holds its images, to normalised RGB. Alpha is dropped.
-fn image_from_rgba(width: u32, height: u32, rgba: &[u8]) -> Result<Image, SessionError> {
+pub(crate) fn image_from_rgba(width: u32, height: u32, rgba: &[u8]) -> Result<Image, SessionError> {
     if rgba.len() != width as usize * height as usize * 4 {
         return Err(SessionError::BadImageSize {
             width,

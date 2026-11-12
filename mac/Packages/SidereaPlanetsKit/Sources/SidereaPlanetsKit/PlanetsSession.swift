@@ -156,16 +156,26 @@ public final class PlanetsSession: Sendable {
         try core.requireImage(source: source)
     }
 
-    /// Writes the image of `source` in `format`, with `adjustments` as the colour panels show it and cut to `crop` if there is one.
+    /// Writes the image of `source` in `format`, with `adjustments` as the colour panels show it, flipped and rotated by
+    /// `geometry.orientation`, cut to `crop` (in pixels of the oriented picture) if there is one, and resized by `geometry.resize`.
     /// Returns the file that was written (the extension is corrected to match the format).
     public func saveImage(
-        _ source: ImageSource, format: ExportFormat, to url: URL, adjustments: ColorSettings? = nil, crop: CropRect? = nil
+        _ source: ImageSource, format: ExportFormat, to url: URL, adjustments: ColorSettings? = nil, crop: CropRect? = nil,
+        geometry: GeometrySettings? = nil
     ) async throws -> URL {
         let path = url.path
         let written = try await run {
-            try $0.saveImage(source: source, format: format, path: path, adjustments: adjustments, crop: crop)
+            try $0.saveImage(
+                source: source, format: format, path: path, adjustments: adjustments, crop: crop, geometry: geometry)
         }
         return URL(fileURLWithPath: written)
+    }
+
+    /// The preview of Flip and Rotate: the picture flipped and rotated; a free angle makes the canvas bigger.
+    public func orientPreview(_ image: RgbaImage, _ orientation: OrientationSettings) async throws -> RgbaImage {
+        try await run {
+            try $0.orientPreview(width: image.width, height: image.height, rgba: image.rgba, orientation: orientation)
+        }
     }
 
     public func saveAligned(

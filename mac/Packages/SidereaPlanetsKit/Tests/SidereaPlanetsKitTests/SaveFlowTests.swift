@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 import Testing
 
 @testable import SidereaPlanetsKit
@@ -91,6 +92,18 @@ struct JupiterSaveFlowTests {
         let magic = [UInt8](data.prefix(4))
         #expect(magic == [0x49, 0x49, 0x2A, 0x00] || magic == [0x4D, 0x4D, 0x00, 0x2A], "TIFF header")
         #expect(data.count >= 1024 * 680 * 2)
+
+        // Turned by 90 degrees, cut (in the turned picture) and halved: 680 x 1024 -> 300 x 400 (MAC-017).
+        let geometry = GeometrySettings(
+            orientation: OrientationSettings(flipHorizontal: false, flipVertical: false, angle: 90, cropToFit: false, method: .bicubic),
+            resize: ResizeSettings(target: .percent(percent: 50), method: .lanczos3))
+        let turned = try await session.saveImage(
+            .stack, format: .tiff16, to: folder.appendingPathComponent("turned.tif"),
+            crop: CropRect(x: 40, y: 100, width: 600, height: 800), geometry: geometry)
+        let source = try #require(CGImageSourceCreateWithURL(turned as CFURL, nil))
+        let properties = try #require(CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any])
+        #expect(properties[kCGImagePropertyPixelWidth] as? Int == 300)
+        #expect(properties[kCGImagePropertyPixelHeight] as? Int == 400)
 
         // Save Aligned: one video frame per kept frame, with progress.
         let sequence = SequenceSettings(stack: stackSettings, framerate: 25, sortOnQuality: false, averageFrames: 5)

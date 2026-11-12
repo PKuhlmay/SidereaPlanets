@@ -72,7 +72,7 @@ extension AppModel {
         saveState.isWriting = true
         defer { saveState.isWriting = false }
         do {
-            let written = try await backend.saveImage(source, format: format.id, to: url, adjustments: saveAdjustments, crop: saveCrop)
+            let written = try await backend.saveImage(source, format: format.id, to: url, adjustments: saveAdjustments, crop: saveCrop, geometry: saveGeometry)
             status.result = "Saved \(written.lastPathComponent)"
             if source == .wavelet {
                 saveState.savedName = written.lastPathComponent
@@ -124,6 +124,8 @@ extension AppModel {
             "wavelet": waveletSection(wavelet, tone: tone), "colour": colourSection(wavelet),
             // Mac only (MAC-018): the Windows app does not know the section and ignores it.
             "refine": refineSection(tone.refine),
+            // Mac only (MAC-017): Flip and Rotate and Resize Image.
+            "geometry": geometrySection(geometry),
         ]
     }
 
@@ -137,8 +139,11 @@ extension AppModel {
         applyWaveletSection(sections["wavelet"], to: &waveletOptions, tone: &toneValues)
         applyColourSection(sections["colour"], to: &waveletOptions)
         applyRefineSection(sections["refine"], to: &toneValues.refine)
+        var geometryValues = geometry
+        applyGeometrySection(sections["geometry"], to: &geometryValues)
         wavelet = waveletOptions
         tone = toneValues
+        geometry = geometryValues
         keepWaveletValuesForNextStack()
     }
 

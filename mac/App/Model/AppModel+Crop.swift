@@ -9,10 +9,9 @@ import SidereaPlanetsKit
 nonisolated let cropFunction = "Crop"
 
 extension AppModel {
-    /// The size of the stack in pixels, which the rectangle is set in; `nil` before the stack exists.
-    var cropImageSize: (width: Int, height: Int)? {
-        stacked.map { (width: $0.width, height: $0.height) }
-    }
+    /// The size of the picture the rectangle is set in: the stack after Flip and Rotate, which is what the window shows (MAC-017);
+    /// `nil` before the stack exists.
+    var cropImageSize: (width: Int, height: Int)? { orientedSize }
 
     /// Crop is possible where the sharpened stack is shown (Wavelets and Save) and while nothing runs.
     var canCrop: Bool { stacked != nil && !isBusy && (viewStep == .wavelets || viewStep == .save) }

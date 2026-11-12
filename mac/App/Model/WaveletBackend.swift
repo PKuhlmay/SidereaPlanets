@@ -16,6 +16,8 @@ protocol WaveletBackend: Sendable {
     func applyColors(_ settings: ColorSettings) async throws -> RgbaImage
     /// Show mask of the card Masking: the colour source with the part the sharpening applies to tinted blue.
     func refineMaskOverlay(_ settings: RefineSettings) async throws -> RgbaImage
+    /// Flip and Rotate: the picture flipped and rotated (a free angle makes the canvas bigger), for the image area.
+    func orientPreview(_ image: RgbaImage, _ orientation: OrientationSettings) async throws -> RgbaImage
     func colorHistogram(_ settings: ColorSettings, after: Bool) async throws -> HistogramData
     func autoHistogramPoints(_ settings: ColorSettings, clip: Float) async throws -> HistogramPoints
 }

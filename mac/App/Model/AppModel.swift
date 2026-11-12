@@ -66,7 +66,10 @@ final class AppModel {
     /// The step Wavelets: the values of the panel, of the Functions cards and of Contrast/Brightness, the pictures, and the requests that run.
     var wavelet = WaveletOptions() { didSet { waveletOptionsChanged(from: oldValue) } }
     var tone = ToneValues() { didSet { toneChanged(from: oldValue) } }
-    var waveletData = WaveletData()
+    var waveletData = WaveletData() { didSet { requestOriented() } }
+    /// Flip and Rotate and Resize Image (MAC-017): the values of the two cards. They are settings like the cards of the colors, so they stay
+    /// with a new stack; the crop does not (it is a rectangle on one picture).
+    var geometry = GeometryValues() { didSet { geometryChanged(from: oldValue) } }
     /// The crop tool: the rectangle Save Image writes and the one being edited (MAC-016).
     var crop = CropState()
     @ObservationIgnored let waveletWork = WaveletWork()
@@ -123,9 +126,11 @@ final class AppModel {
     /// frame (`pickImage` of app/src/logic/workflow.ts).
     var showsStack: Bool { stacked != nil && [.stack, .wavelets, .save].contains(viewStep) }
 
-    /// The image the image area shows.
+    /// The image the image area shows; in the steps Wavelets and Save flipped and rotated as Flip and Rotate says.
     var shownImage: CGImage? {
-        if stacked != nil, viewStep == .wavelets || viewStep == .save, let sharpened = waveletShownImage { return sharpened }
+        if stacked != nil, viewStep == .wavelets || viewStep == .save, let sharpened = waveletShownImage {
+            return orientedImage(sharpened, slot: .shown)
+        }
         return showsStack ? stacked?.image : image
     }
 
@@ -138,7 +143,7 @@ final class AppModel {
     }
 
     /// The viewport follows the size of the image that is shown (the stack has the size of the frames, but the view must not rely on it).
-    private func syncViewport() {
+    func syncViewport() {
         if let shown = shownImage { viewport.setImageSize(CGSize(width: shown.width, height: shown.height)) }
     }
 

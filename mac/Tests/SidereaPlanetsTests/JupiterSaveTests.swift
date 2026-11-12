@@ -111,6 +111,56 @@ struct JupiterSaveTests {
         #expect(whole.width == 1024 && whole.height == 680)
     }
 
+    @Test func aTurnedCroppedAndResizedPictureIsWrittenInEveryFormat() async throws {
+        let model = try await stackedModel()
+        let folder = try tempFolder()
+        model.show(.wavelets)
+        await model.settleWaveletPreview()
+        // 1024 x 680 turned by 90 degrees is 680 x 1024, which is also what the image area shows; the rectangle is set on it.
+        model.rotate(by: 90)
+        await model.settleWaveletPreview()
+        #expect(model.shownImage?.width == 680 && model.shownImage?.height == 1024)
+        model.startCrop()
+        model.setCropDraft(CropRectangle(minX: 40, minY: 100, maxX: 640, maxY: 900))
+        model.finishCrop()
+        model.setResizePercent(50)
+        #expect(model.resultSizeText == "300 × 400 px")
+        model.show(.save)
+
+        for id in [ExportFormat.tiff16, .png16, .bmp, .jpeg, .fits16] {
+            let format = try #require(model.formats(for: .wavelet).first { $0.id == id })
+            let url = folder.appendingPathComponent("turned-\(id)")
+            await model.saveImage(format, choose: Dialogs(answer: url).save)
+            #expect(model.status.result.hasPrefix("Saved turned-"), "\(model.status.result)")
+            let written = try #require(try FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil).first { $0.lastPathComponent.hasPrefix("turned-\(id)") })
+            // ImageIO does not read FITS; the other four are measured.
+            guard id != .fits16 else { continue }
+            let size = try pixelSize(of: written)
+            #expect(size.width == 300 && size.height == 400, "\(id): \(size)")
+        }
+    }
+
+    @Test func aFreeAngleWithCropToFitAndAWidthInPixelsIsWrittenAsTheSizeTheCardsTell() async throws {
+        let model = try await stackedModel()
+        let folder = try tempFolder()
+        model.show(.wavelets)
+        await model.settleWaveletPreview()
+        model.setAngle(15)
+        model.setCropToFit(true)
+        model.setResizeMode(.pixels)
+        model.setResizeWidth(500)
+        let told = try #require(model.resultSize)
+        #expect(told.width == 500)
+        model.show(.save)
+        await model.saveImage(try #require(model.formats(for: .wavelet).first { $0.id == .tiff16 }), choose: Dialogs(answer: folder.appendingPathComponent("free")).save)
+        let size = try pixelSize(of: folder.appendingPathComponent("free.tif"))
+        #expect(size.width == told.width && size.height == told.height, "\(size) vs \(told)")
+        // The picture is turned inside the old one without black corners: smaller than 1024 x 680, same shape.
+        let oriented = try #require(model.orientedSize)
+        #expect(oriented.width < 1024 && oriented.height < 680)
+        #expect(abs(Double(oriented.width) / Double(oriented.height) - 1024.0 / 680.0) < 0.02)
+    }
+
     @Test func alignedFramesAndTheProjectOfARealSession() async throws {
         let model = try await stackedModel()
         let folder = try tempFolder()
