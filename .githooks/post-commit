@@ -1,3 +1,9 @@
 #!/bin/sh
-# Deploys the debug app after each commit on main. Enable once per clone: git config core.hooksPath .githooks
-bash "$(git rev-parse --show-toplevel)/scripts/deploy-debug.sh" || true
+# Deploys the app after each commit on main: the SwiftUI app on the Mac, the Tauri debug app elsewhere.
+# Enable once per clone: git config core.hooksPath .githooks
+root="$(git rev-parse --show-toplevel)"
+if [ "$(uname -s)" = "Darwin" ]; then
+  bash "$root/scripts/deploy-mac.sh" || true
+else
+  bash "$root/scripts/deploy-debug.sh" || true
+fi

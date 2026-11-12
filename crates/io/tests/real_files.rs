@@ -1,4 +1,4 @@
-//! Reads the practice videos from `re-local/testdata/astropix/` (not in Git). Skipped when absent.
+//! Reads the practice videos from `re-local/testdata/astropix/` (not in Git). Skipped with a notice when absent.
 
 use planets_io::recording::Recording;
 use std::path::PathBuf;
@@ -7,6 +7,9 @@ mod common;
 
 fn testdata(name: &str) -> Option<PathBuf> {
     let path = common::re_local().join("testdata/astropix").join(name);
+    if !path.exists() {
+        eprintln!("{name} not found in re-local/testdata/astropix/, skipped");
+    }
     path.exists().then_some(path)
 }
 

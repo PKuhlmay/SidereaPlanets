@@ -10,7 +10,7 @@
 //! ```
 //!
 //! The samples are not in Git. They are looked up in `$PLANETS_TESTDATA/codecs/lagarith/`, falling
-//! back to `re-local/testdata/` of the repository. Tests pass silently when they are absent.
+//! back to `re-local/testdata/` of the repository. Tests print a notice and skip when they are absent.
 
 use planets_io::avi::{AviError, AviReader};
 use std::{fs, path::PathBuf};
@@ -28,10 +28,14 @@ fn sample_dir() -> Option<PathBuf> {
 /// Decodes `name`.avi and compares it with `name`.rgb. RGB output must be exact, YUV output
 /// may deviate by `tolerance` (rounding of the colour conversion).
 fn check(name: &str, tolerance: u8) {
-    let Some(dir) = sample_dir() else { return };
+    let Some(dir) = sample_dir() else {
+        eprintln!("{name}: Lagarith samples (codecs/lagarith/) not found, skipped");
+        return;
+    };
     let avi = dir.join(format!("{name}.avi"));
     let rgb = dir.join(format!("{name}.rgb"));
     if !avi.exists() || !rgb.exists() {
+        eprintln!("{name}: {name}.avi or {name}.rgb missing in the sample folder, skipped");
         return;
     }
     let expected = fs::read(&rgb).unwrap();
