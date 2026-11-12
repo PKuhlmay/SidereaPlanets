@@ -418,6 +418,11 @@ Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und
   (Methode und Faktor bzw. Faktor) erscheinen erst mit dem Häkchen, rechts daneben in derselben Zeile. Beide sind noch nicht
   umgesetzt: die Häkchen sind gesperrt (Tooltip und Hinweis „Not available yet“ rechts in der Zeile), die Zusatzfelder
   bleiben deshalb ausgeblendet (RK-006-Prüflauf: eingeschaltet wirkten sie nicht); die Gruppe Create AVI vollständig mit Save Aligned und Save Integrated.
+- Ebenso gesperrt, weil das Backend sie nicht auswertet: StackSize Minimized, Maximized und R.of Interest (Default bleibt
+  wählbar), Stretch histogram after stacking und De-rotate images. Gleiche Behandlung wie Resampling: ausgegraut, Tooltip und
+  „Not available yet“ rechts in der Zeile (bei langem Namen darunter, rechtsbündig), Wert bleibt im Datenmodell. Es wirken:
+  Use Nearestby Alignpoints, Correct geometry, Normalization of frame intensity und Do not stack n pixels at the frameedge.
+  Entwurf und Soll-Bilder zeigen diese Optionen noch bedienbar; sie bleiben das Ziel, bis die Funktionen gebaut sind.
 - Aktion: **Stack**. Im erledigten Schritt steht unter dem Ergebnis **Save image** als Standard-Schaltfläche für das
   Summenbild.
 

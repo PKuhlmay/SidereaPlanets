@@ -6,19 +6,27 @@ import { session, settings } from "../state";
 import NumberField from "./NumberField.vue";
 import StepPanel from "./StepPanel.vue";
 
-// Step 5 Stack: the key Stacking options; the others, Resampling and Drizzling (locked, not available yet) and Create
-// AVI under Advanced. The values are read from `settings.stack` (logic/stack.ts).
+// Step 5 Stack: the key Stacking options; the others and Create AVI under Advanced. Options the backend ignores
+// (StackSize other than Default, Stretch histogram, De-rotate, Resampling, Drizzling) are locked and marked "Not
+// available yet"; their values stay in `settings.stack` (logic/stack.ts), where the stack does not read them.
 const stack = settings.stack;
 </script>
 
 <template>
   <StepPanel id="stack" :more="14">
     <div class="sub first">StackSize</div>
-    <div class="grid2">
-      <label class="chk"><input v-model="stack.stackSize" type="radio" name="stacksize" value="default" />Default</label>
-      <label class="chk"><input v-model="stack.stackSize" type="radio" name="stacksize" value="minimized" />Minimized</label>
-      <label class="chk"><input v-model="stack.stackSize" type="radio" name="stacksize" value="maximized" />Maximized</label>
-      <label class="chk"><input v-model="stack.stackSize" type="radio" name="stacksize" value="roi" />R.of Interest</label>
+    <label class="chk"><input v-model="stack.stackSize" type="radio" name="stacksize" value="default" />Default</label>
+    <div class="inl" title="Not available yet">
+      <label class="chk"><input type="radio" name="stacksize" value="minimized" disabled />Minimized</label>
+      <span class="factor">Not available yet</span>
+    </div>
+    <div class="inl" title="Not available yet">
+      <label class="chk"><input type="radio" name="stacksize" value="maximized" disabled />Maximized</label>
+      <span class="factor">Not available yet</span>
+    </div>
+    <div class="inl" title="Not available yet">
+      <label class="chk"><input type="radio" name="stacksize" value="roi" disabled />R.of Interest</label>
+      <span class="factor">Not available yet</span>
     </div>
     <label class="row gap">Use Nearestby Alignpoints <NumberField v-model="stack.nearestPoints" /></label>
     <label class="chk"><input v-model="stack.correctGeometry" type="checkbox" />Correct geometry</label>
@@ -28,8 +36,14 @@ const stack = settings.stack;
         <div class="gh">Stacking options</div>
         <div class="col">
           <label class="chk"><input v-model="stack.normalize" type="checkbox" />Normalization of frame intensity</label>
-          <label class="chk"><input v-model="stack.stretchHistogram" type="checkbox" />Stretch histogram after stacking</label>
-          <label class="chk"><input v-model="stack.derotate" type="checkbox" />De-rotate images</label>
+          <div class="inl" title="Not available yet">
+            <label class="chk"><input type="checkbox" :checked="false" disabled />Stretch histogram after stacking</label>
+            <span class="factor">Not available yet</span>
+          </div>
+          <div class="inl" title="Not available yet">
+            <label class="chk"><input type="checkbox" :checked="false" disabled />De-rotate images</label>
+            <span class="factor">Not available yet</span>
+          </div>
         </div>
         <label class="row"><span>Do not stack pixels<br />at the frameedge</span> <NumberField v-model="stack.edgePixels" /></label>
         <!-- Locked: the stack does not enlarge the result yet (docs/stacking.md). The method and factor fields appear
@@ -91,7 +105,8 @@ const stack = settings.stack;
 }
 .inl {
   display: flex;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 0 6px;
   align-items: center;
   min-height: 29px;
 }

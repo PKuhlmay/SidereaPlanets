@@ -134,7 +134,10 @@ wählen oder gewichten) würde die lokale Korrektur erst nutzbar machen.
 
 Nicht Teil der Akzeptanzkriterien und nie beobachtet; jeweils nur der Name bekannt:
 
-- *StackSize* (Minimized, Maximized, R.of Interest), *Stretch histogram after stacking*, *De-rotate images*.
+- *StackSize* (Minimized, Maximized, R.of Interest), *Stretch histogram after stacking*, *De-rotate images*. In der App
+  sind sie gesperrt und mit „Not available yet“ gekennzeichnet (Default bei StackSize bleibt wählbar und ist das, was der
+  Klon tut); die Einstellungen `stackSize`, `stretchHistogram` und `derotate` bleiben im Datenmodell, sind aber nicht Teil
+  von `StackRequest` und das Backend kennt sie nicht.
 - **Resampling** (Bell, Bspline, Lanczos, Mitchell, Faktor) und **Drizzling**, die das Ergebnis vergrößern. In der App sind
   beide Häkchen gesperrt und mit „Not available yet“ gekennzeichnet; die Einstellungen `resampling`/`drizzling` bleiben im
   Datenmodell, das Backend ignoriert sie.

@@ -32,19 +32,24 @@ At the edge of the image some frames do not reach, because they were shifted. Th
 
 You see first: StackSize, Use Nearestby Alignpoints and Correct geometry. Everything else is under **Advanced**: the other stacking options, **Resampling**, **Drizzling** and the group *Create AVI*.
 
+Options that do nothing yet are locked: they are greyed out, cannot be switched on, show the tooltip *Not available yet* and say so at the right of the row. Locked options do not change the result, so you cannot set them by mistake.
+
 | Setting | Default | Status |
 |---|---|---|
-| StackSize | Default (or Minimized, Maximized, R.of Interest) | Not available yet |
+| StackSize: Default | selected | Works. The stack has the size of the frames |
+| StackSize: Minimized | locked | Not available yet |
+| StackSize: Maximized | locked | Not available yet |
+| StackSize: R.of Interest | locked | Not available yet |
 | Use Nearestby Alignpoints | 3 | Works. How many of the nearest alignpoints decide the shift of a pixel: more give a smoother correction, fewer follow the local movement more closely |
 | Correct geometry | on | Works. Shifts each part of the picture by its own movement; off, the whole frame moves by one value |
 | Normalization of frame intensity | off | Works. Brightens or dims each frame to the brightness of the reference frame before adding, useful when clouds pass by |
-| Stretch histogram after stacking | off | Not available yet |
-| De-rotate images | off | Not available yet |
+| Stretch histogram after stacking | off | Not available yet. The check box is locked |
+| De-rotate images | off | Not available yet. The check box is locked |
 | Do not stack pixels at the frameedge | 0 | Works. Leaves this border of every frame out of the stack |
 | Resampling | off | Not available yet. The check box is locked; the method (Bell, Bspline, Lanczos, Mitchell) and the factor belong to it |
 | Drizzling | off | Not available yet. The check box is locked; the factor belongs to it |
 
-The stack always keeps the size of the frames. **Resampling** and **Drizzling**, which would enlarge the result, are under **Advanced**, but they are locked and marked *Not available yet*, so they cannot be switched on by mistake.
+The stack always keeps the size of the frames. **StackSize** other than Default, **Stretch histogram after stacking**, **De-rotate images**, **Resampling** and **Drizzling** are locked and marked *Not available yet*. **Resampling** and **Drizzling** would enlarge the result.
 
 ## Check boxes in the Show menu
 
