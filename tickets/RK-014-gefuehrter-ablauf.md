@@ -92,6 +92,10 @@ wurden an einer Assertion rot (`AssertionError`), nie an einem Import- oder Setu
   eine Seite, die es nicht gibt, Anker-Link, „Not available yet“ auf der falschen Seite, jeder Feldname aus der Liste (an allen
   Stellen entfernt), Zeilen der Limit-Tabelle, die Zeilen „Scan Frames“, „Empty List“ und „No Align“ der Übersichtsseite, der
   Seitenname der Übersicht (Datei umbenannt) und die Volltextsuche → jeweils rot.
+- **Show Advanced Controls** (2026-11-12, Fund aus dem Durchlauf der Release-App): Das Häkchen im Settings-Menü war wirkungslos. Entscheidung
+  Philipps: Beim Setzen klappt es die Advanced-Bereiche aller Schritte auf (`app/src/steps.ts`), danach lässt sich jeder einzeln weiter
+  auf- und zuklappen; Entfernen des Häkchens lässt sie, wie sie sind. Test: `app/src/flow.test.ts` („Settings > Show Advanced Controls“),
+  rot an Assertionen gesehen, dann grün.
 
 ## Offen
 - Texte der sieben Erklärsätze: der Entwurf enthält einen ersten Stand, Philipp nimmt sie ab.

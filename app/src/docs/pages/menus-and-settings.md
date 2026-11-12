@@ -29,7 +29,8 @@ Load Darkframe, Load Flatfield and Load Referenceframe, and the entries that use
 | Luminance Setting | Red · Green · Blue, and Reset Luminance | 0.299 · 0.587 · 0.114 |
 | Stretch FIT/TIFF | Always Ask · Yes · No | Always Ask |
 | Theme | Dark · Light | Dark |
-| Show Advanced Controls, Play Sounds, Swap Red/Blue Channel, Wait when loading a single image, Maximize during messages | check boxes | off |
+| Show Advanced Controls | check box: opens the *Advanced* section of every step panel when you tick it. You can close and open each section on its own afterwards; unticking leaves them as they are | off |
+| Play Sounds, Swap Red/Blue Channel, Wait when loading a single image, Maximize during messages | check boxes | off |
 | Save to Subdir | text | empty |
 | Bias subtract | number | 0 |
 

@@ -4,6 +4,7 @@
 // after Cancel or an error, what a new stack makes obsolete).
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { nextTick } from "vue";
 
 type Args = Record<string, unknown> | undefined;
 
@@ -49,7 +50,7 @@ import { cancelJob, togglePause } from "./jobs";
 import { process } from "./wavelet";
 import { openRecording, startSession } from "./recording";
 import { session, settings, status, type RecordingInfo } from "./state";
-import { nextOpen, states } from "./steps";
+import { advancedOpen, nextOpen, states, toggleAdvanced } from "./steps";
 
 const W = 4;
 const H = 3;
@@ -767,5 +768,41 @@ describe("RGB Align, Auto", () => {
     settings.wavelet.tone.maxShift = 5;
     expect(calls("estimate_rgb_align")[0]?.args).toEqual({ maxShift: 3 });
     expect(settings.wavelet.tone.shifts).toEqual(shifts);
+  });
+});
+
+describe("Settings > Show Advanced Controls", () => {
+  const steps = ["open", "alignpoints", "align", "limit", "stack", "wavelets", "save"] as const;
+
+  beforeEach(async () => {
+    settings.menu.advancedControls = false;
+    await nextTick();
+    steps.forEach((id) => delete advancedOpen[id]);
+  });
+
+  it("opens the Advanced section of every step", async () => {
+    settings.menu.advancedControls = true;
+    await nextTick();
+    expect(steps.map((id) => advancedOpen[id])).toEqual(steps.map(() => true));
+  });
+
+  it("leaves each section free to be closed and opened on its own afterwards", async () => {
+    settings.menu.advancedControls = true;
+    await nextTick();
+    toggleAdvanced("stack");
+    expect(advancedOpen.stack).toBe(false);
+    expect(advancedOpen.wavelets).toBe(true);
+    toggleAdvanced("stack");
+    expect(advancedOpen.stack).toBe(true);
+  });
+
+  it("does not open anything while it is off, and does not force a section open again that was closed with it on", async () => {
+    toggleAdvanced("align");
+    expect(advancedOpen.stack).toBeUndefined();
+    settings.menu.advancedControls = true;
+    await nextTick();
+    toggleAdvanced("stack");
+    await nextTick();
+    expect(advancedOpen.stack).toBe(false);
   });
 });

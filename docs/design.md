@@ -160,6 +160,8 @@ Das linke Panel zeigt nur den angezeigten Schritt, von oben nach unten:
    übrigen Einstellungen des Schritts auf („▾ Advanced“). Dort stehen sie vollständig, mit ihren Gruppenüberschriften
    aus dem Original. Kein Element aus `docs/ui.md` geht verloren. Aufgeklappt bleibt aufgeklappt, bis man es zuklappt
    (je Schritt im Browser-Speicher der App gemerkt, auch nach einem Neustart; nicht in der Projektdatei).
+   Das Häkchen **Settings > Show Advanced Controls** klappt beim Setzen die Advanced-Bereiche aller Schritte auf; danach
+   lässt sich jeder Bereich einzeln zu- und wieder aufklappen. Entfernt man das Häkchen, bleiben die Bereiche, wie sie sind.
 5. **Fuß** (unten im Panel, scrollt nicht mit, Linie oben in `--line`, Innenabstand 12 px):
    - offener Schritt: die Aktion als gefüllte Schaltfläche in voller Breite, Beschriftung des Originals; darunter
      „Then: ‹nächster Schritt›“ (12 px, `--muted`). Weitere Aktionen des Schritts (Process im Schritt Wavelets) stehen

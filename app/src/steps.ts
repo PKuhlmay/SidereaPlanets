@@ -2,8 +2,8 @@
 // open step after a run, and the remembered open/closed state of "Advanced" in every step panel.
 
 import { computed, reactive, watch } from "vue";
-import { nextOpenStep, stepResult, stepStates, type Progress, type ResultData, type ViewStep } from "./logic/workflow";
-import { session } from "./state";
+import { nextOpenStep, stepResult, stepStates, viewSteps, type Progress, type ResultData, type ViewStep } from "./logic/workflow";
+import { session, settings } from "./state";
 import { doAllIsUpToDate } from "./wavelet";
 
 export const progress = computed<Progress>(() => ({
@@ -71,11 +71,26 @@ function loadAdvanced(): Partial<Record<ViewStep, boolean>> {
 /** Which step panels show their Advanced settings; kept until closed again, also after a restart. */
 export const advancedOpen = reactive<Partial<Record<ViewStep, boolean>>>(loadAdvanced());
 
-export function toggleAdvanced(id: ViewStep): void {
-  advancedOpen[id] = !advancedOpen[id];
+function saveAdvanced(): void {
   try {
     localStorage.setItem(ADVANCED_KEY, JSON.stringify(advancedOpen));
   } catch {
     // Storage can be blocked; the panels then start closed next time.
   }
 }
+
+export function toggleAdvanced(id: ViewStep): void {
+  advancedOpen[id] = !advancedOpen[id];
+  saveAdvanced();
+}
+
+// Settings > Show Advanced Controls opens the Advanced section of every step when it is ticked. Each section can be
+// closed and opened on its own afterwards; unticking leaves them as they are.
+watch(
+  () => settings.menu.advancedControls,
+  (on) => {
+    if (!on) return;
+    viewSteps.forEach((step) => (advancedOpen[step.id] = true));
+    saveAdvanced();
+  },
+);
