@@ -45,7 +45,7 @@ Oberfläche (nach `docs/design.md`, Soll-Bilder `docs/design/screenshots/`, dunk
 - [x] Schritt **Open**: Aufnahme öffnen (SER, AVI, Bildserien, FITS), MRU, Dateiangaben
 - [x] Schritte **Alignpoints**, **Align**, **Limit**: Set Alignpoints, Align mit Fortschritt, Pause und Cancel, Limit mit
       Qualitätsbalken, Framelist, Registrationgraph, R.o.Interest, Frames/Apoint, erneutes Ausrichten wie in RK-005
-- [ ] Schritt **Stack**: alle wirksamen Optionen (Nearestby Alignpoints, Correct geometry, Normalization, Edge pixels), die
+- [x] Schritt **Stack**: alle wirksamen Optionen (Nearestby Alignpoints, Correct geometry, Normalization, Edge pixels), die
       unwirksamen gesperrt mit „Not available yet“
 - [ ] Schritt **Wavelets**: sechs Ebenen, Process, Do All, Before, Processing Area, Live-Vorschau, Colour/LRGB, Functions-Karten
       (Histogram, Gamma, RGB Align, RGB Balance), Contrast/Brightness, Load Scheme und Save Scheme

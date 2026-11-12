@@ -84,6 +84,8 @@ actor FakeBackend: SessionBackend {
     var qualities: [Float] = [92.1, 88.4, 97.3, 85.0, 90.6, 99.2, 83.7, 95.8, 87.2, 100.0]
     /// The frames Limit keeps, best first.
     var keptFrames: [UInt32] = [9, 5, 2]
+    /// How far each point moved, as Limit reports it.
+    var pointShifts: [PointShift?] = []
     var alignError: String?
     var holdsAlign = false
     private(set) var pointCalls: [(frame: UInt32, settings: PointSettings)] = []
@@ -95,6 +97,7 @@ actor FakeBackend: SessionBackend {
     func setAlignError(_ message: String?) { alignError = message }
     func setHoldsAlign(_ hold: Bool) { holdsAlign = hold }
     func setKeptFrames(_ frames: [UInt32]) { keptFrames = frames }
+    func setPointShifts(_ shifts: [PointShift?]) { pointShifts = shifts }
     var isAlignHeld: Bool { alignWaiter != nil }
 
     private static func points(_ count: Int) -> [Point] {
@@ -151,7 +154,55 @@ actor FakeBackend: SessionBackend {
 
     func limit(_ settings: LimitSettings) async throws -> Limited {
         limitCalls.append(settings)
-        return Limited(frames: keptFrames, pointShifts: [])
+        return Limited(frames: keptFrames, pointShifts: pointShifts)
+    }
+
+    // MARK: Stack
+
+    /// The picture of the stack is 7 x 1 pixels, so a test can tell it from a frame (frame n is n + 1 pixels wide: frame 7 is 8).
+    static let stackPictureWidth = 7
+    var stackError: String?
+    var holdsStack = false
+    /// What the core reports as the stack size.
+    var stackSize = (width: 1024, height: 680)
+    private(set) var stackCalls: [StackSettings] = []
+    private(set) var stackImageCalls = 0
+    private var stackWaiter: CheckedContinuation<Void, Error>?
+
+    func setStackError(_ message: String?) { stackError = message }
+    func setHoldsStack(_ hold: Bool) { holdsStack = hold }
+    var isStackHeld: Bool { stackWaiter != nil }
+
+    func stack(_ settings: StackSettings, progress: ProgressHandler?) async throws -> Stacked {
+        stackCalls.append(settings)
+        if let stackError { throw Failure(message: stackError) }
+        let total = UInt32(settings.frames.count)
+        for done in 1...max(total / 2, 1) {
+            progress?(OperationProgress(operation: .stack, done: done, total: total, elapsed: .milliseconds(Int64(done) * 100)))
+        }
+        if holdsStack {
+            log.onCancel { [weak self] in Task { await self?.failHeldStack() } }
+            try await withCheckedThrowingContinuation { stackWaiter = $0 }
+        }
+        progress?(OperationProgress(operation: .stack, done: total, total: total, elapsed: .seconds(1)))
+        return Stacked(width: UInt32(stackSize.width), height: UInt32(stackSize.height), channels: 3, frames: total, elapsedMs: 1000)
+    }
+
+    func stackImage() async throws -> CGImage {
+        stackImageCalls += 1
+        let rgba = RgbaImage(width: UInt32(Self.stackPictureWidth), height: 1, rgba: Data(count: Self.stackPictureWidth * 4))
+        return try #require(rgba.makeCGImage())
+    }
+
+    /// Lets a held Stack finish.
+    func finishStack() {
+        stackWaiter?.resume()
+        stackWaiter = nil
+    }
+
+    private func failHeldStack() {
+        stackWaiter?.resume(throwing: PlanetsError.Cancelled(message: "cancelled"))
+        stackWaiter = nil
     }
 
     nonisolated func cancel(_ operation: SessionOperation) { log.recordCancel(operation) }

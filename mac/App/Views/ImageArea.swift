@@ -10,31 +10,35 @@ struct ImageArea: View {
 
     /// The frame steps show the alignpoints and the region; the later steps show other images.
     private var showsFrameMarks: Bool { [.open, .alignpoints, .align, .limit].contains(model.viewStep) }
+    private var isStackStep: Bool { model.viewStep == .stack }
 
     var body: some View {
         let viewport = model.viewport
         ZStack {
             RK.canvas
             ImageCanvas(
-                image: model.image, transform: viewport.transform, viewport: viewport,
+                image: model.shownImage, transform: viewport.transform, viewport: viewport,
                 isSelecting: model.isDrawingRegion, onDraft: { draft = $0 }, onSelect: { model.selectRegion($0) }
             )
-            if model.image == nil {
+            if model.shownImage == nil {
                 Text(model.hasRecording ? "No image yet" : "Press Select to open a recording")
                     .font(.rk)
                     .foregroundStyle(RK.onCanvas.opacity(0.6))
             } else {
-                if showsFrameMarks {
+                if showsFrameMarks || isStackStep {
                     ImageOverlays(
                         transform: viewport.transform,
-                        points: model.show.alignpoints && model.progress.step >= .points ? model.align.points : [],
-                        region: model.show.roi ? model.align.roi : nil,
+                        points: showsFrameMarks && model.show.alignpoints && model.progress.step >= .points ? model.align.points : [],
+                        sections: isStackStep ? model.alignSections : [],
+                        region: showsFrameMarks && model.show.roi ? model.align.roi : nil,
                         draft: draft
                     )
                 }
                 caption
-                if model.viewStep != .open && showsFrameMarks { ShowMenu(model: model) }
-                if showsFrameMarks && model.progress.step != .empty { FloatingCards(model: model) }
+                if model.viewStep != .open && (showsFrameMarks || isStackStep) { ShowMenu(model: model) }
+                if (showsFrameMarks && model.progress.step != .empty) || (isStackStep && model.progress.step >= .limited) {
+                    FloatingCards(model: model)
+                }
                 ZoomBar(viewport: viewport)
             }
         }
@@ -61,20 +65,27 @@ struct ImageArea: View {
     }
 }
 
-/// The Show menu at the top right (docs/design.md, "Show am Bild"): the check marks of the Align tab of the original. Show ROI is
-/// locked until a region is drawn.
+/// The Show menu at the top right (docs/design.md, "Show am Bild"): the check marks of the Align tab of the original, in the Stack
+/// step those of the Stack tab. Show ROI is locked until a region is drawn.
 private struct ShowMenu: View {
     @Bindable var model: AppModel
 
     var body: some View {
         Menu {
-            Toggle("Show Full Image", isOn: $model.show.fullImage)
-            Toggle("Show ROI", isOn: $model.show.roi).disabled(model.align.roi == nil)
-            Toggle("Show Alignpoints", isOn: $model.show.alignpoints)
-            Toggle("Show Aligndata", isOn: $model.show.aligndata)
-            Toggle("Show Framelist", isOn: $model.show.framelist)
-            Toggle("Show Registrationgraph", isOn: $model.show.registrationgraph)
-            Toggle("Show Prefilter", isOn: $model.show.prefilter)
+            if model.viewStep == .stack {
+                Toggle("Show Full Image", isOn: $model.stackOptions.showFullImage)
+                Toggle("Show AlignSections", isOn: $model.stackOptions.showAlignSections)
+                Toggle("Show Stackgraph", isOn: $model.stackOptions.showStackgraph)
+                Toggle("Show Stacklist", isOn: $model.stackOptions.showStacklist)
+            } else {
+                Toggle("Show Full Image", isOn: $model.show.fullImage)
+                Toggle("Show ROI", isOn: $model.show.roi).disabled(model.align.roi == nil)
+                Toggle("Show Alignpoints", isOn: $model.show.alignpoints)
+                Toggle("Show Aligndata", isOn: $model.show.aligndata)
+                Toggle("Show Framelist", isOn: $model.show.framelist)
+                Toggle("Show Registrationgraph", isOn: $model.show.registrationgraph)
+                Toggle("Show Prefilter", isOn: $model.show.prefilter)
+            }
         } label: {
             HStack(spacing: 5) {
                 Text("Show").font(.rk(RKMetrics.fontSizeSmall, .medium))

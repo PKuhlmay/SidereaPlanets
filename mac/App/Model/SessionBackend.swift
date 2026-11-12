@@ -15,6 +15,9 @@ protocol SessionBackend: Sendable {
     func setAlignpointThreshold(_ threshold: UInt64) throws -> Alignpoints
     func align(_ settings: AlignSettings, progress: ProgressHandler?) async throws -> Aligned
     func limit(_ settings: LimitSettings) async throws -> Limited
+    func stack(_ settings: StackSettings, progress: ProgressHandler?) async throws -> Stacked
+    /// The picture of the last stack, ready for display.
+    func stackImage() async throws -> CGImage
     /// Stops a running operation; it then throws `PlanetsError.Cancelled`.
     func cancel(_ operation: SessionOperation)
     func pause(_ operation: SessionOperation, _ paused: Bool)
@@ -30,6 +33,13 @@ extension PlanetsSession: SessionBackend {
     func frameImage(_ index: UInt32) async throws -> CGImage {
         let frame = try await readFrame(index)
         guard let image = frame.makeCGImage() else { throw FrameConversionError() }
+        return image
+    }
+
+    @concurrent
+    func stackImage() async throws -> CGImage {
+        let stacked = try await stackedImage()
+        guard let image = stacked.makeCGImage() else { throw FrameConversionError() }
         return image
     }
 }

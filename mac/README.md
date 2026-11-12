@@ -13,13 +13,14 @@ mac/
     SidereaPlanetsApp.swift  Fenster (eine Window-Szene), Menüleiste (⌘O, Open Recent, Zoom, Frames)
     Design/              Tokens.swift (Spiegel von docs/design/tokens.css, hell und dunkel), RKButtonStyle
     Model/               AppModel (@Observable, MainActor: Sitzung, Schritt, Frame, Bild, Statustexte), AppModel+Align (Set Alignpoints, Align,
-                         Limit, Cancel, Pause, Framelist), AlignLogic (Werte, Diagramm, Meldungen), StepLogic (Schrittzustände),
+                         Limit, Cancel, Pause, Framelist), AlignLogic (Werte, Diagramm, Meldungen), AppModel+Stack (Stack, Karte
+                         Alignmentpoints, Ringe), StackLogic (Werte, Anfrage, Texte), StepLogic (Schrittzustände),
                          RecentList (MRU), RecordingDetails (Dateiangaben), ViewTransform und ImageViewport (Zoom und Pan),
                          SessionBackend (was die App vom Kern braucht), RecordingPicker (NSOpenPanel), DebugLaunch (nur Debug)
     Views/               ContentView (Fenster und Werkzeugleiste), StepBar, StepPanel, AlignPanels (Alignpoints, Align, Limit mit
-                         Qualitätsdiagramm), Controls (Zahlenfeld, Auswahl), ImageArea (mit Show-Menü), ImageCanvas (NSView mit einer
-                         CALayer für das Bild, zieht auch die R.o.Interest-Region), ImageOverlays (Punkte, Region), FloatingCards
-                         (Framelist, Registrationgraph), FrameBar, StatusBar
+                         Qualitätsdiagramm), StackPanel, Controls (Zahlenfeld, Auswahl), ImageArea (mit Show-Menü), ImageCanvas (NSView mit einer
+                         CALayer für das Bild, zieht auch die R.o.Interest-Region), ImageOverlays (Punkte, Ringe, Region), FloatingCards
+                         (Framelist, Registrationgraph, Alignmentpoints), FrameBar, StatusBar
   Tests/SidereaPlanetsTests/ Swift Testing: Schrittzustände, MRU, AppModel (mit FakeBackend), Zoom-Rechnung, Dateiangaben
   Packages/SidereaPlanetsKit/  Swift-Paket um die Rust-Schnittstelle (XCFramework und erzeugte Bindings)
   tickets/               MAC-NNN-kurzer-titel.md
@@ -29,7 +30,7 @@ crates/ffi/              Rust-Schnittstelle (UniFFI) auf den Rechenkern, GUI-fre
 ```
 
 Die App rechnet nichts selbst: `AppModel` hält nur, was die Ansichten zeigen, und ruft den Kern über das Protokoll `SessionBackend`
-(`PlanetsSession` ist die echte Umsetzung, die Tests bringen eine Attrappe). Spätere Schritte (MAC-006 bis MAC-010) hängen ihre
+(`PlanetsSession` ist die echte Umsetzung, die Tests bringen eine Attrappe). Spätere Schritte (MAC-008 bis MAC-010) hängen ihre
 Aufrufe dort und ihre Panels in `StepPanel` ein; `ViewStep.isBuilt` sagt, welche Schritte schon ein Panel haben. Das Bild geht als
 `CGImage` in eine Layer (`ImageCanvas`): Zoomen und Verschieben ändern nur ihr Frame, die Pixel werden pro Frame einmal hochgeladen, und
 Frames lesen und umrechnen auf einer Hintergrund-Queue (`@concurrent`), immer nur einer zugleich, mit dem neuesten Wunsch als nächstem.
@@ -40,8 +41,8 @@ entscheidet MAC-010 mit der Signierung.
 
 **Debug-Argumente** (nur Debug-Builds, für Screenshots und Handproben): `open -a build/mac/Build/Products/Debug/SidereaPlanets.app --args
 -open <Datei[:Datei…]> -appearance light|dark -step open|alignpoints|… -frame <n>`.
-Dazu für Bilder der späteren Schritte: `-run alignpoints,align,limit` drückt die Schaltflächen nacheinander (`alignpaused` startet Align und
-hält es nach dem ersten Frame an, `roidraw` drückt R.o.Interest), `-show framelist,registrationgraph`, `-roi x,y,breite,höhe`,
+Dazu für Bilder der späteren Schritte: `-run alignpoints,align,limit,stack` drückt die Schaltflächen nacheinander (`alignpaused` startet Align und
+hält es nach dem ersten Frame an, `stackpaused` dasselbe für Stack, `roidraw` drückt R.o.Interest), `-show framelist,registrationgraph`, `-roi x,y,breite,höhe`,
 `-limit lowestQuality|bestPercent|framesPerPoint|bestCount`.
 
 Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik in
@@ -169,7 +170,7 @@ scripts/deploy-mac.sh --run                   # alles zusammen, dann die App neu
 | MAC-004 | Rust-Schnittstelle (UniFFI), XCFramework, Swift-Paket | erledigt |
 | MAC-005 | App-Gerüst, Fenster, Bildbereich, Open | erledigt |
 | MAC-006 | Alignpoints, Align, Limit | erledigt |
-| MAC-007 | Stack | offen |
+| MAC-007 | Stack | erledigt |
 | MAC-008 | Wavelets, Farbe, Functions | offen |
 | MAC-009 | Save, Export, Projektdatei | offen |
 | MAC-010 | Hilfe, Menüs, CPUs, Release | offen |

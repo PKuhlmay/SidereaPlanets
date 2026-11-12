@@ -11,7 +11,7 @@ extension AppModel {
     // MARK: Runs
 
     /// Runs one calculation, one at a time. The text it returns is the result in the status bar; Cancel and a failure replace it.
-    private func runJob(_ name: String, operation: SessionOperation? = nil, _ job: () async throws -> String) async {
+    func runJob(_ name: String, operation: SessionOperation? = nil, _ job: () async throws -> String) async {
         guard run == nil, !isOpening else { return }
         run = Run(name: name, operation: operation)
         status.progress = 0
@@ -47,10 +47,10 @@ extension AppModel {
     }
 
     /// The core reports on its own thread; the frames come in order, so a late hop never moves the bar back.
-    private func jobProgress(_ progress: OperationProgress) {
+    func jobProgress(_ progress: OperationProgress, label: String = "Loading frame") {
         guard run != nil, progress.total > 0, progress.fraction >= status.progress else { return }
         status.progress = progress.fraction
-        status.action = "Loading frame: \(progress.done)"
+        status.action = "\(label): \(progress.done)"
     }
 
     /// Cancel in the toolbar (⌘.): stops the calculation that runs in the core.
@@ -80,7 +80,7 @@ extension AppModel {
     var canCancel: Bool { run?.operation != nil && run?.cancelled == false }
 
     /// After a successful run the panel opens the next open step.
-    private func advance() {
+    func advance() {
         viewStep = progress.nextOpen
     }
 
@@ -186,6 +186,7 @@ extension AppModel {
             let answer = try await backend.limit(settings)
             let kept = Set(answer.frames.map(Int.init))
             for i in align.frames.indices { align.frames[i].checked = kept.contains(i) }
+            align.pointShifts = answer.pointShifts
             progress = StepProgress(step: .limited)
             advance()
             let qualities = answer.frames.compactMap { align.frames.indices.contains(Int($0)) ? align.frames[Int($0)].quality : nil }

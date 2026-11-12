@@ -329,8 +329,8 @@ import Testing
         #expect(model.status.result == "Empty List: not available yet")
     }
 
-    @Test func theStepsOfThisTicketAreBuilt() {
-        #expect(ViewStep.allCases.filter(\.isBuilt) == [.open, .alignpoints, .align, .limit])
+    @Test func theStepsUpToStackAreBuilt() {
+        #expect(ViewStep.allCases.filter(\.isBuilt) == [.open, .alignpoints, .align, .limit, .stack])
     }
 
     @Test func anOpenAdvancedSectionIsKeptAcrossLaunches() {

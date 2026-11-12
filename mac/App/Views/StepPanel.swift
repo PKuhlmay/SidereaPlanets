@@ -58,6 +58,7 @@ struct StepPanel: View {
         case .alignpoints: AlignpointsStepView(model: model)
         case .align: AlignStepView(model: model)
         case .limit: LimitStepView(model: model)
+        case .stack: StackStepView(model: model)
         default:
             Text("Comes in a later version")
                 .font(.rkSmall)
@@ -102,14 +103,15 @@ struct StepPanel: View {
         .overlay(alignment: .top) { RK.line.frame(height: 1) }
     }
 
-    /// The action of the shown step; Stack, Do All and Save image come with their tickets.
+    /// The action of the shown step; Do All and Save image come with their tickets.
     private func act() {
         switch step {
         case .open: select()
         case .alignpoints: Task { await model.setAlignpoints() }
         case .align: Task { await model.runAlign() }
         case .limit: Task { await model.runLimit() }
-        case .stack, .wavelets, .save: break
+        case .stack: Task { await model.runStack() }
+        case .wavelets, .save: break
         }
     }
 }

@@ -78,6 +78,10 @@ nonisolated struct AlignData: Equatable, Sendable {
     /// The frame the points were set on; Align and Stack register the other frames against it.
     var referenceFrame = 0
     var frames: [FrameEntry] = []
+    /// One check mark per point of `points` (the card *Alignmentpoints* of the Stack step); only checked points go into the stack.
+    var pointsChecked: [Bool] = []
+    /// How far each point moved over the kept frames, known after Limit; `nil` for a point that was never found.
+    var pointShifts: [PointShift?] = []
     /// The region of interest of Set Alignpoints and Align, in image pixels; `nil` is the whole frame.
     var roi: RoiSettings?
 
@@ -91,10 +95,21 @@ nonisolated struct AlignData: Equatable, Sendable {
         points = answer.points
         total = Int(answer.total)
         threshold = Int(answer.threshold)
+        pointsChecked = Array(repeating: true, count: answer.points.count)
+        pointShifts = []
     }
+
+    /// The points with a check mark: the ones the stack is made on.
+    var usedPoints: [Point] {
+        points.indices.filter { pointsChecked.indices.contains($0) && pointsChecked[$0] }.map { points[$0] }
+    }
+
+    /// The frames with a check mark, in frame order.
+    var checkedFrames: [UInt32] { frames.filter(\.checked).map { UInt32(clamping: $0.index) } }
 
     /// A new Set Alignpoints or Align replaces the alignment: the rating and the choice of frames go.
     mutating func discardRating() {
+        pointShifts = []
         for i in frames.indices {
             frames[i].checked = true
             frames[i].quality = nil

@@ -62,6 +62,30 @@ struct JupiterModelTests {
         #expect(model.result(of: .limit) == "10 of 10 kept")
     }
 
+    @Test func stackOfTheDefaultsHas1024x680AndTenFramesAndAReAlignTakesItBack() async throws {
+        let model = try makeModel()
+        await model.open([jupiter!])
+        await model.setAlignpoints()
+        await model.runAlign()
+        await model.runLimit()
+        await model.runStack()
+
+        // The reference case of docs/testdaten.md: 10 frames of 1024x680.
+        #expect(model.progress.step == .stacked && model.viewStep == .wavelets)
+        #expect(model.stacked?.frames == 10 && model.stacked?.width == 1024 && model.stacked?.height == 680)
+        #expect(model.stacked?.image.width == 1024 && model.stacked?.image.height == 680)
+        #expect(model.status.action == "Stack size (n=10) - (1024x680)")
+        #expect(model.status.result == "Stacking Range : 0-255")
+        #expect(model.result(of: .stack) == "10 frames · 1024×680")
+        model.show(.stack)
+        #expect(model.imageCaption == "Stack of 10 frames")
+
+        // Aligning again drops the stack in the core as well: asking for it fails.
+        await model.runAlign()
+        #expect(model.stacked == nil && model.progress.step == .aligned)
+        await #expect(throws: PlanetsError.self) { _ = try await model.backend.stackImage() }
+    }
+
     @Test func cancellingARealAlignLeavesTheStepReadyToRunAgain() async throws {
         let model = try makeModel()
         await model.open([jupiter!])

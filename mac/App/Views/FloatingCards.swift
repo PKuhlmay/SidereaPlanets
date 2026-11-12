@@ -1,14 +1,18 @@
 import SwiftUI
 
-/// The Framelist and the Registrationgraph as cards over the image (docs/design.md, "Schwebende Karten"): top right, one below the
+/// The Framelist and the Registrationgraph (steps up to Limit) and Alignmentpoints (Stack step) as cards over the image (docs/design.md, "Schwebende Karten"): top right, one below the
 /// other, 236 pt wide, with a title and a cross that takes the check mark out of the Show menu. Not movable.
 struct FloatingCards: View {
     @Bindable var model: AppModel
 
     var body: some View {
         VStack(spacing: 10) {
-            if model.show.framelist { FramelistCard(model: model) }
-            if model.show.registrationgraph { RegistrationgraphCard(model: model) }
+            if model.viewStep == .stack {
+                if model.stackOptions.showAlignSections { AlignmentpointsCard(model: model) }
+            } else {
+                if model.show.framelist { FramelistCard(model: model) }
+                if model.show.registrationgraph { RegistrationgraphCard(model: model) }
+            }
             Spacer(minLength: 0)
         }
         .frame(width: 236)
@@ -92,6 +96,34 @@ private struct FramelistCard: View {
             .padding(.bottom, 4)
         }
     }
+}
+
+/// One check box per alignpoint of the Stack step: only the checked points go into the stack.
+private struct AlignmentpointsCard: View {
+    @Bindable var model: AppModel
+
+    var body: some View {
+        FloatCard(title: "Alignmentpoints", close: { model.stackOptions.showAlignSections = false }) {
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    ForEach(model.align.points.indices, id: \.self) { index in
+                        Toggle(isOn: Binding(get: { model.align.pointsChecked[safe: index] ?? true }, set: { model.setPointChecked(index, $0) })) {
+                            Text("Point \(index + 1)").font(.rk).foregroundStyle(RK.text)
+                        }
+                        .toggleStyle(.checkbox)
+                        .frame(maxWidth: .infinity, minHeight: 23, alignment: .leading)
+                    }
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+            }
+            .frame(maxHeight: CGFloat(model.align.points.count) * 23 + 8)
+        }
+    }
+}
+
+private extension Array {
+    subscript(safe index: Int) -> Element? { indices.contains(index) ? self[index] : nil }
 }
 
 /// Quality and Difference per frame as two lines (the reference program calls it the registration graph); before Align a note instead of empty axes.

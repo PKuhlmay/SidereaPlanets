@@ -9,8 +9,8 @@ extension AppModel {
     ///     open -a SidereaPlanets.app --args -open /path/to/JUPITER.AVI -appearance light
     ///
     /// `-open` loads a recording at launch (several files separated by a colon), `-appearance light|dark` overrides macOS,
-    /// `-run alignpoints,align,limit` presses those buttons one after the other (`roidraw` presses R.o.Interest, `alignpaused` starts Align and pauses it after
-    /// the first frame, for a picture of a running Align), `-step open|alignpoints|…` shows that step and `-frame 5` that frame
+    /// `-run alignpoints,align,limit,stack` presses those buttons one after the other (`roidraw` presses R.o.Interest, `alignpaused` starts Align and pauses it after
+    /// the first frame, for a picture of a running Align, `stackpaused` the same for Stack), `-step open|alignpoints|…` shows that step and `-frame 5` that frame
     /// (1-based) once the recording is open. Settings: `-show framelist,registrationgraph,alignpoints,roi`,
     /// `-roi x,y,width,height` and `-limit lowestQuality|bestPercent|framesPerPoint|bestCount`.
     func applyLaunchArguments() async {
@@ -45,6 +45,11 @@ extension AppModel {
                 try? await Task.sleep(for: .milliseconds(1200))
                 togglePause()
             case "limit": await runLimit()
+            case "stack": await runStack()
+            case "stackpaused":
+                Task { await runStack() }
+                try? await Task.sleep(for: .milliseconds(1100))
+                togglePause()
             case "roidraw": toggleRegionOfInterest()
             default: break
             }

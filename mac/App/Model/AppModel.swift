@@ -14,7 +14,7 @@ struct StatusTexts: Equatable {
     var timeLeft = 0.0
 }
 
-/// A running calculation (Set Alignpoints, Align, Limit): its name for the window title and whether it can be cancelled and paused.
+/// A running calculation (Set Alignpoints, Align, Limit, Stack): its name for the window title and whether it can be cancelled and paused.
 struct Run: Equatable {
     var name: String
     /// The core operation Cancel and Pause act on; `nil` for the calls that are over in a moment.
@@ -33,13 +33,21 @@ final class AppModel {
 
     /// How far the calculation has come (the results that exist). Written by the open and run functions only.
     var progress = StepProgress() {
-        // A step that became locked (Set Alignpoints or Align ran again and dropped what came after) cannot stay open.
-        didSet { if progress.state(of: viewStep).status == .locked { viewStep = progress.nextOpen } }
+        didSet {
+            // Set Alignpoints, Align or Limit ran again (or another recording opened): the stack made on the old result is gone.
+            if progress.step < .stacked { stacked = nil }
+            // A step that became locked (Set Alignpoints or Align ran again and dropped what came after) cannot stay open.
+            if progress.state(of: viewStep).status == .locked { viewStep = progress.nextOpen }
+        }
     }
     /// The step the left panel shows. Another step fits the image into the area again, because the area changes with the
     /// frame bar and the right panel.
     var viewStep: ViewStep = .open {
-        didSet { if viewStep != oldValue { viewport.fit() } }
+        didSet {
+            guard viewStep != oldValue else { return }
+            syncViewport()
+            viewport.fit()
+        }
     }
 
     /// The values of the panels Alignpoints, Align and Limit, and the check marks of the Show menu.
@@ -47,6 +55,10 @@ final class AppModel {
     var show = ShowOptions()
     /// The points, the rating of the frames and the region of the Align tab.
     var align = AlignData()
+    /// The values of the Stack panel and the check marks of its Show menu.
+    var stackOptions = StackOptions()
+    /// The stack, from Stack until Set Alignpoints, Align or Limit runs again.
+    var stacked: StackedImage?
     /// The next drag in the image draws the region (R.o.Interest).
     var isDrawingRegion = false
     /// A calculation is running: no pill opens and the actions are locked.
@@ -96,9 +108,22 @@ final class AppModel {
     /// The steps that work on single frames show the frame bar.
     var showsFrameBar: Bool { hasRecording && [.alignpoints, .align, .limit].contains(viewStep) }
 
+    /// The Stack step (and the ones after it) show the stack once it exists, the earlier steps and the Stack step before it show the
+    /// frame (`pickImage` of app/src/logic/workflow.ts).
+    var showsStack: Bool { stacked != nil && [.stack, .wavelets, .save].contains(viewStep) }
+
+    /// The image the image area shows.
+    var shownImage: CGImage? { showsStack ? stacked?.image : image }
+
     /// The chip at the top left of the image area: what the image shows.
     var imageCaption: String? {
-        image == nil ? nil : "Frame \(frameIndex + 1) of \(frameCount)"
+        if let stacked, showsStack { return "Stack of \(stacked.frames) frames" }
+        return image == nil ? nil : "Frame \(frameIndex + 1) of \(frameCount)"
+    }
+
+    /// The viewport follows the size of the image that is shown (the stack has the size of the frames, but the view must not rely on it).
+    private func syncViewport() {
+        if let shown = shownImage { viewport.setImageSize(CGSize(width: shown.width, height: shown.height)) }
     }
 
     /// The result of a step as the result line and the tooltip of a done pill show it. Later steps add theirs.
@@ -108,6 +133,7 @@ final class AppModel {
         case .alignpoints: "\(align.points.count) set"
         case .align: "best quality \(Int((align.bestQuality ?? 0).rounded())) %"
         case .limit: "\(align.keptCount) of \(frameCount) kept"
+        case .stack: stacked.map { stackResultText(frames: $0.frames, width: $0.width, height: $0.height) } ?? ""
         default: ""
         }
     }
@@ -211,8 +237,8 @@ final class AppModel {
             do {
                 let frame = try await backend.frameImage(UInt32(index))
                 guard current == generation else { return }
-                viewport.setImageSize(CGSize(width: frame.width, height: frame.height))
                 image = frame
+                if !showsStack { syncViewport() }
             } catch {
                 guard current == generation else { return }
                 status.result = "Error: \(errorText(error))"
