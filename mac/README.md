@@ -68,4 +68,13 @@ Wird mit `MAC-001` ausgefüllt (xcodegen, `xcodebuild`, Bündel, Signierung und 
 
 | Ticket | Thema | Stand |
 |---|---|---|
-| MAC-001 | Mac-App aufbauen (Schnittstelle, Oberfläche, Parität zur Windows-App) | offen |
+| MAC-001 | Mac-App aufbauen (Klammer) | in Arbeit |
+| MAC-002 | Kern am Mac und Deploy der Mac-App | offen |
+| MAC-003 | Sitzungslogik im Kern (`crates/session`) | offen |
+| MAC-004 | Rust-Schnittstelle (UniFFI), XCFramework, Swift-Paket | offen |
+| MAC-005 | App-Gerüst, Fenster, Bildbereich, Open | offen |
+| MAC-006 | Alignpoints, Align, Limit | offen |
+| MAC-007 | Stack | offen |
+| MAC-008 | Wavelets, Farbe, Functions | offen |
+| MAC-009 | Save, Export, Projektdatei | offen |
+| MAC-010 | Hilfe, Menüs, CPUs, Release | offen |

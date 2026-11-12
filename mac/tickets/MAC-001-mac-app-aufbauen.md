@@ -1,6 +1,6 @@
 # MAC-001 Mac-App aufbauen
 
-- Status: offen
+- Status: in Arbeit
 - Abhängig von: RK-005 bis RK-010, RK-012, RK-014 (Stand der Windows-App vom 2026-11-12)
 - Rechner: Mac (Apple Silicon, Xcode, `mac/README.md` Abschnitt „Voraussetzungen am Mac“)
 
@@ -82,3 +82,21 @@ Qualität
   (`re-local/`) sind nicht in Git; für Referenztests den Ordner kopieren und `PLANETS_RE_LOCAL` setzen.
 - Wo die Windows-App ihre Grenzen hat (Resampling, Drizzling, StackSize, Stretch histogram, De-rotate, Realign with Processed,
   Scan Frames, Flat/Dark/Reference), baut die Mac-App sie ebenfalls als „Not available yet“, bis ein eigenes Ticket sie umsetzt.
+
+## Teil-Tickets und Entscheidungen (2026-11-12)
+
+Zerlegt in `MAC-002` bis `MAC-010` (siehe `mac/README.md`, Status). Mit Philipp entschieden:
+
+- Deploy am Mac: der post-commit-Hook baut und startet die Mac-App (`scripts/deploy-mac.sh`), nicht die Tauri-App.
+- Brücke: UniFFI in `crates/ffi`; `unsafe` nur dort erlaubt, alle anderen Crates bleiben bei `forbid`.
+- Arbeit direkt auf `main`, ein Commit je Teil-Ticket.
+- `crates/session` wird auch von der Tauri-Shell benutzt; der Fensterlauf der Windows-App ist Handprobe am Windows-PC.
+- Design: Tokens und Layout aus `docs/design.md`, Bedienelemente nach Mac-Art.
+- Signierung ad-hoc, Notarisierung offen bis eine Developer-ID da ist. macOS 14+, Debug arm64, Release universal.
+
+## Offene Fragen / Risiken
+
+- Testdaten: Die Eingabevideos (JUPITER, CLAVIUS, SUNSPOTS) liegen am Mac unter `re-local/testdata/astropix/` (astropix.com). Die
+  Ergebnisse des Originals (`re-local/reference/`) gibt es nur auf dem Windows-PC; die PSNR-Kriterien gegen das Original bleiben am
+  Mac offen, bis der Ordner kopiert ist.
+
