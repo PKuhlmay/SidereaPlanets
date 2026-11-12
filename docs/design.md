@@ -412,9 +412,10 @@ Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und
 *„Adds the kept frames into one image with far less noise.“*
 
 - Wichtig: StackSize; Use Nearestby Alignpoints; Correct geometry.
-- Advanced: die übrigen Stacking options; Resampling und Drizzling (aus der früheren Aktionszeile), ihre Zusatzfelder
-  (Methode und Faktor bzw. Faktor) erscheinen erst mit dem Häkchen, rechts daneben in derselben Zeile; die Gruppe
-  Create AVI vollständig mit Save Aligned und Save Integrated.
+- Advanced: die übrigen Stacking options; Resampling und Drizzling (aus der früheren Aktionszeile); ihre Zusatzfelder
+  (Methode und Faktor bzw. Faktor) erscheinen erst mit dem Häkchen, rechts daneben in derselben Zeile. Beide sind noch nicht
+  umgesetzt: die Häkchen sind gesperrt (Tooltip und Hinweis „Not available yet“ rechts in der Zeile), die Zusatzfelder
+  bleiben deshalb ausgeblendet (RK-006-Prüflauf: eingeschaltet wirkten sie nicht); die Gruppe Create AVI vollständig mit Save Aligned und Save Integrated.
 - Aktion: **Stack**. Im erledigten Schritt steht unter dem Ergebnis **Save image** als Standard-Schaltfläche für das
   Summenbild.
 

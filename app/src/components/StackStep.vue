@@ -1,20 +1,14 @@
 <script setup lang="ts">
 import { runAction } from "../actions";
-import { codecs, type ResampleMethod } from "../logic/settings";
+import { codecs } from "../logic/settings";
 import { atLeast } from "../logic/workflow";
 import { session, settings } from "../state";
 import NumberField from "./NumberField.vue";
 import StepPanel from "./StepPanel.vue";
 
-// Step 5 Stack: the key Stacking options; the others, Resampling and Drizzling (from the former action row) and Create
+// Step 5 Stack: the key Stacking options; the others, Resampling and Drizzling (locked, not available yet) and Create
 // AVI under Advanced. The values are read from `settings.stack` (logic/stack.ts).
 const stack = settings.stack;
-const methods: { value: ResampleMethod; label: string }[] = [
-  { value: "bell", label: "Bell" },
-  { value: "bspline", label: "Bspline" },
-  { value: "lanczos", label: "Lanczos" },
-  { value: "mitchell", label: "Mitchell" },
-];
 </script>
 
 <template>
@@ -38,22 +32,15 @@ const methods: { value: ResampleMethod; label: string }[] = [
           <label class="chk"><input v-model="stack.derotate" type="checkbox" />De-rotate images</label>
         </div>
         <label class="row"><span>Do not stack pixels<br />at the frameedge</span> <NumberField v-model="stack.edgePixels" /></label>
-        <!-- The extra fields appear with their check box, to the right in the same row -->
-        <div class="inl">
-          <label class="chk"><input v-model="stack.resampling" type="checkbox" />Resampling</label>
-          <template v-if="stack.resampling">
-            <select v-model="stack.resampleMethod" aria-label="Resampling method">
-              <option v-for="m in methods" :key="m.value" :value="m.value">{{ m.label }}</option>
-            </select>
-            <NumberField v-model="stack.resampleFactor" :decimals="1" :step="0.1" :width="46" label="Resampling factor" />
-          </template>
+        <!-- Locked: the stack does not enlarge the result yet (docs/stacking.md). The method and factor fields appear
+             with the check box in the design, so they stay out until the check box can be switched on. -->
+        <div class="inl" title="Not available yet">
+          <label class="chk"><input type="checkbox" :checked="false" disabled />Resampling</label>
+          <span class="factor">Not available yet</span>
         </div>
-        <div class="inl">
-          <label class="chk"><input v-model="stack.drizzling" type="checkbox" />Drizzling</label>
-          <template v-if="stack.drizzling">
-            <span class="factor">Factor</span>
-            <NumberField v-model="stack.drizzleFactor" :decimals="1" :step="0.1" :width="46" label="Drizzling factor" />
-          </template>
+        <div class="inl" title="Not available yet">
+          <label class="chk"><input type="checkbox" :checked="false" disabled />Drizzling</label>
+          <span class="factor">Not available yet</span>
         </div>
       </div>
 
@@ -107,9 +94,6 @@ const methods: { value: ResampleMethod; label: string }[] = [
   gap: 6px;
   align-items: center;
   min-height: 29px;
-}
-.inl select {
-  width: 84px;
 }
 .factor {
   margin-left: auto;

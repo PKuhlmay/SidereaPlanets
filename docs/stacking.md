@@ -135,7 +135,9 @@ wählen oder gewichten) würde die lokale Korrektur erst nutzbar machen.
 Nicht Teil der Akzeptanzkriterien und nie beobachtet; jeweils nur der Name bekannt:
 
 - *StackSize* (Minimized, Maximized, R.of Interest), *Stretch histogram after stacking*, *De-rotate images*.
-- **Resampling** (Bell, Bspline, Lanczos, Mitchell, Faktor) und **Drizzling**, die das Ergebnis vergrößern.
+- **Resampling** (Bell, Bspline, Lanczos, Mitchell, Faktor) und **Drizzling**, die das Ergebnis vergrößern. In der App sind
+  beide Häkchen gesperrt und mit „Not available yet“ gekennzeichnet; die Einstellungen `resampling`/`drizzling` bleiben im
+  Datenmodell, das Backend ignoriert sie.
 - **Create AVI** (*Save Aligned*, *Save Integrated*): in RK-009 gebaut, siehe `docs/formats.md`, Abschnitt „Create AVI“.
 - Stackgraph und Stacklist.
 

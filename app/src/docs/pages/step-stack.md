@@ -41,8 +41,10 @@ You see first: StackSize, Use Nearestby Alignpoints and Correct geometry. Everyt
 | Stretch histogram after stacking | off | Not available yet |
 | De-rotate images | off | Not available yet |
 | Do not stack pixels at the frameedge | 0 | Works. Leaves this border of every frame out of the stack |
+| Resampling | off | Not available yet. The check box is locked; the method (Bell, Bspline, Lanczos, Mitchell) and the factor belong to it |
+| Drizzling | off | Not available yet. The check box is locked; the factor belongs to it |
 
-Under **Advanced**: switch on **Resampling** and the method (Bell, Bspline, Lanczos, Mitchell; default Lanczos) and the factor (default 2.0) appear next to it. Switch on **Drizzling** and its factor (default 0.5) appears. Resampling and Drizzling can be set, but the stack ignores them: **Not available yet**.
+The stack always keeps the size of the frames. **Resampling** and **Drizzling**, which would enlarge the result, are under **Advanced**, but they are locked and marked *Not available yet*, so they cannot be switched on by mistake.
 
 ## Check boxes in the Show menu
 

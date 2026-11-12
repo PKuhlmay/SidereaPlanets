@@ -26,4 +26,4 @@ Doku (`docs/stacking.md`) sind fertig. Vergleich mit dem Original: 54,85 dB gege
 mit dem Vertrauen in die Punktversätze: Bei R1 streuen die Zuordnungen der Alignpoints unzusammenhängend, deshalb entspricht das
 Ergebnis dort dem Stack mit Frameversatz. Die lokale Korrektur selbst ist an einer künstlichen Verzerrung geprüft; ob das
 Original bei R1 lokal korrigiert, ist offen (`docs/stacking.md`). Save Aligned und Save Integrated (Create AVI) gehören zu
-RK-009, Resampling und Drizzling sind nicht umgesetzt.
+RK-009, Resampling und Drizzling sind nicht umgesetzt. Die Häkchen von Resampling und Drizzling sind in der App gesperrt und mit „Not available yet“ gekennzeichnet (UI-Prüflauf: eingeschaltet wirkten sie nicht).
