@@ -5,7 +5,7 @@ import { atLeast } from "../logic/workflow";
 import { session } from "../state";
 import NumberField from "./NumberField.vue";
 
-// Frame bar of the Align tab: status, Goto Frame, a slider over all frames and the position. Empty before a
+// Frame bar of the Alignpoints, Align and Limit steps: status, Goto Frame, a slider over all frames and the position. Empty before a
 // recording is open.
 const count = computed(() => session.info?.frameCount ?? 0);
 const aligned = computed(() => atLeast(session.step, "aligned"));

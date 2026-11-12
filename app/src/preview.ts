@@ -1,23 +1,38 @@
 // Dev builds only (main.ts): jumps into a state of the window with generated data, so every state of
 // docs/design/screenshots can be looked at without a recording and without the computing steps.
 //
-//   ?step=loaded|points|aligned|limited|stacked  ?tab=align|stack|wavelet  ?theme=light  ?busy=40
-//   ?show=framelist,graph,resampling,drizzling,procarea,alignpoints,nosections  ?layers=32,22,14,10,10,10
-//   ?functions=Histogram,Gamma  (cards open in the Wavelet tab; their values come from the engine, so the cards
-//   need the app, not the plain browser)
+//   ?step=empty|loaded|points|aligned|limited|stacked|processed|saved
+//   ?view=open|alignpoints|align|limit|stack|wavelets|save  (without it the next open step)  ?advanced=1
+//   ?theme=light  ?busy=40  ?show=framelist,graph,resampling,drizzling,procarea,alignpoints,nosections
+//   ?layers=32,22,14,10,10,10  ?functions=Histogram,Gamma  (cards open in the Wavelets step; their values come from
+//   the engine, so the cards need the app, not the plain browser)
 
 import { setFrameReader, showFrame, startSession } from "./recording";
 import { LAYER_COUNT } from "./logic/settings";
-import { atLeast, type Step, type Tab } from "./logic/workflow";
+import { atLeast, viewSteps, type Step, type ViewStep } from "./logic/workflow";
 import { applyTheme } from "./theme";
 import { session, settings, status, type Alignpoint, type RecordingInfo } from "./state";
+import { advance, advancedOpen } from "./steps";
+import { markDoAllCurrent } from "./wavelet";
 
 const W = 1024;
 const H = 680;
 const QUALITY = [92.1, 88.4, 97.3, 85.0, 90.6, 99.2, 83.7, 95.8, 87.2, 100.0];
 const DIFFERENCE = [31, 44, 18, 52, 37, 12, 58, 22, 47, 9];
-const STEPS: Step[] = ["loaded", "points", "aligned", "limited", "stacked"];
-const TABS: Tab[] = ["align", "stack", "wavelet"];
+// The states of the design (docs/design.md, "Soll-Bilder neu erzeugen"): the steps of the calculation plus
+// "processed" (Do All ran with the values on screen) and "saved" (Save image wrote the result).
+type PreviewStep = Step | "processed" | "saved";
+const STEPS: PreviewStep[] = ["empty", "loaded", "points", "aligned", "limited", "stacked", "processed", "saved"];
+// Without `step` a `view` gets the first state in which it can be opened.
+const NEEDS: Record<ViewStep, Step> = {
+  open: "loaded",
+  alignpoints: "loaded",
+  align: "points",
+  limit: "aligned",
+  stack: "limited",
+  wavelets: "stacked",
+  save: "stacked",
+};
 
 const info: RecordingInfo = {
   format: "AVI",
@@ -79,12 +94,15 @@ function makePoints(): Alignpoint[] {
 
 export async function applyPreview(search: string) {
   const params = new URLSearchParams(search);
-  const stepName = params.get("step") as Step | null;
-  const tab = TABS.find((t) => t === params.get("tab")) ?? "align";
-  const step: Step = STEPS.find((s) => s === stepName) ?? (tab === "align" ? "loaded" : "stacked");
-  if (!params.has("step") && !params.has("tab")) return;
+  const view = viewSteps.find((s) => s.id === params.get("view"))?.id ?? null;
+  const named = STEPS.find((s) => s === params.get("step"));
+  if (!named && !view) return;
+  const state: PreviewStep = named ?? (view ? NEEDS[view] : "loaded");
+  const step: Step = state === "processed" || state === "saved" ? "stacked" : state;
 
   if (params.get("theme") === "light") applyTheme("light");
+  if (params.get("advanced") === "1") viewSteps.forEach((s) => (advancedOpen[s.id] = true));
+  if (step === "empty") return;
   setFrameReader(drawPlanet);
   startSession(info, "JUPITER.AVI");
   await showFrame(0);
@@ -105,7 +123,6 @@ export async function applyPreview(search: string) {
     session.stackImage = await drawPlanet(9);
     session.stackSize = 10;
   }
-  session.tab = tab;
 
   const result: Record<Step, [string, string]> = {
     empty: ["", ""],
@@ -131,6 +148,19 @@ export async function applyPreview(search: string) {
     if (value !== "") settings.wavelet.layers[i].level = Number(value);
   });
   settings.wavelet.functions = (params.get("functions") ?? "").split(",").filter((name) => name !== "");
+
+  // Do All and Save image after the layers are set: the result belongs to these values.
+  if (state === "processed" || state === "saved") {
+    session.processedImage = await drawPlanet(9);
+    markDoAllCurrent();
+  }
+  if (state === "saved") {
+    session.saved = true;
+    session.savedName = "JUPITER.tif";
+    status.result = "Saved JUPITER.tif";
+  }
+  if (view) session.view = view;
+  else advance();
   const busy = Number(params.get("busy"));
   if (busy > 0) {
     status.busy = { name: "Align", paused: false, cancelled: false };

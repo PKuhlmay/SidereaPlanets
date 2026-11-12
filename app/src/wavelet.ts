@@ -1,14 +1,15 @@
-// The Wavelet tab: live preview of the Processing Area, Process, Do All and schemes, through the commands of
+// The Wavelets step: live preview of the Processing Area, Process, Do All and schemes, through the commands of
 // src-tauri/src/wavelet_commands.rs (docs/wavelets.md). The image to sharpen lives in the backend; the stack
 // step (RK-006) hands it over with `WaveletState::set_source` and puts the same image into `session.stackImage`.
 
 import { invoke } from "@tauri-apps/api/core";
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
-import { watch } from "vue";
+import { shallowRef, watch } from "vue";
 import { runJob } from "./jobs";
 import { defaultLayer } from "./logic/settings";
 import { processingArea } from "./logic/viewport";
+import { imageKind } from "./logic/workflow";
 import { colourMode, doAllIsCurrent, doAllKey, fromBackend, parsePreview, toBackend, writePreview, type BackendSettings } from "./logic/wavelet";
 import { session, settings, status } from "./state";
 
@@ -82,11 +83,20 @@ export async function process(): Promise<void> {
   await runJob("Wavelet", (job) => renderPreview(() => job.cancelled));
 }
 
-// The stacked image and the values the last finished Do All was made for.
-let lastDoAll: { stack: ImageData; key: string } | null = null;
+// The stacked image and the values the last finished Do All was made for. A ref, so that the step bar can follow it
+// (Wavelets is done while it matches the values on screen).
+const lastDoAll = shallowRef<{ stack: ImageData; key: string } | null>(null);
 
 /** Whether the result of the last Do All (what Save image writes) matches the stack and the values on screen. */
-export const doAllIsUpToDate = (): boolean => doAllIsCurrent(lastDoAll, session.stackImage, doAllKey(settings.wavelet, mode()));
+export const doAllIsUpToDate = (): boolean => doAllIsCurrent(lastDoAll.value, session.stackImage, doAllKey(settings.wavelet, mode()));
+
+/** Takes the image on screen as the result of Do All with the current values (design preview of dev builds). */
+export function markDoAllCurrent(): void {
+  if (session.stackImage) lastDoAll.value = { stack: session.stackImage, key: doAllKey(settings.wavelet, mode()) };
+}
+
+/** Whether the image area shows the sharpened stack (Wavelets and Save steps). */
+const showsWavelets = (): boolean => imageKind(session.view) === "wavelet";
 
 /**
  * Do All: applies the values to the whole image. Cancel and Pause reach the backend between two layers; a cancelled
@@ -122,7 +132,7 @@ export async function runDoAll(): Promise<boolean> {
     session.processedImage = new ImageData(new Uint8ClampedArray(buffer, 8, width * height * 4), width, height);
     // The next preview starts from the stack again, so that its area is not painted over this result.
     working = null;
-    if (stack === session.stackImage && stack) lastDoAll = { stack, key };
+    if (stack === session.stackImage && stack) lastDoAll.value = { stack, key };
     finished = true;
     return "Do All finished";
   });
@@ -179,9 +189,9 @@ const AUTOMATIC_DELAY_MS = 600;
 let automatic: number | undefined;
 
 watch(
-  [() => JSON.stringify(toBackend(settings.wavelet)), mode, () => settings.menu.processingArea, () => session.stackImage, () => session.tab],
+  [() => JSON.stringify(toBackend(settings.wavelet)), mode, () => settings.menu.processingArea, () => session.stackImage, showsWavelets],
   () => {
-    if (!inTauri() || session.tab !== "wavelet" || !session.stackImage || status.busy) return;
+    if (!inTauri() || !showsWavelets() || !session.stackImage || status.busy) return;
     status.action = "layer setting changed";
     void refreshPreview();
     // Automatic: once the values stop changing, apply them to the whole image as well.

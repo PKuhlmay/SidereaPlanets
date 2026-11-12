@@ -7,8 +7,8 @@ import HistogramCard from "./HistogramCard.vue";
 import RgbAlignCard from "./RgbAlignCard.vue";
 import RgbBalanceCard from "./RgbBalanceCard.vue";
 
-// The cards behind the Functions buttons of the Wavelet tab, in the order the buttons were pressed.
-const open = computed(() => (session.tab === "wavelet" ? settings.wavelet.functions.filter(isToneCard) : []));
+// The cards behind the Functions buttons of the Wavelets step, in the order the buttons were pressed.
+const open = computed(() => (session.view === "wavelets" ? settings.wavelet.functions.filter(isToneCard) : []));
 </script>
 
 <template>

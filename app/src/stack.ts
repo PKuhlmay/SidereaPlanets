@@ -1,10 +1,11 @@
-// The Stack button: stacks the checked frames in the backend and shows the result in the Stack tab.
+// The Stack button: stacks the checked frames in the backend and shows the result in the Stack step.
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { runJob } from "./jobs";
 import { buildStackRequest } from "./logic/stack";
 import { session, settings } from "./state";
+import { advance } from "./steps";
 
 interface Stacked {
   width: number;
@@ -46,6 +47,7 @@ export async function stack(): Promise<void> {
     // A new stack makes an earlier sharpened image obsolete.
     session.processedImage = null;
     session.step = "stacked";
+    advance();
     job.progress(1, 1, `Stack size (n=${stacked.frames}) - (${stacked.width}x${stacked.height})`);
     return "Stacking Range : 0-255";
   });

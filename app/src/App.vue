@@ -1,39 +1,45 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import ActionRow from "./components/ActionRow.vue";
-import AlignPanel from "./components/AlignPanel.vue";
+import AlignpointsStep from "./components/AlignpointsStep.vue";
+import AlignStep from "./components/AlignStep.vue";
 import FloatingCards from "./components/FloatingCards.vue";
 import FunctionCards from "./components/FunctionCards.vue";
 import FrameBar from "./components/FrameBar.vue";
 import FunctionsPanel from "./components/FunctionsPanel.vue";
 import ImageOverlays from "./components/ImageOverlays.vue";
+import ImageTopBar from "./components/ImageTopBar.vue";
 import ImageViewer from "./components/ImageViewer.vue";
-import StackPanel from "./components/StackPanel.vue";
+import LimitStep from "./components/LimitStep.vue";
+import OpenStep from "./components/OpenStep.vue";
+import SaveStep from "./components/SaveStep.vue";
+import StackStep from "./components/StackStep.vue";
 import StatusBar from "./components/StatusBar.vue";
-import TabBar from "./components/TabBar.vue";
+import StepBar from "./components/StepBar.vue";
 import Toolbar from "./components/Toolbar.vue";
-import WaveletPanel from "./components/WaveletPanel.vue";
+import WaveletsStep from "./components/WaveletsStep.vue";
 import type { Rect } from "./logic/align";
 import { startColour } from "./colour";
 import { pickToneImage } from "./logic/colour";
-import { atLeast, pickImage, tabLocked, windowTitle } from "./logic/workflow";
+import { imageCaption, imageKind, pickImage, windowTitle } from "./logic/workflow";
 import { session, settings, status } from "./state";
+import "./steps";
 
-// "Before" in the zoom bar of the Wavelet tab: the unprocessed stack instead of the sharpened image.
+// "Before" in the zoom bar of the Wavelets and Save steps: the unprocessed stack instead of the sharpened image.
 const before = ref(false);
 
+const kind = computed(() => imageKind(session.view));
 const image = computed(() =>
-  pickImage(session.tab, session.step, before.value, {
+  pickImage(session.view, session.step, before.value, {
     frame: session.frameImage,
     stack: session.stackImage,
     processed: session.processedImage,
   }),
 );
-const wavelet = computed(() => session.tab === "wavelet");
+const wavelet = computed(() => kind.value === "wavelet");
 startColour();
 
-// The Wavelet tab shows the colour and tone cards applied to the image, or the Copy To image or the difference to it;
+// Wavelets and Save show the colour and tone cards applied to the image, or the Copy To image or the difference to it;
 // Before shows the plain stack.
 const shown = computed(() => {
   if (!wavelet.value || before.value) return image.value;
@@ -43,19 +49,23 @@ const shown = computed(() => {
     difference: session.differenceImage,
   });
 });
-const withFunctions = computed(() => wavelet.value && settings.wavelet.functionsOpen);
+const withFunctions = computed(() => session.view === "wavelets" && settings.wavelet.functionsOpen);
 const emptyText = computed(() => (session.step === "empty" ? "Press Select to open a recording" : "No image yet"));
-
-// After Limit the window moves on to the Stack tab by itself; a tab that is no longer open falls back to Align.
-watch(
-  () => session.step,
-  (step, was) => {
-    if (step === "limited" && !atLeast(was, "limited")) session.tab = "stack";
-    else if (tabLocked(step, session.tab)) session.tab = "align";
-  },
+const caption = computed(() =>
+  shown.value
+    ? imageCaption(session.view, session.step, before.value, {
+        frame: session.frame,
+        frameCount: session.info?.frameCount ?? 0,
+        stackSize: session.stackSize,
+        processed: session.processedImage !== null,
+      })
+    : "",
 );
+// The frame bar belongs to the steps that work on single frames.
+const withFrameBar = computed(() => ["alignpoints", "align", "limit"].includes(session.view));
+
 watch(
-  () => session.tab,
+  () => session.view,
   () => {
     before.value = false;
     status.position = "";
@@ -69,7 +79,7 @@ function onSelect(rect: Rect) {
   settings.align.showRoi = true;
 }
 
-// Position under the pointer, shown in the status bar of the Wavelet tab.
+// Position under the pointer, shown in the status bar of the Wavelets and Save steps.
 function onHover(pixel: { x: number; y: number } | null) {
   if (!wavelet.value || !pixel) {
     status.position = "";
@@ -100,23 +110,29 @@ watch(
   <div class="shell">
     <Toolbar />
     <div class="work-view">
-      <TabBar />
-      <ActionRow />
+      <StepBar />
       <div class="work" :class="{ 'with-functions': withFunctions }">
-        <AlignPanel v-if="session.tab === 'align'" />
-        <StackPanel v-else-if="session.tab === 'stack'" />
-        <WaveletPanel v-else />
+        <OpenStep v-if="session.view === 'open'" />
+        <AlignpointsStep v-else-if="session.view === 'alignpoints'" />
+        <AlignStep v-else-if="session.view === 'align'" />
+        <LimitStep v-else-if="session.view === 'limit'" />
+        <StackStep v-else-if="session.view === 'stack'" />
+        <WaveletsStep v-else-if="session.view === 'wavelets'" />
+        <SaveStep v-else />
         <ImageViewer
           v-model:before="before"
           :image="shown"
           :comparable="wavelet"
           :empty="emptyText"
-          :selecting="session.roiDrawing && session.tab === 'align'"
+          :selecting="session.roiDrawing && kind === 'frame'"
           @hover="onHover"
           @select="onSelect"
         >
           <template #overlay>
             <ImageOverlays v-if="shown" :width="shown.width" :height="shown.height" />
+          </template>
+          <template #top>
+            <ImageTopBar :caption="caption" />
           </template>
           <template #floats>
             <FloatingCards />
@@ -125,7 +141,7 @@ watch(
         </ImageViewer>
         <FunctionsPanel v-if="withFunctions" />
       </div>
-      <FrameBar v-if="session.tab === 'align'" />
+      <FrameBar v-if="withFrameBar" />
       <StatusBar />
     </div>
   </div>

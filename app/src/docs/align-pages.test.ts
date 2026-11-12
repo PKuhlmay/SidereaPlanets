@@ -11,7 +11,7 @@ const alignPages = ["align-your-frames", "frame-quality-and-limit"].map((slug) =
   return page;
 });
 
-describe("documentation of the Align tab", () => {
+describe("documentation of the steps Alignpoints, Align and Limit", () => {
   it("sits in the group Using the window, the Limit page after the Align page", () => {
     expect(alignPages.map((p) => p.group)).toEqual(["Using the window", "Using the window"]);
     expect(alignPages[0].order).toBeLessThan(alignPages[1].order);
@@ -61,7 +61,7 @@ describe("documentation of the Align tab", () => {
 
   it("says what does not work yet only on the overview page: No Align, Scan Frames and Empty List", () => {
     expect(alignPages.every((p) => !p.body.includes("Not available yet"))).toBe(true);
-    const overview = bySlug.get("align-tab")?.body ?? "";
+    const overview = bySlug.get("steps-alignpoints-align-limit")?.body ?? "";
     const open = overview.split("\n").filter((line) => line.includes("Not available yet")).join("\n");
     for (const name of ["No Align", "Scan Frames", "Empty List"]) expect(open, name).toContain(name);
   });

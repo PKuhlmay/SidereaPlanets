@@ -5,26 +5,70 @@ order: 3
 ---
 # The window at a glance
 
-The window has the same parts as the reference program, from top to bottom:
+The window guides you through the work in seven steps. The names of all buttons and settings are those of the reference program; where they sit is decided by the step they belong to. From top to bottom:
 
 | Part | What it does |
 |---|---|
 | Toolbar | **Select** opens a recording. The menus MRU, Flat/Dark/Reference, Tools and Settings sit next to it, followed by **Open** and **Save** for project files. **Cancel** and **Pause** are in the middle; **Help**, **About** and the number of CPUs on the right |
-| Tabs | Align, Stack and Wavelet as numbered steps. A step opens once the one before it is done. At the right: file name, codec, size and number of frames |
-| Action row | The buttons for the current step and the check boxes of the tab |
-| Work area | Settings on the left, the image in the middle, on the Wavelet tab the Functions panel on the right |
-| Frame bar | Align tab only: status, Goto Frame and a slider over all frames |
+| Step bar | The seven steps **Open · Alignpoints · Align · Limit · Stack · Wavelets · Save**. At the right: file name, codec, size and number of frames |
+| Step panel (left) | Shows only the step you are on: what it does, its settings and, at the bottom, the one button that runs it |
+| Image area | The image. **Show ▾** at the top right holds the check boxes that switch things on the image on and off; in the Wavelets step **Functions »** sits next to it |
+| Functions panel (right) | Wavelets step only: the Functions buttons, Contrast/Brightness and Copy To, Load to, Difference |
+| Frame bar | Alignpoints, Align and Limit only: status, Goto Frame and a slider over all frames |
 | Status bar | Progress, current action, result, position under the pointer and time |
 
 > The window is being built step by step. Parts that do not work yet are marked **Not available yet** on the page that describes them.
 
+## The seven steps
+
+| Step | What it does | Button at the bottom | Described on |
+|---|---|---|---|
+| 1 Open | Choose a recording | **Select** | [Select a recording](select-a-recording) |
+| 2 Alignpoints | Mark the details the frames are lined up on | **Set Alignpoints** | [Alignpoints, Align and Limit](steps-alignpoints-align-limit) |
+| 3 Align | Line up every frame and rate its sharpness | **Align** | [Alignpoints, Align and Limit](steps-alignpoints-align-limit) |
+| 4 Limit | Keep the sharpest frames | **Limit** | [Alignpoints, Align and Limit](steps-alignpoints-align-limit) |
+| 5 Stack | Add the kept frames into one image | **Stack** | [The Stack step](step-stack) |
+| 6 Wavelets | Sharpen the stack | **Do All** (and **Process**) | [Wavelets and Save](step-wavelets-save) |
+| 7 Save | Write the finished image to a file | **Save image** | [Wavelets and Save](step-wavelets-save) |
+
 ## Before you open a recording
 
-Only **Select** is available. The step buttons and the settings on the left are locked and the image area asks you to press Select.
+Only the step **Open** is available. The other steps are greyed out, and the image area asks you to press **Select**. Hover over a greyed-out step to see what has to be done first, for example *Run Align first*.
 
-## The next step is filled
+## What a step panel shows
 
-In every row of buttons exactly one is filled in amber: the next step to take. A finished step carries a check mark, a step that is not possible yet is greyed out. The tabs follow the same order: **Stack** opens after Limit, **Wavelet** after Stack. After **Limit** the window moves on to the Stack tab by itself. **Set Alignpoints** and **Align** are never locked once a recording is open; pressing one again discards the Limit choice, the stack and the sharpened image and locks the Stack and Wavelet tabs again (see [Align your frames](align-your-frames)).
+From top to bottom:
+
+1. A line in green with the result of the step before, for example *Alignpoints · 82 set*. It shows when you are on the next step to take.
+2. The header: *Step 3 of 7*, the name of the step and one sentence on what it does.
+3. The settings you need most.
+4. **Advanced**: a line that folds out the remaining settings of the step. Nothing is missing, rarely used settings are only tucked away. The window remembers for each step whether Advanced is open, also after a restart.
+5. At the bottom, the button that runs the step, and under it *Then:* and the next step.
+
+## The next step opens by itself
+
+Outside a calculation, exactly one button in the whole window is filled in amber: the button at the bottom of the step panel. When a step has run, the next step opens by itself and its button is the filled one. After **Select** this is Alignpoints, after **Do All** it is Save. While a calculation runs, the button is locked and only **Cancel** is filled.
+
+After **Save image** the Save step stays open and shows the result; instead of *Then:* it offers **Open another recording**.
+
+## The step bar
+
+| Look of a step | Meaning |
+|---|---|
+| Amber background | The step you are looking at |
+| Check mark in green | Done. Click to look at it again; hover to see its result |
+| Number | Possible, not done yet. Click to open it |
+| Grey | Not possible yet. The tooltip says which step is missing |
+
+During a calculation no step can be clicked.
+
+## Going back to a step
+
+Click a step with a check mark to see its result and settings again. The panel then offers **‹Action› again**, for example **Align again**, and a filled **Continue:** button that takes you to the next step that is still open. When steps after it would be discarded, the panel says *Running it again discards the steps after it.*
+
+**Set Alignpoints**, **Align** and **Limit** can be run again at any time once they have run, also after Stack and Wavelets. This differs from the reference program, where the first two are locked after Align. A new run discards what was built on the old one, and the step bar falls back to the next step to take. See [Align your frames](align-your-frames).
+
+Wavelets counts as done as long as the result of **Do All** matches the current settings. If you change a layer or another setting of the step afterwards, it loses its check mark, and so does Save.
 
 ## Help
 

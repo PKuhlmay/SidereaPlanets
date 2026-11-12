@@ -17,6 +17,8 @@ Only the order and the ratios between frames matter. The value is not a percenta
 
 ## Framelist and Registrationgraph
 
+Both are in the **Show ▾** menu at the top right of the image (steps Alignpoints, Align and Limit).
+
 Tick **Show Framelist** to see all frames with a check mark each. After Align the best frame comes first, with its quality in percent of the best frame's. Take a check mark away to leave a frame out of the stack. **Check all** and **Check none** switch all frames at once.
 
 Tick **Show Registrationgraph** to see **Quality** and **Difference** as two lines over all frames, in the order of the recording. A dip in Quality is a blurry moment. A high Difference means the picture was bent, not only moved. Before Align, the card asks you to run Align first.
@@ -24,6 +26,8 @@ Tick **Show Registrationgraph** to see **Quality** and **Difference** as two lin
 ## Limit
 
 Choose in *Limit Setup* what to keep, then press **Limit**. At least one frame always stays.
+
+Under the settings the step shows the quality of all frames as bars, the best frame on the left. Kept frames are amber, dropped ones grey, and a dashed line marks the limit: horizontal at the chosen quality for Lowest Quality (%), vertical after the last kept frame for the other modes. The chart follows every change of the value at once, so you can see how many frames stay before you press **Limit**.
 
 | Mode | What stays | Field |
 |---|---|---|
@@ -40,4 +44,4 @@ The number of frames is only free in the two modes that count frames, **Best Fra
 
 ## After Limit
 
-The status bar reports how many frames stay, for example *Processing limited to 10 frames*, and the window moves on to the Stack tab. The alignpoints now show as yellow rings. The green stroke on each ring shows how far that point sits from where the movement of the whole frame puts it, on average over the frames that stay, enlarged four times so that it can be seen. A short stroke means a steady picture, a long one a picture that is bent there. You can go back to the Align tab, change the Limit mode and press **Limit** again; that discards an existing stack. You can also press **Set Alignpoints** or **Align** again, which discards the Limit choice as well, see [Align your frames](align-your-frames).
+The status bar reports how many frames stay, for example *Processing limited to 10 frames*, and the step *Stack* opens. The alignpoints now show as yellow rings. The green stroke on each ring shows how far that point sits from where the movement of the whole frame puts it, on average over the frames that stay, enlarged four times so that it can be seen. A short stroke means a steady picture, a long one a picture that is bent there. You can click the step *Limit* again, change the Limit mode and press **Limit again**; that discards an existing stack. You can also run **Set Alignpoints** or **Align** again, which discards the Limit choice as well, see [Align your frames](align-your-frames).

@@ -49,7 +49,7 @@ function resetLuminance() {
 <template>
   <header class="toolbar">
     <div class="zone">
-      <button type="button" class="btn next select" :disabled="busy" @click="chooseFiles">Select</button>
+      <button type="button" class="btn ghost select" :disabled="busy" @click="chooseFiles">Select</button>
 
       <MenuButton v-slot="{ close }" label="MRU">
         <div v-if="recent.list.length === 0" class="empty">No recent files</div>

@@ -1,93 +1,164 @@
 import { describe, expect, it } from "vitest";
-import { atLeast, formatDuration, pickImage, stepButtons, tabLocked, tabs, timeLeft, windowTitle, type Step } from "./workflow";
+import {
+  againDiscards,
+  atLeast,
+  formatDuration,
+  imageCaption,
+  imageKind,
+  nextOpenStep,
+  pickImage,
+  stepAfter,
+  stepBefore,
+  stepNumber,
+  stepResult,
+  stepStates,
+  timeLeft,
+  viewSteps,
+  windowTitle,
+  type Progress,
+  type Step,
+} from "./workflow";
 
-describe("tabs", () => {
-  it("come in the order and with the labels of the original", () => {
-    expect(tabs.map((t) => t.label)).toEqual(["Align", "Stack", "Wavelet"]);
+const at = (step: Step, waveletsDone = false, saved = false): Progress => ({ step, waveletsDone, saved });
+
+/** The pills of the step bar as in the table of docs/design.md, "Zustände": ✓ done, ● next open, ○ possible, – locked. */
+function pills(p: Progress): string {
+  const states = stepStates(p);
+  const next = nextOpenStep(p);
+  return viewSteps
+    .map((s) => {
+      const state = states[s.id].status;
+      if (state === "done") return "✓";
+      if (state === "locked") return "–";
+      return s.id === next ? "●" : "○";
+    })
+    .join(" ");
+}
+
+describe("the seven steps", () => {
+  it("come in the order of the step bar with the labels of the original", () => {
+    expect(viewSteps.map((s) => s.label)).toEqual(["Open", "Alignpoints", "Align", "Limit", "Stack", "Wavelets", "Save"]);
+    expect(viewSteps.map((s) => s.action)).toEqual(["Select", "Set Alignpoints", "Align", "Limit", "Stack", "Do All", "Save image"]);
   });
 
-  it("unlock one after the other: Stack after Limit, Wavelet after Stack", () => {
-    const locked = (step: Step) => tabs.map((t) => tabLocked(step, t.id));
-    expect(locked("empty")).toEqual([false, true, true]);
-    expect(locked("loaded")).toEqual([false, true, true]);
-    expect(locked("aligned")).toEqual([false, true, true]);
-    expect(locked("limited")).toEqual([false, false, true]);
-    expect(locked("stacked")).toEqual([false, false, false]);
-  });
-
-  it("name the missing step in the tooltip", () => {
-    expect(tabs.find((t) => t.id === "stack")?.hint).toBe("Run Limit first");
-    expect(tabs.find((t) => t.id === "wavelet")?.hint).toBe("Run Stack first");
+  it("are numbered from 1 to 7 and know their neighbours", () => {
+    expect(stepNumber("open")).toBe(1);
+    expect(stepNumber("save")).toBe(7);
+    expect(stepAfter("limit")).toBe("stack");
+    expect(stepAfter("save")).toBeNull();
+    expect(stepBefore("alignpoints")).toBe("open");
+    expect(stepBefore("open")).toBeNull();
   });
 });
 
-describe("stepButtons (docs/design.md, Zustände)", () => {
-  const state = (step: Step) => {
-    const b = stepButtons(step, false);
-    return {
-      setAlignpoints: [b.setAlignpoints.next, b.setAlignpoints.disabled, b.setAlignpoints.done],
-      align: [b.align.next, b.align.disabled, b.align.done],
-      limit: [b.limit.next, b.limit.disabled, b.limit.done],
-      stack: [b.stack.next, b.stack.disabled, b.stack.done],
-      saveImage: b.saveImage.disabled,
-    };
+describe("step states (docs/design.md, Zustände)", () => {
+  it("follow the table row by row", () => {
+    expect(pills(at("empty"))).toBe("● – – – – – –");
+    expect(pills(at("loaded"))).toBe("✓ ● – – – – –");
+    expect(pills(at("points"))).toBe("✓ ✓ ● – – – –");
+    expect(pills(at("aligned"))).toBe("✓ ✓ ✓ ● – – –");
+    expect(pills(at("limited"))).toBe("✓ ✓ ✓ ✓ ● – –");
+    expect(pills(at("stacked"))).toBe("✓ ✓ ✓ ✓ ✓ ● ○");
+    expect(pills(at("stacked", true))).toBe("✓ ✓ ✓ ✓ ✓ ✓ ●");
+    expect(pills(at("stacked", true, true))).toBe("✓ ✓ ✓ ✓ ✓ ✓ ✓");
+  });
+
+  it("open the next step after each run, and Save stays open once everything is done", () => {
+    expect(nextOpenStep(at("empty"))).toBe("open");
+    expect(nextOpenStep(at("loaded"))).toBe("alignpoints");
+    expect(nextOpenStep(at("points"))).toBe("align");
+    expect(nextOpenStep(at("aligned"))).toBe("limit");
+    expect(nextOpenStep(at("limited"))).toBe("stack");
+    expect(nextOpenStep(at("stacked"))).toBe("wavelets");
+    expect(nextOpenStep(at("stacked", true))).toBe("save");
+    expect(nextOpenStep(at("stacked", true, true))).toBe("save");
+  });
+
+  it("name the missing step in the tooltip of a locked pill", () => {
+    expect(stepStates(at("empty")).alignpoints.hint).toBe("Open a recording first");
+    expect(stepStates(at("loaded")).align.hint).toBe("Run Set Alignpoints first");
+    expect(stepStates(at("points")).limit.hint).toBe("Run Align first");
+    expect(stepStates(at("points")).stack.hint).toBe("Run Align first");
+    expect(stepStates(at("limited")).wavelets.hint).toBe("Run Stack first");
+    expect(stepStates(at("limited")).save.hint).toBe("Run Stack first");
+  });
+
+  it("give no hint to steps that can be opened", () => {
+    const states = stepStates(at("stacked"));
+    expect(Object.values(states).filter((s) => s.status !== "locked").every((s) => s.hint === "")).toBe(true);
+  });
+
+  it("make Save possible right after Stack, before Do All", () => {
+    expect(stepStates(at("stacked")).save.status).toBe("possible");
+  });
+
+  it("take the check mark from Wavelets and Save when the wavelet values change after Do All", () => {
+    // waveletsDone turns false when a layer moves; Save loses its check mark with it, even if it was saved.
+    const states = stepStates(at("stacked", false, true));
+    expect(states.wavelets.status).toBe("possible");
+    expect(states.save.status).toBe("possible");
+    expect(nextOpenStep(at("stacked", false, true))).toBe("wavelets");
+  });
+
+  it("ignore a stale Do All or save when there is no stack", () => {
+    const states = stepStates(at("limited", true, true));
+    expect(states.wavelets.status).toBe("locked");
+    expect(states.save.status).toBe("locked");
+    expect(nextOpenStep(at("limited", true, true))).toBe("stack");
+  });
+
+  it("fall back to the step after the points when Set Alignpoints or Align runs again (RK-005)", () => {
+    // A new run drops Limit, Stack and the sharpened image: the state goes back to "points" or "aligned".
+    expect(pills(at("points", true, true))).toBe("✓ ✓ ● – – – –");
+    expect(nextOpenStep(at("aligned", true, true))).toBe("limit");
+  });
+
+  it("keep Open possible without a recording and Set Alignpoints and Align usable after they ran", () => {
+    expect(stepStates(at("empty")).open.status).toBe("possible");
+    const states = stepStates(at("stacked", true));
+    expect(states.alignpoints.status).toBe("done");
+    expect(states.align.status).toBe("done");
+  });
+});
+
+describe("againDiscards", () => {
+  it("warns when a later step has a result", () => {
+    expect(againDiscards("alignpoints", at("stacked"))).toBe(true);
+    expect(againDiscards("limit", at("stacked"))).toBe(true);
+    expect(againDiscards("stack", at("stacked", true))).toBe(true);
+    expect(againDiscards("open", at("loaded"))).toBe(false);
+    expect(againDiscards("alignpoints", at("points"))).toBe(false);
+  });
+
+  it("never warns for Do All and Save image", () => {
+    expect(againDiscards("wavelets", at("stacked", true, true))).toBe(false);
+    expect(againDiscards("save", at("stacked", true, true))).toBe(false);
+  });
+});
+
+describe("step results (docs/design.md, Schrittpanel)", () => {
+  const data = {
+    fileName: "JUPITER.AVI",
+    frameCount: 10,
+    alignpoints: 82,
+    bestQuality: 100,
+    kept: 8,
+    stackSize: 8,
+    stackWidth: 1024,
+    stackHeight: 680,
+    savedName: "JUPITER.tif",
   };
 
-  it("fills Set Alignpoints once a recording is loaded, the rest is locked", () => {
-    expect(state("loaded")).toEqual({
-      setAlignpoints: [true, false, false],
-      align: [false, true, false],
-      limit: [false, true, false],
-      stack: [false, true, false],
-      saveImage: true,
-    });
-  });
-
-  it("fills Align after the points are set; Set Alignpoints stays usable with a check mark", () => {
-    const s = state("points");
-    expect(s.setAlignpoints).toEqual([false, false, true]);
-    expect(s.align).toEqual([true, false, false]);
-    expect(s.limit[1]).toBe(true);
-  });
-
-  it("fills Limit after Align; Set Alignpoints and Align stay usable, with check marks", () => {
-    const s = state("aligned");
-    expect(s.setAlignpoints).toEqual([false, false, true]);
-    expect(s.align).toEqual([false, false, true]);
-    expect(s.limit).toEqual([true, false, false]);
-  });
-
-  it("fills Stack after Limit, Save image stays locked, Set Alignpoints and Align can run again", () => {
-    const s = state("limited");
-    expect(s.setAlignpoints).toEqual([false, false, true]);
-    expect(s.align).toEqual([false, false, true]);
-    expect(s.limit).toEqual([false, false, true]);
-    expect(s.stack).toEqual([true, false, false]);
-    expect(s.saveImage).toBe(true);
-  });
-
-  it("opens Save image after Stack, Set Alignpoints and Align can still run again", () => {
-    const s = state("stacked");
-    expect(s.setAlignpoints).toEqual([false, false, true]);
-    expect(s.align).toEqual([false, false, true]);
-    expect(s.stack).toEqual([false, false, true]);
-    expect(s.saveImage).toBe(false);
-  });
-
-  it("locks everything without a recording", () => {
-    const b = stepButtons("empty", false);
-    expect(Object.values(b).every((x) => x.disabled && !x.next)).toBe(true);
-  });
-
-  it("locks every step during a calculation and fills none", () => {
-    const b = stepButtons("points", true);
-    expect(Object.values(b).every((x) => x.disabled && !x.next)).toBe(true);
-  });
-
-  it("never fills more than one step button", () => {
-    for (const step of ["empty", "loaded", "points", "aligned", "limited", "stacked"] as Step[]) {
-      expect(Object.values(stepButtons(step, false)).filter((x) => x.next).length).toBeLessThanOrEqual(1);
-    }
+  it("use the texts of the table", () => {
+    expect(viewSteps.map((s) => stepResult(s.id, data))).toEqual([
+      "JUPITER.AVI · 10 frames",
+      "82 set",
+      "best quality 100 %",
+      "8 of 10 kept",
+      "8 frames · 1024×680",
+      "applied to the whole image",
+      "JUPITER.tif",
+    ]);
   });
 });
 
@@ -124,25 +195,49 @@ describe("time display", () => {
   });
 });
 
+describe("imageKind", () => {
+  it("shows frames up to Limit, the stack in Stack and the sharpened stack in Wavelets and Save", () => {
+    expect(viewSteps.map((s) => imageKind(s.id))).toEqual(["frame", "frame", "frame", "frame", "stack", "wavelet", "wavelet"]);
+  });
+});
+
 describe("pickImage", () => {
   const images = { frame: "frame", stack: "stack", processed: "processed" };
 
-  it("shows the current frame on the Align tab", () => {
+  it("shows the current frame in the steps up to Limit", () => {
     expect(pickImage("align", "aligned", false, images)).toBe("frame");
+    expect(pickImage("limit", "stacked", false, images)).toBe("frame");
   });
 
-  it("shows the frame on the Stack tab until the stack exists, then the stack", () => {
+  it("shows the frame in Stack until the stack exists, then the stack", () => {
     expect(pickImage("stack", "limited", false, images)).toBe("frame");
     expect(pickImage("stack", "stacked", false, images)).toBe("stack");
     expect(pickImage("stack", "stacked", false, { ...images, stack: null })).toBe("frame");
   });
 
-  it("shows the processed image on the Wavelet tab and the stack with Before", () => {
-    expect(pickImage("wavelet", "stacked", false, images)).toBe("processed");
-    expect(pickImage("wavelet", "stacked", true, images)).toBe("stack");
+  it("shows the processed image in Wavelets and Save, and the stack with Before", () => {
+    expect(pickImage("wavelets", "stacked", false, images)).toBe("processed");
+    expect(pickImage("save", "stacked", false, images)).toBe("processed");
+    expect(pickImage("wavelets", "stacked", true, images)).toBe("stack");
   });
 
-  it("shows the stack on the Wavelet tab while nothing is processed", () => {
-    expect(pickImage("wavelet", "stacked", false, { ...images, processed: null })).toBe("stack");
+  it("shows the stack in Wavelets while nothing is processed", () => {
+    expect(pickImage("wavelets", "stacked", false, { ...images, processed: null })).toBe("stack");
+  });
+});
+
+describe("imageCaption", () => {
+  const data = { frame: 3, frameCount: 10, stackSize: 8, processed: true };
+
+  it("names the frame, the stack or the sharpened stack", () => {
+    expect(imageCaption("align", "stacked", false, data)).toBe("Frame 4 of 10");
+    expect(imageCaption("stack", "stacked", false, data)).toBe("Stack of 8 frames");
+    expect(imageCaption("wavelets", "stacked", false, data)).toBe("Sharpened stack");
+    expect(imageCaption("wavelets", "stacked", true, data)).toBe("Stack of 8 frames");
+    expect(imageCaption("save", "stacked", false, { ...data, processed: false })).toBe("Stack of 8 frames");
+  });
+
+  it("names the frame in Stack before there is a stack", () => {
+    expect(imageCaption("stack", "limited", false, { ...data, stackSize: null })).toBe("Frame 4 of 10");
   });
 });

@@ -2,8 +2,24 @@
 import { onBeforeUnmount, onMounted, ref } from "vue";
 
 // A toolbar menu: borderless button with an arrow, the list opens below it. Escape and a click outside close it.
-// With `plain` the opener is a standard button instead of a borderless one with an arrow (a button that offers a choice).
-defineProps<{ label: string; wide?: boolean; plain?: boolean; disabled?: boolean }>();
+// With `plain` the opener is a standard button instead of a borderless one with an arrow (a button that offers a choice),
+// with `filled` the filled action of a step panel. `block` takes the full width, `up` opens the list above the button
+// (foot of the step panel), `end` aligns it to the right edge of the button (Show at the right of the image area).
+const props = defineProps<{
+  label: string;
+  wide?: boolean;
+  plain?: boolean;
+  filled?: boolean;
+  block?: boolean;
+  up?: boolean;
+  end?: boolean;
+  disabled?: boolean;
+}>();
+
+const opener = () => {
+  if (props.filled) return "next";
+  return props.plain ? "" : "ghost caret";
+};
 
 const open = ref(false);
 const root = ref<HTMLElement | null>(null);
@@ -31,11 +47,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div ref="root" class="mw">
+  <div ref="root" class="mw" :class="{ block }">
     <button
       type="button"
       class="btn"
-      :class="plain ? '' : 'ghost caret'"
+      :class="opener()"
       aria-haspopup="menu"
       :aria-expanded="open"
       :disabled="disabled"
@@ -43,7 +59,7 @@ onBeforeUnmount(() => {
     >
       {{ label }}
     </button>
-    <div v-if="open" class="menu" :class="{ wide }" role="menu">
+    <div v-if="open" class="menu" :class="{ wide, up, end }" role="menu">
       <slot :close="close" />
     </div>
   </div>
@@ -67,5 +83,17 @@ onBeforeUnmount(() => {
 }
 .menu.wide {
   min-width: 310px;
+}
+.menu.up {
+  top: auto;
+  bottom: calc(100% + 4px);
+}
+.menu.end {
+  right: 0;
+  left: auto;
+}
+.block,
+.block > .btn {
+  width: 100%;
 }
 </style>

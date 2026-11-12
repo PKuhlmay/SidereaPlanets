@@ -33,11 +33,11 @@ Load Darkframe, Load Flatfield and Load Referenceframe, and the entries that use
 | Save to Subdir | text | empty |
 | Bias subtract | number | 0 |
 
-The settings are collected here already; the steps that use them follow with the steps themselves. The entries *Check for the reference program Update*, *Layouts* and *Set Skin* of the original do not exist. **Theme** replaces *Set Skin*.
+The settings are collected here already; the steps that use them follow with the steps themselves. The check boxes that switch things on the image on and off are not in a menu of the toolbar but in **Show ▾** at the top right of the image, see [The image area](image-area). The entries *Check for the reference program Update*, *Layouts* and *Set Skin* of the original do not exist. **Theme** replaces *Set Skin*.
 
 ## Toolbar
 
-**Open** and **Save** next to the menus open and save a project file (see Save and export). **Open** is locked while a calculation runs; **Save** is also locked until a recording is open. **CPUs** is the number of threads for calculations (default 1). **About** is **Not available yet**.
+**Select** opens a recording, like the button in the step *Open*. **Open** and **Save** next to the menus open and save a project file (see Save and export). **Open** is locked while a calculation runs; **Save** is also locked until a recording is open. **CPUs** is the number of threads for calculations (default 1). **About** is **Not available yet**.
 
 ## Number fields
 

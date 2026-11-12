@@ -14,7 +14,8 @@
 import { saveAligned, saveImage, saveIntegrated } from "./saving";
 import { stack } from "./stack";
 import { status } from "./state";
-import { doAll, loadScheme, process, saveScheme } from "./wavelet";
+import { advance } from "./steps";
+import { loadScheme, process, runDoAll, saveScheme } from "./wavelet";
 
 export const actionLabels = {
   setAlignpoints: "Set Alignpoints",
@@ -52,7 +53,10 @@ export const handlers: Partial<Record<ActionId, () => void | Promise<void>>> = {
   saveIntegrated,
   stack,
   process,
-  doAll,
+  // A finished Do All opens the Save step.
+  doAll: async () => {
+    if (await runDoAll()) advance();
+  },
   loadScheme,
   saveScheme,
 };

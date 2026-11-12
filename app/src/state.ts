@@ -4,7 +4,7 @@
 import { reactive } from "vue";
 import type { Rect } from "./logic/align";
 import { createSettings } from "./logic/settings";
-import type { Step, Tab } from "./logic/workflow";
+import type { Step, ViewStep } from "./logic/workflow";
 import type { Theme } from "./logic/settings";
 
 export interface RecordingInfo {
@@ -54,7 +54,11 @@ export const session = reactive({
   /** The files of the open recording, as given to Select. */
   paths: [] as string[],
   step: "empty" as Step,
-  tab: "align" as Tab,
+  /** The step the left panel shows (step bar, docs/design.md). */
+  view: "open" as ViewStep,
+  /** Save image wrote the sharpened image since the last Do All (the Save step is done); its file name. */
+  saved: false,
+  savedName: "",
   frame: 0,
   frameImage: null as ImageData | null,
   /** The stacked image (RK-006) and the sharpened one (RK-007). */
@@ -65,9 +69,9 @@ export const session = reactive({
   /** Copy To: the image kept for comparison, and the difference to it. */
   clipboardImage: null as ImageData | null,
   differenceImage: null as ImageData | null,
-  /** Which of them the image area shows in the Wavelet tab (the Toggle group of the Copy To panel). */
+  /** Which of them the image area shows in the Wavelets and Save steps (the Toggle group of the Copy To panel). */
   toneView: "current" as "current" | "clipboard" | "difference",
-  /** Number of stacked frames, for the position display of the Wavelet tab. */
+  /** Number of stacked frames, for the position display of the Wavelets and Save steps. */
   stackSize: null as number | null,
   alignpoints: [] as Alignpoint[],
   /** The frame the alignpoints were set on; Align and Stack register the other frames against it. */
@@ -75,7 +79,7 @@ export const session = reactive({
   /** How many points satisfy the spacing rules before the threshold: the upper end of the Threshold slider (0 = none set). */
   alignpointTotal: 0,
   frames: [] as FrameEntry[],
-  /** The region of interest of the Align tab, in image pixels (R.o.Interest); null = the whole frame. */
+  /** The region of interest of Set Alignpoints and Align, in image pixels (R.o.Interest); null = the whole frame. */
   roi: null as Rect | null,
   /** True while the next drag in the image draws the region. */
   roiDrawing: false,

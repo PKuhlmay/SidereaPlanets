@@ -2,15 +2,16 @@
 import { computed } from "vue";
 import { runAction } from "../actions";
 import { seriesPoints } from "../logic/chart";
-import { atLeast } from "../logic/workflow";
+import { atLeast, imageKind } from "../logic/workflow";
 import { session, settings } from "../state";
 import FloatCard from "./FloatCard.vue";
 
-// Framelist, Registrationgraph (Align tab) and Alignmentpoints (Stack tab) as cards over the image. A card is
-// visible while its check mark in the action row is set.
-const showFramelist = computed(() => session.tab === "align" && settings.align.showFramelist && session.step !== "empty");
-const showGraph = computed(() => session.tab === "align" && settings.align.showRegistrationgraph && session.step !== "empty");
-const showPoints = computed(() => session.tab === "stack" && settings.stack.showAlignSections && atLeast(session.step, "limited"));
+// Framelist, Registrationgraph (steps up to Limit) and Alignmentpoints (Stack step) as cards over the image. A card is
+// visible while its check mark in the Show menu is set.
+const kind = computed(() => imageKind(session.view));
+const showFramelist = computed(() => kind.value === "frame" && settings.align.showFramelist && session.step !== "empty");
+const showGraph = computed(() => kind.value === "frame" && settings.align.showRegistrationgraph && session.step !== "empty");
+const showPoints = computed(() => kind.value === "stack" && settings.stack.showAlignSections && atLeast(session.step, "limited"));
 
 const rated = computed(() => session.frames.some((f) => f.quality !== null));
 

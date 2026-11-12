@@ -4,8 +4,9 @@ import { runAction } from "../actions";
 import { exportFormats, saveChoice, type ExportFormatInfo, type ImageSource } from "../saving";
 import MenuButton from "./MenuButton.vue";
 
-// Save image: the format is chosen first (the Stack tab offers seven, the Wavelet tab five), then the file dialog opens.
-const props = defineProps<{ source: ImageSource; disabled: boolean }>();
+// Save image: the format is chosen first (the Stack step offers seven, the Save step five), then the file dialog opens.
+// In the step panel the button takes the full width and the list opens above it; `filled` makes it the step's action.
+const props = defineProps<{ source: ImageSource; disabled: boolean; filled?: boolean }>();
 
 const formats = ref<ExportFormatInfo[]>([]);
 
@@ -29,7 +30,7 @@ function choose(format: ExportFormatInfo, close: () => void) {
 </script>
 
 <template>
-  <MenuButton v-slot="{ close }" label="Save image" plain :disabled="disabled">
+  <MenuButton v-slot="{ close }" label="Save image" plain :filled="filled" block up :disabled="disabled">
     <button v-for="format in formats" :key="format.id" type="button" class="mi" @click="choose(format, close)">
       {{ format.label }}<span class="ext">.{{ format.extension }}</span>
     </button>

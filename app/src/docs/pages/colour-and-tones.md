@@ -1,11 +1,11 @@
 ---
 title: Colour and tones
-group: Wavelet tab
-order: 40
+group: Processing
+order: 41
 ---
 # Colour and tones
 
-After stacking, the Wavelet tab has a set of tools to fix the colour and the brightness of the result. They sit in the **Functions** panel on the right: each button opens a small card above the image, and the image follows every change at once.
+After stacking, the Wavelets step has a set of tools to fix the colour and the brightness of the result. They sit in the **Functions** panel on the right (show or hide it with **Functions »** at the top of the image area): each button opens a small card above the image, and the image follows every change at once.
 
 | Tool | What it does |
 |---|---|
@@ -23,7 +23,7 @@ The other **Functions** buttons have no card yet. Pressing one says so in the st
 - A **Functions** button stays pressed while its card is open. Press it again, or press the cross in the card, to close the card.
 - Closing a card keeps its values. **Reset** in the card sets the values back so that the image is not changed.
 - All values are applied to the stacked (or sharpened) image in this order: RGB Align, RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** shows the image without any of them.
-- The values change what the window shows, and **Save image** on the Wavelet tab writes the image with them applied. **Do All** itself does not include them: the sharpened image stays as it is and the cards apply on top of it.
+- The values change what the window shows, and **Save image** in the Save step writes the image with them applied. **Do All** itself does not include them: the sharpened image stays as it is and the cards apply on top of it.
 - RGB Align and RGB Balance need a colour image. With a grayscale recording they are greyed out.
 - The cards work on the stacked image, or on the sharpened image once there is one. Pressing **Process** or **Do All** puts a new sharpened image in the window; the cards then apply to that image.
 
@@ -73,11 +73,11 @@ Use them to compare two versions of your image, for example before and after a s
 
 ## Colour and LRGB
 
-**Colour** (Align and Stack tab) processes the recording in colour; without it the result is grayscale. **LRGB** needs Colour and sharpens only the brightness, while hue and saturation come from the stack. That keeps the colours calm when the wavelets would otherwise bring out colour noise. Both act on the Wavelet tab's preview and on **Do All**, see [Wavelet sharpening](wavelet-sharpening). Both are greyed out for grayscale recordings.
+**Colour** (at the top of the Wavelets step, above the layers) processes the recording in colour; without it the result is grayscale. **LRGB** needs Colour and sharpens only the brightness, while hue and saturation come from the stack. That keeps the colours calm when the wavelets would otherwise bring out colour noise. Both act on the preview of the Wavelets step and on **Do All**, see [Wavelet sharpening](wavelet-sharpening). Both are greyed out for grayscale recordings.
 
 | Part | Status |
 |---|---|
 | The two check boxes and their rules | Works |
 | Their effect on the Wavelet preview and **Do All** | Works |
 
-> SidereaPlanets follows the reference program in what the tools are called and where they are. The exact scale of the sliders and the way the original applies them has not been compared yet, so the same numbers can look a little different in the two programs.
+> SidereaPlanets follows the reference program in what the tools are called. The exact scale of the sliders and the way the original applies them has not been compared yet, so the same numbers can look a little different in the two programs.

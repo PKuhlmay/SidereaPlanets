@@ -8,7 +8,7 @@ import { actualSize, fitView, formatZoom, imagePixel, imagePosition, zoomAt, typ
 // so they zoom with the image.
 const props = defineProps<{
   image: ImageData | null;
-  /** Shows the Before switch (Wavelet tab). */
+  /** Shows the Before switch (Wavelets and Save steps). */
   comparable?: boolean;
   /** Text for the empty area. */
   empty: string;
@@ -98,7 +98,7 @@ let corner: { x: number; y: number } | null = null;
 const draft = ref<Rect | null>(null);
 
 function onDown(event: PointerEvent) {
-  if (!size.value || (event.target as HTMLElement).closest(".floats > *, .zoom")) return;
+  if (!size.value || (event.target as HTMLElement).closest(".floats > *, .zoom, .topbar button, .topbar .menu")) return;
   if (props.selecting) {
     const { px, py } = point(event);
     corner = imagePosition(view.value, px, py);
@@ -157,6 +157,7 @@ function endDrag() {
     </div>
     <p v-else class="empty">{{ empty }}</p>
 
+    <slot name="top" />
     <div class="floats"><slot name="floats" /></div>
 
     <div v-if="size" class="zoom">
@@ -223,11 +224,13 @@ canvas,
   display: grid;
   place-items: center;
   margin: 0;
-  color: var(--muted);
+  color: var(--on-canvas);
+  opacity: 0.6;
 }
+/* the cards start below the row with the caption and Show (slot "top") */
 .floats {
   position: absolute;
-  top: 12px;
+  top: 48px;
   right: 12px;
   bottom: 56px;
   display: flex;

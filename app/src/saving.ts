@@ -11,6 +11,8 @@ import { applyProject, buildProject, type ProjectFile } from "./logic/projectfil
 import { fileName } from "./logic/recent";
 import { buildSequenceRequest } from "./logic/stack";
 import { openRecording } from "./recording";
+import { imageKind } from "./logic/workflow";
+import { advance } from "./steps";
 import { doAllIsUpToDate, runDoAll } from "./wavelet";
 import { session, settings, status } from "./state";
 
@@ -26,7 +28,7 @@ export interface ExportFormatInfo {
 /** The format Save image uses; the menu next to the button sets it before the dialog opens. */
 export const saveChoice = reactive({ format: "tiff16" });
 
-/** The file types of Save image in a tab (the Stack tab offers more than the Wavelet tab). */
+/** The file types of Save image in a step (the Stack step offers more than the Save step). */
 export const exportFormats = (source: ImageSource) => invoke<ExportFormatInfo[]>("export_formats", { source });
 
 const folder = () => directoryOf(session.paths[0]);
@@ -34,15 +36,15 @@ const folder = () => directoryOf(session.paths[0]);
 const message = (action: string, error: unknown) => `${action}: ${String(error)}`;
 
 /**
- * Save image: the stacked image in the Stack tab, the processed one in the Wavelet tab. In the Wavelet tab the file is
- * written the way the window shows it, with the values of the colour and tone cards applied; the Stack tab shows the
+ * Save image: the stacked image in the Stack step, the processed one in the Wavelets and Save steps. There the file is
+ * written the way the window shows it, with the values of the colour and tone cards applied; the Stack step shows the
  * stack as it is. If the layer values, Colour or LRGB changed since the last Do All, or none ran yet, Do All runs
  * first with the current values (as a job, so it shows progress and can be cancelled); a cancelled or failed Do All
- * saves nothing.
+ * saves nothing. A saved sharpened image marks the Save step done.
  */
 export async function saveImage(): Promise<void> {
   if (status.busy) return;
-  const source: ImageSource = session.tab === "wavelet" ? "wavelet" : "stack";
+  const source: ImageSource = imageKind(session.view) === "wavelet" ? "wavelet" : "stack";
   if (source === "wavelet" && !doAllIsUpToDate() && !(await runDoAll())) return;
   const values = colourPayload(settings.wavelet);
   try {
@@ -54,6 +56,11 @@ export async function saveImage(): Promise<void> {
       adjustments: source === "wavelet" && !isNeutral(values) ? values : null,
     });
     status.result = path ? `Saved ${fileName(path)}` : "Save cancelled";
+    if (path && source === "wavelet") {
+      session.saved = true;
+      session.savedName = fileName(path);
+      advance();
+    }
   } catch (e) {
     status.result = message("Save image", e);
   }

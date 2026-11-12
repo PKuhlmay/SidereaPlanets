@@ -1,22 +1,23 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { processingArea } from "../logic/viewport";
-import { atLeast } from "../logic/workflow";
+import { atLeast, imageKind } from "../logic/workflow";
 import { session, settings } from "../state";
 
 // Marks drawn over the image, in image pixels: the alignpoints (red dots after Set Alignpoints, yellow rings with
-// a green shift stroke after Limit) and the Processing Area of the Wavelet tab.
+// a green shift stroke after Limit) and the Processing Area of the Wavelets and Save steps.
 const props = defineProps<{ width: number; height: number }>();
 
-const dots = computed(() => session.tab === "align" && settings.align.showAlignpoints && atLeast(session.step, "points"));
+const kind = computed(() => imageKind(session.view));
+const dots = computed(() => kind.value === "frame" && settings.align.showAlignpoints && atLeast(session.step, "points"));
 const rings = computed(
   () =>
     atLeast(session.step, "limited") &&
-    ((session.tab === "stack" && settings.stack.showAlignSections) || (session.tab === "wavelet" && settings.wavelet.showAlignpoints)),
+    ((kind.value === "stack" && settings.stack.showAlignSections) || (kind.value === "wavelet" && settings.wavelet.showAlignpoints)),
 );
-const region = computed(() => (session.tab === "align" && settings.align.showRoi ? session.roi : null));
+const region = computed(() => (kind.value === "frame" && settings.align.showRoi ? session.roi : null));
 const area = computed(() =>
-  session.tab === "wavelet" && settings.wavelet.showProcessingArea ? processingArea({ w: props.width, h: props.height }, settings.menu.processingArea) : null,
+  kind.value === "wavelet" && settings.wavelet.showProcessingArea ? processingArea({ w: props.width, h: props.height }, settings.menu.processingArea) : null,
 );
 // The shift is only a few pixels, so the stroke shows it enlarged to stay visible.
 const stroke = (shift: number | undefined) => (shift ?? 0) * 4;

@@ -5,9 +5,9 @@ order: 40
 ---
 # Wavelet sharpening
 
-The Wavelet tab brings out fine detail in the stacked image. It splits the image into six layers, from the finest structures (layer 1) to coarser ones (layer 6), and lets you strengthen or weaken each layer on its own. This is the step that turns a soft stack into a sharp planet.
+The Wavelets step brings out fine detail in the stacked image. It splits the image into six layers, from the finest structures (layer 1) to coarser ones (layer 6), and lets you strengthen or weaken each layer on its own. This is the step that turns a soft stack into a sharp planet.
 
-> Needs a stacked image, so it works as soon as the Stack step has run. The buttons of the tab are described on [The Wavelet tab](wavelet-tab).
+> Needs a stacked image, so it works as soon as the Stack step has run. The buttons of the step are described on [Wavelets and Save](step-wavelets-save).
 
 ## The six layers
 
@@ -25,6 +25,8 @@ Start with layers 1 to 3 and raise them a little at a time. Too much on layer 1 
 
 ## What you can set
 
+The layers are at the top of the step. **Waveletscheme**, **Wavelet filter**, **Initial Layer**, **Step Increment**, **Automatic**, **Hold Wavelet Setting** and **Use Linked Wavelets** are under **Advanced**.
+
 | Control | What it does | Start value |
 |---|---|---|
 | Checkbox of a layer | Off leaves the layer untouched, whatever its slider says | On |
@@ -34,7 +36,7 @@ Start with layers 1 to 3 and raise them a little at a time. Too much on layer 1 
 | **Waveletscheme** | How the layers grow in size: Linear (evenly) or Dyadic (doubling from layer to layer) | Linear |
 | **Wavelet filter** | The smoothing the layers are built from: Default or Gaussian | Gaussian |
 | **Initial Layer**, **Step Increment** | Size of the first layer and how much each further layer grows | 1 and 0 |
-| **Reset Wavelets** | Puts everything back to the start values | |
+| **Reset Wavelets** | A link next to the heading of the layers. Puts everything back to the start values | |
 
 Values outside the sliders' range are cut back to it. Denoise and Sharpen accept 0 to 100.
 
@@ -44,7 +46,7 @@ Even with every slider at 1.0, **Do All** makes the image a little darker, by ab
 
 ## Colour and LRGB
 
-The two check boxes **Colour** and **LRGB** decide how colour is treated, in the preview and in **Do All**. They sit in the Align and Stack tabs and are one setting for all tabs, so set them there before you sharpen:
+The two check boxes **Colour** and **LRGB** decide how colour is treated, in the preview and in **Do All**. They sit at the top of the Wavelets step, above the layers:
 
 | Colour | LRGB | Result |
 |---|---|---|
@@ -58,13 +60,13 @@ LRGB only counts together with Colour. Both are greyed out for grayscale recordi
 
 Moving a slider updates the preview at once. Only the *Processing Area* is calculated, a square of 512 pixels by default that you can change under Settings > Processing Area and show with **Show Processing Area**. The status bar tells how long the last preview took. That keeps the preview fast, even for large images. The area is calculated together with a small border around it, so what you see matches what the whole image will look like.
 
-**Process** calculates the Processing Area once more with the current settings. **Do All** applies the settings to the whole image (you can cancel or pause it, see [Progress, Cancel and Pause](progress-cancel-pause)); after it, moving a slider shows the preview of the area on the stacked image again. **Before** shows the stacked image without any change, to compare.
+**Process** calculates the Processing Area once more with the current settings. **Do All**, the button at the bottom of the step, applies the settings to the whole image and opens the Save step (you can cancel or pause it, see [Progress, Cancel and Pause](progress-cancel-pause)); after it, moving a slider shows the preview of the area on the stacked image again. **Before** shows the stacked image without any change, to compare.
 
 > With Denoise, the preview judges the amount of noise from the Processing Area, **Do All** from the whole image. The two can differ slightly.
 
 ## Automatic, Hold and Linked
 
-These three check boxes are not fully known from the reference program; here they do the following:
+These three check boxes (under **Advanced**) are not fully known from the reference program; here they do the following:
 
 | Check box | What it does here |
 |---|---|

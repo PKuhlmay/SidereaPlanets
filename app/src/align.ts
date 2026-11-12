@@ -1,4 +1,4 @@
-// The Align tab: Set Alignpoints, Align and Limit call the backend commands (app/src-tauri/src/align_commands.rs)
+// The Alignpoints, Align and Limit steps: Set Alignpoints, Align and Limit call the backend commands (app/src-tauri/src/align_commands.rs)
 // and write their results into `session`. Imported once by main.ts, which registers the handlers.
 //
 // Not available yet, because the reference program was never observed doing them (docs/offene-fragen.md, question 21):
@@ -22,6 +22,7 @@ import {
 } from "./logic/align";
 import { atLeast } from "./logic/workflow";
 import { session, settings, status } from "./state";
+import { advance } from "./steps";
 
 function showPoints(answer: AlignpointsAnswer) {
   session.alignpoints = answer.points.map((p) => ({ x: p.x, y: p.y, checked: true }));
@@ -32,7 +33,8 @@ function showPoints(answer: AlignpointsAnswer) {
 /**
  * A new Set Alignpoints or Align replaces the alignment, so everything built on the old one goes: Limit (frame choice
  * and point shifts), Stack, the sharpened image and the colour adjustment. The backend drops its copies at the same
- * time (`discard_results` in lib.rs). A tab that is no longer open goes back to Align.
+ * time (`discard_results` in lib.rs). The steps after it are locked again; a step panel showing one of them moves to the
+ * next open step (steps.ts).
  */
 function discardResults() {
   session.frames.forEach((f) => Object.assign(f, { checked: true, quality: null, difference: null }));
@@ -41,7 +43,6 @@ function discardResults() {
   session.processedImage = null;
   session.adjustedImage = null;
   session.stackSize = null;
-  session.tab = "align";
   if (atLeast(session.step, "aligned")) session.step = "points";
 }
 
@@ -65,6 +66,7 @@ async function setAlignpoints() {
       return "No alignpoints found: try other Lo and Hi values";
     }
     session.step = "points";
+    advance();
     return `${answer.points.length} alignpoints set`;
   });
 }
@@ -98,6 +100,7 @@ async function align() {
       if (entry) Object.assign(entry, { quality: percent[frame.index], difference: frame.difference });
     }
     session.step = "aligned";
+    advance();
     return "Alignment finished.";
   });
 }
@@ -119,7 +122,7 @@ async function limit() {
       session.stackSize = null;
     }
     session.step = "limited";
-    session.tab = "stack";
+    advance();
     const messages = limitMessages(answer.frames.length);
     status.action = messages.action;
     return messages.result;

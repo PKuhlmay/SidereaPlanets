@@ -169,7 +169,7 @@ describe("Set Alignpoints, Align, Limit, Stack", () => {
 
     await runAction("limit");
     expect(session.step).toBe("limited");
-    expect(session.tab).toBe("stack");
+    expect(session.view).toBe("stack");
     expect(session.frames.map((f) => f.checked)).toEqual([false, true, true, true]);
     expect(session.alignpoints[0]).toMatchObject({ shiftX: 0.5, shiftY: -0.5 });
     expect(session.alignpoints[1]?.shiftX).toBeUndefined();
@@ -181,6 +181,8 @@ describe("Set Alignpoints, Align, Limit, Stack", () => {
     expect(session.stackSize).toBe(3);
     expect(session.stackImage).toMatchObject({ width: W, height: H });
     expect(calls("stack")[0]?.args).toMatchObject({ settings: { referenceFrame: 2, frames: [1, 2, 3] } });
+    // Every finished run opened the next open step; after Stack that is Wavelets.
+    expect(session.view).toBe("wavelets");
   });
 
   it("registers the stack against the frame the points were set on, not against frame 1", async () => {
@@ -279,7 +281,9 @@ async function buildEverything() {
   await runAction("limit");
   await runAction("stack");
   await runAction("doAll");
-  session.tab = "wavelet";
+  // A finished Do All opens the Save step.
+  expect(session.view).toBe("save");
+  session.view = "wavelets";
   session.adjustedImage = new FakeImageData(new Uint8ClampedArray(W * H * 4), W, H) as unknown as ImageData;
   expect(session.step).toBe("stacked");
 }
@@ -292,7 +296,7 @@ describe("Align again after Limit, Stack and Wavelet", () => {
     await runAction("setAlignpoints");
 
     expect(session.step).toBe("points");
-    expect(session.tab).toBe("align");
+    expect(session.view).toBe("align");
     expect(session.stackImage).toBeNull();
     expect(session.processedImage).toBeNull();
     expect(session.adjustedImage).toBeNull();
@@ -319,14 +323,15 @@ describe("Align again after Limit, Stack and Wavelet", () => {
     await Promise.all([job, cancelling]);
     expect(status.result).toBe("Cancelled");
     expect(session.step).toBe("points");
-    expect(session.tab).toBe("align");
+    // Wavelets was open; it is locked now, so the panel moved to the next open step.
+    expect(session.view).toBe("align");
   });
 
   it("a finished Align goes back to the step after Align, and Limit and Stack run again on the new result", async () => {
     await buildEverything();
     await runAction("align");
     expect(session.step).toBe("aligned");
-    expect(session.tab).toBe("align");
+    expect(session.view).toBe("limit");
     expect(session.stackImage).toBeNull();
     await runAction("limit");
     await runAction("stack");
@@ -475,15 +480,15 @@ describe("Do All and Process: Cancel and Pause", () => {
   });
 });
 
-describe("Save image in the Wavelet tab", () => {
+describe("Save image in the Save step", () => {
   const order = () => backend.calls.map((c) => c.command).filter((c) => c === "wavelet_do_all" || c === "save_image_as");
 
-  async function inWaveletTab() {
+  async function inSaveStep() {
     await runAction("setAlignpoints");
     await runAction("align");
     await runAction("limit");
     await runAction("stack");
-    session.tab = "wavelet";
+    session.view = "save";
     backend.calls = [];
   }
 
@@ -495,7 +500,7 @@ describe("Save image in the Wavelet tab", () => {
   });
 
   it("runs Do All with the current values first when none ran yet, then saves", async () => {
-    await inWaveletTab();
+    await inSaveStep();
     settings.wavelet.layers[0]!.level = 100;
     await runAction("saveImage");
     expect(order()).toEqual(["wavelet_do_all", "save_image_as"]);
@@ -506,14 +511,14 @@ describe("Save image in the Wavelet tab", () => {
   });
 
   it("saves the result of the last Do All when nothing changed since", async () => {
-    await inWaveletTab();
+    await inSaveStep();
     await runAction("doAll");
     await runAction("saveImage");
     expect(order()).toEqual(["wavelet_do_all", "save_image_as"]);
   });
 
   it("runs Do All again after a slider moved", async () => {
-    await inWaveletTab();
+    await inSaveStep();
     await runAction("doAll");
     settings.wavelet.layers[0]!.level = 60;
     await runAction("saveImage");
@@ -521,7 +526,7 @@ describe("Save image in the Wavelet tab", () => {
   });
 
   it("runs Do All again after Colour or LRGB changed", async () => {
-    await inWaveletTab();
+    await inSaveStep();
     await runAction("doAll");
     settings.lrgb = true;
     await runAction("saveImage");
@@ -530,7 +535,7 @@ describe("Save image in the Wavelet tab", () => {
   });
 
   it("does not run Do All for the colour and tone cards, which are applied while saving", async () => {
-    await inWaveletTab();
+    await inSaveStep();
     await runAction("doAll");
     settings.wavelet.contrast = 300;
     await runAction("saveImage");
@@ -539,16 +544,16 @@ describe("Save image in the Wavelet tab", () => {
   });
 
   it("runs Do All again for a new stack, although the values are the same", async () => {
-    await inWaveletTab();
+    await inSaveStep();
     await runAction("doAll");
     await runAction("stack");
-    session.tab = "wavelet";
+    session.view = "save";
     await runAction("saveImage");
     expect(order()).toEqual(["wavelet_do_all", "wavelet_do_all", "save_image_as"]);
   });
 
   it("saves nothing when the automatic Do All is cancelled", async () => {
-    await inWaveletTab();
+    await inSaveStep();
     const running = pending();
     backend.handlers.wavelet_do_all = () => running.promise;
     const saving = runAction("saveImage");
@@ -565,7 +570,7 @@ describe("Save image in the Wavelet tab", () => {
   });
 
   it("saves nothing when Do All fails", async () => {
-    await inWaveletTab();
+    await inSaveStep();
     backend.handlers.wavelet_do_all = () => {
       throw new Error("no image to sharpen");
     };
@@ -574,12 +579,23 @@ describe("Save image in the Wavelet tab", () => {
     expect(status.result).toContain("no image to sharpen");
   });
 
-  it("leaves the Stack tab alone: it saves the stack without Do All", async () => {
-    await inWaveletTab();
-    session.tab = "stack";
+  it("marks the Save step done with the file name, until a wavelet value changes", async () => {
+    await inSaveStep();
+    await runAction("saveImage");
+    expect(session.saved).toBe(true);
+    expect(session.savedName).toBe("JUPITER.tif");
+    expect(session.view).toBe("save");
+    settings.wavelet.layers[0]!.level = 60;
+    await vi.waitFor(() => expect(session.saved).toBe(false));
+  });
+
+  it("leaves the Stack step alone: it saves the stack without Do All and does not mark Save done", async () => {
+    await inSaveStep();
+    session.view = "stack";
     await runAction("saveImage");
     expect(order()).toEqual(["save_image_as"]);
     expect(calls("save_image_as")[0]?.args).toMatchObject({ source: "stack" });
+    expect(session.saved).toBe(false);
   });
 });
 

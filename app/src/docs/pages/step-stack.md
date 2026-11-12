@@ -1,18 +1,18 @@
 ---
-title: The Stack tab
+title: The Stack step
 group: Using the window
 order: 6
 ---
-# The Stack tab
+# The Stack step
 
-The second step: add up the best frames into one sharper image. The tab opens after **Limit**.
+Step 5: add up the best frames into one sharper image. The step opens after **Limit**.
 
-## Steps
+## Button
 
 | Button | What it does | Status |
 |---|---|---|
-| Stack | Adds up the frames that stay after Limit | Works |
-| Save image | Saves the stacked image (see [Save and export](save-and-export)) | Works |
+| Stack | Adds up the frames that stay after Limit. Then the Wavelets step opens | Works |
+| Save image | Saves the stacked image. It appears under the result when you open the done step again (see [Save and export](save-and-export)) | Works |
 
 ## How the stack is made
 
@@ -24,29 +24,33 @@ Only alignpoints with a check mark in the card *Alignmentpoints* are used (see *
 
 The sum is kept at floating point precision, so even thousands of 16 bit frames add up without overflow or visible rounding. Frames are read and added a few at a time, so a long video does not have to fit into memory.
 
-While **Stack** runs, the status bar shows the progress and the time. **Cancel** stops it, **Pause** holds it. When it is done the status bar reads for example "Stack size (n=10) - (1024x680)" and the Wavelet tab opens up.
+While **Stack** runs, the status bar shows the progress and the time. **Cancel** stops it, **Pause** holds it. When it is done the status bar reads for example "Stack size (n=10) - (1024x680)" and the Wavelets step opens.
 
 At the edge of the image some frames do not reach, because they were shifted. There each pixel is the average of the frames that do cover it, so the brightness stays right, only the noise is a little higher.
 
-## Check boxes in the action row
+## Settings in the step panel
 
-Colour · LRGB · Show Full Image · Show AlignSections (shows the card *Alignmentpoints* with one check box per point) · Show Stackgraph · Show Stacklist · Resampling · Drizzling.
-
-Switch on **Resampling** and the method (Bell, Bspline, Lanczos, Mitchell; default Lanczos) and the factor (default 2.0) appear next to it. Switch on **Drizzling** and its factor (default 0.5) appears. Resampling, Drizzling, Stackgraph and Stacklist are **Not available yet**: they can be set, but the stack ignores them.
-
-## Stacking options
+You see first: StackSize, Use Nearestby Alignpoints and Correct geometry. Everything else is under **Advanced**: the other stacking options, **Resampling**, **Drizzling** and the group *Create AVI*.
 
 | Setting | Default | Status |
 |---|---|---|
 | StackSize | Default (or Minimized, Maximized, R.of Interest) | Not available yet |
 | Use Nearestby Alignpoints | 3 | Works. How many of the nearest alignpoints decide the shift of a pixel: more give a smoother correction, fewer follow the local movement more closely |
-| Normalization of frame intensity | off | Works. Brightens or dims each frame to the brightness of the reference frame before adding, useful when clouds pass by |
 | Correct geometry | on | Works. Shifts each part of the picture by its own movement; off, the whole frame moves by one value |
+| Normalization of frame intensity | off | Works. Brightens or dims each frame to the brightness of the reference frame before adding, useful when clouds pass by |
 | Stretch histogram after stacking | off | Not available yet |
 | De-rotate images | off | Not available yet |
 | Do not stack pixels at the frameedge | 0 | Works. Leaves this border of every frame out of the stack |
 
+Under **Advanced**: switch on **Resampling** and the method (Bell, Bspline, Lanczos, Mitchell; default Lanczos) and the factor (default 2.0) appear next to it. Switch on **Drizzling** and its factor (default 0.5) appears. Resampling and Drizzling can be set, but the stack ignores them: **Not available yet**.
+
+## Check boxes in the Show menu
+
+In this step **Show ▾** at the top right of the image holds: Show Full Image · Show AlignSections (shows the card *Alignmentpoints* with one check box per point) · Show Stackgraph · Show Stacklist. Stackgraph and Stacklist are **Not available yet**: they can be set, but nothing is shown.
+
 ## Create AVI
+
+Under **Advanced** in the Stack step.
 
 | Setting | Default |
 |---|---|

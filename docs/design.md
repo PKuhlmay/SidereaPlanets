@@ -18,9 +18,10 @@ Bei Widersprüchen gewinnt für Begriffe und Werte `docs/ui.md`, für Aussehen u
 | Datei | Inhalt |
 |---|---|
 | `docs/design/tokens.css` | Farben, Schrift, Maße. Einzige Quelle für diese Werte, wird ins Frontend übernommen |
-| `docs/design/oberflaeche-entwurf.html` | Klickbarer Entwurf aller drei Reiter, im Browser öffnen |
+| `docs/design/oberflaeche-entwurf.html` | Klickbarer Entwurf aller sieben Schritte, im Browser öffnen |
 | `docs/design/screenshots/` | Soll-Bilder der Zustände bei 1440×900, erzeugt aus dem Entwurf |
-| `docs/design/siderea-planets.figcraft` | Die drei Reiter und die Doku als FigCraft-Datei, je dunkel und hell (acht Frames 1440×900). Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
+| `docs/design/siderea-planets.figcraft` | Die drei Reiter und die Doku als FigCraft-Datei, je dunkel und hell (acht Frames 1440×900). Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light. **Veraltet für die Arbeitsansicht:** zeigt noch Reiter und Aktionszeile, die Schrittleiste (RK-014) fehlt; maßgeblich sind Entwurf und Soll-Bilder |
+| `docs/design/vorschlag-gefuehrter-ablauf.html` | Überholt: die drei Vorschläge, aus denen die Schrittleiste (RK-014) gewählt wurde |
 | `docs/design/figcraft-build.mjs` | Baut die FigCraft-Datei neu und liest die Farben dabei aus `tokens.css`. Aufruf: `node docs/design/figcraft-build.mjs` |
 
 Die sechs Frames der Reiter entstehen aus dem Skript, die zwei Doku-Frames (RK-012) sind dagegen von Hand in
@@ -32,14 +33,17 @@ ohne Rechenkern. Markup und CSS-Regeln dürfen als Orientierung dienen, die Umse
 
 ## Grundsätze
 
-1. **Gleicher Ort, gleicher Name.** Jedes Bedienelement sitzt dort, wo es in the reference program sitzt, und trägt dieselbe
-   englische Beschriftung. Wer das Original kennt, findet alles ohne Suchen.
+1. **Gleicher Name.** Jedes Bedienelement trägt dieselbe englische Beschriftung wie in the reference program. Wo es sitzt,
+   bestimmt der Ablauf (RK-014): Der Klon führt in sieben Schritten durch die Bedienung, statt sie wie das Original auf
+   Reiter, Aktionszeile und Panel zu verteilen. Wer das Original kennt, findet jedes Element unter seinem Namen im
+   Schritt, zu dem es gehört.
 2. **Das Bild ist die Hauptsache.** Die Oberfläche ist neutral grau ohne Farbstich, damit sie die Farben des Bildes
    nicht verfälscht. Der Bildbereich bleibt in beiden Themen dunkel.
 3. **Eine Akzentfarbe.** Bernstein, angelehnt an die orangen Schaltflächen des Originals. Sie markiert den nächsten
    Schritt, gewählte Zustände und Fortschritt, sonst nichts.
-4. **Der nächste Schritt ist sichtbar.** Genau eine Schaltfläche der Schrittfolge ist gefüllt. Erledigte Schritte
-   tragen einen Haken, noch nicht mögliche sind gesperrt.
+4. **Der nächste Schritt ist sichtbar.** Außerhalb einer Berechnung ist im ganzen Fenster genau eine Schaltfläche
+   gefüllt: die Aktion des offenen Schritts unten im linken Panel. Erledigte Schritte tragen einen Haken, noch nicht
+   mögliche sind gesperrt.
 5. **Dicht, aber ruhig.** Ein Werkzeug mit vielen Reglern: kleine Schrift, kompakte Felder, Trennung durch Linien
    und Abstand statt durch Rahmen und Kästen.
 6. **Dunkel ist Standard.** Das helle Thema ist gleichwertig ausgearbeitet und umschaltbar.
@@ -66,7 +70,7 @@ Das Thema wechselt über `data-theme="light"` am `<html>`-Element. Ohne Attribut
 
 Schrift ist die Systemschrift des Betriebssystems, keine eingebettete Schriftdatei. Zahlen stehen überall mit
 `font-variant-numeric: tabular-nums`, damit Werte beim Ändern nicht springen. Gewichte: 400 für Text, 500 für
-Schaltflächen, 600 für Gruppenüberschriften, aktive Reiter und gefüllte Schaltflächen.
+Schaltflächen, 600 für Gruppenüberschriften, die angezeigte Pille der Schrittleiste und gefüllte Schaltflächen.
 
 ## Fensteraufbau
 
@@ -74,13 +78,12 @@ Schaltflächen, 600 für Gruppenüberschriften, aktive Reiter und gefüllte Scha
 ┌───────────────────────────────────────────────────────────────────────────────────┐
 │ Werkzeugleiste   Select  MRU  Flat/Dark/Reference  Tools  Settings  Open  Save │ Cancel Pause │ Help About  CPUs │
 ├───────────────────────────────────────────────────────────────────────────────────┤
-│ Reiterleiste     1 Align › 2 Stack › 3 Wavelet                 Datei · Speicher   │
-├───────────────────────────────────────────────────────────────────────────────────┤
-│ Aktionszeile     Schritt-Schaltflächen │ Häkchen in zwei Zeilen     Functions »   │
+│ Schrittleiste  ①Open ─ ②Alignpoints ─ ③Align ─ ④Limit ─ ⑤Stack ─ ⑥Wavelets ─ ⑦Save   Datei │
 ├─────────────┬─────────────────────────────────────────────────┬───────────────────┤
-│ Panel links │ Bildbereich                                     │ Panel rechts      │
-│ 272 px      │   schwebende Karten oben rechts                 │ 248 px            │
-│             │   Zoom-Leiste unten mittig                      │ nur Wavelet       │
+│ Panel links │ Bildbereich   Bildname          Functions » Show ▾ │ Panel rechts      │
+│ Kopf        │   schwebende Karten oben rechts                 │ 248 px            │
+│ Felder      │                                                 │ nur Wavelets      │
+│ Fuß: Aktion │   Zoom-Leiste unten mittig                      │                   │
 ├─────────────┴─────────────────────────────────────────────────┴───────────────────┤
 │ Frame-Leiste     Status · Goto Frame · Regler über alle Frames · Frame (n): n/N   │
 ├───────────────────────────────────────────────────────────────────────────────────┤
@@ -91,10 +94,9 @@ Schaltflächen, 600 für Gruppenüberschriften, aktive Reiter und gefüllte Scha
 | Bereich | Höhe | Inhalt und Regeln |
 |---|---|---|
 | Werkzeugleiste | 44 px | Drei Zonen: links Select, die vier Menüs und die Projekt-Schaltflächen Open und Save, in der Mitte (im Rest zwischen links und rechts zentriert) Cancel und Pause, rechts Help, About und CPUs. Help, Open und Save gibt es im Original nicht: Help öffnet die Doku in der App (RK-012), Open und Save öffnen und speichern die Projektdatei (RK-009) |
-| Reiterleiste | 36 px | Reiter als nummerierte Schritte mit „›“ dazwischen. Rechts Dateiname, Codec, Größe, Frame-Zahl und Speicher in `--muted` |
-| Aktionszeile | mind. 62 px | Links die Schritt-Schaltflächen, bündig über dem linken Panel. Daneben die Häkchen spaltenweise in zwei Zeilen, Spaltenfolge wie im Original |
-| Arbeitsbereich | Rest | Linkes Panel fest 272 px, Bildbereich füllt den Rest, rechtes Panel 248 px nur im Wavelet-Reiter. Panels scrollen senkrecht, wenn das Fenster zu niedrig ist |
-| Frame-Leiste | 40 px | Nur im Align-Reiter |
+| Schrittleiste | 40 px | Die sieben Schritte als Pillen (siehe [Schrittleiste](#schrittleiste)). Rechts Dateiname, Codec, Größe und Frame-Zahl in `--muted`, wird bei Platzmangel mit „…“ gekürzt, die Pillen nie |
+| Arbeitsbereich | Rest | Linkes Panel fest 272 px mit dem offenen Schritt (siehe [Schrittpanel](#schrittpanel)), Bildbereich füllt den Rest, rechtes Panel 248 px nur im Schritt Wavelets. Panels scrollen senkrecht, wenn das Fenster zu niedrig ist; der Fuß des linken Panels mit der Aktion bleibt stehen |
+| Frame-Leiste | 40 px | Nur in den Schritten Alignpoints, Align und Limit |
 | Statusleiste | 28 px | Immer sichtbar |
 
 Mindestgröße des Fensters: 1120×600. Darunter wird nichts umgebrochen oder ausgeblendet.
@@ -110,8 +112,8 @@ damit der Fortschritt wie im Original in der Taskleiste lesbar ist.
 | Art | Aussehen | Einsatz |
 |---|---|---|
 | Standard | `--raised`, Umriss `--line-strong`, Höhe `--h-btn`, Radius `--r` | Save image, Process, Load Scheme und alle übrigen |
-| Gefüllt | `--accent` mit `--on-accent`, Gewicht 600 | Select; der nächste Schritt der Schrittfolge; Do All; Cancel während einer Berechnung |
-| Ohne Rahmen | durchsichtig, Hover `--raised` | Menüs der Werkzeugleiste (mit Pfeil nach unten), Open und Save (mit Icon), Help (mit Icon), About |
+| Gefüllt | `--accent` mit `--on-accent`, Gewicht 600 | die Aktion des offenen Schritts im Fuß des Schrittpanels (Select, Set Alignpoints, Align, Limit, Stack, Do All, Save image) oder „Continue: ‹Schritt› ›“; Cancel während einer Berechnung |
+| Ohne Rahmen | durchsichtig, Hover `--raised` | Select in der Werkzeugleiste, Menüs der Werkzeugleiste (mit Pfeil nach unten), Open und Save (mit Icon), Help (mit Icon), About, Show am Bild |
 | Textlink | `--accent-ink`, ohne Fläche | Aktionen in Gruppenköpfen: Reset Wavelets, Hold, Reset |
 | Umschalter | gedrückt: `--accent-soft`, Umriss `--accent`, Text `--accent-ink` | Functions-Raster, Functions », Before |
 | Gesperrt | Text `--off`, Umriss `--line`, keine Fläche | jede Art |
@@ -124,16 +126,86 @@ nur in `app/src/components/Toolbar.vue` (Pfade `M1.5 3.5h4l1.5 1.5h7.5v7.5h-13z`
 Pro Zeile ist höchstens eine Schaltfläche gefüllt. Rot kommt nicht vor: „Save image“ ist im Original rot
 beschriftet, im Klon eine Standard-Schaltfläche.
 
-### Schrittfolge
+### Schrittleiste
 
-Set Alignpoints · Align · Limit (Align-Reiter) und Stack · Save image (Stack-Reiter) stehen als einzelne
-Schaltflächen nebeneinander. Der nächste mögliche Schritt ist gefüllt, ein erledigter trägt einen Haken in `--ok`
-vor dem Text, ein noch nicht möglicher ist gesperrt. Die genaue Zuordnung steht unter [Zustände](#zustände).
+Eine Zeile (40 px, `--panel`, Linie unten in `--line`, Innenabstand 12 px) mit den sieben Schritten **Open ·
+Alignpoints · Align · Limit · Stack · Wavelets · Save**. Jeder Schritt ist eine Pille (Höhe 28 px, Radius 14 px,
+Innenabstand 4 px links und 10 px rechts, Text 13 px) mit seiner Nummer in einem Kreis (18 px, Ziffer 11 px, Gewicht
+600). Zwischen zwei Pillen steht eine waagerechte Linie (14 px breit, 1 px, `--line-strong`; nach einem erledigten
+Schritt `--ok`).
 
-### Reiter
+| Zustand der Pille | Aussehen | Verhalten |
+|---|---|---|
+| angezeigt (der Schritt im Panel) | Fläche `--accent-soft`, Text `--accent-ink`, Gewicht 600, Kreis `--accent` mit Ziffer `--on-accent` | — |
+| erledigt | ohne Fläche, Text `--text`, Kreis `--ok` mit Haken statt Ziffer | anklickbar, öffnet den Schritt; Tooltip nennt Schritt und Ergebnis („Alignpoints · 82 set“) |
+| möglich, noch nicht erledigt | ohne Fläche, Text `--text`, Kreis mit Umriss `--line-strong` und Ziffer `--muted` | anklickbar |
+| noch nicht möglich | Text `--off`, Kreis mit Umriss `--line`, Ziffer `--off` | nicht anklickbar, Tooltip nennt die Aktion des nächsten offenen Schritts („Run Align first“), ohne Aufnahme „Open a recording first“ |
 
-Text mit Nummer im Kreis. Aktiv: Text `--text`, Kreis `--accent`, 2 px Unterstrich in `--accent`. Gesperrt: Text
-`--off`, nicht anklickbar, Tooltip nennt den fehlenden Schritt („Run Limit first“, „Run Stack first“).
+Hover auf einer anklickbaren Pille: Fläche `--raised-h`. Erledigt und angezeigt zugleich: Fläche wie angezeigt, Kreis in
+`--ok` mit Haken. Während einer Berechnung ist keine Pille anklickbar; ihr Aussehen bleibt. Die Leiste passt bei der
+Mindestbreite von 1120 px ohne Umbruch und ohne Kürzung der Pillen hinein; gekürzt wird nur die Dateiangabe rechts.
+
+Welcher Schritt erledigt, möglich oder gesperrt ist, steht unter [Zustände](#zustände).
+
+### Schrittpanel
+
+Das linke Panel zeigt nur den angezeigten Schritt, von oben nach unten:
+
+1. **Ergebniszeile des vorigen Schritts**, nur wenn der angezeigte Schritt der nächste offene ist: Haken und Text in
+   `--ok`, 12 px, z. B. „✓ Alignpoints · 82 set“.
+2. **Kopf**: „Step n of 7“ (12 px, `--muted`), darunter der Name des Schritts (15 px, Gewicht 600), darunter ein Satz,
+   was der Schritt tut (12 px, `--muted`, Zeilenhöhe 17 px). Die Sätze stehen unter [Bildschirme](#bildschirme).
+3. **Wichtige Einstellungen** des Schritts, gebaut aus den üblichen Komponenten (Zeilen, Zahlenfelder, Regler,
+   Häkchen, Segmente), ohne eigene Gruppenüberschrift, wenn es nur eine Gruppe ist.
+4. **Advanced**: eine Zeile „▸ Advanced“ (Gewicht 500) mit „n more settings“ rechts in `--muted`; ein Klick klappt die
+   übrigen Einstellungen des Schritts auf („▾ Advanced“). Dort stehen sie vollständig, mit ihren Gruppenüberschriften
+   aus dem Original. Kein Element aus `docs/ui.md` geht verloren. Aufgeklappt bleibt aufgeklappt, bis man es zuklappt
+   (je Schritt im Browser-Speicher der App gemerkt, auch nach einem Neustart; nicht in der Projektdatei).
+5. **Fuß** (unten im Panel, scrollt nicht mit, Linie oben in `--line`, Innenabstand 12 px):
+   - offener Schritt: die Aktion als gefüllte Schaltfläche in voller Breite, Beschriftung des Originals; darunter
+     „Then: ‹nächster Schritt›“ (12 px, `--muted`). Weitere Aktionen des Schritts (Process im Schritt Wavelets) stehen
+     als Standard-Schaltflächen in derselben Zeile links daneben.
+   - erledigter, wieder geöffneter Schritt: oben das Ergebnis in `--ok`, darunter „‹Aktion› again“ als
+     Standard-Schaltfläche in voller Breite, darunter in 12 px `--muted` „Running it again discards the steps after
+     it.“ (nur, wenn es Schritte danach gibt, die etwas verwerfen würden), zuletzt gefüllt „Continue: ‹nächster offener
+     Schritt› ›“.
+   - noch nicht möglicher Schritt kommt nicht vor, er lässt sich nicht öffnen.
+
+Während einer Berechnung ist die Aktion im Fuß gesperrt; gefüllt ist dann nur Cancel in der Werkzeugleiste.
+
+Nach jedem erfolgreichen Lauf öffnet sich der nächste Schritt von selbst (nach Select also Alignpoints, nach Do All
+Save). Nach Save image bleibt Save offen und zeigt das Ergebnis; „Continue“ entfällt dort, an seiner Stelle steht
+gefüllt „Open another recording“ (öffnet wie Select).
+
+Die Ergebnistexte:
+
+| Schritt | Ergebnis (Ergebniszeile, Tooltip der Pille) |
+|---|---|
+| Open | ‹Dateiname› · ‹N› frames |
+| Alignpoints | ‹n› set |
+| Align | best quality ‹q› % |
+| Limit | ‹k› of ‹N› kept |
+| Stack | ‹n› frames · ‹B›×‹H› |
+| Wavelets | applied to the whole image |
+| Save | ‹Dateiname› |
+
+### Show am Bild
+
+Die Häkchen der früheren Aktionszeile (Show Full Image, Show ROI, Show Alignpoints, Show Aligndata, Show Framelist,
+Show Registrationgraph, Show Prefilter; Show AlignSections, Show Stackgraph, Show Stacklist; Show AlignPoints, Show
+Processing Area) liegen in einem Menü **Show ▾** oben rechts im Bildbereich, 10 px vom Rand, als Schaltfläche ohne
+Rahmen auf `--canvas-chrome` mit Text `--on-canvas`. Das Menü enthält die Häkchen, die das Original im zugehörigen
+Reiter hat: in Alignpoints, Align und Limit die des Align-Reiters, in Stack die des Stack-Reiters, in Wavelets und Save
+die des Wavelet-Reiters. Im Schritt Open gibt es kein Show. Die Häkchen behalten ihre Wirkung, die schwebenden Karten
+verhalten sich wie bisher und beginnen unter der Zeile mit Show.
+
+Links oben im Bildbereich steht in derselben Art, aber nicht anklickbar, was das Bild zeigt: „Frame ‹n› of ‹N›“,
+„Stack of ‹n› frames“ oder „Sharpened stack“. Im Schritt Wavelets steht links neben Show der Umschalter **Functions »**
+(gleiche Form, gedrückt mit Umriss und Text in `--accent`).
+
+Text auf dem Bildbereich steht in `--on-canvas` (Hinweise wie „Press Select to open a recording“ mit 60 % Deckkraft),
+nie in `--muted` oder `--accent-ink`: Der Bildbereich ist in beiden Themen dunkel, diese Töne wären im hellen Thema
+unlesbar. Ohne geladene Aufnahme fehlen Bildname, Show und Zoom-Leiste; es steht nur der Hinweis.
 
 ### Häkchen und Auswahl
 
@@ -178,8 +250,9 @@ bei der Mindestbreite von 1120 px sonst überläuft; der Tooltip und das Label f
 *Save project*. Beide sind während einer Berechnung gesperrt, Save zusätzlich ohne geladene Aufnahme. Tools enthält damit
 wieder nur die Einträge des Originals.
 
-**Save image** (Stack- und Wavelet-Reiter) ist eine Standard-Schaltfläche, die beim Anklicken ein Menü mit der Auswahl des
-Dateityps öffnet (Stack: sieben Einträge, Wavelet: fünf; rechts steht die Endung). Ein Klick auf einen Eintrag öffnet den
+**Save image** gibt es zweimal: gefüllt als Aktion des Schritts Save (das geschärfte Bild, fünf Dateitypen) und als
+Standard-Schaltfläche im erledigten Schritt Stack unter dem Ergebnis (das Summenbild, sieben Dateitypen). Beide öffnen
+beim Anklicken ein Menü mit der Auswahl des Dateityps (rechts steht die Endung). Ein Klick auf einen Eintrag öffnet den
 Speichern-Dialog des Betriebssystems für genau diesen Typ. Beim Original wählt man den Typ im Dialog; das Dialog-Plugin meldet
 den gewählten Filter nicht zurück, deshalb steht die Auswahl davor.
 
@@ -217,7 +290,7 @@ Hintergrund `--canvas`, das Bild mittig mit 12 px Rand eingepasst, ein kaum sich
 Bild und zoomen mit.
 
 Die Zoom-Leiste unten mittig ersetzt die Scrollbalken des Originals: − · aktueller Maßstab in Prozent der
-Bildpixel (Klick setzt 100 %) · + · Fit, im Wavelet-Reiter zusätzlich der Umschalter **Before**, der das
+Bildpixel (Klick setzt 100 %) · + · Fit, in den Schritten Wavelets und Save zusätzlich der Umschalter **Before**, der das
 unbearbeitete Summenbild zeigt. Mausrad zoomt, Ziehen verschiebt.
 
 ### Frame-Leiste
@@ -232,7 +305,7 @@ Fünf Felder, durch Linien getrennt, Schrift 12 px in `--muted`, Meldungen in `-
 1. Fortschrittsbalken (6 px hoch, `--accent`) mit Prozentzahl, 210 px breit
 2. aktuelle Aktion, z. B. „Loading frame: 4“
 3. Ergebnis, z. B. „Alignment finished.“
-4. Position unter dem Mauszeiger im Wavelet-Reiter, z. B. „X=200 Y=201 Stack=10“
+4. Position unter dem Mauszeiger in den Schritten Wavelets und Save, z. B. „X=200 Y=201 Stack=10“
 5. „Time used … · Time left …“
 
 Die Meldungstexte sind die des Originals (`docs/workflow.md`).
@@ -241,15 +314,26 @@ Die Meldungstexte sind die des Originals (`docs/workflow.md`).
 
 Die Sperrlogik stammt aus `docs/workflow.md`; hier steht, wie sie aussieht.
 
-| Zustand | Set Alignpoints | Align | Limit | Reiter Stack | Stack | Save image | Reiter Wavelet |
-|---|---|---|---|---|---|---|---|
-| Aufnahme geladen | gefüllt | gesperrt | gesperrt | gesperrt | | | gesperrt |
-| Alignpoints gesetzt | aktiv, Haken | gefüllt | gesperrt | gesperrt | | | gesperrt |
-| ausgerichtet | aktiv, Haken | aktiv, Haken | gefüllt | gesperrt | | | gesperrt |
-| begrenzt | aktiv, Haken | aktiv, Haken | aktiv, Haken | offen | gefüllt | gesperrt | gesperrt |
-| gestackt | aktiv, Haken | aktiv, Haken | aktiv, Haken | offen | aktiv, Haken | aktiv | offen |
+Pillen der Schrittleiste je Zustand (✓ erledigt, ● nächster offener Schritt, ○ möglich, – gesperrt). Angezeigt ist
+nach jedem Lauf der nächste offene Schritt (●); jede Pille mit ✓ oder ○ lässt sich öffnen.
 
-Nach Limit wechselt die Oberfläche selbst in den Stack-Reiter.
+| Zustand | Open | Alignpoints | Align | Limit | Stack | Wavelets | Save |
+|---|---|---|---|---|---|---|---|
+| leer | ● | – | – | – | – | – | – |
+| Aufnahme geladen | ✓ | ● | – | – | – | – | – |
+| Alignpoints gesetzt | ✓ | ✓ | ● | – | – | – | – |
+| ausgerichtet | ✓ | ✓ | ✓ | ● | – | – | – |
+| begrenzt | ✓ | ✓ | ✓ | ✓ | ● | – | – |
+| gestackt | ✓ | ✓ | ✓ | ✓ | ✓ | ● | ○ |
+| geschärft (Do All gelaufen) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ● |
+| gespeichert | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+- Save ist schon nach Stack möglich, weil Save image ein noch nicht angewendetes Do All selbst nachholt (RK-009).
+- Wavelets gilt als erledigt, solange das Ergebnis von Do All zu den aktuellen Wavelet-Werten passt; ändert man danach
+  eine Ebene oder eine Einstellung des Schritts, verliert die Pille den Haken und Wavelets ist wieder der nächste
+  offene Schritt. Save verliert dabei ebenfalls den Haken.
+- Open bleibt immer anklickbar; Select dort (oder in der Werkzeugleiste) öffnet eine neue Aufnahme und setzt alles auf
+  „Aufnahme geladen“.
 
 **Erneutes Ausrichten** (Entscheidung von Philipp, RK-005): Set Alignpoints und Align bleiben nach ihrem ersten Lauf
 bedienbar, auch nach Limit, Stack und Wavelet. Im Original sind beide ab Align gesperrt (`docs/workflow.md`,
@@ -257,58 +341,121 @@ Abschnitt 2.2); der Klon weicht bewusst davon ab, damit man andere Punkte, eine 
 Boxgröße ausprobieren kann, ohne die Aufnahme neu zu öffnen. Ein neuer Lauf verwirft alles, was auf der alten
 Ausrichtung aufbaut: Qualität und Frame-Auswahl (alle Frames wieder angehakt), Verschiebungsstriche der Punkte, Stack,
 geschärftes Bild und Farbanpassung, in der Oberfläche wie im Rechenkern (`StackState`, `WaveletState`, `ColorState`,
-`ExportState`, `AlignState`). Der Zustand fällt auf „Alignpoints gesetzt“ zurück, die Reiter Stack und Wavelet sind
-wieder gesperrt und die Oberfläche steht im Align-Reiter. Align verwirft beim Start, nicht erst am Ende: Bricht man
+`ExportState`, `AlignState`). Der Zustand fällt auf „Alignpoints gesetzt“ zurück, die Pillen ab Limit sind wieder
+gesperrt und nach dem Lauf öffnet sich der nächste offene Schritt (nach Set Alignpoints Align, nach Align Limit). Im
+wieder geöffneten Schritt steht der Hinweis „Running it again discards the steps after it.“ unter „‹Aktion› again“.
+Align verwirft beim Start, nicht erst am Ende: Bricht man
 ab, bleibt kein altes Ergebnis stehen, und Save image kann kein Bild des alten Stacks schreiben. Auch ein erneutes
 Limit nach Stack verwirft den Stack. Regler, Wavelet-Einstellungen und das Bild von Copy To bleiben erhalten.
 
-**Während einer Berechnung** (Align, Stack, Process, Do All): alle Schritt-Schaltflächen sind gesperrt, Cancel ist
+**Während einer Berechnung** (Align, Stack, Process, Do All): die Aktion im Fuß des Schrittpanels ist gesperrt, keine
+Pille ist anklickbar, Cancel ist
 gefüllt, Pause ist aktiv und heißt nach dem Anhalten „Resume“. Der Balken in der Statusleiste läuft, Feld 2 nennt
 den aktuellen Frame, Feld 5 die Zeiten. Außerhalb einer Berechnung sind Cancel und Pause gesperrt.
 
 ## Bildschirme
 
-### Align
+Je Schritt: der Satz im Kopf (Englisch wie die Oberfläche; Philipp nimmt die Sätze noch ab, RK-014), die wichtigen
+Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und Felder sind die der früheren Reiter
+(`docs/ui.md`); die Einteilung in wichtig und Advanced ist die Vorgabe dieses Dokuments.
 
-Linkes Panel in dieser Reihenfolge: Set Alignpoint parameters (mit Intensity selection, Threshold-Regler,
-Number of Alignpoints) · Alignment setup · Limit Setup. Über dem Threshold-Regler steht links „weakest“, rechts
-„strongest“ und in der Mitte „Threshold“, nach dem Setzen „Alignpoints: 82“.
+### 1 Open
+
+*„Choose a recording: a SER or AVI video or a series of images.“*
+
+- Wichtig: **Recent**, die zuletzt geöffneten Dateien als Zeilen (Name, darunter der Ordner in 12 px `--muted`), ein
+  Klick öffnet die Datei; leer „No recent files“ in `--muted`. Nach dem Laden steht darüber die geladene Datei mit
+  Codec, Größe und Frame-Zahl.
+- Advanced: entfällt.
+- Aktion: **Select**. Select und MRU in der Werkzeugleiste bleiben und tun dasselbe.
+- Bildbereich vor dem Laden: mittig „Press Select to open a recording“ in `--muted`.
+
+### 2 Alignpoints
+
+*„Marks the details the frames are lined up on. A lower threshold gives more points.“*
+
+- Wichtig: der Threshold-Regler mit „weakest“ links, „strongest“ rechts und „Threshold“ in der Mitte, nach dem Setzen
+  „Alignpoints: 82“; Minimum distance between; Min distance from edge; **R.o.Interest** als Umschalter in voller Breite
+  (aus dem Segment der Gruppe Alignment setup hierher gezogen, weil Set Alignpoints die Region braucht; zeichnen lässt
+  sie sich wie bisher vor und nach Set Alignpoints, bis Align gelaufen ist).
+- Advanced: der Rest der Gruppe Set Alignpoint parameters (Intensity selection mit Lo/Hi, Number of Alignpoints, Keep
+  Alignpoints inside ScanFrame).
+- Aktion: **Set Alignpoints**. Frame-Leiste sichtbar.
+
+### 3 Align
+
+*„Lines up every frame on the alignpoints and rates how sharp each one is.“*
+
+- Wichtig: Segmente No Align · Scan Frames; Alignmentbox size; Max Alignpoint movement.
+- Advanced: der Rest der Gruppe Alignment setup.
+- Aktion: **Align**. Frame-Leiste sichtbar.
+
+### 4 Limit
+
+*„Keeps the sharpest frames and drops the rest. Only the kept frames go into the stack.“*
+
+- Wichtig: die Gruppe Limit Setup vollständig, darunter das **Qualitätsdiagramm**: ein Balken je Frame, nach Qualität
+  sortiert, bestes Frame links; Fläche `--field`, Umriss `--line`, volle Panelbreite, 76 px hoch. Behaltene Frames in
+  `--accent`, verworfene in `--line-strong`. Die Grenze ist eine gestrichelte Linie in `--text` mit dem Wert rechts
+  (10 px, `--muted`): bei Lowest Quality (%) waagerecht auf der Höhe des Werts, bei den übrigen Arten senkrecht nach
+  dem letzten behaltenen Frame. Unten „best frame“ links und „weakest“ rechts (10 px, `--muted`). Bei mehr Frames
+  als Pixeln fasst ein Balken mehrere Frames zusammen. Das Diagramm folgt jeder Änderung des Werts sofort und hat eine
+  Textalternative („Quality of 10 frames, best first. 8 are kept.“). Ausnahme Frames/Apoint: Welche Frames je Punkt
+  bleiben, rechnet erst der Rechenkern; das Diagramm zeigt in dieser Art die Auswahl des letzten Limit (davor alle
+  Frames) und folgt dem Wert nicht sofort.
+- Advanced: entfällt.
+- Aktion: **Limit**. Frame-Leiste sichtbar.
+
+### 5 Stack
+
+*„Adds the kept frames into one image with far less noise.“*
+
+- Wichtig: StackSize; Use Nearestby Alignpoints; Correct geometry.
+- Advanced: die übrigen Stacking options; Resampling und Drizzling (aus der früheren Aktionszeile), ihre Zusatzfelder
+  (Methode und Faktor bzw. Faktor) erscheinen erst mit dem Häkchen, rechts daneben in derselben Zeile; die Gruppe
+  Create AVI vollständig mit Save Aligned und Save Integrated.
+- Aktion: **Stack**. Im erledigten Schritt steht unter dem Ergebnis **Save image** als Standard-Schaltfläche für das
+  Summenbild.
+
+### 6 Wavelets
+
+*„Sharpens the stack. Raise the first layers for fine detail, then apply them to the whole image.“*
+
+- Wichtig: die Häkchen **Colour** und **LRGB** (Sperren wie bisher); die sechs Ebenen mit **Reset Wavelets** als
+  Textlink in der Überschrift. Eine Ebene belegt zwei Zeilen: oben Häkchen mit Ebenennummer, Denoise, Sharpen und die
+  Preview-Schaltfläche mit dem Reglerwert, darunter der Regler in voller Breite. Über der ersten Ebene stehen die
+  Spaltenköpfe Layer · Denoise · Sharpen · Preview.
+- Advanced: Automatic, Hold Wavelet Setting, Waveletscheme, Initial Layer und Step Incr. in einer Zeile, Wavelet
+  filter, Use Linked Wavelets; Available schemes mit Load Scheme und Save Scheme; Realign with Processed und Stack Again.
+- Aktion: **Do All**, links daneben **Process** als Standard-Schaltfläche in derselben Zeile.
+- Rechtes Panel: Functions als Raster aus drei Spalten und fünf Zeilen in der Reihenfolge des Originals, jede
+  Schaltfläche ein Umschalter für ihr Panel · Contrast/Brightness mit zwei Reglern und zwei Zahlenfeldern · Copy To /
+  Load to / Difference mit der Auswahl Toggle. **Functions »** oben im Bildbereich links neben Show blendet das rechte
+  Panel aus und ein; der Bildbereich nimmt den frei werdenden Platz.
+
+### 7 Save
+
+*„Writes the finished image to a file.“*
+
+- Wichtig: ein Satz in 12 px `--muted`, was gespeichert wird: „The sharpened stack with the colour and tone settings.“
+  Passt das Ergebnis von Do All nicht zu den aktuellen Werten, darunter: „Do All runs first with the current values.“
+- Advanced: entfällt.
+- Aktion: **Save image** mit dem Menü der fünf Dateitypen. Im erledigten Schritt steht der Dateiname als Ergebnis.
+
+### Soll-Bilder der Schritte
 
 | Zustand | Soll-Bild |
 |---|---|
-| Aufnahme geladen | ![Align, geladen](design/screenshots/01-align-loaded.png) |
-| Alignpoints gesetzt | ![Align, Punkte gesetzt](design/screenshots/02-align-points.png) |
-| Align läuft | ![Align, läuft](design/screenshots/03-align-running.png) |
-| ausgerichtet, mit Framelist und Registrationgraph | ![Align, ausgerichtet](design/screenshots/04-align-aligned.png) |
-
-### Stack
-
-Linkes Panel: Stacking options · Create AVI. Resampling und Drizzling zeigen ihre Zusatzfelder (Methode und Faktor
-bzw. Faktor) erst, wenn das Häkchen gesetzt ist, und zwar rechts neben dem Häkchen in derselben Zeile.
-
-| Zustand | Soll-Bild |
-|---|---|
-| nach Limit, Show AlignSections mit der Karte Alignmentpoints | ![Stack, begrenzt](design/screenshots/05-stack-limited.png) |
-| gestackt, Resampling und Drizzling eingeschaltet | ![Stack, gestackt](design/screenshots/06-stack-stacked.png) |
-
-### Wavelet
-
-Linkes Panel: Wavelets (Automatic, Hold Wavelet Setting, Waveletscheme, Initial Layer und Step Increment in einer
-Zeile, Wavelet filter, Use Linked Wavelets, sechs Ebenen) · Available schemes mit Load Scheme und Save Scheme.
-
-Eine Ebene belegt zwei Zeilen: oben Häkchen mit Ebenennummer, Denoise, Sharpen und die Preview-Schaltfläche mit dem
-Reglerwert, darunter der Regler in voller Breite. Über der ersten Ebene stehen die Spaltenköpfe Layer · Denoise ·
-Sharpen · Preview.
-
-Rechtes Panel: Functions als Raster aus drei Spalten und fünf Zeilen in der Reihenfolge des Originals, jede
-Schaltfläche ein Umschalter für ihr Panel · Contrast/Brightness mit zwei Reglern und zwei Zahlenfeldern · Copy To /
-Load to / Difference mit der Auswahl Toggle. **Functions »** rechts in der Aktionszeile blendet das rechte Panel aus
-und ein; der Bildbereich nimmt den frei werdenden Platz.
-
-| Zustand | Soll-Bild |
-|---|---|
-| Summenbild, Standardwerte | ![Wavelet](design/screenshots/07-wavelet.png) |
-| Ebenen 1–3 angehoben, Show Processing Area | ![Wavelet, geschärft](design/screenshots/08-wavelet-sharpened.png) |
+| leer, Schritt Open | ![Open](design/screenshots/01-open.png) |
+| Aufnahme geladen, Schritt Alignpoints | ![Alignpoints](design/screenshots/02-alignpoints.png) |
+| Alignpoints gesetzt, Schritt Align | ![Align](design/screenshots/03-align.png) |
+| Align läuft | ![Align, läuft](design/screenshots/04-align-running.png) |
+| ausgerichtet, Schritt Limit, mit Framelist und Registrationgraph | ![Limit](design/screenshots/05-limit.png) |
+| begrenzt, Schritt Stack, Show AlignSections mit der Karte Alignmentpoints | ![Stack](design/screenshots/06-stack.png) |
+| gestackt, Stack wieder geöffnet, Advanced offen, Resampling und Drizzling eingeschaltet | ![Stack, erledigt](design/screenshots/07-stack-done.png) |
+| gestackt, Schritt Wavelets, Standardwerte | ![Wavelets](design/screenshots/08-wavelets.png) |
+| Ebenen 1–3 angehoben, Show Processing Area | ![Wavelets, geschärft](design/screenshots/09-wavelets-sharpened.png) |
+| geschärft, Schritt Save | ![Save](design/screenshots/10-save.png) |
 
 ### Karten hinter den Functions-Schaltflächen
 
@@ -365,10 +512,10 @@ Tickets fest und ergänzen dieses Dokument.
   `docs/ui.md` über den Toggle sagt.
 - Eine Functions-Schaltfläche ohne Karte bleibt unten und meldet „‹Name›: not available yet“ in der Statusleiste.
 
-**Colour und LRGB** sitzen als Häkchen im Align- und im Stack-Reiter (`docs/ui.md`). *Colour* verarbeitet in Farbe, ohne
+**Colour und LRGB** sitzen im Original als Häkchen im Align- und im Stack-Reiter (`docs/ui.md`), im Klon seit RK-014
+im Schritt Wavelets über den Ebenen. *Colour* verarbeitet in Farbe, ohne
 das Häkchen als Graustufen. *LRGB* ist nur mit *Colour* wählbar und schärft nur die Luminanz: Die Wavelets (RK-007)
 rechnen auf der Luminanz, Farbton und Sättigung kommen aus dem Summenbild. Beide sind bei Graustufenbildern gesperrt.
-Das Ticket nennt sie unter dem Wavelet-Reiter; dort stehen sie im Entwurf nicht, die Stelle ist also noch offen.
 Umgesetzt (RK-008): Sie sind bei Graustufenaufnahmen gesperrt und LRGB zusätzlich ohne *Colour*. Umgesetzt (RK-007): Beide
 Werte (`settings.colour`, `settings.lrgb`) wirken auf die Live-Vorschau und auf Do All (`colourMode` in `app/src/logic/wavelet.ts`,
 Rechnung `wavelet::ColourMode` mit `color::with_luminance`, siehe `docs/wavelets.md`). Ohne *Colour* ist das Ergebnis Graustufen.
@@ -377,8 +524,8 @@ Rechnung `wavelet::ColourMode` mit `color::with_luminance`, siehe `docs/wavelets
 
 | Menü | Soll-Bild |
 |---|---|
-| Settings | ![Menü Settings](design/screenshots/09-menu-settings.png) |
-| Flat/Dark/Reference | ![Menü Flat/Dark/Reference](design/screenshots/10-menu-flat-dark-reference.png) |
+| Settings | ![Menü Settings](design/screenshots/11-menu-settings.png) |
+| Flat/Dark/Reference | ![Menü Flat/Dark/Reference](design/screenshots/12-menu-flat-dark-reference.png) |
 
 MRU zeigt die zuletzt geöffneten Dateien als Einträge, leer den Text „No recent files“ in `--muted`. Tools hat zwei
 Einträge: eine Aktion und ein Häkchen (Open und Save stehen nicht mehr dort, sondern als Schaltflächen daneben).
@@ -388,8 +535,8 @@ Einträge: eine Aktion und ein Häkchen (Open und Save stehen nicht mehr dort, s
 Help in der Werkzeugleiste öffnet die Doku in einem eigenen Fenster (1000 × 720 px, mindestens 640 × 400), zentriert auf
 dem Bildschirm und vor dem Hauptfenster,
 nicht in der App selbst. Ein zweiter Klick holt das offene Fenster nach vorn; Escape oder Schließen beendet es. Die
-Arbeitsansicht bleibt unberührt und benutzbar. Das Help-Fenster zeigt nur die Doku, ohne Werkzeugleiste, Reiterleiste,
-Aktionszeile und Statusleiste; die Schaltfläche Help bleibt im Hauptfenster ungedrückt wie jede Schaltfläche ohne Zustand.
+Arbeitsansicht bleibt unberührt und benutzbar. Das Help-Fenster zeigt nur die Doku, ohne Werkzeugleiste, Schrittleiste
+und Statusleiste; die Schaltfläche Help bleibt im Hauptfenster ungedrückt wie jede Schaltfläche ohne Zustand.
 
 Zwei Spalten: links die Seitenliste (Breite wie das linke Panel, 272 px, `--panel`, Linie rechts), rechts der Text auf
 `--bg`, 720 px breit und waagerecht zentriert, 36 px Abstand oben. In einem schmaleren Fenster schrumpft die Spalte samt
@@ -422,10 +569,10 @@ Entwurf zeigt die Doku nicht.
 
 ### Helles Thema
 
-| Reiter | Soll-Bild |
+| Schritt | Soll-Bild |
 |---|---|
-| Align | ![Align, hell](design/screenshots/11-align-light.png) |
-| Wavelet | ![Wavelet, hell](design/screenshots/12-wavelet-light.png) |
+| Limit | ![Limit, hell](design/screenshots/15-limit-light.png) |
+| Wavelets | ![Wavelets, hell](design/screenshots/16-wavelets-light.png) |
 
 ## Bewusste Abweichungen vom Original
 
@@ -436,14 +583,17 @@ Entwurf zeigt die Doku nicht.
 | Panelköpfe mit Minimieren/Maximieren | Gruppenüberschriften | Panels sind fest angeordnet |
 | Scrollbalken am Bild | Zoom-Leiste, Mausrad, Ziehen | RK-010 verlangt Zoom, Pan, Vorher/Nachher |
 | grünes Farbfeld links unten | Statuspunkt mit Text | Bedeutung des Farbfelds ist ungeklärt, Text sagt sie |
-| „File Version“ und Datum in der Reiterleiste | Dateiname, Codec, Größe, Frame-Zahl | Version gehört in About |
+| „File Version“ und Datum in der Reiterleiste | Dateiname, Codec, Größe, Frame-Zahl rechts in der Schrittleiste | Version gehört in About |
+| drei Reiter Align · Stack · Wavelet, Schritt-Schaltflächen in der Aktionszeile, alle Einstellungen eines Reiters im Panel | sieben Schritte in der Schrittleiste, das Panel zeigt nur den offenen Schritt mit seiner Aktion, Seltenes unter Advanced | RK-014; Philipp wollte, dass die App durch den Ablauf führt (Vorbild Siderea) |
+| Häkchen „Show …“ in der Aktionszeile | Menü Show oben rechts am Bild | RK-014; die Aktionszeile entfällt |
+| Colour und LRGB im Align- und Stack-Reiter | im Schritt Wavelets | RK-014; sie wirken auf die Schärfung (RK-007) |
 | „Save image“ rot beschriftet | Standard-Schaltfläche | Rot bedeutet Gefahr |
 | Radiogruppen bei zwei Möglichkeiten | Segmente | weniger Höhe, gleiche Stelle |
 | „Intensity_selection“, „Realign_with Processed“ | ohne Unterstrich | Artefakte der Delphi-Beschriftung |
 | „Step Increment“ | „Step Incr.“ mit vollem Namen im Tooltip | Platz neben Initial Layer |
 | Set Alignpoints und Align ab Align gesperrt | bleiben bedienbar, ein neuer Lauf verwirft Limit, Stack und Wavelet-Ergebnis | RK-005; Philipp wollte ohne erneutes Öffnen neu ausrichten können, siehe [Zustände](#zustände) |
 | Dezimalkomma je nach Windows-Einstellung | Punkt | einheitlich auf allen Plattformen |
-| » klappt das Functions-Panel | „Functions »“ | Beschriftung sagt, was geklappt wird |
+| » klappt das Functions-Panel | „Functions »“ oben im Bildbereich | Beschriftung sagt, was geklappt wird |
 
 ## Was im Entwurf nur Platzhalter ist
 
@@ -457,11 +607,11 @@ Entwurf zeigt die Doku nicht.
 Für diese Teile gibt es kein Soll-Bild. Wer sie braucht, baut sie aus den vorhandenen Komponenten und ergänzt
 dieses Dokument im selben Commit.
 
-- Zustand vor dem Laden (festgelegt in RK-010): Select ist gefüllt, Schritt-Schaltflächen und linkes Panel sind
-  gesperrt, die Frame-Leiste ist leer. Der Bildbereich zeigt mittig „Press Select to open a recording“ in `--muted`.
+- Zustand vor dem Laden (festgelegt in RK-010, angepasst in RK-014): Schritt Open ist offen, Select im Fuß des Panels
+  gefüllt, alle anderen Pillen gesperrt, keine Frame-Leiste. Der Bildbereich zeigt mittig „Press Select to open a recording“ in `--on-canvas` mit 60 % Deckkraft.
 - Fehlermeldungen (festgelegt in RK-010): Text mit Präfix „Error:“ im Ergebnisfeld der Statusleiste (Feld 3), in
   `--text`; kein Dialog, kein Rot.
-- Speicherangabe („Memory used/free/total“) in der Reiterleiste: entfällt vorerst, sie braucht einen Befehl im Backend.
+- Speicherangabe („Memory used/free/total“) in der Schrittleiste: entfällt vorerst, sie braucht einen Befehl im Backend.
 - Elf der fünfzehn Panels hinter den Functions-Schaltflächen. Histogram, Gamma, RGB Align und RGB Balance stehen unter
   [Karten hinter den Functions-Schaltflächen](#karten-hinter-den-functions-schaltflächen); die übrigen sind im Original
   noch nicht erfasst (`docs/offene-fragen.md`). Vorgabe für die Form: schwebende Karten wie Framelist.
@@ -481,37 +631,41 @@ dieses Dokument im selben Commit.
 | RK-009 Speichern | Save image in Stack und Wavelet, Save Aligned, Save Integrated, Load/Save Scheme | 06, 07 |
 | RK-010 Oberfläche | alles in diesem Dokument außer der Doku | 01–12 |
 | RK-012 Doku in der App | Help in der Werkzeugleiste, Doku-Ansicht | 13, 14 |
+| RK-014 Geführter Ablauf | Schrittleiste, Schrittpanel, Show am Bild, Qualitätsdiagramm in Limit; ersetzt die Reiter in den Zeilen darüber (Bildnummern dort sind die alten) | 01–12, 15, 16 |
 
 ## Zustände im Klon ansehen (Dev-Build)
 
 Im Dev-Build (`pnpm tauri dev` oder `pnpm exec vite`) springt `app/src/preview.ts` mit denselben URL-Parametern wie der
-Entwurf in einen Zustand, mit erzeugten Daten statt einer Aufnahme: `step`, `tab`, `theme=light`, `busy`, `show`
+Entwurf in einen Zustand, mit erzeugten Daten statt einer Aufnahme: `step`, `view`, `theme=light`, `busy`, `show`
 (framelist, graph, resampling, drizzling, procarea, alignpoints, nosections), `layers`. Im Release-Build fehlt das Modul.
 
 ## Soll-Bilder neu erzeugen
 
-Der Entwurf springt über URL-Parameter in einen Zustand: `step` (loaded, points, aligned, limited, stacked),
-`tab` (align, stack, wavelet), `theme=light`, `show` (framelist, graph, resampling, drizzling, procarea,
-alignpoints, nosections), `menu` (mru, flat, tools, settings), `layers` (sechs Reglerwerte), `busy` (Prozent),
+Der Entwurf springt über URL-Parameter in einen Zustand: `step` (empty, loaded, points, aligned, limited, stacked,
+processed, saved), `view` (open, alignpoints, align, limit, stack, wavelets, save; ohne Angabe der nächste offene
+Schritt), `advanced=1` (Advanced aufgeklappt), `theme=light`, `show` (framelist, graph, resampling, drizzling, procarea,
+alignpoints, sections), `menu` (mru, flat, tools, settings, show), `layers` (sechs Reglerwerte), `busy` (Prozent),
 `chrome=0` (blendet die Leiste des Entwurfs aus). Die Bilder entstehen mit einem Browser ohne Fenster:
 
 ```
-msedge --headless=new --window-size=1440,900 --hide-scrollbars \
-  --screenshot=docs/design/screenshots/04-align-aligned.png \
-  "file:///…/docs/design/oberflaeche-entwurf.html?chrome=0&step=aligned&show=framelist,graph"
+msedge --headless=new --window-size=1440,900 --hide-scrollbars   --screenshot=docs/design/screenshots/05-limit.png   "file:///…/docs/design/oberflaeche-entwurf.html?chrome=0&step=aligned&show=framelist,graph"
 ```
 
 | Bild | Parameter |
 |---|---|
-| 01-align-loaded | `step=loaded` |
-| 02-align-points | `step=points` |
-| 03-align-running | `step=points&busy=40` |
-| 04-align-aligned | `step=aligned&show=framelist,graph` |
-| 05-stack-limited | `step=limited&tab=stack` |
-| 06-stack-stacked | `tab=stack&show=resampling,drizzling,nosections` |
-| 07-wavelet | `tab=wavelet` |
-| 08-wavelet-sharpened | `tab=wavelet&layers=32,22,14,10,10,10&show=procarea` |
-| 09-menu-settings | `step=loaded&menu=settings` |
-| 10-menu-flat-dark-reference | `step=loaded&menu=flat` |
-| 11-align-light | `step=aligned&show=framelist,graph&theme=light` |
-| 12-wavelet-light | `tab=wavelet&theme=light` |
+| 01-open | `step=empty` |
+| 02-alignpoints | `step=loaded` |
+| 03-align | `step=points` |
+| 04-align-running | `step=points&busy=40` |
+| 05-limit | `step=aligned&show=framelist,graph` |
+| 06-stack | `step=limited&show=sections` |
+| 07-stack-done | `step=stacked&view=stack&advanced=1&show=resampling,drizzling` |
+| 08-wavelets | `step=stacked` |
+| 09-wavelets-sharpened | `step=stacked&layers=32,22,14,10,10,10&show=procarea` |
+| 10-save | `step=processed` |
+| 11-menu-settings | `step=loaded&menu=settings` |
+| 12-menu-flat-dark-reference | `step=loaded&menu=flat` |
+| 15-limit-light | `step=aligned&show=framelist,graph&theme=light` |
+| 16-wavelets-light | `step=stacked&theme=light` |
+
+13 und 14 (Doku) stammen aus der FigCraft-Datei und bleiben unverändert.

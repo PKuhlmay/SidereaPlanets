@@ -15,7 +15,8 @@ Align, Stack and Do All can take a while. While one of them runs, the window sho
 | Status bar, second field | What is happening, for example *Loading frame: 4* |
 | Status bar, last field | *Time used* and *Time left* |
 | Window title | Step and percent, for example `SidereaPlanets · Align 40%` |
-| Step buttons | All locked |
+| Step bar | No step can be opened |
+| Button at the bottom of the step panel | Locked. Only **Cancel** is filled |
 
 ## Cancel and Pause
 
@@ -25,8 +26,10 @@ Align, Stack and Do All can take a while. While one of them runs, the window sho
 
 The third field of the status bar shows the result of the last step, for example *Alignment finished.*. A problem is shown there too, starting with *Error:*. A button whose function is not built yet says so in that field, for example *Align: not available yet*.
 
+When a run ends successfully, the next step opens by itself. If you cancel, the step stays where it is.
+
 ## Do All and Process
 
-**Do All** can be stopped and paused like Align and Stack. It works layer by layer and checks between two layers, so **Cancel** and **Pause** take effect after the layer that is being calculated; on a large image that is a moment. The progress bar counts the layers. A cancelled **Do All** changes nothing: the image keeps the result of the earlier run, and **Save image** still writes that one, not a half-finished result.
+**Do All** (Wavelets step) can be stopped and paused like Align and Stack. It works layer by layer and checks between two layers, so **Cancel** and **Pause** take effect after the layer that is being calculated; on a large image that is a moment. The progress bar counts the layers. A cancelled **Do All** changes nothing: the image keeps the result of the earlier run, and **Save image** still writes that one, not a half-finished result.
 
 **Process** calculates only the Processing Area, which takes a fraction of a second, so it is not stopped in the middle. **Cancel** drops the result when it arrives, and the image stays as it was.

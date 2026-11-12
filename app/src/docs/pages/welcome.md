@@ -5,18 +5,22 @@ order: 1
 ---
 # Welcome
 
-SidereaPlanets rebuilds the reference program for planetary and lunar astrophotography: it aligns the frames of a video, stacks the best ones and sharpens the result with wavelets. Operation and terms follow the original, so the reference program users find their way around right away.
+SidereaPlanets rebuilds the reference program for planetary and lunar astrophotography: it aligns the frames of a video, stacks the best ones and sharpens the result with wavelets. The buttons and settings carry the names of the original, so the reference program users find them quickly; the window guides you step by step instead of spreading the controls over tabs.
 
-## The three steps
+## The seven steps
 
-Work runs from left to right through three tabs:
+The window leads you from left to right through seven steps in the step bar. The panel on the left shows only the step you are on, with one button at the bottom; when it has run, the next step opens by itself.
 
-1. **Align** – find the planet in every frame and measure how much each frame has to move.
-2. **Stack** – add up the best frames into one sharper image.
-3. **Wavelet** – bring out fine detail in the stacked image.
+1. **Open** – choose a recording.
+2. **Alignpoints** – mark the details the frames are lined up on.
+3. **Align** – line up every frame and rate how sharp it is.
+4. **Limit** – keep the sharpest frames.
+5. **Stack** – add up the kept frames into one sharper image.
+6. **Wavelets** – bring out fine detail in the stacked image.
+7. **Save** – write the finished image to a file.
 
 ## Where things stand
 
 SidereaPlanets is a prototype and grows ticket by ticket. Today you can run the whole chain, from opening a recording to saving the sharpened image; what is still missing is marked on the page of each function. Every page of this documentation says plainly what is not available yet.
 
-Start with [Select a recording](select-a-recording).
+Start with [Select a recording](select-a-recording), or see [The window at a glance](window-at-a-glance).

@@ -2,7 +2,7 @@
 import { formatDuration } from "../logic/workflow";
 import { status } from "../state";
 
-// Five fields: progress, current action, result, position under the pointer (Wavelet tab), time.
+// Five fields: progress, current action, result, position under the pointer (Wavelets and Save steps), time.
 </script>
 
 <template>

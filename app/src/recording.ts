@@ -89,7 +89,10 @@ export function startSession(info: RecordingInfo, name: string) {
   session.fileName = name;
   session.paths = [];
   session.step = "loaded";
-  session.tab = "align";
+  // After Select the next open step is Alignpoints.
+  session.view = "alignpoints";
+  session.saved = false;
+  session.savedName = "";
   session.frame = 0;
   session.frameImage = null;
   session.stackImage = null;
