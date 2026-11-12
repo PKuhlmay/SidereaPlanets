@@ -4,7 +4,7 @@ import SidereaPlanetsKit
 
 /// What the app model needs from the Rust core. `PlanetsSession` is the real one; the tests bring a fake. Later steps
 /// add their calls here.
-protocol SessionBackend: Sendable {
+protocol SessionBackend: WaveletBackend {
     func openRecording(_ urls: [URL]) async throws -> RecordingInfo
     /// One frame of the open recording (0-based), ready for display.
     func frameImage(_ index: UInt32) async throws -> CGImage

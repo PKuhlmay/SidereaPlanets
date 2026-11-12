@@ -330,7 +330,7 @@ import Testing
     }
 
     @Test func theStepsUpToStackAreBuilt() {
-        #expect(ViewStep.allCases.filter(\.isBuilt) == [.open, .alignpoints, .align, .limit, .stack, .save])
+        #expect(ViewStep.allCases.filter(\.isBuilt) == [.open, .alignpoints, .align, .limit, .stack, .wavelets, .save])
     }
 
     @Test func anOpenAdvancedSectionIsKeptAcrossLaunches() {

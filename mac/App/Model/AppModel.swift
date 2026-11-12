@@ -47,6 +47,7 @@ final class AppModel {
             guard viewStep != oldValue else { return }
             syncViewport()
             viewport.fit()
+            waveletViewChanged()
         }
     }
 
@@ -60,11 +61,16 @@ final class AppModel {
     /// What the step Save keeps: the file type of Save image, the name it wrote last, a write under way.
     var saveState = SaveState()
     /// The stack, from Stack until Set Alignpoints, Align or Limit runs again.
-    var stacked: StackedImage?
+    var stacked: StackedImage? { didSet { waveletStackChanged() } }
+    /// The step Wavelets: the values of the panel, of the Functions cards and of Contrast/Brightness, the pictures, and the requests that run.
+    var wavelet = WaveletOptions() { didSet { waveletOptionsChanged(from: oldValue) } }
+    var tone = ToneValues() { didSet { toneChanged(from: oldValue) } }
+    var waveletData = WaveletData()
+    @ObservationIgnored let waveletWork = WaveletWork()
     /// The next drag in the image draws the region (R.o.Interest).
     var isDrawingRegion = false
     /// A calculation is running: no pill opens and the actions are locked.
-    var run: Run?
+    var run: Run? { didSet { if run == nil { waveletRunEnded() } } }
     @ObservationIgnored var clock = JobClock()
     @ObservationIgnored var ticker: Task<Void, Never>?
     /// The steps whose Advanced section is open; kept until closed again, also after a restart.
@@ -115,11 +121,16 @@ final class AppModel {
     var showsStack: Bool { stacked != nil && [.stack, .wavelets, .save].contains(viewStep) }
 
     /// The image the image area shows.
-    var shownImage: CGImage? { showsStack ? stacked?.image : image }
+    var shownImage: CGImage? {
+        if stacked != nil, viewStep == .wavelets || viewStep == .save, let sharpened = waveletShownImage { return sharpened }
+        return showsStack ? stacked?.image : image
+    }
 
     /// The chip at the top left of the image area: what the image shows.
     var imageCaption: String? {
-        if let stacked, showsStack { return "Stack of \(stacked.frames) frames" }
+        if let stacked, showsStack {
+            return showsSharpened && (viewStep == .wavelets || viewStep == .save) ? "Sharpened stack" : "Stack of \(stacked.frames) frames"
+        }
         return image == nil ? nil : "Frame \(frameIndex + 1) of \(frameCount)"
     }
 
@@ -137,7 +148,7 @@ final class AppModel {
         case .limit: "\(align.keptCount) of \(frameCount) kept"
         case .stack: stacked.map { stackResultText(frames: $0.frames, width: $0.width, height: $0.height) } ?? ""
         case .save: saveState.savedName
-        default: ""
+        case .wavelets: "applied to the whole image"
         }
     }
 

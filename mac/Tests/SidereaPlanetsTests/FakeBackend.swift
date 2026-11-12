@@ -79,6 +79,8 @@ actor FakeBackend: SessionBackend {
     // MARK: Alignpoints, Align, Limit
 
     nonisolated let log = CallLog()
+    /// What the Wavelets calls were asked and what they answer (`FakeBackend+Wavelets.swift`).
+    nonisolated let wavelets = WaveletLog()
     /// Eight candidate points; the default threshold drops the two weakest.
     static let candidateCount = 8
     static let defaultThreshold = 2

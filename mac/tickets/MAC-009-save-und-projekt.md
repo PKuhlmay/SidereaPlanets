@@ -1,14 +1,14 @@
 # MAC-009 Schritt Save, Export und Projektdatei
 
-- Status: in Arbeit
+- Status: erledigt
 - Abhängig von: MAC-008
 - Teil von: MAC-001, Kriterium „Schritt Save“
 
 ## Akzeptanzkriterien
 
-- [ ] Save image (⌘S) in allen Formaten der Windows-App (`export_formats`), mit Farbanpassungen, nativer Dialog
-      (Formate, Dialog und ⌘S fertig; offen bleiben die Farbanpassungen: die Karten RGB Align, RGB Balance, Histogram, Gamma und
-      Contrast/Brightness gibt es erst mit MAC-008, `AppModel.saveAdjustments` ist die Stelle, an der sie eingehen)
+- [x] Save image (⌘S) in allen Formaten der Windows-App (`export_formats`), mit Farbanpassungen, nativer Dialog
+      (die Werte der Karten RGB Align, RGB Balance, Histogram, Gamma und von Contrast/Brightness gehen mit MAC-008 über
+      `AppModel.saveAdjustments` ein; `WaveletSaveTests`)
 - [x] Save Aligned und Save Integrated mit Fortschritt
 - [x] Save project und Open project (gleiches Format wie Windows, `crates/io/src/project.rs`)
 - [x] Nach erneutem Align ist Save image gesperrt, bis neu gestapelt ist (Session)
@@ -33,9 +33,8 @@
   stehen nicht in der Datei.
 - Mac-Art: Menü File mit Save Image… (⌘S), Save Project… und Open Project…; Open und Save in der Werkzeugleiste (Windows: dieselben
   Schaltflächen); `NSSavePanel` mit dem gewählten Typ (`docs/design.md`, „Mac-App: bewusste Abweichungen“).
-- Anschlussstellen für MAC-008 (Wavelets): `saveAdjustments` (Farbwerte, `nil` solange neutral), `ensureProcessedImage()` (Do All vorher, wie
-  `doAllIsUpToDate() || runDoAll()`), `projectSections`/`applyProjectSections` (Abschnitte `wavelet` und `colour` ergänzen) und
-  `progress.waveletsDone`. Bis dahin meldet das Speichern des geschärften Bildes „Do All: not available yet“. Ein Projekt, das ein Abschnitt
-  enthält, den der Mac noch nicht kennt (`wavelet`, `colour`), verliert ihn beim erneuten Speichern.
+- Anschlussstellen für MAC-008 (Wavelets), mit MAC-008 gefüllt: `saveAdjustments` (Farbwerte aller Karten und von Contrast/Brightness, `nil` solange
+  neutral und für den Stack), `ensureProcessedImage()` (Do All vorher, wie `doAllIsUpToDate() || runDoAll()`) und `projectSections`/
+  `applyProjectSections` (Abschnitte `wavelet` und `colour` im Windows-Format, `WaveletProject.swift`).
 - Tests: `SaveLogicTests`, `SaveModelTests` (Attrappe), `JupiterSaveTests` (echter Kern: TIFF 16 bit, Save Aligned, Projekt-Rundlauf),
   im Paket `SaveFlowTests` (JUPITER.AVI bis TIFF 16 bit, Projektdatei).

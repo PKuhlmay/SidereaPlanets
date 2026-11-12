@@ -25,6 +25,10 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] Menüleiste und ⌘-Kürzel (Open ⌘O, Cancel ⌘., Help ⌘?, Settings… ⌘,, About im App-Menü, Enter Full Screen im Menü View, Process > Go to Step mit ⌥⌘1 bis ⌥⌘7) wirken; Save image ⌘S, Save project und Open project kommen mit dem Schritt Save.
 - [ ] Settings… (⌘,): Fenster mit dem Feld CPUs; Standard sind alle Kerne; Zahl eintippen und mit Return bestätigen, 99 wird zur Kernzahl, 0 zu 1; mit 1 ist ein langer Align deutlich langsamer (Activity Monitor: nur ein Kern ausgelastet).
 - [ ] Release-Bündel (`scripts/build-mac-release.sh`, `build/release/SidereaPlanets-<Version>-mac.zip`) auf einem anderen Mac: Rechtsklick > Öffnen startet es (ad hoc signiert, nicht notarisiert), Help zeigt die Seiten, Intel-Mac und Apple-Silicon-Mac laufen beide.
+- [ ] Schritt Wavelets (MAC-008): Regler einer Ebene ziehen, die Vorschau in der Processing Area folgt flüssig (Statusleiste „Preview: n ms“); Use Linked
+  Wavelets nimmt alle Regler mit; Process; Do All mit Fortschritt, Pause und Cancel (⌘.), danach öffnet Save; Before schaltet auf den Stack zurück; Colour
+  und LRGB (LRGB nur mit Colour); Functions » blendet das rechte Panel aus; Histogram (Dreiecke ziehen, Auto), Gamma, RGB Align (Auto) und RGB Balance
+  verändern das Bild sofort, Contrast/Brightness, Copy To, Load to, Difference; Load Scheme und Save Scheme (Advanced und Settings…) mit einer `.rwv`-Datei von Windows.
 - [ ] Helles und dunkles Thema, auch beim Umschalten der macOS-Darstellung.
 
 ## Windows

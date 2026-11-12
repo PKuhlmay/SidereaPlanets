@@ -24,17 +24,19 @@ struct FloatingCards: View {
     }
 }
 
-/// The frame of a card: title, close cross, content.
-private struct FloatCard<Content: View>: View {
+/// The frame of a card: title, actions such as Reset or Auto as links at the left of the cross, the close cross, content.
+struct FloatCard<Actions: View, Content: View>: View {
     let title: String
     let close: () -> Void
+    @ViewBuilder let actions: () -> Actions
     @ViewBuilder let content: () -> Content
 
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 2) {
                 Text(title).font(.rk(RKMetrics.fontSize, .semibold)).foregroundStyle(RK.text)
                 Spacer()
+                actions()
                 Button(action: close) { Image(systemName: "xmark").font(.system(size: 9, weight: .semibold)) }
                     .buttonStyle(.rkBorderless)
                     .foregroundStyle(RK.muted)
@@ -53,6 +55,12 @@ private struct FloatCard<Content: View>: View {
         .shadow(color: .black.opacity(0.45), radius: 14, y: 10)
         .accessibilityElement(children: .contain)
         .accessibilityLabel(title)
+    }
+}
+
+extension FloatCard where Actions == EmptyView {
+    init(title: String, close: @escaping () -> Void, @ViewBuilder content: @escaping () -> Content) {
+        self.init(title: title, close: close, actions: { EmptyView() }, content: content)
     }
 }
 

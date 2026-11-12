@@ -21,12 +21,16 @@ mac/
                          RecentList (MRU), RecordingDetails (Dateiangaben), ViewTransform und ImageViewport (Zoom und Pan),
                          SessionBackend (was die App vom Kern braucht), RecordingPicker (NSOpenPanel), DebugLaunch (nur Debug),
                          AppModel+Save (Save image, Save Aligned/Integrated, Save und Open project), SaveLogic (Create-AVI-Werte,
-                         Projektabschnitte, JSON), SavePanels (NSSavePanel und NSOpenPanel)
+                         Projektabschnitte, JSON), SavePanels (NSSavePanel und NSOpenPanel),
+                         AppModel+Wavelets (Vorschau, Process, Do All, Schemes, Karten, Contrast/Brightness, Copy To), WaveletLogic (Werte,
+                         Verknüpfte Regler, Processing Area, Töne, Histogramm, Differenz), WaveletBackend (was der Schritt vom Kern braucht),
+                         WaveletProject (Abschnitte wavelet und colour der Projektdatei)
     Views/               ContentView (Fenster und Werkzeugleiste), StepBar, StepPanel, AlignPanels (Alignpoints, Align, Limit mit
                          Qualitätsdiagramm), StackPanel, Controls (Zahlenfeld, Auswahl), ImageArea (mit Show-Menü), ImageCanvas (NSView mit einer
                          CALayer für das Bild, zieht auch die R.o.Interest-Region), ImageOverlays (Punkte, Ringe, Region), FloatingCards
                          (Framelist, Registrationgraph, Alignmentpoints), FrameBar, StatusBar, Save/SaveViews (Schritt Save, Menü Save image,
-                         Gruppe Create AVI im Stack-Panel)
+                         Gruppe Create AVI im Stack-Panel), Wavelets/ (WaveletsPanel mit Ebenen und Schemes, FunctionsPanel rechts,
+                         FunctionCards Histogram, Gamma, RGB Align, RGB Balance, WaveletControls: Dezimalfeld, Segmente, Textlinks)
   Tests/SidereaPlanetsTests/ Swift Testing: Schrittzustände, MRU, AppModel (mit FakeBackend), Zoom-Rechnung, Dateiangaben, Hilfeseiten (HelpDocsTests), CPUs (CpuSettingsTests)
   Packages/SidereaPlanetsKit/  Swift-Paket um die Rust-Schnittstelle (XCFramework und erzeugte Bindings)
   tickets/               MAC-NNN-kurzer-titel.md
@@ -211,6 +215,6 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-005 | App-Gerüst, Fenster, Bildbereich, Open | erledigt |
 | MAC-006 | Alignpoints, Align, Limit | erledigt |
 | MAC-007 | Stack | erledigt |
-| MAC-008 | Wavelets, Farbe, Functions | offen |
-| MAC-009 | Save, Export, Projektdatei | in Arbeit (Farbwerte im Save-Bild mit MAC-008) |
-| MAC-010 | Hilfe, Menüs, CPUs, Release | in Arbeit |
+| MAC-008 | Wavelets, Farbe, Functions | erledigt |
+| MAC-009 | Save, Export, Projektdatei | erledigt |
+| MAC-010 | Hilfe, Menüs, CPUs, Release | erledigt |

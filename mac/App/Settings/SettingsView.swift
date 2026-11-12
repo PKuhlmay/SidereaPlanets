@@ -5,8 +5,10 @@ import SwiftUI
 /// yet; each one comes with the step that uses it.
 struct SettingsView: View {
     @State private var cpus: CpuSettings
+    @Bindable private var model: AppModel
 
     init(model: AppModel) {
+        self.model = model
         _cpus = State(initialValue: CpuSettings.live(for: model))
     }
 
@@ -33,6 +35,26 @@ struct SettingsView: View {
                 if !cpus.error.isEmpty {
                     Text(cpus.error).font(.rkSmall).foregroundStyle(RK.accentInk)
                 }
+            }
+            Section("Wavelets") {
+                Picker("Processing Area", selection: $model.wavelet.processingAreaSide) {
+                    ForEach([2048, 1024, 512, 256, 128], id: \.self) { side in Text("\(side) x \(side)").tag(side) }
+                }
+                Text("The square in the middle of the image the live preview of the Wavelets step calculates.")
+                    .font(.rkSmall)
+                    .foregroundStyle(RK.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+                LabeledContent("Schemes") {
+                    HStack(spacing: 8) {
+                        Button("Load Scheme…") { Task { await model.chooseSchemeToLoad() } }
+                            .disabled(model.isBusy)
+                        Button("Save Scheme…") { model.chooseSchemeToSave() }
+                    }
+                }
+                Text("A scheme is a .rwv file with the scheme, filter, Initial Layer, Step Incr. and the six layers of the Wavelets step, the format of the reference program.")
+                    .font(.rkSmall)
+                    .foregroundStyle(RK.muted)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .formStyle(.grouped)

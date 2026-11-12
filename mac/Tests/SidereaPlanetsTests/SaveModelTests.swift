@@ -159,7 +159,7 @@ final class Dialogs {
 
     @Test func theSaveStepWritesTheSharpenedImageAndIsDoneAfterwards() async throws {
         await stackedRecording()
-        model.progress.waveletsDone = true  // what Do All of the Wavelets step leaves behind
+        await model.runDoAll()
         model.show(.save)
         let dialogs = Dialogs(answer: folder.appendingPathComponent("sharp.png"))
         await model.saveImage(try format(.png16, .wavelet), choose: dialogs.save)
@@ -172,19 +172,20 @@ final class Dialogs {
         #expect(model.status.result == "Saved sharp.png")
     }
 
-    @Test func theSharpenedImageNeedsDoAllFirst() async throws {
+    @Test func theSharpenedImageRunsDoAllFirst() async throws {
         await stackedRecording()
         model.show(.save)
+        #expect(!model.progress.waveletsDone)
         let dialogs = Dialogs(answer: folder.appendingPathComponent("sharp.png"))
         await model.saveImage(try format(.png16, .wavelet), choose: dialogs.save)
-        #expect(await backend.imageSaves.isEmpty && dialogs.saveRequests.isEmpty)
-        #expect(model.status.result == "Do All: not available yet")
-        #expect(!model.progress.saved)
+        #expect(backend.wavelets.doAlls.count == 1)
+        #expect(await backend.imageSaves.count == 1 && dialogs.saveRequests.count == 1)
+        #expect(model.status.result == "Saved sharp.png" && model.progress.saved)
     }
 
     @Test func aNewStackTakesTheSavedMarkAway() async throws {
         await stackedRecording()
-        model.progress.waveletsDone = true
+        await model.runDoAll()
         model.show(.save)
         await model.saveImage(try format(.png16, .wavelet), choose: Dialogs(answer: folder.appendingPathComponent("s.png")).save)
         #expect(model.progress.saved)

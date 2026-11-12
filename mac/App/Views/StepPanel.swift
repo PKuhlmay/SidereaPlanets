@@ -59,11 +59,8 @@ struct StepPanel: View {
         case .align: AlignStepView(model: model)
         case .limit: LimitStepView(model: model)
         case .stack: StackStepView(model: model)
+        case .wavelets: WaveletsStepView(model: model)
         case .save: SaveStepView(model: model)
-        default:
-            Text("Comes in a later version")
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
         }
     }
 
@@ -89,9 +86,11 @@ struct StepPanel: View {
                     .foregroundStyle(RK.ok)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                Button("\(step.action) again", action: act)
-                    .buttonStyle(.rkWide)
-                    .disabled(!step.isBuilt || model.isBusy)
+                actionLine {
+                    Button("\(step.action) again", action: act)
+                        .buttonStyle(.rkWide)
+                        .disabled(!step.isBuilt || model.isBusy)
+                }
                 if model.progress.againDiscards(step) {
                     Text("Running it again discards the steps after it.")
                         .font(.rkSmall)
@@ -106,10 +105,12 @@ struct StepPanel: View {
                 if step == .save {
                     SaveImageMenu(model: model, source: .wavelet, filled: true)
                 } else {
-                    Button(step.action, action: act)
-                        .buttonStyle(.rkFilled)
-                        .disabled(!step.isBuilt || model.isBusy)
-                        .help(step.isBuilt ? "" : "Comes in a later version")
+                    actionLine {
+                        Button(step.action, action: act)
+                            .buttonStyle(.rkFilled)
+                            .disabled(!step.isBuilt || model.isBusy)
+                            .help(step.isBuilt ? "" : "Comes in a later version")
+                    }
                 }
                 if let next = step.next {
                     Text("Then: \(next.label)").font(.rkSmall).foregroundStyle(RK.muted)
@@ -121,7 +122,20 @@ struct StepPanel: View {
         .overlay(alignment: .top) { RK.line.frame(height: 1) }
     }
 
-    /// The action of the shown step; Do All and Save image come with their tickets.
+    /// The action button; in the Wavelets step Process stands at its left.
+    private func actionLine<Action: View>(@ViewBuilder _ action: () -> Action) -> some View {
+        HStack(spacing: 6) {
+            if step == .wavelets {
+                Button("Process") { Task { await model.runProcess() } }
+                    .buttonStyle(.rk)
+                    .disabled(model.isBusy || model.stacked == nil)
+                    .help("Calculate the preview area with the current settings")
+            }
+            action()
+        }
+    }
+
+    /// The action of the shown step; Save image comes with its ticket.
     private func act() {
         switch step {
         case .open: select()
@@ -129,7 +143,8 @@ struct StepPanel: View {
         case .align: Task { await model.runAlign() }
         case .limit: Task { await model.runLimit() }
         case .stack: Task { await model.runStack() }
-        case .wavelets, .save: break
+        case .wavelets: Task { await model.doAll() }
+        case .save: break
         }
     }
 }

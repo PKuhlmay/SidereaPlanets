@@ -11,6 +11,7 @@ struct ContentView: View {
             HStack(spacing: 0) {
                 StepPanel(model: model) { Task { await model.select() } }
                 ImageArea(model: model)
+                if model.viewStep == .wavelets && model.wavelet.functionsOpen { FunctionsPanel(model: model) }
             }
             if model.showsFrameBar {
                 FrameBar(model: model)

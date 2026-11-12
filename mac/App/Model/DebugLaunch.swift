@@ -13,6 +13,10 @@ extension AppModel {
     /// the first frame, for a picture of a running Align, `stackpaused` the same for Stack), `-step open|alignpoints|…` shows that step and `-frame 5` that frame
     /// (1-based) once the recording is open. Settings: `-show framelist,registrationgraph,alignpoints,roi`,
     /// `-roi x,y,width,height` and `-limit lowestQuality|bestPercent|framesPerPoint|bestCount`.
+    /// For the Wavelets step: `-run …,process` and `…,doall` press Process and Do All (`doallpaused` pauses Do All after the first layer),
+    /// `-layers 32,22,14,10,10,10` sets the sliders, `-functions Histogram,Gamma` opens cards, `-colour colour|lrgb|gray`,
+    /// `-tone black=10,white=240,gamma=1.3,red=110,contrast=300,brightness=20` sets card values, `-before 1` shows Before; `-show` also knows
+    /// `processingarea` and `wavealignpoints`.
     func applyLaunchArguments() async {
         let defaults = UserDefaults.standard
         switch defaults.string(forKey: "appearance") {
@@ -28,6 +32,8 @@ extension AppModel {
             show.framelist = names.contains("framelist")
             show.registrationgraph = names.contains("registrationgraph")
             if names.contains("noalignpoints") { show.alignpoints = false }
+            wavelet.showProcessingArea = names.contains("processingarea")
+            wavelet.showAlignpoints = names.contains("wavealignpoints")
         }
         if let mode = defaults.string(forKey: "limit").flatMap(LimitMode.init(rawValue:)) {
             options.limitMode = mode
@@ -50,15 +56,56 @@ extension AppModel {
                 Task { await runStack() }
                 try? await Task.sleep(for: .milliseconds(1100))
                 togglePause()
+            case "process":
+                await runProcess()
+                await settleColours()
+            case "doall":
+                await doAll()
+                await settleColours()
+            case "doallpaused":
+                Task { await doAll() }
+                try? await Task.sleep(for: .milliseconds(150))
+                togglePause()
             case "roidraw": toggleRegionOfInterest()
             default: break
             }
         }
+        applyWaveletArguments(defaults)
         if let name = defaults.string(forKey: "step"), let step = ViewStep.allCases.first(where: { $0.label.lowercased() == name }) {
             show(step)
         }
         if defaults.integer(forKey: "frame") > 0 {
             showFrame(defaults.integer(forKey: "frame") - 1)
+        }
+        waveletData.before = defaults.integer(forKey: "before") > 0
+        await settleWaveletPreview()
+    }
+
+    /// The Wavelets arguments: values of the layers and cards, applied once the stack is there.
+    private func applyWaveletArguments(_ defaults: UserDefaults) {
+        let levels = (defaults.string(forKey: "layers") ?? "").split(separator: ",").compactMap { Int($0) }
+        for (index, level) in levels.prefix(WaveletLimits.layerCount).enumerated() { wavelet.values.layers[index].level = level }
+        if let list = defaults.string(forKey: "functions") { wavelet.functions = list.split(separator: ",").map(String.init) }
+        switch defaults.string(forKey: "colour") {
+        case "lrgb": wavelet.colour = true; wavelet.lrgb = true
+        case "gray": wavelet.colour = false
+        case "colour": wavelet.colour = true; wavelet.lrgb = false
+        default: break
+        }
+        for pair in (defaults.string(forKey: "tone") ?? "").split(separator: ",") {
+            let parts = pair.split(separator: "=")
+            guard parts.count == 2, let value = Double(parts[1]) else { continue }
+            switch parts[0] {
+            case "black": tone.black = Int(value)
+            case "white": tone.white = Int(value)
+            case "gamma": tone.gamma = value
+            case "red": tone.red = Int(value)
+            case "green": tone.green = Int(value)
+            case "blue": tone.blue = Int(value)
+            case "contrast": tone.contrast = Int(value)
+            case "brightness": tone.brightness = Int(value)
+            default: break
+            }
         }
     }
 }

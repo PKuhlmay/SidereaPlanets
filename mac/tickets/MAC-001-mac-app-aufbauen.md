@@ -47,10 +47,10 @@ Oberfläche (nach `docs/design.md`, Soll-Bilder `docs/design/screenshots/`, dunk
       Qualitätsbalken, Framelist, Registrationgraph, R.o.Interest, Frames/Apoint, erneutes Ausrichten wie in RK-005
 - [x] Schritt **Stack**: alle wirksamen Optionen (Nearestby Alignpoints, Correct geometry, Normalization, Edge pixels), die
       unwirksamen gesperrt mit „Not available yet“
-- [ ] Schritt **Wavelets**: sechs Ebenen, Process, Do All, Before, Processing Area, Live-Vorschau, Colour/LRGB, Functions-Karten
+- [x] Schritt **Wavelets**: sechs Ebenen, Process, Do All, Before, Processing Area, Live-Vorschau, Colour/LRGB, Functions-Karten
       (Histogram, Gamma, RGB Align, RGB Balance), Contrast/Brightness, Load Scheme und Save Scheme
-- [ ] Schritt **Save**: Save image in allen Formaten, Save Aligned, Save Integrated, Save project und Open project
-- [ ] Bildbereich: Zoom um den Zeiger, Pan, 100 %-Klick, Einpassen bei Schrittwechsel, Vorher/Nachher
+- [x] Schritt **Save**: Save image in allen Formaten, Save Aligned, Save Integrated, Save project und Open project
+- [x] Bildbereich: Zoom um den Zeiger, Pan, 100 %-Klick, Einpassen bei Schrittwechsel, Vorher/Nachher
 - [x] CPUs-Feld wirkt auf den Thread-Pool des Kerns (Standard alle Kerne)
 - [x] Help öffnet die Anwenderseiten (`app/src/docs/pages/`, dieselben Markdown-Dateien) in einem eigenen Fenster
 - [ ] Mac-Konventionen als bewusste Abweichung in `docs/design.md` eingetragen: Menüleiste und ⌘-Kürzel (⌘O Open, ⌘S Save image, ⌘.

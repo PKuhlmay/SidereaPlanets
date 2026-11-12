@@ -33,19 +33,21 @@ extension AppModel {
     /// Save project is possible with any recording; Open project and every save only while nothing runs.
     var canSaveProject: Bool { hasRecording && !isBusy }
 
-    // MARK: Hooks for the Wavelets step (MAC-008)
+    // MARK: Hooks of the Wavelets step (MAC-008)
 
-    /// The colour and tone values the sharpened image is written with (`colourPayload` of colour.ts); `nil` while they leave the image as it is.
-    /// The Wavelets step answers here once it has the cards RGB Align, RGB Balance, Histogram, Gamma and Contrast/Brightness.
-    var saveAdjustments: ColorSettings? { nil }
+    /// The colour and tone values the sharpened image is written with (`colourPayload` of colour.ts): all cards and Contrast/Brightness, `nil`
+    /// while they leave the image as it is and for the stack.
+    var saveAdjustments: ColorSettings? {
+        guard saveSource == .wavelet else { return nil }
+        let values = tone.core
+        return isNeutral(values) ? nil : values
+    }
 
     /// Makes the sharpened image match the current wavelet values: runs Do All if the layers, Colour or LRGB changed since the last one
-    /// or none ran yet (`doAllIsUpToDate() || runDoAll()`). `false` when it was cancelled or failed; then nothing is saved. The Wavelets
-    /// step runs Do All here; without it the sharpened image only exists once `progress.waveletsDone` says so.
+    /// or none ran yet (`doAllIsUpToDate() || runDoAll()`). `false` when it was cancelled or failed; then nothing is saved.
     func ensureProcessedImage() async -> Bool {
-        if progress.waveletsDone { return true }
-        status.result = "Do All: not available yet"
-        return false
+        if doAllIsCurrent { return true }
+        return await runDoAll()
     }
 
     // MARK: Save image
@@ -70,8 +72,7 @@ extension AppModel {
         saveState.isWriting = true
         defer { saveState.isWriting = false }
         do {
-            let adjustments = source == .wavelet ? saveAdjustments.flatMap { isNeutral($0) ? nil : $0 } : nil
-            let written = try await backend.saveImage(source, format: format.id, to: url, adjustments: adjustments)
+            let written = try await backend.saveImage(source, format: format.id, to: url, adjustments: saveAdjustments)
             status.result = "Saved \(written.lastPathComponent)"
             if source == .wavelet {
                 saveState.savedName = written.lastPathComponent
@@ -116,15 +117,26 @@ extension AppModel {
     // MARK: Project file
 
     /// The sections of the project file, one per step that has settings, with the layout of the Windows app (`buildProject` of
-    /// projectfile.ts). The Wavelets step adds `wavelet` (all settings of the tab) and `colour` (`{colour, lrgb}`) here.
+    /// projectfile.ts): `wavelet` holds all settings of the Wavelet tab, `colour` is `{colour, lrgb}`.
     var projectSections: [String: JSON] {
-        ["align": alignSection(options, show: show), "stack": stackSection(stackOptions)]
+        [
+            "align": alignSection(options, show: show), "stack": stackSection(stackOptions),
+            "wavelet": waveletSection(wavelet, tone: tone), "colour": colourSection(wavelet),
+        ]
     }
 
-    /// Puts the settings of a loaded project into the window; the Wavelets step reads its sections here too.
+    /// Puts the settings of a loaded project into the window. The Wavelets step stays locked until Stack, so the values of the file would
+    /// be gone before anyone saw them: they are kept for the first stack, Hold or not.
     func applyProjectSections(_ sections: [String: JSON]) {
         applyAlignSection(sections["align"], to: &options, show: &show)
         applyStackSection(sections["stack"], to: &stackOptions)
+        var waveletOptions = wavelet
+        var toneValues = tone
+        applyWaveletSection(sections["wavelet"], to: &waveletOptions, tone: &toneValues)
+        applyColourSection(sections["colour"], to: &waveletOptions)
+        wavelet = waveletOptions
+        tone = toneValues
+        keepWaveletValuesForNextStack()
     }
 
     /// Save project: the recording and the settings of the steps. The results of Align and Stack are not stored; they are calculated again.
