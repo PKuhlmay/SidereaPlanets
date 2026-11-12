@@ -71,8 +71,8 @@ Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist
 - Frontend: `app/src/stack.ts` (Handler `stack` in `app/src/actions.ts`, über `runJob`), Anfrage aus dem Fensterzustand in
   `app/src/logic/stack.ts`. Das Bezugsframe steht in `session.referenceFrame`; *Set Alignpoints* (RK-005) muss es setzen,
   bis dahin gilt Frame 0.
-- Tauri: `stack_commands::StackState::image()` liefert eine Kopie des letzten Summenbilds; Befehle `stack`, `stacked_image`,
-  `cancel_stacking`, `pause_stacking`, Ereignis `stack-progress`.
+- Sitzung: `planets_session::Session::stack` und `stacked_image` (`crates/session/src/stack.rs`) halten das letzte Summenbild; die
+  Tauri-Befehle `stack`, `stacked_image`, `cancel_stacking`, `pause_stacking` sind dünne Hüllen darüber, Ereignis `stack-progress`.
 
 ## Vergleich mit dem Original
 
@@ -153,6 +153,6 @@ Nicht Teil der Akzeptanzkriterien und nie beobachtet; jeweils nur der Name bekan
 - Helligkeit: Der Frameversatz-Stack ist 0,36 % heller als das Original (vermutlich rundet das Original auf 8 Bit); ohne Folgen
   für die Schwelle.
 - Ob das Original beim Stacken neu registriert oder die Ergebnisse von *Align* weiterverwendet. Der Klon registriert im
-  Tauri-Befehl neu, weil der Zustand der Align-Befehle nicht von außen lesbar ist; der Kern kann beides.
+  `Session::stack` neu und liest die Ergebnisse von *Align* dort nicht (nur *Save Aligned* tut es); der Kern kann beides.
 - „Tests erst rot“: Der Vergleichstest war rot (43,92 dB gegen 45), die beiden Tests der Untersuchung gegen den Stand ohne
   Vertrauen und ohne `at_limit`-Filter ebenfalls. Die übrigen Tests in `stack.rs` wurden nicht gegen kaputte Varianten geprüft.

@@ -1,107 +1,131 @@
+//! The Tauri shell of the Windows app: thin commands over [`planets_session::Session`], which holds all state
+//! and logic. A command translates its arguments, calls the session, packs images into binary
+//! responses and maps progress to events. Command names, argument names, return shapes and event
+//! payloads are the contract with the Vue frontend (`app/src`).
+
 mod align_commands;
 mod color_commands;
-mod compute;
 mod export_commands;
 mod sequence_commands;
 mod stack_commands;
 mod wavelet_commands;
 
-use planets_io::recording::{Recording, RecordingInfo as IoInfo};
-use serde::Serialize;
-use std::{path::PathBuf, sync::Mutex};
-use tauri::{AppHandle, Manager, State, ipc::Response};
+use planets_session::{
+    Operation, ProgressSink, RecordingInfo, RgbaImage, Session, SessionError, logical_cores,
+};
+use serde::{Serialize, Serializer};
+use std::path::PathBuf;
+use tauri::{AppHandle, Emitter, State, ipc::Response};
 
-/// Summary of an opened recording, as shown in the UI.
-#[derive(Serialize)]
-#[serde(rename_all = "camelCase")]
-struct RecordingInfo {
-    format: &'static str,
-    codec: Option<String>,
-    width: u32,
-    height: u32,
-    bit_depth: u8,
-    frame_count: u32,
-    color: String,
-    fps: Option<f64>,
-    observer: Option<String>,
-    instrument: Option<String>,
-    telescope: Option<String>,
-}
+/// The error of a command: the text the window shows. It reaches the frontend as a plain string.
+pub(crate) struct CommandError(String);
 
-impl From<IoInfo> for RecordingInfo {
-    fn from(i: IoInfo) -> Self {
-        Self {
-            format: i.format,
-            codec: i.codec,
-            width: i.width,
-            height: i.height,
-            bit_depth: i.bit_depth,
-            frame_count: i.frame_count,
-            color: i.color,
-            fps: i.fps,
-            observer: i.observer,
-            instrument: i.instrument,
-            telescope: i.telescope,
-        }
+impl From<SessionError> for CommandError {
+    fn from(error: SessionError) -> Self {
+        Self(error.to_string())
     }
 }
 
-/// The recording that is currently open.
-#[derive(Default)]
-struct AppState(Mutex<Option<Recording>>);
+impl From<String> for CommandError {
+    fn from(message: String) -> Self {
+        Self(message)
+    }
+}
+
+impl Serialize for CommandError {
+    fn serialize<S: Serializer>(&self, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(&self.0)
+    }
+}
+
+pub(crate) type CommandResult<T> = Result<T, CommandError>;
+
+/// Progress of the long operations as the events the frontend listens to: `align-progress`,
+/// `stack-progress` and `sequence-progress` carry `{ done, total, elapsedMs }`, `wavelet-progress`
+/// carries `{ done, total }`.
+pub(crate) struct Events(pub(crate) AppHandle);
+
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct TimedProgress {
+    done: u32,
+    total: u32,
+    elapsed_ms: u64,
+}
+
+#[derive(Serialize, Clone)]
+struct LayerProgress {
+    done: u32,
+    total: u32,
+}
+
+impl ProgressSink for Events {
+    fn progress(&self, operation: Operation, done: u32, total: u32, elapsed_ms: u64) {
+        let timed = TimedProgress {
+            done,
+            total,
+            elapsed_ms,
+        };
+        let _ = match operation {
+            Operation::Align => self.0.emit("align-progress", timed),
+            Operation::Stack => self.0.emit("stack-progress", timed),
+            Operation::Sequence => self.0.emit("sequence-progress", timed),
+            Operation::Wavelet => self
+                .0
+                .emit("wavelet-progress", LayerProgress { done, total }),
+        };
+    }
+}
+
+/// Packs an image as binary: width (u32 LE), height (u32 LE), then width * height * 4 bytes RGBA.
+pub(crate) fn pack(image: RgbaImage) -> Response {
+    let (width, height) = (image.width(), image.height());
+    let mut out = Vec::with_capacity(8 + image.rgba().len());
+    out.extend(width.to_le_bytes());
+    out.extend(height.to_le_bytes());
+    out.extend(image.into_rgba());
+    Response::new(out)
+}
 
 /// Opens the files picked in the dialog: one video, or one or more still frames as a sequence.
 #[tauri::command]
 async fn open_recording(
     paths: Vec<String>,
-    state: State<'_, AppState>,
-) -> Result<RecordingInfo, String> {
+    session: State<'_, Session>,
+) -> CommandResult<RecordingInfo> {
     let paths: Vec<PathBuf> = paths.into_iter().map(PathBuf::from).collect();
-    let recording = Recording::open_files(&paths).map_err(|e| e.to_string())?;
-    let info = recording.info().into();
-    *state.0.lock().map_err(|e| e.to_string())? = Some(recording);
-    Ok(info)
+    Ok(session.open_recording(&paths)?)
 }
 
-/// Returns one frame as binary: width (u32 LE), height (u32 LE), then width * height * 4 bytes RGBA.
+/// Returns one frame as binary, see [`pack`].
 #[tauri::command]
-async fn read_frame(index: u32, state: State<'_, AppState>) -> Result<Response, String> {
-    let mut guard = state.0.lock().map_err(|e| e.to_string())?;
-    let recording = guard.as_mut().ok_or("no recording is open")?;
-    let image = recording.read_frame(index).map_err(|e| e.to_string())?;
-    let mut out = Vec::with_capacity(8 + image.width as usize * image.height as usize * 4);
-    out.extend(image.width.to_le_bytes());
-    out.extend(image.height.to_le_bytes());
-    out.extend(image.to_rgba8());
-    Ok(Response::new(out))
+async fn read_frame(index: u32, session: State<'_, Session>) -> CommandResult<Response> {
+    Ok(pack(session.read_frame(index)?))
 }
 
-/// Forgets everything that was built on the current alignment: the stack, the sharpened image, the colour
-/// adjustment and the two images *Save image* writes. Called when Set Alignpoints, Align or Limit run again, so
-/// that no old image stays around and *Save image* cannot write one.
-pub(crate) fn discard_results(app: &AppHandle) {
-    app.state::<stack_commands::StackState>().clear();
-    app.state::<wavelet_commands::WaveletState>().clear();
-    app.state::<color_commands::ColorState>().clear();
-    app.state::<export_commands::ExportState>().clear();
+/// The number of logical cores, for the default and the maximum of the *CPUs* field.
+#[tauri::command]
+fn cpu_count() -> usize {
+    logical_cores()
+}
+
+/// *CPUs*: from now on the calculations use this many threads. Returns the number in use, which differs from
+/// `count` when that was outside 1 to the number of logical cores.
+#[tauri::command]
+fn set_cpus(count: u32, session: State<'_, Session>) -> CommandResult<usize> {
+    Ok(session.set_cpus(count)?)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .manage(AppState::default())
-        .manage(compute::ComputeState::default())
-        .manage(align_commands::AlignState::default())
-        .manage(stack_commands::StackState::default())
-        .manage(wavelet_commands::WaveletState::default())
-        .manage(color_commands::ColorState::default())
-        .manage(export_commands::ExportState::default())
+        .manage(Session::new().expect("cannot start the calculation threads"))
         .invoke_handler(tauri::generate_handler![
             open_recording,
             read_frame,
-            compute::cpu_count,
-            compute::set_cpus,
+            cpu_count,
+            set_cpus,
             align_commands::set_alignpoints,
             align_commands::set_alignpoint_threshold,
             align_commands::align,

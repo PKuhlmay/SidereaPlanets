@@ -24,4 +24,9 @@ Ticket, Details im Ticket unter „Umsetzung“.
 
 ## Windows
 
-(noch keine Punkte: die Windows-App wurde am 2026-11-12 von Hand per UI-Automation geprüft, siehe die Tickets `tickets/RK-*.md`)
+### MAC-003 Sitzungslogik im Kern
+
+- [ ] Ganzer Ablauf im Fenster nach dem Umzug der Befehle in `crates/session` (`pnpm tauri dev` am Windows-PC): JUPITER.AVI, Select, Set
+  Alignpoints, Align, Limit, Stack, Do All, Save image (TIFF 16 Bit), Datei öffnet. Dazu Align und Stack mit Pause und Cancel (Balken,
+  Frame-Zähler, Meldung „cancelled“, danach läuft ein neuer Lauf), Set Alignpoints oder Align erneut (Stack und Wavelet-Bild sind weg,
+  Save image meldet „there is no stacked image yet“) und das CPUs-Feld (1 Kern ist bei einem langen Align deutlich langsamer).

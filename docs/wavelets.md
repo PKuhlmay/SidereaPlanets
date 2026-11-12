@@ -171,6 +171,8 @@ Helligkeitssprung zu sehen.
 
 ## Tauri-Befehle (`app/src-tauri/src/wavelet_commands.rs`)
 
+Die Befehle sind dünne Hüllen über `planets_session::Session` (`crates/session/src/wavelet.rs`, dort Zustand und Rechnung).
+
 Einstellungen gehen als JSON mit den Feldern von `WaveletSettings` (camelCase): `scheme` (`"dyadic"`/`"linear"`),
 `filter` (`"default"`/`"gaussian"`), `initial`, `step`, `layers[6]` mit `enabled`, `gain`, `denoise`, `sharpen`.
 

@@ -98,7 +98,7 @@ aktiv; einmal je Klon `git config core.hooksPath .githooks`.
   für den Mac, `windows-v<version>` für Windows. Haupt- und Nebennummer heißen Funktionsumfang, Patch-Nummern zählt jede Plattform
   für sich. Pushen nur nach Philipps OK.
 - Der Rechenkern ist die einzige Kopplung. Was eine Oberfläche sonst nachbauen müsste (Sitzungszustand, Verwerfen der Ergebnisse,
-  Thread-Pool, Abbrechen und Pausieren), gehört in den Kern (`crates/`, geplant `crates/session`, `crates/ffi`), nicht in die
+  Thread-Pool, Abbrechen und Pausieren), gehört in den Kern (`crates/`: `crates/session`, ab MAC-004 `crates/ffi`), nicht in die
   Oberfläche. Eine Änderung an einer Kern-Schnittstelle, die die andere App benutzt, bekommt einen eigenen Commit mit Hinweis.
 - Mac-Tickets: `mac/tickets/MAC-NNN-kurzer-titel.md`, Commits `[TYPE] MAC-NNN - Message`. Das Startticket ist
   `mac/tickets/MAC-001-mac-app-aufbauen.md`; Aufbau, Voraussetzungen und Arbeitsweise am Mac stehen in `mac/README.md`.
@@ -109,6 +109,8 @@ aktiv; einmal je Klon `git config core.hooksPath .githooks`.
 ```
 crates/core/ Bildtyp und Algorithmen: Ausrichtung, Stacking, Wavelets, Farbe — GUI-frei, auf allen Plattformen gleich
 crates/io/   Leser und Schreiber für Aufnahmen und Ergebnisse (SER, AVI, Bildserien, FITS, Export, Projektdatei)
+crates/session/ Sitzungslogik (`Session`): offene Aufnahme, Ergebnisse je Schritt, Verwerfen, Thread-Pool der CPU-Auswahl, Abbrechen und
+             Pausieren, Fortschritt über den Trait `ProgressSink` — GUI-frei; die Tauri-Shell und (MAC-004) `crates/ffi` sind dünne Hüllen
 app/         Windows-App (Tauri): `app/src` = Vue-Frontend (hier entsteht das Design), `app/src-tauri` = Rust-Shell mit Commands
 mac/         Mac-App (SwiftUI) und ihre Tickets (`mac/tickets/MAC-NNN-…`); noch ohne Code, siehe `mac/README.md`
 scripts/   Skripte, z. B. `deploy-debug.sh` für den Deploy-Hook (`.githooks/post-commit`), `parity-status.sh` für `/nachzug`

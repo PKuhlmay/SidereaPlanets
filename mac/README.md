@@ -17,10 +17,10 @@ mac/
 crates/ffi/              Rust-Schnittstelle (UniFFI) auf den Rechenkern, GUI-frei (von MAC-001 angelegt)
 ```
 
-Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik, die
-MAC-001 aus den Tauri-Befehlen (`app/src-tauri/src/*_commands.rs`) in einen eigenen Crate zieht. Alles, was eine Oberfläche sonst
-nachbauen müsste (Zustand, Verwerfen der Ergebnisse nach neuem Align, Thread-Pool, Abbrechen und Pausieren), gehört in den Kern, nicht
-in die Oberfläche.
+Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik in
+`crates/session` (aus den Tauri-Befehlen gezogen, MAC-003; die Tauri-Shell ist nur noch eine dünne Hülle darüber). Alles, was eine
+Oberfläche sonst nachbauen müsste (Zustand, Verwerfen der Ergebnisse nach neuem Align, Thread-Pool, Abbrechen und Pausieren), gehört in
+den Kern, nicht in die Oberfläche. Die Mac-Schnittstelle `crates/ffi` (MAC-004) legt sich über dieselbe `Session`.
 
 ## Voraussetzungen am Mac
 
@@ -94,7 +94,7 @@ Wird mit `MAC-001` ausgefüllt (xcodegen, `xcodebuild`, Bündel, Signierung und 
 |---|---|---|
 | MAC-001 | Mac-App aufbauen (Klammer) | in Arbeit |
 | MAC-002 | Kern am Mac und Deploy der Mac-App | erledigt |
-| MAC-003 | Sitzungslogik im Kern (`crates/session`) | offen |
+| MAC-003 | Sitzungslogik im Kern (`crates/session`) | erledigt |
 | MAC-004 | Rust-Schnittstelle (UniFFI), XCFramework, Swift-Paket | offen |
 | MAC-005 | App-Gerüst, Fenster, Bildbereich, Open | offen |
 | MAC-006 | Alignpoints, Align, Limit | offen |

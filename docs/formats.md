@@ -122,7 +122,7 @@ tausende Frames. Die Codec-Auswahl und *Compress Qual* des Originals entfallen, 
 benutzt. Grenze 4 GiB (kein OpenDML); ein Video, das darüber käme, bricht mit Meldung ab und lässt keine Datei zurück.
 
 Umsetzung: Befehle `choose_video_path` (Dateidialog, Endung `.avi`), `save_aligned` und `save_integrated`
-(`app/src-tauri/src/sequence_commands.rs`), Kern `planets_core::sequence` (`aligned_frames`, `MovingAverage`) und
+(`app/src-tauri/src/sequence_commands.rs`, Rechnung in `crates/session/src/sequence.rs`), Kern `planets_core::sequence` (`aligned_frames`, `MovingAverage`) und
 `Stacker::warp`. Fortschritt über das Ereignis `sequence-progress`; Cancel und Pause teilen die Merker von *Stack*.
 
 - **Save Aligned**: Jeder Frame, der nach *Limit* bleibt (die Häkchen der Frameliste), wird wie beim Stacken auf das Bezugsframe

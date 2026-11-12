@@ -1,14 +1,14 @@
 //! The thread pool that all heavy calculations run in: the *CPUs* field of the toolbar sets its size.
 //!
-//! The commands wrap their calculation in [`ComputeState::install`]; everything the core crates parallelise with
-//! `rayon` inside then uses this pool instead of the global one with all cores.
+//! The session wraps every calculation in [`ComputeState::install`]; everything the core crates
+//! parallelise with `rayon` inside then uses this pool instead of the global one with all cores.
 
+use crate::SessionError;
 use rayon::{ThreadPool, ThreadPoolBuilder};
 use std::{
     num::NonZeroUsize,
     sync::{Arc, PoisonError, RwLock},
 };
-use tauri::State;
 
 /// The number of logical cores: the default and the upper end of the *CPUs* field.
 pub fn logical_cores() -> usize {
@@ -16,25 +16,25 @@ pub fn logical_cores() -> usize {
 }
 
 /// A requested thread count as a number from 1 to `max`.
-pub fn clamp_cpus(requested: u32, max: usize) -> usize {
+pub(crate) fn clamp_cpus(requested: u32, max: usize) -> usize {
     (requested as usize).clamp(1, max.max(1))
 }
 
-fn build(threads: usize) -> Result<Arc<ThreadPool>, String> {
+fn build(threads: usize) -> Result<Arc<ThreadPool>, SessionError> {
     ThreadPoolBuilder::new()
         .num_threads(threads)
         .build()
         .map(Arc::new)
-        .map_err(|e| e.to_string())
+        .map_err(SessionError::failed)
 }
 
 /// The pool the calculations run in. A run that is already going keeps the pool it started in.
-pub struct ComputeState {
+pub(crate) struct ComputeState {
     pool: RwLock<Arc<ThreadPool>>,
 }
 
 impl ComputeState {
-    pub fn with_threads(threads: usize) -> Result<Self, String> {
+    pub(crate) fn with_threads(threads: usize) -> Result<Self, SessionError> {
         Ok(Self {
             pool: RwLock::new(build(threads.max(1))?),
         })
@@ -42,7 +42,7 @@ impl ComputeState {
 
     /// Replaces the pool by one of `requested` threads, clamped to 1 up to the number of logical cores. Returns
     /// the number that is in use now.
-    pub fn set_threads(&self, requested: u32) -> Result<usize, String> {
+    pub(crate) fn set_threads(&self, requested: u32) -> Result<usize, SessionError> {
         let threads = clamp_cpus(requested, logical_cores());
         let pool = build(threads)?;
         *self.pool.write().unwrap_or_else(PoisonError::into_inner) = pool;
@@ -51,7 +51,7 @@ impl ComputeState {
 
     /// Runs `op` in the pool and returns its result. Blocks the calling thread until `op` is done, like a
     /// `rayon` call in the global pool does.
-    pub fn install<R: Send>(&self, op: impl FnOnce() -> R + Send) -> R {
+    pub(crate) fn install<R: Send>(&self, op: impl FnOnce() -> R + Send) -> R {
         let pool = self
             .pool
             .read()
@@ -67,19 +67,6 @@ impl Default for ComputeState {
         // Only fails when the system cannot start threads at all, and then nothing works anyway.
         Self::with_threads(logical_cores()).expect("cannot start the calculation threads")
     }
-}
-
-/// The number of logical cores, for the default and the maximum of the *CPUs* field.
-#[tauri::command]
-pub fn cpu_count() -> usize {
-    logical_cores()
-}
-
-/// *CPUs*: from now on the calculations use this many threads. Returns the number in use, which differs from
-/// `count` when that was outside 1 to the number of logical cores.
-#[tauri::command]
-pub fn set_cpus(count: u32, state: State<'_, ComputeState>) -> Result<usize, String> {
-    state.set_threads(count)
 }
 
 #[cfg(test)]

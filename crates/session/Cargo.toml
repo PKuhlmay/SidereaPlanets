@@ -1,0 +1,22 @@
+[package]
+name = "planets-session"
+version.workspace = true
+edition.workspace = true
+publish.workspace = true
+description = "GUI-free session of SidereaPlanets: the state and logic behind the workflow steps"
+
+[lib]
+name = "planets_session"
+
+[dependencies]
+planets-core = { path = "../core" }
+planets-io = { path = "../io" }
+rayon = "1.12.0"
+serde = { version = "1", features = ["derive"] }
+thiserror = "2"
+
+[dev-dependencies]
+serde_json = "1"
+
+[lints]
+workspace = true

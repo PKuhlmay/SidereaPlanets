@@ -2633,9 +2633,9 @@ checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
 name = "planets-app"
 version = "0.1.0"
 dependencies = [
- "rayon",
  "planets-core",
  "planets-io",
+ "planets-session",
  "serde",
  "tauri",
  "tauri-build",
@@ -2662,6 +2662,18 @@ dependencies = [
  "thiserror 2.0.21",
  "zune-core",
  "zune-jpeg",
+]
+
+[[package]]
+name = "planets-session"
+version = "0.1.0"
+dependencies = [
+ "rayon",
+ "planets-core",
+ "planets-io",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
 ]
 
 [[package]]
