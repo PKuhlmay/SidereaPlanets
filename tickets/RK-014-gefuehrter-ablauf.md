@@ -1,6 +1,6 @@
 # RK-014 Geführter Ablauf: Schrittleiste statt Reiter und Aktionszeile
 
-- Status: in Arbeit
+- Status: erledigt
 - Abhängig von: RK-010, RK-012
 
 ## Ziel
@@ -49,17 +49,49 @@ Panel je Schritt
   einem Menü „Show“ oben rechts am Bild; die schwebenden Karten verhalten sich wie bisher
 - [x] Functions bleibt im Schritt Wavelets rechts neben dem Bild, Process bleibt erreichbar
 - [x] Frame-Leiste in den Schritten Alignpoints, Align und Limit; Statusleiste, Cancel und Pause unverändert
-- [ ] Nach jedem Lauf öffnet sich der nächste Schritt selbst; ein erneutes Set Alignpoints, Align oder Limit verwirft
+- [x] Nach jedem Lauf öffnet sich der nächste Schritt selbst; ein erneutes Set Alignpoints, Align oder Limit verwirft
   wie in RK-005 festgelegt alles danach und die Leiste fällt auf den passenden Schritt zurück
-  - Umgesetzt (`app/src/steps.ts`), aber noch nicht in der laufenden App mit einer echten Aufnahme durchgeklickt.
+  - Umgesetzt (`app/src/steps.ts`). Im echten Fenster am 2026-11-12 mit einer Aufnahme durchgeklickt: Select → Align →
+    Limit → Stack → Wavelets → Do All → Save, Auto-Weiter und Rückfall bei Cancel gesehen. Als Test: `flow.test.ts`,
+    Abschnitt „The panel follows the runs“ (siehe Stand).
 
 Tests und Doku
-- [ ] `app/src/logic/workflow.ts` bildet die sieben Schritte ab (offen, erledigt, gesperrt, nächster Schritt), mit
+- [x] `app/src/logic/workflow.ts` bildet die sieben Schritte ab (offen, erledigt, gesperrt, nächster Schritt), mit
   Tests, die zuerst rot waren
-  - Umgesetzt mit Tests in `workflow.test.ts`, `qualityChart.test.ts` und `flow.test.ts`; nicht gelaufen, solange die
-    Testläufe pausiert sind (Philipp, 2026-11-10), also auch nicht rot gesehen.
+  - Tests in `workflow.test.ts`, `qualityChart.test.ts`, `flow.test.ts` und `align-pages.test.ts`. Weil die Testpause sie
+    nie rot sehen ließ, ist der Nachweis nachgeholt, siehe Stand.
 - [x] Anwenderdoku in `app/src/docs/pages/` nachgezogen: „window-at-a-glance“, „align-tab“, „align-your-frames“ und
   jede Seite, die Reiter oder Aktionszeile nennt
+
+## Stand
+Rot-Nachweis am 2026-11-12, nachträglich: Die Quelle wurde je Test vorübergehend mutiert (eine Änderung je Lauf), nur die
+betroffene Testdatei lief, die Quelle wurde danach unverändert wiederhergestellt (`git diff` leer). Alle Mutationen unten
+wurden an einer Assertion rot (`AssertionError`), nie an einem Import- oder Setup-Fehler.
+
+- `workflow.test.ts` (Quelle `logic/workflow.ts`, 43 Mutationen): rot sind u. a. Sperrbedingung je Schritt (`requires` für
+  Align, Stack, Wavelets, Save) → „follow the table row by row“; Save ohne Wavelets erledigt, Wavelets ohne Stack erledigt →
+  „take the check mark …“ und „ignore a stale Do All“; nächster Schritt am Ende `"open"` statt `"save"` → „open the next step
+  after each run“; Wortlaut und Auswahl der Sperr-Tooltips; `againDiscards` für Do All; Bildart, Bildwahl und Bildunterschrift
+  je Schritt; Ergebnistexte; Fenstertitel; Zeitanzeige; `stepAfter`/`stepBefore`; Beschriftungen und Aktionen. Einzige
+  überlebende Mutation: `againDiscards` für Save image warnen zu lassen, sie ist wirkungslos (Save ist der letzte Schritt, nach
+  ihm gibt es nichts zu verwerfen).
+- `qualityChart.test.ts` (Quelle `logic/qualityChart.ts`, 24 Mutationen): Balkenreihenfolge umgedreht oder nicht sortiert →
+  „sorts the bars best first“ rot. Fünf Mutationen blieben grün und führten zu neuen Tests, die danach rot wurden: Frame genau
+  auf der Grenze bei Lowest Quality (`>` statt `>=`), leere Liste, Balken bei einem Bestwert ungleich 100 %, mittlere Höhe eines
+  zusammengefassten Balkens, Gleichstand „halb behalten“ in einem zusammengefassten Balken.
+- `flow.test.ts` (Quellen `steps.ts`, `align.ts`, `stack.ts`, `actions.ts`, `saving.ts`, `recording.ts`, 17 Mutationen): Das
+  Weiterschalten nach Stack, Limit, Align und Do All war abgedeckt (`advance()` entfernt → rot). Nicht abgedeckt waren und jetzt
+  im neuen Abschnitt „The panel follows the runs“ stehen: Select öffnet Alignpoints, Set Alignpoints öffnet Align (ohne
+  `advance()` nach Set Alignpoints war der Test grün), Save image aus dem Schritt Wavelets öffnet Save (ohne `advance()` in
+  `saving.ts` grün), Rückfall bei erneutem Limit, Align und Set Alignpoints mit den Zuständen der Pillen, Cancel von Stack und
+  Do All lässt den Schritt offen, Wavelets und Save verlieren den Haken, wenn nach Do All und Save image eine Ebene geändert wird, und
+  kommen mit einem neuen Do All zurück. Alle diese Mutationen sind jetzt rot. Zwei Mutationen sind wirkungslos und bleiben
+  grün: `advance()` auch nach einem abgebrochenen Do All (der nächste offene Schritt ist dann ohnehin Wavelets) und
+  `waveletsDone` ohne die Prüfung auf den Schritt Stack (`doneMap` prüft sie schon).
+- `align-pages.test.ts` (Quellen `docs/pages/*.md`, `docs/docs.ts`, rund 35 Mutationen): Gruppenname, Reihenfolge der Seiten, Link auf
+  eine Seite, die es nicht gibt, Anker-Link, „Not available yet“ auf der falschen Seite, jeder Feldname aus der Liste (an allen
+  Stellen entfernt), Zeilen der Limit-Tabelle, die Zeilen „Scan Frames“, „Empty List“ und „No Align“ der Übersichtsseite, der
+  Seitenname der Übersicht (Datei umbenannt) und die Volltextsuche → jeweils rot.
 
 ## Offen
 - Texte der sieben Erklärsätze: der Entwurf enthält einen ersten Stand, Philipp nimmt sie ab.

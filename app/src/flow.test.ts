@@ -49,6 +49,7 @@ import { cancelJob, togglePause } from "./jobs";
 import { process } from "./wavelet";
 import { openRecording, startSession } from "./recording";
 import { session, settings, status, type RecordingInfo } from "./state";
+import { nextOpen, states } from "./steps";
 
 const W = 4;
 const H = 3;
@@ -618,6 +619,140 @@ describe("Save image in the Save step", () => {
     expect(order()).toEqual(["save_image_as"]);
     expect(calls("save_image_as")[0]?.args).toMatchObject({ source: "stack" });
     expect(session.saved).toBe(false);
+  });
+});
+
+// The step bar and the panel follow the runs (RK-014, docs/design.md "Zustände"): after a run the next open step opens,
+// a run that is repeated drops what came after it and the panel falls back to the step that is open now.
+describe("The panel follows the runs", () => {
+  async function toStack() {
+    await runAction("setAlignpoints");
+    await runAction("align");
+    await runAction("limit");
+    await runAction("stack");
+  }
+
+  it("opens the next step after every run, from Select to Save image", async () => {
+    session.view = "open";
+    await openRecording(["C:\\data\\JUPITER.AVI"]);
+    expect(session.view).toBe("alignpoints");
+    await runAction("setAlignpoints");
+    expect(session.view).toBe("align");
+    await runAction("align");
+    expect(session.view).toBe("limit");
+    await runAction("limit");
+    expect(session.view).toBe("stack");
+    await runAction("stack");
+    expect(session.view).toBe("wavelets");
+    await runAction("doAll");
+    expect(session.view).toBe("save");
+    expect(nextOpen.value).toBe("save");
+    await runAction("saveImage");
+    expect(session.view).toBe("save");
+    expect(states.value.save.status).toBe("done");
+  });
+
+  it("opens the Save step after Save image started from the Wavelets step", async () => {
+    await toStack();
+    session.view = "wavelets";
+    await runAction("saveImage");
+    expect(session.saved).toBe(true);
+    expect(session.view).toBe("save");
+  });
+
+  it("falls back to the step after Limit when Limit runs again", async () => {
+    await toStack();
+    await runAction("doAll");
+    expect(session.view).toBe("save");
+    await runAction("limit");
+    expect(session.step).toBe("limited");
+    expect(session.view).toBe("stack");
+    expect(states.value.stack.status).toBe("possible");
+    expect(states.value.wavelets.status).toBe("locked");
+    expect(states.value.save.status).toBe("locked");
+  });
+
+  it("falls back to the step after Align when Align runs again", async () => {
+    await toStack();
+    await runAction("doAll");
+    await runAction("align");
+    expect(session.step).toBe("aligned");
+    expect(session.view).toBe("limit");
+    expect(states.value.align.status).toBe("done");
+    expect(states.value.limit.status).toBe("possible");
+    expect(states.value.stack.status).toBe("locked");
+  });
+
+  it("falls back to the step after Alignpoints when Set Alignpoints runs again", async () => {
+    await toStack();
+    await runAction("doAll");
+    await runAction("setAlignpoints");
+    expect(session.step).toBe("points");
+    expect(session.view).toBe("align");
+    expect(states.value.alignpoints.status).toBe("done");
+    expect(states.value.align.status).toBe("possible");
+    expect(states.value.limit.status).toBe("locked");
+  });
+
+  it("keeps the open step when Stack is cancelled", async () => {
+    await runAction("setAlignpoints");
+    await runAction("align");
+    await runAction("limit");
+    expect(session.view).toBe("stack");
+    const running = pending();
+    backend.handlers.stack = () => running.promise;
+    const job = runAction("stack");
+    await vi.waitFor(() => expect(calls("stack")).toHaveLength(1));
+    const cancelling = cancelJob();
+    running.reject("cancelled");
+    await Promise.all([job, cancelling]);
+    expect(session.step).toBe("limited");
+    expect(session.view).toBe("stack");
+  });
+
+  it("keeps the Wavelets step open when Do All is cancelled", async () => {
+    await toStack();
+    expect(session.view).toBe("wavelets");
+    const running = pending();
+    backend.handlers.wavelet_do_all = () => running.promise;
+    const job = runAction("doAll");
+    await vi.waitFor(() => expect(calls("wavelet_do_all")).toHaveLength(1));
+    const cancelling = cancelJob();
+    running.reject("cancelled");
+    await Promise.all([job, cancelling]);
+    expect(session.view).toBe("wavelets");
+    expect(states.value.wavelets.status).toBe("possible");
+  });
+
+  describe("after Do All and Save image", () => {
+    afterEach(() => {
+      settings.wavelet.layers[0]!.level = 10;
+    });
+
+    it("Wavelets loses its check mark when a layer changes, and Save with it", async () => {
+      await toStack();
+      await runAction("doAll");
+      await runAction("saveImage");
+      expect(states.value.wavelets.status).toBe("done");
+      expect(states.value.save.status).toBe("done");
+
+      settings.wavelet.layers[0]!.level = 60;
+      await vi.waitFor(() => expect(states.value.save.status).toBe("possible"));
+      expect(states.value.wavelets.status).toBe("possible");
+      expect(session.saved).toBe(false);
+      expect(states.value.stack.status).toBe("done");
+      expect(nextOpen.value).toBe("wavelets");
+    });
+
+    it("both come back with a new Do All", async () => {
+      await toStack();
+      await runAction("doAll");
+      settings.wavelet.layers[0]!.level = 60;
+      expect(states.value.wavelets.status).toBe("possible");
+      await runAction("doAll");
+      expect(states.value.wavelets.status).toBe("done");
+      expect(nextOpen.value).toBe("save");
+    });
   });
 });
 

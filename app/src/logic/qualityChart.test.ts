@@ -17,6 +17,14 @@ describe("keptCount (as limit_frames in crates/core)", () => {
     expect(keptCount(sorted, limit("lowestQuality", 0))).toBe(10);
   });
 
+  it("Lowest Quality (%) keeps a frame that sits exactly on the limit", () => {
+    expect(keptCount([100, 90, 80], limit("lowestQuality", 90))).toBe(2);
+  });
+
+  it("is zero for no frames, whatever the limit", () => {
+    expect(keptCount([], limit("bestCount", 80, 5))).toBe(0);
+  });
+
   it("Best Frames (%) rounds up", () => {
     expect(keptCount(sorted, limit("bestPercent", 25))).toBe(3);
   });
@@ -73,6 +81,18 @@ describe("qualityChart", () => {
     expect(chart.bars[0]?.kept).toBe(true);
     expect(chart.bars[chart.bars.length - 1]?.kept).toBe(false);
     expect(chart.kept).toBe(500);
+  });
+
+  it("draws each bar as the share of the best quality, whatever the best quality is", () => {
+    const chart = qualityChart(frames([50, 25]), limit("bestCount", 80, 2), 240);
+    expect(chart.bars.map((b) => b.height)).toEqual([1, 0.5]);
+  });
+
+  it("gives a joined bar the mean height of its frames and counts it as kept when half of them are kept", () => {
+    const chart = qualityChart(frames([100, 50, 40, 20]), limit("bestCount", 80, 3), 2);
+    expect(chart.bars.map((b) => b.height)).toEqual([0.75, 0.3]);
+    expect(chart.bars.map((b) => b.kept)).toEqual([true, true]);
+    expect(qualityChart(frames([100, 50, 40, 20]), limit("bestCount", 80, 1), 2).bars.map((b) => b.kept)).toEqual([true, false]);
   });
 
   it("describes itself for screen readers", () => {
