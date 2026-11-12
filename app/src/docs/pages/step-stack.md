@@ -22,7 +22,7 @@ Step 5: add up the best frames into one sharper image. The step opens after **Li
 
 Only alignpoints with a check mark in the card *Alignmentpoints* are used (see *Show AlignSections*).
 
-The sum is kept at floating point precision, so even thousands of 16 bit frames add up without overflow or visible rounding. Frames are read and added a few at a time, so a long video does not have to fit into memory.
+The sum is kept at floating point precision, so even thousands of 16 bit frames add up without overflow or visible rounding. Frames are read and added one after the other, so a long video does not have to fit into memory.
 
 While **Stack** runs, the status bar shows the progress and the time. **Cancel** stops it, **Pause** holds it. When it is done the status bar reads for example "Stack size (n=10) - (1024x680)" and the Wavelets step opens.
 

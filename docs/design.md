@@ -290,7 +290,9 @@ Bild und zoomen mit.
 
 Die Zoom-Leiste unten mittig ersetzt die Scrollbalken des Originals: − · aktueller Maßstab in Prozent der
 Bildpixel (Klick setzt 100 %) · + · Fit, in den Schritten Wavelets und Save zusätzlich der Umschalter **Before**, der das
-unbearbeitete Summenbild zeigt. Mausrad zoomt, Ziehen verschiebt.
+unbearbeitete Summenbild zeigt. Mausrad zoomt, Ziehen verschiebt. Das Bild folgt der Größe der Fläche, bis der Nutzer zoomt oder
+verschiebt (ein Klick ohne Bewegung zählt nicht); bei jedem Schrittwechsel wird es neu eingepasst, weil sich die Fläche mit
+Frame-Leiste und rechtem Panel ändert (RK-010-Prüflauf: Zoom blieb nach Wavelets bei 73 %).
 
 ### Frame-Leiste
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { isRegion, rectBetween, type Rect } from "../logic/align";
-import { actualSize, fitView, formatZoom, imagePixel, imagePosition, zoomAt, type Size, type View } from "../logic/viewport";
+import { actualSize, dragView, fitView, formatZoom, imagePixel, imagePosition, zoomAt, type Size, type View } from "../logic/viewport";
 
 // The image area: mouse wheel zooms around the pointer, dragging moves the image, the zoom bar at the bottom
 // gives -, the scale (a click shows 100 %), + and Fit. Overlays in the `overlay` slot are drawn in image pixels,
@@ -14,6 +14,8 @@ const props = defineProps<{
   empty: string;
   /** The next drag draws a rectangle (R.o.Interest) instead of moving the image. */
   selecting?: boolean;
+  /** Another value (the step) fits the image into the area again, whatever zoom and position it had. */
+  fitKey?: string;
 }>();
 const before = defineModel<boolean>("before", { default: false });
 const emit = defineEmits<{
@@ -51,6 +53,19 @@ watch(size, (now, was) => {
   if (now && (!was || now.w !== was.w || now.h !== was.h)) fit();
 });
 watch(() => props.image, draw, { flush: "post" });
+
+// Another step brings another layout around the image (frame bar, right panel). Measure the area after that layout
+// is in place and fit again, so that the image neither keeps the zoom of the other layout nor sits off-centre.
+watch(
+  () => props.fitKey,
+  async () => {
+    fitted.value = true;
+    await nextTick();
+    const rect = box.value?.getBoundingClientRect();
+    if (rect) boxSize.value = { w: rect.width, h: rect.height };
+    fit();
+  },
+);
 
 let observer: ResizeObserver | undefined;
 onMounted(() => {
@@ -117,8 +132,12 @@ function onMove(event: PointerEvent) {
     draft.value = rectBetween(corner, imagePosition(view.value, px, py), size.value);
   }
   if (drag) {
-    view.value = { ...view.value, x: event.clientX - drag.x, y: event.clientY - drag.y };
-    fitted.value = false;
+    // A click without moving must not count as moving the image, or it would stop following the area.
+    const moved = dragView(view.value, drag, { x: event.clientX, y: event.clientY });
+    if (moved) {
+      view.value = moved;
+      fitted.value = false;
+    }
   }
   if (!size.value) return;
   const { px, py } = point(event);

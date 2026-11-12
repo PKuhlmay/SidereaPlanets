@@ -22,6 +22,17 @@ export function fitView(box: Size, image: Size, margin = MARGIN): View {
   return { scale, x: (box.w - image.w * scale) / 2, y: (box.h - image.h * scale) / 2 };
 }
 
+/**
+ * The view while a drag moves the image: `grab` is where the drag started (pointer minus view position). Returns
+ * null while the pointer has not left its starting place, so that a plain click does not count as moving the image
+ * (a moved image no longer follows the size of the area).
+ */
+export function dragView(view: View, grab: { x: number; y: number }, pointer: { x: number; y: number }): View | null {
+  const x = pointer.x - grab.x;
+  const y = pointer.y - grab.y;
+  return x === view.x && y === view.y ? null : { ...view, x, y };
+}
+
 /** Zooms by `factor`, keeping the image point under (px, py) in place. */
 export function zoomAt(view: View, factor: number, px: number, py: number): View {
   const scale = clampScale(view.scale * factor);

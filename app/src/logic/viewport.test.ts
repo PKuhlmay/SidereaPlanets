@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { actualSize, fitView, formatZoom, imagePixel, MAX_SCALE, MIN_SCALE, processingArea, zoomAt } from "./viewport";
+import { actualSize, dragView, fitView, formatZoom, imagePixel, MAX_SCALE, MIN_SCALE, processingArea, zoomAt } from "./viewport";
 
 const image = { w: 1024, h: 680 };
 
@@ -73,5 +73,19 @@ describe("processingArea", () => {
 
   it("is cut to a smaller image", () => {
     expect(processingArea({ w: 300, h: 200 }, 512)).toEqual({ x: 0, y: 0, w: 300, h: 200 });
+  });
+});
+
+describe("dragView", () => {
+  it("moves the image with the pointer and keeps the scale", () => {
+    const view = { scale: 0.73, x: 40, y: 50 };
+    // The drag started at (300, 200): the grab offset is the pointer minus the view position.
+    const moved = dragView(view, { x: 260, y: 150 }, { x: 330, y: 180 });
+    expect(moved).toEqual({ scale: 0.73, x: 70, y: 30 });
+  });
+
+  it("is null while the pointer stays where the drag started, so a click does not unfit the image", () => {
+    const view = { scale: 0.73, x: 40, y: 50 };
+    expect(dragView(view, { x: 260, y: 150 }, { x: 300, y: 200 })).toBeNull();
   });
 });

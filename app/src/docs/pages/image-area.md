@@ -29,7 +29,7 @@ In the Wavelets step **Functions »** sits to the left of **Show ▾**. It hides
 | Fit | **Fit** in the zoom bar shows the whole image |
 | 100 % | Click the scale in the zoom bar. It shows the zoom in percent of the image pixels |
 
-A recording starts fitted and follows the size of the window until you zoom or move. Beyond 200 % single pixels are shown as squares.
+A recording starts fitted and follows the size of the window until you zoom or move (a click on the image without dragging does not count). Each time you go to another step the image is fitted again, because the space around it changes from step to step. Beyond 200 % single pixels are shown as squares.
 
 ## Before and after
 

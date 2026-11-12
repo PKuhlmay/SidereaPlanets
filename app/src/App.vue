@@ -125,6 +125,7 @@ watch(
           :comparable="wavelet"
           :empty="emptyText"
           :selecting="session.roiDrawing && kind === 'frame'"
+          :fit-key="session.view"
           @hover="onHover"
           @select="onSelect"
         >
