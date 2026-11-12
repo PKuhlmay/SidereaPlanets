@@ -5,7 +5,7 @@ order: 2
 ---
 # Select a recording
 
-Press **Select** in the step *Open* (or in the toolbar) and pick a recording. SidereaPlanets reads it frame by frame, so even long videos with thousands of frames do not have to fit into memory.
+Press **Select** in the step *Open* (or in the toolbar) and pick a recording. Siderea Planets reads it frame by frame, so even long videos with thousands of frames do not have to fit into memory.
 
 ## Supported files
 

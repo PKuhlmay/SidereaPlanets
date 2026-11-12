@@ -1,4 +1,4 @@
-# Changelog — SidereaPlanets for Mac
+# Changelog — Siderea Planets for Mac
 
 Format: `## <version> — <date>` with `### English` and `### Deutsch`, one list each (see `.claude/skills/release/SKILL.md`, section Mac).
 The first release is 0.1.0 (`MAC-001`); until then everything that is done stands under Unreleased.
@@ -7,6 +7,7 @@ The first release is 0.1.0 (`MAC-001`); until then everything that is done stand
 
 ### English
 
+- The app is called Siderea Planets: name in the Dock, menus, About, window titles and Help.
 - Native Mac window with step bar, step panel, image area, frame bar and status bar; follows the light and dark appearance of macOS.
 - Select a recording (⌘O, Open Recent, MRU, drag onto the window): SER, AVI and image series, with the file details.
 - Alignpoints, Align and Limit with progress, Cancel (⌘.) and Pause, Framelist and quality graph; Stack with its options.
@@ -17,6 +18,7 @@ The first release is 0.1.0 (`MAC-001`); until then everything that is done stand
 
 ### Deutsch
 
+- Die App heißt Siderea Planets: Name im Dock, in den Menüs, im Infofenster, in den Fenstertiteln und in der Hilfe.
 - Natives Mac-Fenster mit Schrittleiste, Schrittpanel, Bildbereich, Frame-Leiste und Statusleiste; folgt der hellen und dunklen Darstellung von macOS.
 - Aufnahme wählen (⌘O, Open Recent, MRU, auf das Fenster ziehen): SER, AVI und Bildserien, mit den Dateiangaben.
 - Alignpoints, Align und Limit mit Fortschritt, Cancel (⌘.) und Pause, Framelist und Qualitätsdiagramm; Stack mit seinen Optionen.

@@ -14,7 +14,7 @@ A planet wobbles from frame to frame: the air makes it dance, the mount drifts. 
 3. Press **Set Alignpoints**. Red points appear on the planet, and the label above the Threshold slider reads *Alignpoints: 82* or similar. The step *Align* opens.
 4. Optional: open the step *Alignpoints* again and move the **Threshold** slider towards *strongest* to keep fewer, steadier points, or towards *weakest* to keep more. More on this under *Alignpoints* below.
 5. Optional: before **Set Alignpoints**, press **R.o.Interest** in the step *Alignpoints* and drag a rectangle over the image, to align on one area only. The points then land inside the rectangle. More on this under *Region of interest* below.
-6. Press **Align**. The status bar shows *Loading frame: n* and the progress, the window title shows it as well (`SidereaPlanets · Align 40%`). **Cancel** stops, **Pause** holds and becomes **Resume**.
+6. Press **Align**. The status bar shows *Loading frame: n* and the progress, the window title shows it as well (`Siderea Planets · Align 40%`). **Cancel** stops, **Pause** holds and becomes **Resume**.
 7. When *Alignment finished.* appears, the step *Limit* opens: [Frame quality and Limit](frame-quality-and-limit).
 
 ## Aligning again
@@ -32,13 +32,13 @@ Run Limit and Stack again afterwards. Your slider values, the Wavelet settings a
 
 ## Alignpoints
 
-An alignpoint is a spot on the reference frame that SidereaPlanets looks for in every other frame. A point is a small square (the *Alignmentbox size*); the program searches for the same pattern around it, up to *Max Alignpoint movement* away, and finds the position to a fraction of a pixel. Many points across the planet also show how the picture is bent by the air, not only moved.
+An alignpoint is a spot on the reference frame that Siderea Planets looks for in every other frame. A point is a small square (the *Alignmentbox size*); the program searches for the same pattern around it, up to *Max Alignpoint movement* away, and finds the position to a fraction of a pixel. Many points across the planet also show how the picture is bent by the air, not only moved.
 
 The points are placed on bright, detailed parts. A straight edge is a poor point, because the pattern can slide along it; a corner or a spot is a good one.
 
 | Setting | What it does | Default |
 |---|---|---|
-| Minimum distance between | Points keep this far apart. SidereaPlanets adds *Max Alignpoint movement* to it, so that the search areas of two points never overlap: with the defaults, 35 pixels | 30 |
+| Minimum distance between | Points keep this far apart. Siderea Planets adds *Max Alignpoint movement* to it, so that the search areas of two points never overlap: with the defaults, 35 pixels | 30 |
 | Min distance from edge | No points near the border of the frame (or of the region of interest) | 20 |
 | Intensity selection | Which pixel decides whether a spot is bright enough: **Default** (the centre), **3x3 area** (the mean of 3 by 3 pixels), **Lowest pixelvalue** (the darkest of them) | Default |
 | Lo, Hi | Only spots with a brightness between these values (0 to 255) get a point. Dark sky and burnt-out spots stay free | 30, 230 |
@@ -51,7 +51,7 @@ Threshold, Minimum distance between and Min distance from edge are in the step *
 
 Set Alignpoints reads these settings when you press it, and Align reads *Alignmentbox size* and *Max Alignpoint movement* again. If you change a setting that affects the points, press **Set Alignpoints again** before you press **Align**.
 
-> **Frames that drift.** A frame may sit up to about 64 pixels away from the reference. SidereaPlanets finds that drift first, on a reduced picture of the whole frame, and only then looks for the points within *Max Alignpoint movement* of it. So the points need to move 5 pixels at most, however far the whole picture drifted.
+> **Frames that drift.** A frame may sit up to about 64 pixels away from the reference. Siderea Planets finds that drift first, on a reduced picture of the whole frame, and only then looks for the points within *Max Alignpoint movement* of it. So the points need to move 5 pixels at most, however far the whole picture drifted.
 
 ## Region of interest
 
@@ -69,7 +69,7 @@ Not everything in the frame is the planet: a moon at the edge, a dark border, ho
 
 Without a rectangle, the whole frame counts.
 
-> The rectangle follows SidereaPlanets's own idea of a region of interest. How the reference program treats it was not checked.
+> The rectangle follows Siderea Planets' own idea of a region of interest. How the reference program treats it was not checked.
 
 ## What Align gives you
 

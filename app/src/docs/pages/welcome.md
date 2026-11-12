@@ -5,7 +5,7 @@ order: 1
 ---
 # Welcome
 
-SidereaPlanets rebuilds the reference program for planetary and lunar astrophotography: it aligns the frames of a video, stacks the best ones and sharpens the result with wavelets. The buttons and settings carry the names of the original, so the reference program users find them quickly; the window guides you step by step instead of spreading the controls over tabs.
+Siderea Planets rebuilds the reference program for planetary and lunar astrophotography: it aligns the frames of a video, stacks the best ones and sharpens the result with wavelets. The buttons and settings carry the names of the original, so the reference program users find them quickly; the window guides you step by step instead of spreading the controls over tabs.
 
 ## The seven steps
 
@@ -21,6 +21,6 @@ The window leads you from left to right through seven steps in the step bar. The
 
 ## Where things stand
 
-SidereaPlanets is a prototype and grows ticket by ticket. Today you can run the whole chain, from opening a recording to saving the sharpened image; what is still missing is marked on the page of each function. Every page of this documentation says plainly what is not available yet.
+Siderea Planets is a prototype and grows ticket by ticket. Today you can run the whole chain, from opening a recording to saving the sharpened image; what is still missing is marked on the page of each function. Every page of this documentation says plainly what is not available yet.
 
 Start with [Select a recording](select-a-recording), or see [The window at a glance](window-at-a-glance).

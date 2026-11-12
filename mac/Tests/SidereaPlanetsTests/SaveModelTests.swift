@@ -243,7 +243,7 @@ final class Dialogs {
         let running = Task { await model.saveVideo(.aligned, choose: dialogs.save) }
         #expect(await eventually { await backend.isVideoHeld && model.status.progress > 0 })
         #expect(model.run?.name == "Save Aligned" && model.isBusy && model.canCancel)
-        #expect(model.windowTitle.hasPrefix("SidereaPlanets · Save Aligned"))
+        #expect(model.windowTitle.hasPrefix("Siderea Planets · Save Aligned"))
         #expect(model.status.action == "Writing frame: 1")
         #expect(!model.canSaveVideo && !model.canSaveImage && !model.canSaveProject)
 

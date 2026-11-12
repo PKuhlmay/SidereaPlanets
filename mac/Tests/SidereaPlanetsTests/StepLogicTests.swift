@@ -55,9 +55,9 @@ import Testing
     }
 
     @Test func titleAndDuration() {
-        #expect(makeWindowTitle(fileName: "", busy: nil) == "SidereaPlanets")
-        #expect(makeWindowTitle(fileName: "JUPITER.AVI", busy: nil) == "SidereaPlanets — JUPITER.AVI")
-        #expect(makeWindowTitle(fileName: "JUPITER.AVI", busy: (name: "Align", progress: 0.4)) == "SidereaPlanets · Align 40%")
+        #expect(makeWindowTitle(fileName: "", busy: nil) == "Siderea Planets")
+        #expect(makeWindowTitle(fileName: "JUPITER.AVI", busy: nil) == "Siderea Planets — JUPITER.AVI")
+        #expect(makeWindowTitle(fileName: "JUPITER.AVI", busy: (name: "Align", progress: 0.4)) == "Siderea Planets · Align 40%")
         #expect(formatDuration(65) == "00:01:05")
         #expect(formatDuration(3725) == "01:02:05")
     }

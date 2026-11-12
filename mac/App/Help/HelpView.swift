@@ -99,7 +99,7 @@ enum HelpWindow {
 
 struct HelpScene: Scene {
     var body: some Scene {
-        Window("SidereaPlanets Help", id: HelpWindow.id) {
+        Window("Siderea Planets Help", id: HelpWindow.id) {
             HelpView()
         }
         .defaultSize(width: 1000, height: 720)

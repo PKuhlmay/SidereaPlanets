@@ -31,7 +31,7 @@ The other **Functions** buttons have no card yet. Pressing one says so in the st
 
 Air acts like a weak prism: low in the sky, the red and the blue image of a planet are not in the same place, which gives a red edge on one side and a blue edge on the other. RGB Align moves the channels back onto each other.
 
-1. Press **Auto**. SidereaPlanets looks for the shift of red and of blue that puts their edges on the edges of green and fills in the fields. **Max shift** (default 5 pixels) is how far it searches.
+1. Press **Auto**. Siderea Planets looks for the shift of red and of blue that puts their edges on the edges of green and fills in the fields. **Max shift** (default 5 pixels) is how far it searches.
 2. Check the limb of the planet. If a fringe is left, change the **X** and **Y** fields of a channel by hand, in steps of 0.1 pixel.
 3. **Reset** puts all channels back.
 
@@ -80,4 +80,4 @@ Use them to compare two versions of your image, for example before and after a s
 | The two check boxes and their rules | Works |
 | Their effect on the Wavelet preview and **Do All** | Works |
 
-> SidereaPlanets follows the reference program in what the tools are called. The exact scale of the sliders and the way the original applies them has not been compared yet, so the same numbers can look a little different in the two programs.
+> Siderea Planets follows the reference program in what the tools are called. The exact scale of the sliders and the way the original applies them has not been compared yet, so the same numbers can look a little different in the two programs.

@@ -14,7 +14,7 @@ Align, Stack and Do All can take a while. While one of them runs, the window sho
 | Status bar, first field | A progress bar with the percent done. It is empty again once the step is over, whether it finished, was cancelled or failed |
 | Status bar, second field | What is happening, for example *Loading frame: 4* |
 | Status bar, last field | *Time used* and *Time left* |
-| Window title | Step and percent, for example `SidereaPlanets · Align 40%` |
+| Window title | Step and percent, for example `Siderea Planets · Align 40%` |
 | Step bar | No step can be opened |
 | Button at the bottom of the step panel | Locked. Only **Cancel** is filled |
 

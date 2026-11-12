@@ -6,7 +6,7 @@ import SidereaPlanetsKit
 extension AppModel {
     /// Debug builds only, for screenshots and hand checks. Arguments (AppKit reads `-key value` pairs as defaults):
     ///
-    ///     open -a SidereaPlanets.app --args -open /path/to/JUPITER.AVI -appearance light
+    ///     open -a "Siderea Planets.app" --args -open /path/to/JUPITER.AVI -appearance light
     ///
     /// `-open` loads a recording at launch (several files separated by a colon), `-appearance light|dark` overrides macOS,
     /// `-run alignpoints,align,limit,stack` presses those buttons one after the other (`roidraw` presses R.o.Interest, `bestframe` presses Go to best frame, `frame5` shows frame 5 at that point, `alignpaused` starts Align and pauses it after

@@ -79,7 +79,7 @@ import Testing
         #expect(await eventually { await backend.isStackHeld && model.status.progress == 0.5 })
 
         #expect(model.status.action == "Stacking frame: 2")
-        #expect(model.windowTitle == "SidereaPlanets · Stack 50%")
+        #expect(model.windowTitle == "Siderea Planets · Stack 50%")
         #expect(model.isBusy && model.canCancel && model.run?.operation == .stack)
         model.show(.limit)  // no pill opens during a calculation
         #expect(model.viewStep == .stack)
@@ -89,7 +89,7 @@ import Testing
         await backend.finishStack()
         await running.value
         #expect(model.progress.step == .stacked && !model.isBusy && !model.canCancel)
-        #expect(model.windowTitle == "SidereaPlanets — JUPITER.AVI")
+        #expect(model.windowTitle == "Siderea Planets — JUPITER.AVI")
     }
 
     @Test func cancelStopsTheRunAndLeavesTheStepReadyToRunAgain() async {

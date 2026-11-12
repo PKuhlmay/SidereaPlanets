@@ -5,7 +5,7 @@ order: 10
 ---
 # Supported formats
 
-What SidereaPlanets can read today. Everything else in the file type list of the reference program is planned and marked **Not available yet**.
+What Siderea Planets can read today. Everything else in the file type list of the reference program is planned and marked **Not available yet**.
 
 ## SER
 

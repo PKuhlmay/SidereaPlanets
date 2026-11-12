@@ -62,7 +62,7 @@ pub fn write_fits<W: Write>(out: &mut W, image: &Image, depth: FitsDepth) -> io:
         }
         FitsDepth::Float32 => {}
     }
-    cards.push(format!("{:<CARD_LEN$}", "CREATOR  = 'SidereaPlanets'"));
+    cards.push(format!("{:<CARD_LEN$}", "CREATOR  = 'Siderea Planets'"));
     cards.push(format!("{:<CARD_LEN$}", "END"));
 
     let mut written = 0;

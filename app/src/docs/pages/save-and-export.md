@@ -11,7 +11,7 @@ In the step *Save* the file looks like the image in the window: the values of RG
 
 ## Choosing the format
 
-Pressing **Save image** first opens a short list of file types: seven for the stacked image (step Stack), five for the sharpened image (step Save). Pick one and the file dialog of your operating system opens for that type. The file type decides the format, not the ending you type: if the ending does not fit, SidereaPlanets replaces it. The dialog suggests the name of your recording and opens in its folder.
+Pressing **Save image** first opens a short list of file types: seven for the stacked image (step Stack), five for the sharpened image (step Save). Pick one and the file dialog of your operating system opens for that type. The file type decides the format, not the ending you type: if the ending does not fit, Siderea Planets replaces it. The dialog suggests the name of your recording and opens in its folder.
 
 | Format | Ending | Bit depth | Stack step | Save step |
 |---|---|---|---|---|
@@ -26,7 +26,7 @@ Pressing **Save image** first opens a short list of file types: seven for the st
 - **For further processing** in other programs choose TIFF or PNG (16 bit), or FITS if the program expects astronomy files. They keep the fine tonal steps that sharpening produces.
 - **For sharing** choose JPEG. It is smaller, but loses some detail.
 - Black is the lowest value and white the highest value of the format, so a 16 bit file uses the full range from 0 to 65535. the reference program writes 16 bit files as its 8 bit image times 256 (at most 65280); if you compare files of both programs, divide the the reference program values by 256.
-- **Save image** in the Save step writes what the current settings produce. The step can be opened as soon as the stack exists. If you moved a slider, changed a value of a layer, switched **Colour** or **LRGB**, made a new **Stack**, or have not pressed **Do All** yet, SidereaPlanets runs **Do All** with the current values first and then saves. That run shows progress like any other and can be cancelled with **Cancel**; if you cancel it, or it fails, nothing is saved and the status bar says so. If nothing changed since the last **Do All**, the file is written at once. Changing the Processing Area does not start a new **Do All**, because it only decides what the preview shows. The colour and tone cards (RGB Align, RGB Balance, Histogram, Gamma, Contrast/Brightness) are applied when the file is written, so they never need a new **Do All**. **Process** only changes the preview area and is not saved.
+- **Save image** in the Save step writes what the current settings produce. The step can be opened as soon as the stack exists. If you moved a slider, changed a value of a layer, switched **Colour** or **LRGB**, made a new **Stack**, or have not pressed **Do All** yet, Siderea Planets runs **Do All** with the current values first and then saves. That run shows progress like any other and can be cancelled with **Cancel**; if you cancel it, or it fails, nothing is saved and the status bar says so. If nothing changed since the last **Do All**, the file is written at once. Changing the Processing Area does not start a new **Do All**, because it only decides what the preview shows. The colour and tone cards (RGB Align, RGB Balance, Histogram, Gamma, Contrast/Brightness) are applied when the file is written, so they never need a new **Do All**. **Process** only changes the preview area and is not saved.
 - A colour image is written with its three channels in one file. A single FITS file holds them as three planes (red, green, blue). Black and white images stay single channel.
 
 > An existing file with the same name is replaced only when the new file was written completely. If saving fails, the old file stays as it was.
@@ -35,7 +35,7 @@ Pressing **Save image** first opens a short list of file types: seven for the st
 
 A project remembers your session: the recording and the settings of the steps (alignpoint settings, stacking options, wavelet layers, colour). Save it with **Save** in the toolbar and open it again later with **Open**. Both buttons sit to the right of the menus; **Save** is locked until a recording is open, and both are locked while a calculation runs. Project files end in `.rkproj`.
 
-When you open a project and a recording file has been moved or deleted, SidereaPlanets tells you which file is missing. The images themselves are not stored in the project; Align and Stack run again on the recording. The Wavelets step stays locked until Stack has run, so the layer values of the project are kept for that first stacked image, even when **Hold Wavelet Setting** is off; you see them again as soon as the Wavelets step opens. A second stacked image puts the layers back to their start values as usual.
+When you open a project and a recording file has been moved or deleted, Siderea Planets tells you which file is missing. The images themselves are not stored in the project; Align and Stack run again on the recording. The Wavelets step stays locked until Stack has run, so the layer values of the project are kept for that first stacked image, even when **Hold Wavelet Setting** is off; you see them again as soon as the Wavelets step opens. A second stacked image puts the layers back to their start values as usual.
 
 ## Wavelet schemes
 

@@ -133,10 +133,10 @@ nonisolated struct StepState: Equatable, Sendable {
     let hint: String
 }
 
-/// The window title: `SidereaPlanets — ‹file›`, with step and percent during a calculation (docs/design.md, "Fensteraufbau").
+/// The window title: `Siderea Planets — ‹file›`, with step and percent during a calculation (docs/design.md, "Fensteraufbau").
 nonisolated func makeWindowTitle(fileName: String, busy: (name: String, progress: Double)?) -> String {
-    if let busy { return "SidereaPlanets · \(busy.name) \(Int((busy.progress * 100).rounded()))%" }
-    return fileName.isEmpty ? "SidereaPlanets" : "SidereaPlanets — \(fileName)"
+    if let busy { return "Siderea Planets · \(busy.name) \(Int((busy.progress * 100).rounded()))%" }
+    return fileName.isEmpty ? "Siderea Planets" : "Siderea Planets — \(fileName)"
 }
 
 /// "00:01:05" for 65 seconds.

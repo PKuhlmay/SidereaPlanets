@@ -52,7 +52,7 @@ describe("groupPages", () => {
 
 describe("searchPages", () => {
   const pages = [
-    page("welcome", "Welcome", "Getting started", 1, "SidereaPlanets stacks planets."),
+    page("welcome", "Welcome", "Getting started", 1, "Siderea Planets stacks planets."),
     page("select", "Select a recording", "Getting started", 2, "Pick a SER or AVI file."),
     page("formats", "Supported formats", "Reference", 10, "SER files hold raw frames."),
   ];

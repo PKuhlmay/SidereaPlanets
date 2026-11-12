@@ -85,7 +85,7 @@ pub async fn project_save_as(
     let name = suggested_name.map(|n| with_project_extension(Path::new(&n)));
     let dialog = start_dialog(&app, name.as_deref(), directory.as_deref())
         .set_title("Save project")
-        .add_filter("SidereaPlanets project", &[PROJECT_EXTENSION]);
+        .add_filter("Siderea Planets project", &[PROJECT_EXTENSION]);
     match pick_save(dialog)? {
         Some(path) => Ok(Some(write_project(&project, &path)?)),
         None => Ok(None),
@@ -106,7 +106,7 @@ pub async fn project_open(
 ) -> CommandResult<Option<LoadedProject>> {
     let dialog = start_dialog(&app, None, directory.as_deref())
         .set_title("Open project")
-        .add_filter("SidereaPlanets project", &[PROJECT_EXTENSION]);
+        .add_filter("Siderea Planets project", &[PROJECT_EXTENSION]);
     let picked = dialog
         .blocking_pick_file()
         .map(|p| p.into_path().map_err(|e| e.to_string()))

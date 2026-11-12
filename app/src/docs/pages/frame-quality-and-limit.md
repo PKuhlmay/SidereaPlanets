@@ -13,7 +13,7 @@ The quality of a frame says how sharp it is. It is measured inside the boxes aro
 
 Only the order and the ratios between frames matter. The value is not a percentage of anything, and it cannot be compared between two recordings.
 
-> SidereaPlanets ranks the frames close to the reference program, but not identically. On the test recording both agreed on the best frame and on the two worst ones; the frames in between came in a different order. Frames of almost equal sharpness are easily swapped.
+> Siderea Planets ranks the frames close to the reference program, but not identically. On the test recording both agreed on the best frame and on the two worst ones; the frames in between came in a different order. Frames of almost equal sharpness are easily swapped.
 
 ## Framelist and Registrationgraph
 
@@ -40,7 +40,7 @@ The number of frames is only free in the two modes that count frames, **Best Fra
 
 **Frames/Apoint** suits a planet whose parts are sharp in different frames: the left side may be best in one frame and the right side in another. Each point judges only its own box. The Stack step takes the frames that stay for the whole image.
 
-> the reference program offers the same four modes. How it handles Frames/Apoint was not checked, SidereaPlanets works as described here.
+> the reference program offers the same four modes. How it handles Frames/Apoint was not checked, Siderea Planets works as described here.
 
 ## Use the best frame as reference
 

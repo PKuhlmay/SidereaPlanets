@@ -22,7 +22,7 @@ export async function openHelp(): Promise<void> {
   }
   const help = new WebviewWindow(LABEL, {
     url: `index.html?${HELP_QUERY}`,
-    title: "SidereaPlanets Help",
+    title: "Siderea Planets Help",
     width: 1000,
     height: 720,
     minWidth: 640,

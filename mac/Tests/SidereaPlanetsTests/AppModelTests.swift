@@ -46,7 +46,7 @@ import Testing
         #expect(model.stepStates[.align]?.hint == "Run Set Alignpoints first")
         #expect(model.result(of: .open) == "JUPITER.AVI · 10 frames")
         #expect(model.status.result == "Loaded 10 frames")
-        #expect(model.windowTitle == "SidereaPlanets — JUPITER.AVI")
+        #expect(model.windowTitle == "Siderea Planets — JUPITER.AVI")
         #expect(model.frameIndex == 0)
         #expect(model.image != nil)
         #expect(model.imageCaption == "Frame 1 of 10")

@@ -262,7 +262,7 @@ import Testing
         #expect(await eventually { model.status.progress == 0.5 })
         #expect(model.run?.name == "Wavelet" && model.run?.operation == .wavelet && model.isBusy && model.canCancel)
         #expect(model.status.action == "Do_all processing")
-        #expect(model.windowTitle == "SidereaPlanets · Wavelet 50%")
+        #expect(model.windowTitle == "Siderea Planets · Wavelet 50%")
         model.show(.stack)
         #expect(model.viewStep == .wavelets)
 

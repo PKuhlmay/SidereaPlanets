@@ -42,7 +42,7 @@ The settings are collected here already; the steps that use them follow with the
 
 ## On the Mac
 
-The Mac app has no toolbar menu *Settings* and no *CPUs* field in the toolbar; it uses the places of a Mac program. **SidereaPlanets ▸ Settings… (⌘,)** opens a window with the **CPUs** field: the same number of threads, from 1 up to all cores of the Mac, all cores at the start. **SidereaPlanets ▸ About SidereaPlanets** shows the version. **Help ▸ SidereaPlanets Help (⌘?)** opens this documentation in a window of its own. The theme follows the appearance of macOS, so there is no *Theme* entry. **Process ▸ Go to Step** (⌥⌘1 to ⌥⌘7) opens a step like a click on the step bar, and **Process ▸ Cancel (⌘.)** and **Pause** do what the buttons in the middle of the toolbar do.
+The Mac app has no toolbar menu *Settings* and no *CPUs* field in the toolbar; it uses the places of a Mac program. **Siderea Planets ▸ Settings… (⌘,)** opens a window with the **CPUs** field: the same number of threads, from 1 up to all cores of the Mac, all cores at the start. **Siderea Planets ▸ About Siderea Planets** shows the version. **Help ▸ Siderea Planets Help (⌘?)** opens this documentation in a window of its own. The theme follows the appearance of macOS, so there is no *Theme* entry. **Process ▸ Go to Step** (⌥⌘1 to ⌥⌘7) opens a step like a click on the step bar, and **Process ▸ Cancel (⌘.)** and **Pause** do what the buttons in the middle of the toolbar do.
 
 ## Number fields
 

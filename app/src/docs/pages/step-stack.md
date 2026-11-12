@@ -17,7 +17,7 @@ Step 5: add up the best frames into one sharper image. The step opens after **Li
 ## How the stack is made
 
 1. Every frame that is checked in the Framelist is shifted back onto the reference frame, the frame you set the alignpoints on.
-2. The shift is not the same everywhere. A planet that wobbles in the seeing is moved a little differently in each part of the picture, so SidereaPlanets takes the movement of the alignpoints **nearest** to each pixel and blends it. That straightens the frame locally before it is added. The movements of the points are only followed as far as neighbouring points agree with each other; on soft, blurred frames, where the points scatter, the whole frame moves by one value instead.
+2. The shift is not the same everywhere. A planet that wobbles in the seeing is moved a little differently in each part of the picture, so Siderea Planets takes the movement of the alignpoints **nearest** to each pixel and blends it. That straightens the frame locally before it is added. The movements of the points are only followed as far as neighbouring points agree with each other; on soft, blurred frames, where the points scatter, the whole frame moves by one value instead.
 3. The shifted frames are averaged. The brightness stays that of the frames, it is not added up beyond the range.
 
 Only alignpoints with a check mark in the card *Alignmentpoints* are used (see *Show AlignSections*).

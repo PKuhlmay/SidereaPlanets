@@ -4,7 +4,7 @@ import DocsView from "./docs/DocsView.vue";
 import { closeHelp } from "./helpWindow";
 
 onMounted(() => {
-  document.title = "SidereaPlanets Help";
+  document.title = "Siderea Planets Help";
 });
 </script>
 

@@ -1,17 +1,17 @@
 import AppKit
 import SwiftUI
 
-/// The Help menu (SidereaPlanets Help, ⌘?) and About in the app menu. Settings… (⌘,) comes with the `Settings` scene.
+/// The Help menu (Siderea Planets Help, ⌘?) and About in the app menu. Settings… (⌘,) comes with the `Settings` scene.
 struct HelpCommands: Commands {
     @Environment(\.openWindow) private var openWindow
 
     var body: some Commands {
         CommandGroup(replacing: .help) {
-            Button("SidereaPlanets Help") { openWindow(id: HelpWindow.id) }
+            Button("Siderea Planets Help") { openWindow(id: HelpWindow.id) }
                 .keyboardShortcut("?", modifiers: .command)
         }
         CommandGroup(replacing: .appInfo) {
-            Button("About SidereaPlanets") { Self.showAbout() }
+            Button("About Siderea Planets") { Self.showAbout() }
         }
     }
 

@@ -7,7 +7,7 @@ struct SidereaPlanetsApp: App {
 
     var body: some Scene {
         // One window: the app works on one recording at a time.
-        Window("SidereaPlanets", id: "main") {
+        Window("Siderea Planets", id: "main") {
             ContentView(model: model)
         }
         .defaultSize(width: 1440, height: 900)

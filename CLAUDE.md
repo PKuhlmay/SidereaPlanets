@@ -5,6 +5,11 @@ in **Rust**. Das Original (Delphi, Windows) ist kostenlos, wird aber seit 2011 n
 Ziel ist ein möglichst genauer Klon in **Bedienung und Ergebnis** — gleicher Workflow, gleiche Begriffe,
 vergleichbare Resultate. Es ist zunächst nur ein Prototyp, um zu prüfen, ob das Vorhaben überhaupt aufgeht.
 
+**Name:** Für Nutzer heißt die App **Siderea Planets** (Mac und Windows; MAC-013), passend zur Suite mit Siderea. „SidereaPlanets“
+bleibt der interne Name: Repo und Ordner, Crates, Swift-Module (`SidereaPlanetsKit`, `SidereaPlanetsBindings`, `SidereaPlanetsFFI`), Xcode-Ziel und
+-Schema, Tickets und die Reverse-Engineering-Doku in `docs/`. Was Nutzer sehen (Fenstertitel, Menüs, Hilfe, Bundle, Installer,
+Anwenderseiten, Changelogs), sagt „Siderea Planets“; das Original heißt weiter **the reference program**.
+
 ## Status
 
 Die **Windows-App** (Tauri und Vue unter `app/`) läuft den ganzen Ablauf im echten Fenster: Aufnahme laden, Alignpoints, Align,
@@ -62,7 +67,8 @@ nicht in Git. „Deploy“ heißt nur lokal starten, kein Release-Build und kein
 - Von Hand deployen: `scripts/deploy-debug.sh --run`
 - **Am Mac** ruft der Hook stattdessen `scripts/deploy-mac.sh`: `xcodegen generate` und `xcodebuild` (Debug, arm64) für `mac/`, bei
   Erfolg wird die laufende Mac-App beendet und die neue gestartet, bei einem Fehler bleibt die alte unangetastet; Protokoll
-  `deploy-mac.log`. Ohne `mac/project.yml` tut es nichts. Von Hand: `scripts/deploy-mac.sh --run`; Einzelheiten in `mac/README.md`.
+  `deploy-mac.log`. Das Debug-Bündel heißt `build/mac/Build/Products/Debug/Siderea Planets.app`; ein übrig gebliebenes
+  `SidereaPlanets.app` (Name vor MAC-013) beendet, entregistriert und löscht das Skript beim Neustart. Ohne `mac/project.yml` tut es nichts. Von Hand: `scripts/deploy-mac.sh --run`; Einzelheiten in `mac/README.md`.
 
 ## Doku in der App
 

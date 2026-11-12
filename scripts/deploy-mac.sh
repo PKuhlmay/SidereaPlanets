@@ -17,11 +17,16 @@ export PATH="/opt/homebrew/opt/rustup/bin:/opt/homebrew/bin:$HOME/.cargo/bin:$PA
 root=$(git rev-parse --show-toplevel)
 lock="$root/.git/deploy-mac.lock"
 log="$root/deploy-mac.log"
-app_name="SidereaPlanets"
+# The app is called Siderea Planets (MAC-013); the Xcode project and scheme keep the internal name SidereaPlanets.
+app_name="Siderea Planets"
+old_app_name="SidereaPlanets"
 derived="$root/build/mac"
 app="$derived/Build/Products/Debug/$app_name.app"
+old_app="$derived/Build/Products/Debug/$old_app_name.app"
 # Matches the running process even when the repo path is reached through a symlink (e.g. /tmp).
 match="build/mac/Build/Products/Debug/$app_name.app/Contents/MacOS/"
+old_match="build/mac/Build/Products/Debug/$old_app_name.app/Contents/MacOS/"
+lsregister="/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister"
 
 if [ "${1:-}" != "--run" ]; then
   # Only the main checkout on main: other worktrees and branches are work in progress, and the squash merge lands on main.
@@ -38,8 +43,27 @@ if ! mkdir "$lock" 2>/dev/null; then
 fi
 trap 'rmdir "$lock" 2>/dev/null' EXIT
 
+# The app was called SidereaPlanets before MAC-013. Quits a still-running old one once, unregisters the stale bundle from
+# LaunchServices and deletes it, so there is never a second app next to Siderea Planets. Does nothing once the bundle is gone.
+remove_old_app() {
+  if pgrep -f "$old_match" >/dev/null 2>&1; then
+    osascript -e "quit app \"$old_app_name\"" >/dev/null 2>&1 || true
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      pgrep -f "$old_match" >/dev/null 2>&1 || break
+      sleep 0.5
+    done
+    pkill -f "$old_match" >/dev/null 2>&1 || true
+  fi
+  if [ -d "$old_app" ]; then
+    "$lsregister" -u "$old_app" >/dev/null 2>&1 || true
+    rm -rf "$old_app"
+    echo "removed the stale bundle $old_app"
+  fi
+}
+
 # Quits the running app (asks politely first, then by its bundle path) and starts the freshly built one.
 restart_app() {
+  remove_old_app
   osascript -e "quit app \"$app_name\"" >/dev/null 2>&1 || true
   for _ in 1 2 3 4 5 6 7 8 9 10; do
     pgrep -f "$match" >/dev/null 2>&1 || break

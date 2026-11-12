@@ -209,8 +209,8 @@ export function stepResult(id: ViewStep, d: ResultData): string {
 }
 
 export function windowTitle(fileName: string, busy: { name: string; progress: number } | null): string {
-  if (busy) return `SidereaPlanets · ${busy.name} ${Math.round(busy.progress * 100)}%`;
-  return fileName ? `SidereaPlanets — ${fileName}` : "SidereaPlanets";
+  if (busy) return `Siderea Planets · ${busy.name} ${Math.round(busy.progress * 100)}%`;
+  return fileName ? `Siderea Planets — ${fileName}` : "Siderea Planets";
 }
 
 /** "00:01:05" for 65 seconds. */

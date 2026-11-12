@@ -3,7 +3,7 @@ name = "planets-app"
 version.workspace = true
 edition.workspace = true
 publish.workspace = true
-description = "SidereaPlanets desktop app (Tauri shell)"
+description = "Siderea Planets desktop app (Tauri shell)"
 
 [lib]
 # The `_lib` suffix keeps the lib name unique next to the bin name (Windows linker issue).

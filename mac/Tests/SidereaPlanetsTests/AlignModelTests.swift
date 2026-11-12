@@ -147,7 +147,7 @@ import Testing
         #expect(await eventually { await backend.isAlignHeld && model.status.progress == 0.5 })
 
         #expect(model.status.action == "Loading frame: 5")
-        #expect(model.windowTitle == "SidereaPlanets · Align 50%")
+        #expect(model.windowTitle == "Siderea Planets · Align 50%")
         #expect(model.isBusy && model.canCancel && model.run?.operation == .align)
         model.show(.open)  // no pill opens during a calculation
         #expect(model.viewStep == .align)
@@ -160,7 +160,7 @@ import Testing
         await running.value
         #expect(model.progress.step == .aligned)
         #expect(!model.isBusy && !model.canCancel)
-        #expect(model.windowTitle == "SidereaPlanets — JUPITER.AVI")
+        #expect(model.windowTitle == "Siderea Planets — JUPITER.AVI")
     }
 
     @Test func cancelStopsTheRunAndLeavesNothingRunning() async {

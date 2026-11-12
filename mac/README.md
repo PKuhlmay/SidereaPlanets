@@ -1,4 +1,7 @@
-# SidereaPlanets für den Mac
+# Siderea Planets für den Mac
+
+Die App heißt für Nutzer **Siderea Planets** (MAC-013); „SidereaPlanets“ bleibt der interne Name von Repo, Xcode-Ziel und -Schema und
+Swift-Modul (`PRODUCT_NAME` ist „Siderea Planets“, `PRODUCT_MODULE_NAME` „SidereaPlanets“).
 
 Native Mac-App in **SwiftUI** auf dem gemeinsamen **Rust-Kern** (`crates/`), analog zu Siderea: Die Mac-App führt, die Windows-App
 (`app/`, Tauri und Vue) zieht nach. Die Mac-App entsteht mit
@@ -51,7 +54,7 @@ Frames lesen und umrechnen auf einer Hintergrund-Queue (`@concurrent`), immer nu
 Entscheidung mit MAC-010: **Sandbox bleibt aus**. Die App wird als Download verteilt (ad hoc signiert, später Developer ID mit
 Notarisierung), nicht über den App Store, und dafür ist die Sandbox keine Pflicht. Der Mac App Store wäre ein eigenes Ticket.
 
-**Debug-Argumente** (nur Debug-Builds, für Screenshots und Handproben): `open -a build/mac/Build/Products/Debug/SidereaPlanets.app --args
+**Debug-Argumente** (nur Debug-Builds, für Screenshots und Handproben): `open -a build/mac/Build/Products/Debug/"Siderea Planets.app" --args
 -open <Datei[:Datei…]> -appearance light|dark -step open|alignpoints|… -frame <n>`.
 Dazu für Bilder der späteren Schritte: `-run alignpoints,align,limit,stack` drückt die Schaltflächen nacheinander (`alignpaused` startet Align und
 hält es nach dem ersten Frame an, `stackpaused` dasselbe für Stack, `roidraw` drückt R.o.Interest, `bestframe` drückt Go to best frame), `-show framelist,registrationgraph`, `-roi x,y,breite,höhe`,
@@ -146,6 +149,9 @@ Hook startet es im Hintergrund; nur der Haupt-Checkout auf `main` löst aus (Wor
   neue gestartet; schlägt er fehl, läuft die alte weiter und der Fehler steht im Protokoll.
 - Solange es `mac/project.yml` nicht gibt, meldet das Skript „mac/project.yml missing, nothing to deploy“ und endet ohne Fehler.
 - Protokoll: `deploy-mac.log` im Repo-Stamm (nicht in Git).
+- Das Bündel heißt `Siderea Planets.app`. Beim Neustart beendet das Skript außerdem eine noch laufende App aus dem alten Bündel
+  `SidereaPlanets.app` (Name vor MAC-013), entregistriert es bei LaunchServices (`lsregister -u`) und löscht es, damit nie zwei Apps
+  nebeneinander liegen.
 - Von Hand: `scripts/deploy-mac.sh --run`. Ausschalten: `DEPLOY_DEBUG=0`. Mit `DEPLOY_TESTS=1` läuft vorher
   `cargo test --workspace` (sonst aus, wie bei der Windows-App).
 - Läuft gerade ein Deploy, merkt sich ein weiterer Commit das und der Deploy geht danach noch einmal durch.
@@ -159,13 +165,13 @@ export PATH=/opt/homebrew/opt/rustup/bin:$PATH
 scripts/build-ffi.sh                          # XCFramework und Swift-Bindings (Debug arm64; --release universal)
 cd mac && xcodegen generate                   # schreibt SidereaPlanets.xcodeproj und App/Info.plist (beide nicht in Git)
 cd .. && xcodebuild -project mac/SidereaPlanets.xcodeproj -scheme SidereaPlanets -configuration Debug -arch arm64 \
-  -derivedDataPath build/mac build            # die App liegt unter build/mac/Build/Products/Debug/SidereaPlanets.app
+  -derivedDataPath build/mac build            # die App liegt unter build/mac/Build/Products/Debug/Siderea Planets.app
 xcodebuild test -project mac/SidereaPlanets.xcodeproj -scheme SidereaPlanets -destination 'platform=macOS,arch=arm64' \
   -derivedDataPath build/mac-test             # Swift-Tests der App (der Test startet die App kurz als Host)
 scripts/deploy-mac.sh --run                   # alles zusammen, dann die App neu starten
 ```
 
-- Bundle-ID `de.kuhlmay.sidereaplanets`, `MARKETING_VERSION` 0.1.0, macOS 14 oder neuer, Swift 6 (strikte Nebenläufigkeit), Signierung
+- Bundle-ID `de.kuhlmay.siderea.planets` (vor MAC-013 `de.kuhlmay.sidereaplanets`; die Einstellungen und die MRU-Liste liegen im neuen Bundle-ID-Bereich der UserDefaults und beginnen leer), Bündel `Siderea Planets.app`, `MARKETING_VERSION` 0.1.0, macOS 14 oder neuer, Swift 6 (strikte Nebenläufigkeit), Signierung
   ad-hoc („Sign to Run Locally“, `CODE_SIGN_IDENTITY: "-"`).
 - Zu jedem Commit der App gehören die Tests grün (`xcodebuild test` oben, dazu `swift test` im Paket) und ein Bau ohne Warnungen im
   eigenen Swift.
@@ -177,8 +183,8 @@ scripts/deploy-mac.sh --run                   # alles zusammen, dann die App neu
 ### Release-Bündel
 
 ```bash
-scripts/build-mac-release.sh            # build/release/SidereaPlanets.app und SidereaPlanets-<version>-mac.zip
-scripts/build-mac-release.sh --dmg      # zusätzlich SidereaPlanets-<version>-mac.dmg
+scripts/build-mac-release.sh            # build/release/Siderea Planets.app und Siderea-Planets-<version>-mac.zip
+scripts/build-mac-release.sh --dmg      # zusätzlich Siderea-Planets-<version>-mac.dmg
 ```
 
 Das Skript tut der Reihe nach: `scripts/build-ffi.sh --release` (Kern für arm64 und x86_64, mit `lipo` zu einer Bibliothek),
@@ -193,13 +199,13 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
   trägt (Download); ein Zip vom eigenen Rechner hat keine.
 - **Notarisierung: beschrieben, offen, bis eine Developer-ID hinterlegt ist** (Apple Developer Program, 99 USD im Jahr). Dann:
   1. Das Zertifikat „Developer ID Application“ in den Schlüsselbund laden, die Zugangsdaten für `notarytool` einmal ablegen:
-     `xcrun notarytool store-credentials sidereaplanets --apple-id <Apple-ID> --team-id <TEAMID> --password <App-spezifisches Kennwort>`.
+     `xcrun notarytool store-credentials siderea-planets --apple-id <Apple-ID> --team-id <TEAMID> --password <App-spezifisches Kennwort>`.
   2. Bündel mit Hardened Runtime signieren: `SIGN_IDENTITY="Developer ID Application: Name (TEAMID)" scripts/build-mac-release.sh`
      (das Skript setzt dann `--options runtime --timestamp`; die App braucht keine Entitlements, die Sandbox ist aus).
-  3. Einreichen und warten: `xcrun notarytool submit build/release/SidereaPlanets-<version>-mac.zip --keychain-profile sidereaplanets --wait`.
-  4. Das Ticket in die App heften und das Zip neu erzeugen: `xcrun stapler staple build/release/SidereaPlanets.app`, dann
-     `ditto -c -k --sequesterRsrc --keepParent build/release/SidereaPlanets.app SidereaPlanets-<version>-mac.zip`. Prüfen mit
-     `spctl --assess --type execute -v build/release/SidereaPlanets.app` („accepted, source=Notarized Developer ID“).
+  3. Einreichen und warten: `xcrun notarytool submit build/release/Siderea-Planets-<version>-mac.zip --keychain-profile siderea-planets --wait`.
+  4. Das Ticket in die App heften und das Zip neu erzeugen: `xcrun stapler staple "build/release/Siderea Planets.app"`, dann
+     `ditto -c -k --sequesterRsrc --keepParent "build/release/Siderea Planets.app" Siderea-Planets-<version>-mac.zip`. Prüfen mit
+     `spctl --assess --type execute -v "build/release/Siderea Planets.app"` („accepted, source=Notarized Developer ID“).
   Bis dahin ist dieser Weg nicht erprobt; er wandert in das Skript, sobald es eine Developer-ID gibt.
 - **Version:** `MARKETING_VERSION` in `project.yml` (die Build-Nummer `CURRENT_PROJECT_VERSION` zählt bei Bedarf hoch). Veröffentlicht
   wird nur mit `/release mac <version>` (Skill `release`, Abschnitt 3b): Version setzen, `mac/CHANGELOG.md` füllen, prüfen, bauen, committen,
@@ -221,3 +227,4 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-010 | Hilfe, Menüs, CPUs, Release | erledigt |
 | MAC-011 | Go to best frame | erledigt |
 | MAC-012 | App-Icon (beide Apps, Debug mit DEV-Abzeichen) | erledigt |
+| MAC-013 | Name „Siderea Planets“ in beiden Apps | erledigt |

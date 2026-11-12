@@ -172,12 +172,12 @@ describe("atLeast", () => {
 
 describe("windowTitle", () => {
   it("shows the file name after loading", () => {
-    expect(windowTitle("JUPITER.AVI", null)).toBe("SidereaPlanets — JUPITER.AVI");
-    expect(windowTitle("", null)).toBe("SidereaPlanets");
+    expect(windowTitle("JUPITER.AVI", null)).toBe("Siderea Planets — JUPITER.AVI");
+    expect(windowTitle("", null)).toBe("Siderea Planets");
   });
 
   it("shows step and percent during a calculation", () => {
-    expect(windowTitle("JUPITER.AVI", { name: "Align", progress: 0.4 })).toBe("SidereaPlanets · Align 40%");
+    expect(windowTitle("JUPITER.AVI", { name: "Align", progress: 0.4 })).toBe("Siderea Planets · Align 40%");
   });
 });
 
