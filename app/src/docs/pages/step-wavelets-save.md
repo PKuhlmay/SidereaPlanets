@@ -44,7 +44,7 @@ In the Wavelets and Save steps **Show ▾** at the top right of the image holds:
 
 ## Adjustments (right)
 
-Fifteen buttons in three columns, from Histogram to Cropping Area. Histogram, Gamma, RGB Align and RGB Balance work: each is a switch for its own card over the image, see [Color and tones](color-and-tones). The other eleven (Color Mixing, View Zoomed, View Compare, View Stack Size, Flip and Rotate, Resize Image, Denoise/Deringing, Wavelet Filter, Masking, Show Line Graph and Cropping Area) are dimmed and cannot be pressed: **Not available yet**.
+Fifteen buttons in three columns, from Histogram to Cropping Area. Histogram, Gamma, Color Mixing, RGB Align and RGB Balance work: each is a switch for its own card over the image, see [Color and tones](color-and-tones). **View Compare** is a switch for the split view of stack and result. The other nine (View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Denoise/Deringing, Wavelet Filter, Masking, Show Line Graph and Cropping Area) are dimmed and cannot be pressed: **Not available yet**.
 
 **Contrast/Brightness** has two sliders, each with its label and a field above it. Contrast starts at 100 and Brightness at 0. **Reset** returns both. **Keep** is **Not available yet**. **Remember**, **Restore** and **Difference** keep and compare images, see [Color and tones](color-and-tones); *Remembered image* is locked until something is remembered.
 

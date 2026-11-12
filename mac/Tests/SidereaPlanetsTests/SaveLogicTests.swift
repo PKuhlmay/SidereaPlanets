@@ -33,7 +33,7 @@ import Testing
     @Test func colourValuesThatLeaveTheImageAsItIsAreNeutral() {
         let none = ChannelShift(x: 0, y: 0)
         var colour = ColorSettings(
-            shifts: ChannelShifts(red: none, green: none, blue: none), red: 100, green: 100, blue: 100,
+            shifts: ChannelShifts(red: none, green: none, blue: none), mix: ColorMixValues().core, red: 100, green: 100, blue: 100,
             black: 0, white: 255, gamma: 1, contrast: 100, brightness: 0
         )
         #expect(isNeutral(colour))
@@ -41,6 +41,18 @@ import Testing
         #expect(!isNeutral(colour))
         colour.gamma = 1
         colour.shifts.blue = ChannelShift(x: 0, y: 1)
+        #expect(!isNeutral(colour))
+    }
+
+    @Test func aColorMixThatChangesTheImageIsNotNeutral() {
+        var colour = ToneValues().core
+        #expect(isNeutral(colour))
+        // Preserve brightness alone changes nothing: with the identity there is nothing to keep.
+        colour.mix.preserveBrightness = true
+        #expect(isNeutral(colour))
+        var mix = ColorMixValues()
+        mix[0, 1] = 25
+        colour.mix = mix.core
         #expect(!isNeutral(colour))
     }
 

@@ -129,8 +129,8 @@ private struct FunctionButton: View {
                 .contentShape(RoundedRectangle(cornerRadius: RKMetrics.radius))
         }
         .buttonStyle(.plain)
-        .disabled(!isToneCard(title))
-        .opacity(isToneCard(title) ? 1 : 0.45)
+        .disabled(!isFunctionBuilt(title))
+        .opacity(isFunctionBuilt(title) ? 1 : 0.45)
         .onHover { isHovering = $0 }
         .accessibilityAddTraits(isOn ? .isSelected : [])
         .help(functionHelp(title))

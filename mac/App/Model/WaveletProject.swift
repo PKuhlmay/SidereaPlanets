@@ -51,6 +51,11 @@ nonisolated func waveletSection(_ options: WaveletOptions, tone: ToneValues) -> 
         "tone": .object([
             "shifts": .object(["red": shift(tone.shifts.red), "green": shift(tone.shifts.green), "blue": shift(tone.shifts.blue)]),
             "maxShift": .number(Double(tone.maxShift)),
+            // Optional in the file: the Windows app does not write it and ignores it when it reads the file.
+            "mix": .object([
+                "matrix": .array(tone.mix.matrix.map { .number(Double($0)) }),
+                "preserveBrightness": .bool(tone.mix.preserveBrightness),
+            ]),
             "red": .number(Double(tone.red)),
             "green": .number(Double(tone.green)),
             "blue": .number(Double(tone.blue)),
@@ -110,6 +115,12 @@ nonisolated func applyWaveletSection(_ section: JSON?, to options: inout Wavelet
     channel("green", &tone.shifts.green)
     channel("blue", &tone.shifts.blue)
     card.int("maxShift", &tone.maxShift)
+    let mix = SectionReader(card.values["mix"])
+    if case .array(let items)? = mix.values["matrix"] {
+        let numbers = items.compactMap { item -> Double? in if case .number(let value) = item { value } else { nil } }
+        if numbers.count == items.count, let matrix = mixMatrix(from: numbers) { tone.mix.matrix = matrix }
+    }
+    mix.bool("preserveBrightness", &tone.mix.preserveBrightness)
     card.int("red", &tone.red)
     card.int("green", &tone.green)
     card.int("blue", &tone.blue)

@@ -13,6 +13,7 @@ struct FunctionCards: View {
                     switch name {
                     case "Histogram": HistogramCard(model: model)
                     case "Gamma": GammaCard(model: model)
+                    case "Color Mixing": ColorMixingCard(model: model)
                     case "RGB Align": RgbAlignCard(model: model)
                     default: RgbBalanceCard(model: model)
                     }

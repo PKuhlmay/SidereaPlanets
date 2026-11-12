@@ -30,10 +30,12 @@ The words of planetary photography in plain language, with the name each one has
 | Correct geometry | Correct geometry | Shifts each part of the image by its own movement, which undoes the wobble of the air. When it is off, every frame moves as a whole |
 | Layer spacing | Layer spacing (Linear, Dyadic) | How the wavelet layers grow in size. Linear: evenly. Dyadic: each layer doubles in size |
 | Wavelet scheme | Load Scheme…, Save Scheme… (`.rwv`) | The values of all wavelet layers, stored in a file so that you can use them again |
-| Adjustments | Adjust ›, Adjustments | Tools for color and tone after sharpening: Histogram, Gamma, RGB Align, RGB Balance and Contrast/Brightness. See [Color and tones](color-and-tones) |
+| Adjustments | Adjust ›, Adjustments | Tools for color and tone after sharpening: Histogram, Gamma, Color Mixing, RGB Align, RGB Balance and Contrast/Brightness, and the split view View Compare. See [Color and tones](color-and-tones) |
 | Histogram | Histogram, Black point, White point | A graph of how many pixels there are of each brightness. The black point and the white point decide which brightness becomes pure black and pure white |
 | Gamma | Gamma | Brightens or darkens the midtones without changing black and white |
 | RGB Align | RGB Align | Shifts red, green and blue against each other so that they lie on top of each other. This removes the colored fringes that the air causes on a planet |
+| Color Mixing | Color Mixing, Preserve brightness | Builds each color channel (red, green, blue) from a weighted mix of the three channels of the image, in percent. Useful to correct a color cast or to turn data from a single filter into a color image. Preserve brightness keeps the brightness of every pixel while the colors change. See [Color and tones](color-and-tones) |
+| View Compare | View Compare, Before, After | Splits the image at a divider you drag: the stack as it was before sharpening on the left, the result with sharpening and all adjustments on the right, both at the same zoom and position. See [Color and tones](color-and-tones) |
 | RGB Balance | RGB Balance | Makes red, green or blue stronger or weaker, for example to remove a color cast |
 | Contrast, Brightness | Contrast/Brightness | Contrast spreads the tones away from mid gray; Brightness shifts them up or down |
 | Remember, Restore | Remember, Restore, Difference | Remember keeps the image you see now so that you can compare it later; Restore brings it back; Difference shows where the two differ |

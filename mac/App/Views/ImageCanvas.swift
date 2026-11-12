@@ -11,6 +11,10 @@ import SwiftUI
 /// - dragging moves the image, or, while R.o.Interest waits for a region, draws a rectangle (the cross-hair cursor)
 struct ImageCanvas: NSViewRepresentable {
     let image: CGImage?
+    /// View Compare: the image shown left of the divider, at the same zoom and position; `nil` outside it.
+    var beforeImage: CGImage?
+    /// The divider as a share (0...1) of the width of the area.
+    var divider = compareDividerStart
     let transform: ViewTransform
     let viewport: ImageViewport
     /// The next drag draws a rectangle instead of moving the image.
@@ -28,14 +32,19 @@ struct ImageCanvas: NSViewRepresentable {
         view.onDraft = onDraft
         view.onSelect = onSelect
         view.isSelecting = isSelecting
-        view.show(image: image, transform: transform)
+        view.show(image: image, before: beforeImage, divider: divider, transform: transform)
     }
 }
 
 final class ImageCanvasView: NSView {
     private let viewport: ImageViewport
     private let imageLayer = CALayer()
+    /// View Compare: a layer with the same frame as `imageLayer`, in a container that is cut off at the divider.
+    private let beforeClip = CALayer()
+    private let beforeLayer = CALayer()
     private var image: CGImage?
+    private var beforeImage: CGImage?
+    private var divider = compareDividerStart
     private var transform = ViewTransform()
     private var lastDragPoint: CGPoint?
     /// The corner where the drag of a region started, in image pixels.
@@ -61,12 +70,21 @@ final class ImageCanvasView: NSView {
         imageLayer.minificationFilter = .trilinear
         imageLayer.magnificationFilter = .linear
         layer?.addSublayer(imageLayer)
+        beforeClip.anchorPoint = .zero
+        beforeClip.masksToBounds = true
+        beforeClip.isHidden = true
+        beforeLayer.anchorPoint = .zero
+        beforeLayer.borderColor = imageLayer.borderColor
+        beforeLayer.borderWidth = 1
+        beforeLayer.minificationFilter = .trilinear
+        beforeClip.addSublayer(beforeLayer)
+        layer?.addSublayer(beforeClip)
     }
 
     @available(*, unavailable)
     required init?(coder: NSCoder) { fatalError("not used") }
 
-    func show(image: CGImage?, transform: ViewTransform) {
+    func show(image: CGImage?, before: CGImage? = nil, divider: Double = compareDividerStart, transform: ViewTransform) {
         if image !== self.image {
             self.image = image
             CATransaction.begin()
@@ -74,6 +92,14 @@ final class ImageCanvasView: NSView {
             imageLayer.contents = image
             CATransaction.commit()
         }
+        if before !== beforeImage {
+            beforeImage = before
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            beforeLayer.contents = before
+            CATransaction.commit()
+        }
+        self.divider = divider
         self.transform = transform
         placeImage()
     }
@@ -104,7 +130,22 @@ final class ImageCanvasView: NSView {
         // From 200 % on the pixels are shown as pixels, not smoothed (docs/design.md).
         imageLayer.magnificationFilter = transform.scale >= 2 ? .nearest : .linear
         imageLayer.contentsScale = window?.backingScaleFactor ?? 2
+        placeBefore()
         CATransaction.commit()
+    }
+
+    /// The left half of View Compare: the same frame as the image, seen through a window that ends at the divider. Inside a transaction.
+    private func placeBefore() {
+        guard let beforeImage else {
+            beforeClip.isHidden = true
+            return
+        }
+        let frame = transform.frame(for: CGSize(width: beforeImage.width, height: beforeImage.height))
+        beforeClip.isHidden = false
+        beforeClip.frame = CGRect(x: 0, y: 0, width: bounds.width * divider, height: bounds.height)
+        beforeLayer.frame = CGRect(x: frame.minX, y: bounds.height - frame.maxY, width: frame.width, height: frame.height)
+        beforeLayer.magnificationFilter = transform.scale >= 2 ? .nearest : .linear
+        beforeLayer.contentsScale = imageLayer.contentsScale
     }
 
     /// A point of an event in the coordinates of the transform: from the top left of the view.

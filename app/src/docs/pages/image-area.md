@@ -35,7 +35,7 @@ A recording starts fitted and follows the size of the window until you zoom or m
 
 ## Before and after
 
-In the steps Wavelets and Save the zoom bar has a **Before/After** switch. In the position *Before* the window shows the stack as it was before sharpening; switch back to see the sharpened image. Both views differ as soon as you have pressed **Update Preview** or **Do All**.
+In the steps Wavelets and Save the zoom bar has a **Before/After** switch. In the position *Before* the window shows the stack as it was before sharpening; switch back to see the sharpened image. Both views differ as soon as you have pressed **Update Preview** or **Do All**. To see both at once, press **View Compare** in the Adjustments panel: a divider splits the image into the stack on the left and the result on the right, see [Color and tones](color-and-tones). Pressing **Before/After** ends it.
 
 ## Marks on the image
 

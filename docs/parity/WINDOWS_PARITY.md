@@ -313,3 +313,30 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
       `mac/App/Views/ResourceReadout.swift` (`ResourceField` in `StatusBar`), `mac/App/Settings/ResourceSettings.swift`; die Rechenregeln
       sind in `mac/Tests/SidereaPlanetsTests/ProcessUsageTests.swift` festgehalten. Die Anwenderseite `window-at-a-glance.md` nennt die Anzeige
       schon.
+
+## Adjustments: Color Mixing und View Compare (Mac: MAC-019)
+
+- [ ] **Color Mixing.** Der Knopf *Color Mixing* im Panel Adjustments öffnet eine Karte mit einer 3 × 3 Matrix: je Ausgabe (**Red output**,
+      **Green output**, **Blue output**) drei Zeilen für die Eingangskanäle Red, Green, Blue mit Regler und Feld (−200 … 200, „%“ hinter
+      dem Feld, Start 100 auf der Diagonale, sonst 0), oben die Zeile **Preset** mit dem Menü *Choose* (Neutral · Swap Red and Blue ·
+      Luminance Gray · Red to All Channels), unten das Häkchen **Preserve brightness** (Tooltip „Keeps the brightness of every pixel while
+      the colors change.“), in der Titelzeile **Reset**. Gerechnet wird im gemeinsamen Kern (**schon auf `main`**: `planets_core::color::mix_channels`,
+      `ColorSettings.mix` der Sitzung mit `#[serde(default)]`, die Tauri-Befehle nehmen das Feld schon an): Windows muss die Karte bauen und
+      `mix: { matrix: [9 Zahlen, zeilenweise], preserveBrightness }` in `ColorSettings` mitschicken (in `app/src/logic/colour.ts`:
+      `isNeutral` kennt die Matrix, `colourPayload` sendet sie). Reihenfolge im Kern: RGB Align, **Color Mixing**, RGB Balance, Histogram,
+      Gamma, Contrast/Brightness. Die Karte gilt auch für Graustufenbilder (nicht gesperrt). Projektdatei: Abschnitt `wavelet.tone.mix`
+      mit `matrix` und `preserveBrightness`, beim Lesen nur übernommen, wenn es neun endliche Zahlen sind. Tooltip des Knopfs: „Builds each
+      color channel from a mix of red, green and blue.“ Mac: `mac/App/Views/Wavelets/ColorMixingCard.swift`, `mac/App/Model/ColorMixLogic.swift`,
+      `mac/App/Model/WaveletProject.swift`.
+- [ ] **View Compare.** Der Knopf *View Compare* (Tooltip „Splits the image: the stack on the left, the result on the right.“) ist ein
+      Umschalter ohne Karte: das Bild im Schritt Wavelets wird an einer ziehbaren senkrechten Linie geteilt, links das Summenbild
+      (Beschriftung **Before** unten links), rechts das Ergebnis mit Schärfung und Karten (**After** unten rechts), beide mit gleichem
+      Zoom und gleicher Lage. Die Linie liegt bei einem Anteil (Start 0,5, Grenzen 0,02 … 0,98) der Breite des Bildbereichs und bleibt
+      beim Zoomen stehen; eine Beschriftung verschwindet, wenn weniger als 84 px bis zum Rand bleiben; oben links entfällt die Beschriftung
+      „Sharpened stack“ während der Teilung. **Before/After** in der Zoom-Leiste beendet die Teilung (zeigt das Summenbild ganz), und der
+      Knopf View Compare schaltet *Before* aus: nie beides zugleich. Nur im Schritt Wavelets. Der Knopf steht in `wavelet.functions` der
+      Projektdatei, die Lage der Linie nicht. Rein Ansicht, kein Kernaufruf. Maße und Farben: `docs/design.md`, „Bildbereich“. Mac:
+      `mac/App/Views/CompareOverlay.swift`, `mac/App/Views/ImageCanvas.swift` (`beforeImage`, `divider`), `mac/App/Model/AppModel+Compare.swift`,
+      `mac/App/Model/CompareLogic.swift`.
+- [ ] **Die Zahl der gesperrten Adjustments-Knöpfe** sinkt von elf auf neun (Texte in den Hilfeseiten `color-and-tones.md` und
+      `step-wavelets-save.md` schon angepasst); in der Windows-App ist die Liste der gesperrten Knöpfe ebenso zu kürzen.

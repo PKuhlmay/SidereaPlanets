@@ -101,6 +101,12 @@ extension AppModel {
         case "colour": wavelet.colour = true; wavelet.lrgb = false
         default: break
         }
+        // `-mix 100,20,0,0,100,0,0,0,100` sets the nine weights of Color Mixing, `-preserve 1` Preserve brightness, `-divider 0.4` View Compare.
+        if let matrix = mixMatrix(from: (defaults.string(forKey: "mix") ?? "").split(separator: ",").compactMap { Double($0) }) {
+            tone.mix.matrix = matrix
+        }
+        tone.mix.preserveBrightness = defaults.integer(forKey: "preserve") > 0
+        if defaults.object(forKey: "divider") != nil { setCompareDivider(defaults.double(forKey: "divider")) }
         for pair in (defaults.string(forKey: "tone") ?? "").split(separator: ",") {
             let parts = pair.split(separator: "=")
             guard parts.count == 2, let value = Double(parts[1]) else { continue }

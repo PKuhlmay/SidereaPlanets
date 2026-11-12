@@ -19,7 +19,8 @@ struct ImageArea: View {
         ZStack {
             RK.canvas
             ImageCanvas(
-                image: model.shownImage, transform: viewport.transform, viewport: viewport,
+                image: model.shownImage, beforeImage: model.compareBeforeImage, divider: model.wavelet.compareDivider,
+                transform: viewport.transform, viewport: viewport,
                 isSelecting: model.isDrawingRegion, onDraft: { draft = $0 }, onSelect: { model.selectRegion($0) }
             )
             if model.shownImage == nil {
@@ -37,13 +38,17 @@ struct ImageArea: View {
                         draft: draft
                     )
                 }
-                caption
+                // The split view has its own labels for the two sides.
+                if model.isComparing { CompareOverlay(model: model) } else { caption }
                 if model.viewStep != .open && (showsFrameMarks || isStackStep || isWaveletView) { ShowMenu(model: model) }
                 if (showsFrameMarks && model.progress.step != .empty) || (isStackStep && model.progress.step >= .limited) {
                     FloatingCards(model: model)
                 }
                 if model.viewStep == .wavelets { FunctionCards(model: model) }
-                ZoomBar(viewport: viewport, before: isWaveletView ? $model.waveletData.before : nil)
+                ZoomBar(
+                    viewport: viewport,
+                    before: isWaveletView ? Binding(get: { model.waveletData.before }, set: { model.setBefore($0) }) : nil
+                )
             }
         }
         .onGeometryChange(for: CGSize.self, of: \.size) { viewport.setBoxSize($0) }
@@ -172,7 +177,7 @@ private struct ZoomBar: View {
             RK.canvasLine.frame(width: 1, height: 16).padding(.horizontal, 3)
             ZoomButton("Fit", help: "Fit the image into the area (⌘0)", label: "Fit") { viewport.fit() }
             if let before {
-                ZoomButton("Before/After", help: "Switch between the stack without any sharpening and the sharpened image", label: "Before and after", isOn: before.wrappedValue) { before.wrappedValue.toggle() }
+                ZoomButton("Before/After", help: "Switch between the stack without any sharpening and the sharpened image. Turns off View Compare", label: "Before and after", isOn: before.wrappedValue) { before.wrappedValue.toggle() }
             }
         }
         .padding(3)

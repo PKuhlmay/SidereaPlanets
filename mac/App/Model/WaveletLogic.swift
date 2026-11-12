@@ -85,6 +85,8 @@ nonisolated struct WaveletOptions: Equatable, Sendable {
     var processingAreaSide = 512
     /// The right panel (Functions »).
     var functionsOpen = true
+    /// View Compare: where the divider sits, as a share of the width of the image area. Not stored in the project.
+    var compareDivider = compareDividerStart
     /// The pressed Functions buttons in the order they were pressed; each opens its own card.
     var functions: [String] = []
 
@@ -148,7 +150,7 @@ nonisolated func writePreview(_ preview: WaveletPreview, into pixels: inout Data
 
 // MARK: Functions cards and Contrast/Brightness
 
-/// The buttons of the Adjustments panel (three columns, five rows); only the four with a card work.
+/// The buttons of the Adjustments panel (three columns, five rows); only the ones listed in `toneCards` and `viewFunctions` work.
 nonisolated let functionNames = [
     "Histogram", "Gamma", "Color Mixing",
     "View Zoomed", "View Compare", "View Stack Size",
@@ -158,15 +160,23 @@ nonisolated let functionNames = [
 ]
 
 /// The cards that exist; the other Functions buttons only report that they are not available yet.
-nonisolated let toneCards = ["Histogram", "Gamma", "RGB Align", "RGB Balance"]
+nonisolated let toneCards = ["Histogram", "Gamma", "Color Mixing", "RGB Align", "RGB Balance"]
+
+/// The buttons that change the view instead of opening a card: they stay pressed while they are on.
+nonisolated let viewFunctions = [compareName]
 
 nonisolated func isToneCard(_ name: String) -> Bool { toneCards.contains(name) }
+
+/// Whether the button does something; the others are dimmed and locked.
+nonisolated func isFunctionBuilt(_ name: String) -> Bool { isToneCard(name) || viewFunctions.contains(name) }
 
 /// The tooltip of an Adjustments button: what its card does, or that the button is locked.
 nonisolated func functionHelp(_ name: String) -> String {
     switch name {
     case "Histogram": "Black point, white point and brightness of the image."
     case "Gamma": "Brightens or darkens the midtones."
+    case "Color Mixing": "Builds each color channel from a mix of red, green and blue."
+    case compareName: "Splits the image: the stack on the left, the result on the right."
     case "RGB Align": "Shifts red, green and blue so that they lie on top of each other."
     case "RGB Balance": "Changes the share of red, green and blue."
     default: "Not available yet"
@@ -182,6 +192,7 @@ nonisolated enum ToneLimits {
     static let clip = 0.0...49.0
     static let contrast = 1...1000
     static let brightness = -512...512
+    static let mix = MixLimits.weight
 }
 
 /// Contrast starts at 250 on the slider while the field shows 100; the ratio 2.5 follows from that pair of values only
@@ -202,6 +213,8 @@ nonisolated enum HistogramView: Equatable, Sendable {
 nonisolated struct ToneValues: Equatable, Sendable {
     /// RGB Align: shift of every channel in pixels.
     var shifts = ToneValues.noShifts
+    /// Color Mixing: the 3 x 3 matrix in percent and Preserve brightness.
+    var mix = ColorMixValues()
     /// RGB Align, Auto: how far the search goes, in pixels.
     var maxShift = 5
     /// RGB Balance in percent, 100 = unchanged.
@@ -227,7 +240,7 @@ nonisolated struct ToneValues: Equatable, Sendable {
     /// The values as the core takes them: all cards plus the sliders of Contrast/Brightness.
     var core: ColorSettings {
         ColorSettings(
-            shifts: shifts, red: Float(red), green: Float(green), blue: Float(blue), black: Float(black), white: Float(white),
+            shifts: shifts, mix: mix.core, red: Float(red), green: Float(green), blue: Float(blue), black: Float(black), white: Float(white),
             gamma: Float(gamma), contrast: Float(contrastField(contrast)), brightness: Float(brightness)
         )
     }
@@ -238,6 +251,7 @@ nonisolated struct ToneValues: Equatable, Sendable {
 nonisolated struct HistogramKey: Equatable, Sendable {
     var colours: ColorSettings?
     var shifts: ChannelShifts
+    var mix: ColorMix
     var red: Float
     var green: Float
     var blue: Float
@@ -248,6 +262,7 @@ nonisolated struct HistogramKey: Equatable, Sendable {
         self.after = after
         self.base = base
         shifts = v.shifts
+        mix = v.mix
         red = v.red
         green = v.green
         blue = v.blue

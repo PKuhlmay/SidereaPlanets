@@ -620,10 +620,31 @@ impl From<ChannelShifts> for session::ChannelShifts {
     }
 }
 
+/// *Color Mixing*: nine weights in percent, `matrix[3 * output + input]` in the order red, green, blue
+/// (100, 0, 0, 0, 100, 0, 0, 0, 100 is the identity), and whether the brightness of each pixel is kept.
+#[derive(Debug, Clone, PartialEq, uniffi::Record)]
+pub struct ColorMix {
+    pub matrix: Vec<f32>,
+    pub preserve_brightness: bool,
+}
+
+impl From<ColorMix> for session::ColorMix {
+    fn from(m: ColorMix) -> Self {
+        // A wrong length cannot come from the panel; anything missing stays at the identity.
+        let mut out = session::ColorMix::default();
+        for (slot, value) in out.matrix.iter_mut().zip(m.matrix) {
+            *slot = value;
+        }
+        out.preserve_brightness = m.preserve_brightness;
+        out
+    }
+}
+
 /// The state of all colour and tone panels, in the units the panels show (percent, pixels, 0..255).
-#[derive(Debug, Clone, Copy, PartialEq, uniffi::Record)]
+#[derive(Debug, Clone, PartialEq, uniffi::Record)]
 pub struct ColorSettings {
     pub shifts: ChannelShifts,
+    pub mix: ColorMix,
     pub red: f32,
     pub green: f32,
     pub blue: f32,
@@ -638,6 +659,7 @@ impl From<ColorSettings> for session::ColorSettings {
     fn from(s: ColorSettings) -> Self {
         Self {
             shifts: s.shifts.into(),
+            mix: s.mix.into(),
             red: s.red,
             green: s.green,
             blue: s.blue,

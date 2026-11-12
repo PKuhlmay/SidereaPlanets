@@ -7,7 +7,7 @@
 use crate::{Session, SessionError, error::lock, image::RgbaImage, wavelet::SourceInfo};
 use planets_core::{
     Image,
-    color::{Adjustments, RgbBalance, RgbShifts, Shift, adjust, estimate_rgb_shifts},
+    color::{Adjustments, ChannelMix, RgbBalance, RgbShifts, Shift, adjust, estimate_rgb_shifts},
     tone::{HISTOGRAM_BINS, Levels, auto_levels, histogram},
 };
 use serde::{Deserialize, Serialize};
@@ -76,12 +76,46 @@ impl From<RgbShifts> for ChannelShifts {
     }
 }
 
+/// Range of one weight of *Color Mixing*, in percent.
+pub const MIX_LIMIT: f32 = 200.0;
+
+/// *Color Mixing* in the units of the card: percent, `matrix[3 * output + input]` with the order red, green,
+/// blue. The default is the identity (100 on the diagonal), which leaves the image alone.
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct ColorMix {
+    pub matrix: [f32; 9],
+    pub preserve_brightness: bool,
+}
+
+impl Default for ColorMix {
+    fn default() -> Self {
+        Self {
+            matrix: [100.0, 0.0, 0.0, 0.0, 100.0, 0.0, 0.0, 0.0, 100.0],
+            preserve_brightness: false,
+        }
+    }
+}
+
+impl From<ColorMix> for ChannelMix {
+    fn from(m: ColorMix) -> Self {
+        let weight = |i: usize| m.matrix[i].clamp(-MIX_LIMIT, MIX_LIMIT) / 100.0;
+        Self {
+            matrix: std::array::from_fn(|row| std::array::from_fn(|col| weight(row * 3 + col))),
+            preserve_brightness: m.preserve_brightness,
+        }
+    }
+}
+
 /// The state of all panels at once; the result is always computed from the source.
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ColorSettings {
     /// *RGB Align*, in pixels.
     pub shifts: ChannelShifts,
+    /// *Color Mixing*; a settings object without it (older callers, project files) means the identity.
+    #[serde(default)]
+    pub mix: ColorMix,
     /// *RGB Balance*, in percent (100 = unchanged).
     pub red: f32,
     pub green: f32,
@@ -100,6 +134,7 @@ impl From<ColorSettings> for Adjustments {
     fn from(s: ColorSettings) -> Self {
         Adjustments {
             shifts: s.shifts.into(),
+            mix: s.mix.into(),
             balance: RgbBalance {
                 red: s.red / 100.0,
                 green: s.green / 100.0,
@@ -272,6 +307,7 @@ mod tests {
     #[test]
     fn panel_units_become_engine_units() {
         let adjustments: Adjustments = ColorSettings {
+            mix: ColorMix::default(),
             shifts: ChannelShifts {
                 red: ChannelShift { x: 1.0, y: -1.0 },
                 green: ChannelShift { x: 0.0, y: 0.0 },
@@ -294,5 +330,53 @@ mod tests {
         assert_eq!(adjustments.levels.white, 1.0);
         assert_eq!(adjustments.contrast, 1.5);
         assert_eq!(adjustments.brightness, 0.5);
+    }
+
+    #[test]
+    fn mixing_percent_becomes_factors_within_the_limit() {
+        let mut mix = ColorMix::default();
+        mix.matrix[1] = 50.0;
+        mix.matrix[5] = -999.0;
+        mix.preserve_brightness = true;
+        let engine: ChannelMix = mix.into();
+        assert_eq!(engine.matrix[0], [1.0, 0.5, 0.0]);
+        assert_eq!(engine.matrix[1][2], -2.0);
+        assert!(engine.preserve_brightness);
+        assert!(ChannelMix::from(ColorMix::default()).is_identity());
+    }
+
+    fn neutral_settings(mix: Option<serde_json::Value>) -> ColorSettings {
+        let mut value = serde_json::json!({
+            "shifts": { "red": { "x": 0, "y": 0 }, "green": { "x": 0, "y": 0 }, "blue": { "x": 0, "y": 0 } },
+            "red": 100, "green": 100, "blue": 100, "black": 0, "white": 255,
+            "gamma": 1, "contrast": 100, "brightness": 0
+        });
+        if let Some(mix) = mix {
+            value["mix"] = mix;
+        }
+        serde_json::from_value(value).unwrap()
+    }
+
+    #[test]
+    fn settings_without_a_mix_mean_the_identity() {
+        assert_eq!(neutral_settings(None).mix, ColorMix::default());
+        let with = neutral_settings(Some(serde_json::json!({
+            "matrix": [0, 100, 0, 100, 0, 0, 0, 0, 100], "preserveBrightness": true
+        })));
+        assert_eq!(with.mix.matrix[1], 100.0);
+        assert!(with.mix.preserve_brightness);
+    }
+
+    #[test]
+    fn applying_the_colours_mixes_the_source() {
+        let session = Session::new().unwrap();
+        session
+            .set_color_source(1, 1, &[200, 100, 50, 255])
+            .unwrap();
+        let mut settings = neutral_settings(None);
+        // Red and blue swap places.
+        settings.mix.matrix = [0.0, 0.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0, 0.0];
+        let out = session.apply_colors(&settings).unwrap();
+        assert_eq!(&out.into_rgba()[..3], &[50, 100, 200]);
     }
 }

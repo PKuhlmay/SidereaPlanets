@@ -52,6 +52,33 @@ impl Default for RgbBalance {
     }
 }
 
+/// *Color Mixing*: every output channel is a weighted sum of the three input channels. `matrix[out][in]`
+/// holds the weights as factors (1.0 = 100 %), so the identity is the neutral state.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct ChannelMix {
+    pub matrix: [[f32; 3]; 3],
+    /// Scales each pixel after mixing so that it keeps the luminance it had before.
+    pub preserve_brightness: bool,
+}
+
+impl ChannelMix {
+    pub const IDENTITY: [[f32; 3]; 3] = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]];
+
+    /// Whether mixing would leave the image as it is. Preserving brightness changes nothing then.
+    pub fn is_identity(&self) -> bool {
+        self.matrix == Self::IDENTITY
+    }
+}
+
+impl Default for ChannelMix {
+    fn default() -> Self {
+        Self {
+            matrix: Self::IDENTITY,
+            preserve_brightness: false,
+        }
+    }
+}
+
 /// Bilinear sample at a fractional position; positions outside the plane repeat the edge pixels.
 fn sample(plane: &[f32], w: usize, h: usize, x: f32, y: f32) -> f32 {
     let x = x.clamp(0.0, (w - 1) as f32);
@@ -249,6 +276,39 @@ pub fn balance_rgb(image: &mut Image, balance: &RgbBalance) {
     });
 }
 
+/// *Color Mixing*: replaces each pixel by the weighted sums of its channels. Negative sums become 0
+/// (there is no negative light). With `preserve_brightness` the result is scaled so that its
+/// luminance equals the one of the input; a pixel that mixes to black becomes gray at the input
+/// luminance. Results are clamped to `0.0..=1.0`, which can bend the hue of pixels that would
+/// exceed it. The identity and images with fewer than three channels pass through untouched.
+pub fn mix_channels(image: &mut Image, mix: &ChannelMix) {
+    let stride = usize::from(image.channels);
+    if stride < 3 || mix.is_identity() {
+        return;
+    }
+    let weights = crate::LUMA_WEIGHTS;
+    let luma = |px: [f32; 3]| weights[0] * px[0] + weights[1] * px[1] + weights[2] * px[2];
+    image.data.par_chunks_mut(stride).for_each(|px| {
+        let input = [px[0], px[1], px[2]];
+        let mut out = mix
+            .matrix
+            .map(|row| (row[0] * input[0] + row[1] * input[1] + row[2] * input[2]).max(0.0));
+        if mix.preserve_brightness {
+            let target = luma(input);
+            let got = luma(out);
+            if got > 1e-6 {
+                let ratio = target / got;
+                out = out.map(|v| v * ratio);
+            } else {
+                out = [target; 3];
+            }
+        }
+        for (v, new) in px.iter_mut().zip(out) {
+            *v = new.clamp(0.0, 1.0);
+        }
+    });
+}
+
 /// *LRGB*: gives `colour` the luminance of `luminance` and keeps its hue and saturation, by scaling
 /// the three channels of each pixel with the ratio of the new to the old luminance. Pixels that are
 /// black in `colour` become gray. `None` if `luminance` is not a single channel image of the same
@@ -284,6 +344,8 @@ pub fn with_luminance(colour: &Image, luminance: &Image) -> Option<Image> {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Adjustments {
     pub shifts: RgbShifts,
+    /// *Color Mixing*, applied after the shift and before the balance.
+    pub mix: ChannelMix,
     pub balance: RgbBalance,
     /// Histogram stretch.
     pub levels: Levels,
@@ -299,6 +361,7 @@ impl Default for Adjustments {
     fn default() -> Self {
         Self {
             shifts: RgbShifts::default(),
+            mix: ChannelMix::default(),
             balance: RgbBalance::default(),
             levels: Levels::default(),
             gamma: 1.0,
@@ -322,13 +385,14 @@ impl Adjustments {
     }
 }
 
-/// Applies all adjustments in a fixed order: RGB align, RGB balance, histogram stretch, gamma,
+/// Applies all adjustments in a fixed order: RGB align, colour mixing, RGB balance, histogram stretch, gamma,
 /// contrast/brightness. The order is our choice; the original applies each panel to the current
 /// image when it is used. Steps at their default are skipped, so the default [`Adjustments`]
 /// return the image unchanged.
 pub fn adjust(image: &Image, adjustments: &Adjustments) -> Image {
     let mut out = image.clone();
     shift_channels(&mut out, &adjustments.shifts);
+    mix_channels(&mut out, &adjustments.mix);
     balance_rgb(&mut out, &adjustments.balance);
     tone::stretch_levels(&mut out, adjustments.levels);
     tone::apply_gamma(&mut out, adjustments.gamma);
@@ -624,5 +688,142 @@ mod tests {
             },
             Adjustments::default()
         );
+    }
+
+    fn mix_of(matrix: [[f32; 3]; 3], preserve_brightness: bool) -> ChannelMix {
+        ChannelMix {
+            matrix,
+            preserve_brightness,
+        }
+    }
+
+    #[test]
+    fn identity_mix_is_bit_exact() {
+        let img = rgb_scene((0.0, 0.0), (0.0, 0.0), (0.0, 0.0));
+        let mut out = img.clone();
+        mix_channels(&mut out, &ChannelMix::default());
+        assert_eq!(out, img);
+        // Preserving brightness changes nothing when there is nothing to preserve.
+        mix_channels(&mut out, &mix_of(ChannelMix::IDENTITY, true));
+        assert_eq!(out, img);
+        // The default adjustments, which contain the identity mix, return the image as it was.
+        assert_eq!(adjust(&img, &Adjustments::default()), img);
+    }
+
+    #[test]
+    fn mixing_matrix_gives_the_weighted_sums() {
+        let mut img = Image {
+            width: 1,
+            height: 1,
+            channels: 3,
+            data: vec![0.2, 0.4, 0.6],
+        };
+        // Output red = 0.5 R + 0.5 B, green = G, blue = 1.0 R - 0.5 G + 0.5 B.
+        mix_channels(
+            &mut img,
+            &mix_of([[0.5, 0.0, 0.5], [0.0, 1.0, 0.0], [1.0, -0.5, 0.5]], false),
+        );
+        for (got, want) in img.data.iter().zip([0.4, 0.4, 0.3]) {
+            assert!((got - want).abs() < 1e-6, "{:?}", img.data);
+        }
+    }
+
+    #[test]
+    fn mixing_swaps_channels_and_clamps() {
+        let mut img = Image {
+            width: 1,
+            height: 1,
+            channels: 3,
+            data: vec![0.9, 0.1, 0.5],
+        };
+        // Red and blue swap places; green becomes 3 R - 2 B = 1.7 - 1.0 -> clamped, and a negative sum becomes 0.
+        mix_channels(
+            &mut img,
+            &mix_of([[0.0, 0.0, 1.0], [3.0, 0.0, -2.0], [-1.0, 0.0, 0.0]], false),
+        );
+        assert_eq!(img.data, vec![0.5, 1.0, 0.0]);
+    }
+
+    #[test]
+    fn preserve_brightness_keeps_the_luminance() {
+        let source = Image {
+            width: 3,
+            height: 1,
+            channels: 3,
+            data: vec![0.30, 0.20, 0.10, 0.05, 0.15, 0.25, 0.0, 0.0, 0.0],
+        };
+        let matrix = [[1.0, 0.5, 0.0], [0.0, 0.2, 0.0], [0.5, 0.0, 1.5]];
+        let mut plain = source.clone();
+        mix_channels(&mut plain, &mix_of(matrix, false));
+        let mut kept = source.clone();
+        mix_channels(&mut kept, &mix_of(matrix, true));
+        let before = source.to_luma();
+        let (after_plain, after_kept) = (plain.to_luma(), kept.to_luma());
+        for i in 0..2 {
+            assert!(
+                (after_kept.data[i] - before.data[i]).abs() < 1e-6,
+                "pixel {i}: {} vs {}",
+                after_kept.data[i],
+                before.data[i]
+            );
+        }
+        // Without it the luminance moves, so the option does something.
+        assert!((after_plain.data[0] - before.data[0]).abs() > 0.01);
+        // Black stays black.
+        assert_eq!(&kept.data[6..], &[0.0, 0.0, 0.0]);
+    }
+
+    #[test]
+    fn preserve_brightness_turns_a_pixel_that_mixes_to_black_gray() {
+        let mut img = Image {
+            width: 1,
+            height: 1,
+            channels: 3,
+            data: vec![0.4, 0.2, 0.1],
+        };
+        let zero = [[0.0; 3]; 3];
+        mix_channels(&mut img, &mix_of(zero, true));
+        let want = 0.299 * 0.4 + 0.587 * 0.2 + 0.114 * 0.1;
+        for v in &img.data {
+            assert!((v - want).abs() < 1e-6, "{:?}", img.data);
+        }
+    }
+
+    #[test]
+    fn mixing_leaves_mono_images_alone() {
+        let mut img = Image {
+            width: 2,
+            height: 1,
+            channels: 1,
+            data: vec![0.2, 0.8],
+        };
+        let before = img.clone();
+        mix_channels(&mut img, &mix_of([[0.0; 3]; 3], false));
+        assert_eq!(img, before);
+    }
+
+    #[test]
+    fn mixing_runs_between_align_and_balance() {
+        let img = Image {
+            width: 1,
+            height: 1,
+            channels: 3,
+            data: vec![0.2, 0.4, 0.1],
+        };
+        let out = adjust(
+            &img,
+            &Adjustments {
+                mix: mix_of([[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]], false),
+                balance: RgbBalance {
+                    red: 0.5,
+                    ..RgbBalance::default()
+                },
+                ..Adjustments::default()
+            },
+        );
+        // Red and green swap first (0.4, 0.2, 0.1), then the balance halves red.
+        for (got, want) in out.data.iter().zip([0.2, 0.2, 0.1]) {
+            assert!((got - want).abs() < 1e-6, "{:?}", out.data);
+        }
     }
 }

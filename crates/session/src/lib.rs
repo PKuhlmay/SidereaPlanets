@@ -27,7 +27,9 @@ pub use align::{
     AlignSettings, Aligned, Alignpoints, FrameRating, Intensity, LimitSettings, Limited, Point,
     PointSettings, RoiSettings,
 };
-pub use color::{ChannelShift, ChannelShifts, ColorSettings, HistogramData, HistogramPoints};
+pub use color::{
+    ChannelShift, ChannelShifts, ColorMix, ColorSettings, HistogramData, HistogramPoints,
+};
 pub use compute::logical_cores;
 pub use error::SessionError;
 pub use export::{

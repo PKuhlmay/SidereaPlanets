@@ -10,21 +10,23 @@ After stacking, the Wavelets step has a set of tools to fix the color and the br
 | Tool | What it does |
 |---|---|
 | RGB Align | Moves the red, green and blue channels against each other |
+| Color Mixing | Builds each color channel from a mix of red, green and blue |
 | RGB Balance | Makes a channel stronger or weaker |
 | Histogram | Sets the black point and the white point and so stretches the brightness range of the image |
 | Gamma | Brightens or darkens the midtones |
 | Contrast/Brightness | Spreads the tones and shifts them up or down |
 | Remember, Restore, Difference | Keep an image and compare it with the one you are working on |
+| View Compare | Shows the stack and the result side by side in one image, with a divider you drag |
 
-The other eleven **Adjustments** buttons (Color Mixing, View Zoomed, View Compare, View Stack Size, Flip and Rotate, Resize Image, Denoise/Deringing, Wavelet Filter, Masking, Show Line Graph and Cropping Area) are dimmed and cannot be pressed: **Not available yet**.
+The other nine **Adjustments** buttons (View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Denoise/Deringing, Wavelet Filter, Masking, Show Line Graph and Cropping Area) are dimmed and cannot be pressed: **Not available yet**.
 
 ## How the cards work
 
 - An **Adjustments** button stays pressed while its card is open. Press it again, or press the cross in the card, to close the card.
 - Closing a card keeps its values. **Reset** in the card sets the values back so that the image is not changed.
-- All values are applied to the stacked (or sharpened) image in this order: RGB Align, RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** shows the image without any of them.
+- All values are applied to the stacked (or sharpened) image in this order: RGB Align, Color Mixing, RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** shows the image without any of them.
 - The values change what the window shows, and **Save Image** in the Save step writes the image with them applied. **Do All** itself does not include them: the sharpened image stays as it is and the cards apply on top of it.
-- RGB Align and RGB Balance need a color image. With a grayscale recording they are grayed out.
+- RGB Align and RGB Balance need a color image. With a grayscale recording they are grayed out. Color Mixing also works on grayscale images, see below.
 - The cards work on the stacked image, or on the sharpened image once there is one. Pressing **Update Preview** or **Do All** puts a new sharpened image in the window; the cards then apply to that image.
 
 ## RGB Align
@@ -36,6 +38,18 @@ Air acts like a weak prism: low in the sky, the red and the blue image of a plan
 3. **Reset** puts all channels back.
 
 A positive **X (px)** moves a channel to the right, a positive **Y (px)** moves it down. The shift can have decimals, the image keeps its size, and at the edge the last pixel is repeated.
+
+## Color Mixing
+
+Every color of the result is built from the colors of the image. The card has a 3 × 3 grid: for each of the three outputs (**Red output**, **Green output**, **Blue output**) there is one slider and one field per input channel (**Red**, **Green**, **Blue**), in percent from −200 to 200. The output is the sum of the three inputs, each times its percentage.
+
+- The start values are 100 on the diagonal (red in red output, green in green output, blue in blue output) and 0 everywhere else. That leaves the image as it is.
+- **Preset** sets all nine values at once: *Neutral* (the start values), *Swap Red and Blue*, *Luminance Gray* (all three outputs show the brightness of the color image) and *Red to All Channels* (for data taken through a single filter, for example an infrared-pass filter).
+- **Preserve brightness** scales every pixel after the mixing so that it keeps the brightness it had before. Without it, a mix that adds up to more than 100% makes the image brighter and one that adds up to less makes it darker. A pixel that mixes to black becomes gray at its old brightness.
+- Mixing can only add or remove light: a result below 0 becomes 0, and a result above white is cut off. With **Preserve brightness** on, a very bright pixel that is cut off can change its color a little.
+- **Reset** puts the start values back.
+
+Typical uses: a color cast that is the same in all channels (lower the share of the channel that is too strong in the other outputs), data from a monochrome camera or an infrared-pass filter where one channel carries the picture (*Red to All Channels*, then give each output its own share for a false-color tint), or a quick trial of a different color look. On a grayscale recording all three inputs are equal, so each output simply gets its own total percentage, which tints the image.
 
 ## RGB Balance
 
@@ -59,6 +73,17 @@ One slider and one field, default 1.00, from 0.10 to 5.00. A value above 1 brigh
 - **Brightness** 0 is unchanged. The slider runs from −512 to 512, which is the whole range from black to white.
 - The Contrast field shows the slider position divided by 2.5 (250 gives 100).
 - **Keep** is dimmed: **Not available yet**.
+
+## View Compare
+
+**View Compare** splits the image into two halves along a vertical **divider**. Left of it you see the stack as it was before sharpening (**Before**), right of it the image with sharpening and all cards applied (**After**). Both halves have the same zoom and position, so the same detail lines up on both sides of the line.
+
+- Press **View Compare** in the Adjustments panel to turn the split on and off. The button stays pressed while it is on.
+- Drag the grip in the middle of the divider to the left or right. The divider cannot leave the image area: a thin strip of each side always stays. Zooming and moving the image do not move the divider; with VoiceOver the divider can be adjusted like a slider.
+- The labels **Before** and **After** sit in the lower corners. A label is hidden when the divider is too close to its corner.
+- It works in the Wavelets step. In the Save step the finished image is shown in full.
+- **Before/After** in the zoom bar shows one of the two images in full. Pressing it turns off **View Compare**, and pressing **View Compare** while *Before* is on shows the result again as a split. The two never run at the same time.
+- The Windows app does not have it yet. The button is stored in the project file with the other pressed Adjustments buttons; the position of the divider is not.
 
 ## Remember, Restore and Difference
 

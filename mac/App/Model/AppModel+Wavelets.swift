@@ -372,11 +372,17 @@ extension AppModel {
 
     /// A Functions button: opens or closes its card; the buttons without a card say so in the status bar.
     func toggleFunction(_ name: String) {
-        guard isToneCard(name) else {
+        guard isFunctionBuilt(name) else {
             status.result = "\(name): not available yet"
             return
         }
-        if wavelet.functions.contains(name) { closeFunction(name) } else { wavelet.functions.append(name) }
+        if wavelet.functions.contains(name) {
+            closeFunction(name)
+        } else {
+            wavelet.functions.append(name)
+            // The split view and the stack in full exclude each other.
+            if name == compareName { waveletData.before = false }
+        }
     }
 
     /// Closes a card: the Functions button comes up, the values stay.

@@ -304,6 +304,20 @@ unbearbeitete Summenbild zeigt. Mausrad zoomt, Ziehen verschiebt. Das Bild folgt
 verschiebt (ein Klick ohne Bewegung zählt nicht); bei jedem Schrittwechsel wird es neu eingepasst, weil sich die Fläche mit
 Frame-Leiste und rechtem Panel ändert (RK-010-Prüflauf: Zoom blieb nach Wavelets bei 73 %).
 
+**View Compare** (MAC-019, die Schaltfläche des Adjustments-Panels; im Original nicht erfasst): teilt das Bild im Schritt Wavelets
+an einer senkrechten **Trennlinie** in zwei Hälften: links das Summenbild ohne alles (**Before**), rechts das Bild mit Schärfung und
+Karten (**After**, das, was der Bildbereich sonst zeigt). Beide Hälften haben denselben Zoom und dieselbe Lage, es ist ein Bild in zwei
+Ausschnitten. Die Linie ist 2 px breit, `--on-canvas` mit 90 % Deckkraft und Schatten, in der Mitte der Griff: eine schwarze Kapsel
+(75 %, 22 × 28 px) mit `--accent`-Rand und zwei Pfeilen in `--accent`. Der Griff und ein 30 px breiter Streifen um die Linie sind
+ziehbar (Cursor ↔); der Rest des Bildbereichs verschiebt weiter das Bild. Die Linie sitzt bei einem Anteil der Breite des Bildbereichs
+(Start 0,5, Grenzen 0,02 … 0,98), bleibt also beim Zoomen und Verschieben stehen; VoiceOver stellt sie in 5-%-Schritten ein.
+Die Beschriftungen **Before** und **After** stehen unten links und unten rechts im Bildbereich (Kapsel wie die Beschriftung oben
+links, 24 px hoch, 12 px Rand); eine Beschriftung verschwindet, wenn zwischen Linie und Rand weniger als 84 px bleiben. Solange die
+Teilung läuft, entfällt die Beschriftung oben links („Sharpened stack“). **Before/After** in der Zoom-Leiste zeigt weiterhin eines der
+beiden Bilder ganz: es beendet die Teilung, und die Schaltfläche View Compare beendet *Before*. Die beiden laufen nie zugleich. Nur
+im Schritt Wavelets; die Schaltfläche steht wie alle gedrückten Adjustments-Schaltflächen in `wavelet.functions` der Projektdatei, die
+Lage der Linie nicht. Die Seite-an-Seite-Variante (zwei Bildflächen) gibt es nicht.
+
 ### Frame-Leiste
 
 Von links: Statuspunkt mit Text („Loaded“ blass, „Aligned“ kräftig in `--ok`; er ersetzt das grüne Farbfeld des
@@ -472,7 +486,7 @@ Seit MAC-014 heißt der Schritt in der App **Best Frames** (Pille, Panelkopf, Me
   Size step, Wavelet filter, Move all sliders together); Available schemes (in der App: Saved Schemes, gesperrt) mit Load Scheme und Save Scheme (in der App: Load Scheme… und Save Scheme…); Realign with Processed und Stack Again. Beide sind gesperrt; Realign
   trägt wie die gesperrten Stack-Optionen Tooltip und den Hinweis „Not available yet“ (darunter), Stack Again ist wie im Original gesperrt.
 - Aktion: **Do All**, links daneben **Process** (in der App: **Update Preview**) als Standard-Schaltfläche in derselben Zeile.
-- Rechtes Panel: Functions (in der App: Adjustments; nur Histogram, Gamma, RGB Align und RGB Balance aktiv, die elf übrigen Schaltflächen gesperrt) als Raster aus drei Spalten und fünf Zeilen in der Reihenfolge des Originals, jede
+- Rechtes Panel: Functions (in der App: Adjustments; nur Histogram, Gamma, Color Mixing, RGB Align, RGB Balance und View Compare aktiv, die neun übrigen Schaltflächen gesperrt) als Raster aus drei Spalten und fünf Zeilen in der Reihenfolge des Originals, jede
   Schaltfläche ein Umschalter für ihr Panel · Contrast/Brightness mit zwei Reglern und zwei Zahlenfeldern (in der App je Beschriftung und Feld über dem Regler; Hold heißt Keep und ist gesperrt) · Copy To /
   Load to / Difference mit der Auswahl Toggle (in der App: Remember · Restore · Difference mit „Show:“ Current image · Remembered image). **Functions »** (in der App: **Adjust ›**) oben im Bildbereich links neben Show blendet das rechte
   Panel aus und ein; der Bildbereich nimmt den frei werdenden Platz.
@@ -507,10 +521,11 @@ Seit MAC-014 heißt der Schritt in der App **Best Frames** (Pille, Panelkopf, Me
 [Schwebende Karten](#schwebende-karten)): oben rechts über dem Bild, 236 px breit, Titel und Schließen-Kreuz, nicht
 verschiebbar. Es gibt dazu kein Soll-Bild; die Karten sind aus den vorhandenen Komponenten gebaut.
 
-Dieser Abschnitt legt die Karten fest, die RK-008 braucht: **Histogram**, **Gamma**, **RGB Align** und **RGB Balance**.
+Dieser Abschnitt legt die Karten fest, die RK-008 braucht: **Histogram**, **Gamma**, **RGB Align** und **RGB Balance**,
+dazu (MAC-019) **Color Mixing**; **View Compare** ist keine Karte, sondern eine Ansicht (Abschnitt am Ende dieses Teils).
 Contrast/Brightness bleibt das feste Panel unter dem Raster (Soll-Bild 07). Die übrigen Karten (Colour Mixing, View …,
 Flip and Rotate, Resize Image, Denoise/Deringing, Wavelet Filter, Masking, Show Linegraph, Cropping Area; in der App Color Mixing,
-View Stack Size, Show Line Graph …; die elf Schaltflächen sind gesperrt, „Not available yet“) legen ihre
+View Stack Size, Show Line Graph …; die übrigen Schaltflächen sind gesperrt, „Not available yet“) legen ihre
 Tickets fest und ergänzen dieses Dokument.
 
 **Gemeinsames Verhalten**
@@ -522,10 +537,11 @@ Tickets fest und ergänzen dieses Dokument.
   gelten auch für das Ergebnis von Do All und für Save image. Eine geschlossene Karte behält ihre Werte, nur **Reset**
   nimmt sie zurück. Das Original wurde dazu nicht beobachtet (`docs/offene-fragen.md`).
 - Die Werte werden immer auf das Ausgangsbild angewendet, nicht aufeinander gestapelt, in dieser Reihenfolge: RGB Align,
-  RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** zeigt das Ausgangsbild ohne sie.
+  Color Mixing, RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** zeigt das Ausgangsbild ohne sie.
 - **Reset** steht als Textlink in der Titelzeile, links vom Kreuz, und setzt die Werte der Karte auf den neutralen
   Zustand: das Bild bleibt unverändert. Weitere Aktionen (Auto) stehen ebenfalls als Textlinks dort.
-- Bei einem Graustufenbild sind RGB Align und RGB Balance gesperrt; der Tooltip sagt „Needs a color image“ (bis MAC-014 „colour“).
+- Bei einem Graustufenbild sind RGB Align und RGB Balance gesperrt (Color Mixing nicht: dort sind die drei Eingangskanäle gleich, jede
+  Ausgabe bekommt ihre eigene Summe, das Bild lässt sich also einfärben); der Tooltip sagt „Needs a color image“ (bis MAC-014 „colour“).
 - Zahlenfeld und Regler einer Zeile sind gekoppelt: das eine setzt das andere. Werte außerhalb des Bereichs werden auf
   den Bereich gesetzt.
 
@@ -534,6 +550,7 @@ Tickets fest und ergänzen dieses Dokument.
 | Histogram | Graph, 212 × 84 px, Fläche `--field`, Umriss `--line`. Luminanz als gefüllte Fläche in `--line-strong`, darüber Red, Green und Blue als 1-px-Linien in `--ch-r` `--ch-g` `--ch-b`. Waagerecht 0 … 255, senkrecht logarithmisch, weil das Bild meist fast schwarz ist. Unter der Achse zwei Dreiecke für Black und White, ziehbar. Darunter Segmente **Input · Result**, dann die Felder **Black** und **White** (in der App: **Black point** und **White point**), darunter **Auto** mit dem Feld **Clip %** (in der App: **Clip (%)**) | Black 0 · 0 … 254, White 255 · 1 … 255, Black bleibt unter White; Clip 0.1 · 0 … 49; Segment Input |
 | Gamma | Regler mit „darker“ links und „brighter“ rechts (12 px, `--muted`) über der Spur, darunter das Feld **Gamma** rechts in der Zeile | 1.00 · 0.10 … 5.00; Regler in Schritten von 0.01 |
 | RGB Align | Spaltenköpfe X und Y (12 px, `--muted`), drei Zeilen **Red**, **Green**, **Blue** mit je zwei Feldern, darunter die Zeile **Max shift** mit Feld (in der App: Felder **X (px)**, **Y (px)**, **Max shift (px)**), Hinweis „Auto moves Red and Blue onto Green“ (12 px, `--muted`) | Verschiebung 0.00 px · −20.00 … 20.00, Pfeiltasten ±0.1; positives X nach rechts, positives Y nach unten; Max shift 5 · 1 … 20 |
+| Color Mixing | Zeile **Preset** (Beschriftung links, Menü-Schaltfläche **Choose** rechts: Neutral · Swap Red and Blue · Luminance Gray · Red to All Channels). Darunter drei Gruppen **Red output**, **Green output**, **Blue output** (Gruppenkopf 12 px, `--muted`), jede mit drei Zeilen **Red**, **Green**, **Blue** (Eingangskanal): Beschriftung links (40 px), Regler, Feld (36 px) mit „%“ dahinter, wie bei RGB Balance. Zuletzt das Häkchen **Preserve brightness**. In der Titelzeile **Reset** (gesperrt, solange die Matrix neutral ist) | Diagonale 100 %, sonst 0 % · je −200 … 200; Preserve brightness aus |
 | RGB Balance | Drei Zeilen **Red**, **Green**, **Blue**: Beschriftung links, Regler, Feld rechts (56 px). Die Regler bleiben in der Akzentfarbe, die Kanäle erkennt man an der Beschriftung | 100 % · 0 … 200 (in der App „%“ hinter dem Feld) |
 
 - **Histogram**: *Input* zeigt das Bild vor dem Stretch, das ist das Bild, auf dem Black und White sitzen; *Result* zeigt
@@ -541,6 +558,12 @@ Tickets fest und ergänzen dieses Dokument.
   der Pixel abgeschnitten werden (gemessen an der Luminanz). Black und White wirken gleich auf alle Kanäle, die Farbe
   bleibt also erhalten.
 - **Gamma**: über 1.00 wird das Bild in den Mitteltönen heller, darunter dunkler; Schwarz und Weiß bleiben.
+- **Color Mixing** (MAC-019): jede Ausgabe ist die Summe der drei Eingangskanäle mal ihrem Prozentwert (3 × 3 Matrix, Zeile = Ausgabe).
+  Negative Summen werden 0, Summen über Weiß abgeschnitten. **Preserve brightness** skaliert jedes Pixel nach dem Mischen so, dass
+  es die Luminanz (0,299 R + 0,587 G + 0,114 B) vor dem Mischen behält; ein Pixel, das zu Schwarz wird, wird grau in dieser Luminanz.
+  Die Neutral-Matrix lässt das Bild bitgenau unverändert. Der Kern rechnet es zwischen RGB Align und RGB Balance
+  (`crates/core/src/color.rs`, `mix_channels`); die Projektdatei hat dafür `tone.mix` (`matrix`: neun Prozentwerte zeilenweise,
+  `preserveBrightness`), optional, Windows ignoriert den Schlüssel.
 - **RGB Align**: **Auto** sucht in den Kanälen Red und Blue die Verschiebung, mit der ihre Kanten auf die von Green fallen
   (Green ist die Bezugsfarbe), und trägt sie in die Felder ein. Danach lässt sich von Hand nachstellen. Die Verschiebung
   hat Nachkommastellen, das Bild behält seine Größe, am Rand wird der letzte Pixel wiederholt.
@@ -741,7 +764,7 @@ dieses Dokument im selben Commit.
 - Fehlermeldungen (festgelegt in RK-010): Text mit Präfix „Error:“ im Ergebnisfeld der Statusleiste (Feld 3), in
   `--text`; kein Dialog, kein Rot.
 - Speicherangabe („Memory used/free/total“) in der Schrittleiste: entfällt vorerst, sie braucht einen Befehl im Backend.
-- Elf der fünfzehn Panels hinter den Functions-Schaltflächen (in der App: Adjustments; die Schaltflächen sind gesperrt). Histogram, Gamma, RGB Align und RGB Balance stehen unter
+- Neun der fünfzehn Panels hinter den Functions-Schaltflächen (in der App: Adjustments; die Schaltflächen sind gesperrt). Histogram, Gamma, Color Mixing, RGB Align und RGB Balance stehen unter
   [Karten hinter den Functions-Schaltflächen](#karten-hinter-den-functions-schaltflächen); die übrigen sind im Original
   noch nicht erfasst (`docs/offene-fragen.md`). Vorgabe für die Form: schwebende Karten wie Framelist.
 - Stackgraph, Stacklist, Aligndata und Prefilter (in der App: Stack Graph, Stack List, Align Data, Prefilter; im Menü Show gesperrt). Vorgabe für die Form: schwebende Karten.

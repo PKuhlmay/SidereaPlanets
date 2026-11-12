@@ -137,7 +137,7 @@ import Testing
         #expect(layers[1] == .object(["enabled": .bool(true), "denoise": .number(1.25), "sharpen": .number(0.1), "level": .number(32)]))
         #expect(wavelet["contrast"] == .number(250) && wavelet["brightness"] == .number(0))
         guard case .object(let tone)? = wavelet["tone"] else { Issue.record("no tone"); return }
-        #expect(Set(tone.keys) == ["shifts", "maxShift", "red", "green", "blue", "black", "white", "clip", "histogramView", "gamma"])
+        #expect(Set(tone.keys) == ["shifts", "maxShift", "mix", "red", "green", "blue", "black", "white", "clip", "histogramView", "gamma"])
         #expect(tone["histogramView"] == .string("result") && tone["gamma"] == .number(1) && tone["clip"] == .number(0.1))
         #expect(tone["shifts"] == .object([
             "red": .object(["x": .number(0), "y": .number(0)]), "green": .object(["x": .number(0), "y": .number(0)]),
