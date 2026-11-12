@@ -31,3 +31,9 @@ als Checkbox-Liste hier, sondern in den Spezifikationen und Tickets, die das Mac
 
 Erst wenn `MAC-001` abgehakt ist, gilt die Regel „ein Punkt je Verhalten“: Von da an trägt jede Windows-Änderung hier ihren Mac-Punkt
 ein.
+
+## Lücken nach MAC-002 bis MAC-010 (Windows, 2026-11-12)
+
+- [ ] Statusleiste in Wavelets und Save: Position und Wert unter dem Mauszeiger wie Windows (`app/src/components/StatusBar.vue`,
+      `ImageViewer.vue`); der Mac lässt das Feld leer (`docs/design.md`, Mac-Abweichungen)
+

@@ -30,17 +30,17 @@ Gemeinsam bleibt nur der Rechenkern in Rust. Die Mac-App ruft ihn über eine Sch
 ## Akzeptanzkriterien
 
 Gerüst
-- [ ] Der Kern baut und testet am Mac: `cargo test --workspace` und `cargo clippy --workspace --all-targets` ohne Warnungen; was
+- [x] Der Kern baut und testet am Mac: `cargo test --workspace` und `cargo clippy --workspace --all-targets` ohne Warnungen; was
       Windows-spezifisch ist (Pfade, Zeilenenden, Testdaten-Suche in `crates/io/tests/common/mod.rs`), ist portabel gemacht
 - [ ] `crates/session` enthält die Sitzungslogik, die Tauri-Shell benutzt sie, alle bestehenden Tests sind grün und der
       Fensterlauf der Windows-App ist unverändert (Auswertung: Commit `[TASK] RK-… - …` getrennt vom Mac-Teil)
-- [ ] `crates/ffi` mit Swift-Bindings und XCFramework; ein Test in Swift ruft den Rechenkern auf und prüft ein Ergebnis aus
+- [x] `crates/ffi` mit Swift-Bindings und XCFramework; ein Test in Swift ruft den Rechenkern auf und prüft ein Ergebnis aus
       `docs/testdaten.md` (z. B. Stack gegen die Referenz mit PSNR-Schwelle)
 - [ ] `mac/project.yml`, `mac/README.md` Abschnitt „Bauen und veröffentlichen“ ausgefüllt (xcodegen, `xcodebuild`, Bündel,
       Signierung und Notarisierung), `/release mac <version>` läuft durch
 
 Oberfläche (nach `docs/design.md`, Soll-Bilder `docs/design/screenshots/`, dunkel und hell, Tokens aus `docs/design/tokens.css`)
-- [ ] Fenster mit Werkzeugleiste, Schrittleiste (Open · Alignpoints · Align · Limit · Stack · Wavelets · Save), Schrittpanel,
+- [x] Fenster mit Werkzeugleiste, Schrittleiste (Open · Alignpoints · Align · Limit · Stack · Wavelets · Save), Schrittpanel,
       Bildbereich, Frame-Leiste und Statusleiste in den Zuständen aus `docs/design.md`
 - [x] Schritt **Open**: Aufnahme öffnen (SER, AVI, Bildserien, FITS), MRU, Dateiangaben
 - [x] Schritte **Alignpoints**, **Align**, **Limit**: Set Alignpoints, Align mit Fortschritt, Pause und Cancel, Limit mit
@@ -53,14 +53,14 @@ Oberfläche (nach `docs/design.md`, Soll-Bilder `docs/design/screenshots/`, dunk
 - [x] Bildbereich: Zoom um den Zeiger, Pan, 100 %-Klick, Einpassen bei Schrittwechsel, Vorher/Nachher
 - [x] CPUs-Feld wirkt auf den Thread-Pool des Kerns (Standard alle Kerne)
 - [x] Help öffnet die Anwenderseiten (`app/src/docs/pages/`, dieselben Markdown-Dateien) in einem eigenen Fenster
-- [ ] Mac-Konventionen als bewusste Abweichung in `docs/design.md` eingetragen: Menüleiste und ⌘-Kürzel (⌘O Open, ⌘S Save image, ⌘.
+- [x] Mac-Konventionen als bewusste Abweichung in `docs/design.md` eingetragen: Menüleiste und ⌘-Kürzel (⌘O Open, ⌘S Save image, ⌘.
       Cancel, ⌘? Help), native Dateidialoge, Vollbild, About im App-Menü, Einstellungen im Menü statt in der Werkzeugleiste, wo es der
       Konvention folgt
 
 Qualität
 - [ ] Vergleich mit der Windows-App an JUPITER.AVI: gleiche Anzahl Alignpoints, gleiche Frame-Reihenfolge, Stack und Do All
       innerhalb der PSNR-Schwellen aus `docs/stacking.md` und `docs/wavelets.md`
-- [ ] Swift-Tests (`swift test`) und die Rust-Tests laufen grün, jeder neue Test war einmal rot (an einer Assertion)
+- [x] Swift-Tests (`swift test`) und die Rust-Tests laufen grün, jeder neue Test war einmal rot (an einer Assertion)
 - [ ] Hand-Probe am Mac: Der ganze Ablauf mit JUPITER.AVI bis Save image, eingetragen und abgehakt in `docs/parity/Handprobe.md`
 - [ ] Danach: `docs/parity/MAC_PARITY.md` enthält den Stand „Mac gleich Windows“, ab hier trägt jede Änderung ihren Gegenpunkt ein
       (der Commit-Hook erzwingt es)
@@ -99,4 +99,24 @@ Zerlegt in `MAC-002` bis `MAC-010` (siehe `mac/README.md`, Status). Mit Philipp 
 - Testdaten: Die Eingabevideos (JUPITER, CLAVIUS, SUNSPOTS) liegen am Mac unter `re-local/testdata/astropix/` (astropix.com). Die
   Ergebnisse des Originals (`re-local/reference/`) gibt es nur auf dem Windows-PC; die PSNR-Kriterien gegen das Original bleiben am
   Mac offen, bis der Ordner kopiert ist.
+
+## Stand 2026-11-12 (nach MAC-002 bis MAC-010)
+
+Alle Teil-Tickets sind erledigt und auf `main`. Gesamtlauf: `cargo test --workspace` 357 grün, `clippy` ohne Warnungen,
+`swift test` (SidereaPlanetsKit) 8 grün, `xcodebuild test` (App) 225 grün. Das Swift-Paket prüft aus `docs/testdaten.md` die Zahl der
+Alignpoints (78) und Stack 1024×680 mit n=10; ein PSNR-Vergleich gegen die Referenz braucht `re-local/reference/` vom Windows-PC.
+
+Offen:
+
+- `crates/session`: Fensterlauf der Windows-App nach dem Umzug (Handprobe Windows, MAC-003).
+- `/release mac 0.1.0` ist noch nicht gelaufen (Philipp startet ihn); `scripts/build-mac-release.sh --dmg` baut das universelle
+  Bündel bereits (MAC-010). Notarisierung offen bis eine Developer-ID da ist.
+- Vergleich mit der Windows-App: Alignpoints (78) und Frame-Reihenfolge (1, 3, 10, 2, 8, 9, 4, 5, 6, 7) gleichen dem Windows-Klon
+  (gleicher Kern, `docs/testdaten.md`); die PSNR-Schwellen gegen das Original brauchen `re-local/reference/`.
+- Handprobe am Mac (`docs/parity/Handprobe.md`), danach `MAC_PARITY.md` auf „Mac gleich Windows“.
+
+Laufzeit mit einer großen Aufnahme (SaturnVideo.avi, OpenDML, 800×600, 3051 Frames, 4,4 GB, externe USB-Platte, M4 Pro mit 12
+Kernen, Release-Bau des Kerns, Standardwerte): Öffnen 0,6 s, Set Alignpoints 7 ms (9 Punkte), Align 38,6 s, Limit < 1 ms, Stack
+84,5 s, Speicher höchstens 59 MB. Reines Lesen aller Frames dauert etwa 6 s; Rechenzeit 116 s bei 137 s Laufzeit zeigt, dass
+Align und Stack kaum parallel laufen. Das betrifft den gemeinsamen Kern (beide Apps) und ist ein eigenes Thema.
 
