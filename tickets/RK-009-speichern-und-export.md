@@ -1,14 +1,14 @@
 # RK-009 Speichern und Export
 
-- Status: in Arbeit
+- Status: erledigt
 - Abhängig von: RK-006
 
 ## Ziel
 Ergebnisse in gängigen Formaten ausgeben.
 
 ## Akzeptanzkriterien
-- [ ] Export als TIFF (16 Bit), PNG, JPEG, FITS
-- [ ] Projekt-/Einstellungsdatei, damit eine Sitzung wieder geöffnet werden kann
+- [x] Export als TIFF (16 Bit), PNG, JPEG, FITS (alle sieben Formate schreiben und lesen im Backend-Test `pipeline.rs` zurück; TIFF 16 Bit und PNG 16 Bit zusätzlich im Release-Fenster gespeichert und als Bild geöffnet, 2026-11-12)
+- [x] Projekt-/Einstellungsdatei, damit eine Sitzung wieder geöffnet werden kann (Release-Fenster, 2026-11-12: Save project schreibt `.rkproj`, Open project nach Neustart öffnet die Aufnahme und stellt die Einstellungen wieder her, fehlende Dateien werden benannt)
 
 ## Stand
 *Save image* im Wavelet-Reiter nimmt den aktuellen Reglerstand (2026-11-11): Haben sich Ebenenwerte, Colour/LRGB oder der Stack seit dem letzten
