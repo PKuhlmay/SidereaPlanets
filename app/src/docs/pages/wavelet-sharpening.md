@@ -76,7 +76,7 @@ These three check boxes (under **Advanced**) are not fully known from the refere
 
 ## Schemes
 
-**Save Scheme** and **Load Scheme** ask for a file and store or read the settings of the panel. Schemes use the same `.rwv` files as the reference program, so schemes you already have keep working, and schemes saved here open in the reference program.
+**Save Scheme** and **Load Scheme** ask for a file and store or read the settings of the panel. Schemes use the same `.rwv` files as the reference program, so schemes you already have keep working, and schemes saved here open in the reference program. The status bar then says *Scheme saved* or *Scheme loaded* with the file, or the error if the file could not be written or read. After **Load Scheme** the preview is calculated with the new values, and the message stays.
 
 ## What works today
 

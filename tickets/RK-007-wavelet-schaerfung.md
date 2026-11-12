@@ -27,6 +27,12 @@ belegt (Tests an Assertionen gescheitert, dann grün).
 - Tests: `crates/core/src/wavelet/mod.rs` (`do_all_until_*`), `app/src-tauri/src/wavelet_commands.rs`, `app/src/flow.test.ts`.
 - Doku: *Progress, Cancel and Pause*, *The Wavelet tab*, *Wavelet sharpening*.
 
+## Stand (Load Scheme meldet sich, 2026-11-12)
+Fund aus dem Durchlauf der Release-App: Save Scheme meldete „Scheme saved: …“, Load Scheme nichts. `loadScheme` setzte die Meldung, aber die geladenen
+Werte starten im Schritt Wavelets eine neue Vorschau, und deren Meldung („Calculating wavelets done“) überschrieb sie. `loadScheme` wartet jetzt
+(`nextTick`, dann den laufenden Vorschau-Lauf `running`) und setzt die Meldung danach. Test: `app/src/schemes.test.ts`, rot an einer Assertion gesehen,
+dann grün.
+
 ## Stand (Tonkennlinie und Farbe, 2026-11-11)
 Die Tests laufen wieder (`cargo test --workspace`, `pnpm test`, clippy ohne Warnungen). Neu in diesem Schritt:
 - **Tonkennlinie des Originals** (`0,988231·x + 0,015595·x³`, `wavelet/output.rs`) am Ende von Do All und der Vorschau; gegen die Referenz

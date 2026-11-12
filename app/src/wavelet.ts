@@ -5,7 +5,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
-import { shallowRef, watch } from "vue";
+import { nextTick, shallowRef, watch } from "vue";
 import { runJob } from "./jobs";
 import { defaultLayer } from "./logic/settings";
 import { processingArea } from "./logic/viewport";
@@ -52,26 +52,29 @@ async function renderPreview(cancelled?: () => boolean): Promise<string> {
   return "Calculating wavelets done";
 }
 
-// Only one request runs at a time; while it runs, further changes are folded into one more request.
-let rendering = false;
+// Only one request runs at a time; while it runs, further changes are folded into one more request. The promise is
+// the whole run, so that a caller can wait until the preview of its change is on screen.
+let running: Promise<void> | null = null;
 let again = false;
 
-async function refreshPreview(): Promise<void> {
-  if (rendering) {
+function refreshPreview(): Promise<void> {
+  if (running) {
     again = true;
-    return;
+    return running;
   }
-  rendering = true;
-  try {
-    do {
-      again = false;
-      status.result = await renderPreview();
-    } while (again);
-  } catch (e) {
-    status.result = `Error: ${String(e)}`;
-  } finally {
-    rendering = false;
-  }
+  running = (async () => {
+    try {
+      do {
+        again = false;
+        status.result = await renderPreview();
+      } while (again);
+    } catch (e) {
+      status.result = `Error: ${String(e)}`;
+    } finally {
+      running = null;
+    }
+  })();
+  return running;
 }
 
 /**
@@ -153,6 +156,9 @@ export async function loadScheme(): Promise<void> {
     const loaded = fromBackend(await invoke<BackendSettings>("load_wavelet_scheme", { path }));
     Object.assign(settings.wavelet, { scheme: loaded.scheme, filter: loaded.filter, initialLayer: loaded.initialLayer, stepIncrement: loaded.stepIncrement });
     loaded.layers.forEach((layer, i) => Object.assign(settings.wavelet.layers[i], layer));
+    // The new values start a preview in the Wavelets step; its message must not replace this one.
+    await nextTick();
+    if (running) await running;
     status.result = `Scheme loaded: ${path}`;
   } catch (e) {
     status.result = `Error: ${String(e)}`;
