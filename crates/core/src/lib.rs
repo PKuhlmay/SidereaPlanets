@@ -3,6 +3,7 @@
 pub mod align;
 mod batch;
 pub mod color;
+pub mod refine;
 pub mod sequence;
 pub mod stack;
 pub mod tone;

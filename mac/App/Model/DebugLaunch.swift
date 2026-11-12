@@ -15,7 +15,7 @@ extension AppModel {
     /// `-roi x,y,width,height` and `-limit lowestQuality|bestPercent|framesPerPoint|bestCount`.
     /// For the Wavelets step: `-run …,process` and `…,doall` press Process and Do All (`doallpaused` pauses Do All after the first layer),
     /// `-layers 32,22,14,10,10,10` sets the sliders, `-functions Histogram,Gamma` opens cards, `-colour colour|lrgb|gray`,
-    /// `-tone black=10,white=240,gamma=1.3,red=110,contrast=300,brightness=20` sets card values, `-before 1` shows Before; `-show` also knows
+    /// `-tone black=10,white=240,gamma=1.3,red=110,contrast=300,brightness=20` sets card values (also `denoise`, `deringing`, `radius`, `mask`, `threshold`, `feather`, `invert`, `showmask`), `-before 1` shows Before; `-show` also knows
     /// `processingarea` and `wavealignpoints`. `-advanced wavelets,stack` (or `all`) opens those Advanced sections.
     func applyLaunchArguments() async {
         let defaults = UserDefaults.standard
@@ -119,6 +119,14 @@ extension AppModel {
             case "blue": tone.blue = Int(value)
             case "contrast": tone.contrast = Int(value)
             case "brightness": tone.brightness = Int(value)
+            case "denoise": tone.refine.denoise = Int(value)
+            case "deringing": tone.refine.deringing = Int(value)
+            case "radius": tone.refine.radius = Int(value)
+            case "mask": tone.refine.maskOn = value > 0
+            case "threshold": tone.refine.threshold = Int(value)
+            case "feather": tone.refine.feather = Int(value)
+            case "invert": tone.refine.invert = value > 0
+            case "showmask": tone.refine.showMask = value > 0
             default: break
             }
         }

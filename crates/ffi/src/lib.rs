@@ -180,6 +180,11 @@ impl CoreSession {
         Ok(self.inner.apply_colors(&settings.into())?.into())
     }
 
+    /// The preview of *Masking*: the colour source with the part the sharpening applies to tinted blue.
+    pub fn refine_mask_overlay(&self, settings: RefineSettings) -> Result<RgbaImage> {
+        Ok(self.inner.refine_mask_overlay(&settings.into())?.into())
+    }
+
     /// The histogram as the *Histogram* panel shows it; with `after` the final result.
     pub fn color_histogram(&self, settings: ColorSettings, after: bool) -> Result<HistogramData> {
         Ok(self.inner.color_histogram(&settings.into(), after)?.into())

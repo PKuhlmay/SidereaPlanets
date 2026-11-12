@@ -10,7 +10,8 @@ struct ColorMixTests {
         return ColorSettings(
             shifts: ChannelShifts(red: none, green: none, blue: none),
             mix: ColorMix(matrix: matrix, preserveBrightness: preserveBrightness),
-            red: 100, green: 100, blue: 100, black: 0, white: 255, gamma: 1, contrast: 100, brightness: 0)
+            red: 100, green: 100, blue: 100, black: 0, white: 255, gamma: 1, contrast: 100, brightness: 0,
+            refine: refineDefaultSettings())
     }
 
     private let source = RgbaImage(width: 2, height: 1, rgba: Data([200, 100, 50, 255, 10, 20, 30, 255]))

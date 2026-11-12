@@ -523,8 +523,9 @@ verschiebbar. Es gibt dazu kein Soll-Bild; die Karten sind aus den vorhandenen K
 
 Dieser Abschnitt legt die Karten fest, die RK-008 braucht: **Histogram**, **Gamma**, **RGB Align** und **RGB Balance**,
 dazu (MAC-019) **Color Mixing**; **View Compare** ist keine Karte, sondern eine Ansicht (Abschnitt am Ende dieses Teils).
-Contrast/Brightness bleibt das feste Panel unter dem Raster (Soll-Bild 07). Die übrigen Karten (Colour Mixing, View …,
-Flip and Rotate, Resize Image, Denoise/Deringing, Wavelet Filter, Masking, Show Linegraph, Cropping Area; in der App Color Mixing,
+Contrast/Brightness bleibt das feste Panel unter dem Raster (Soll-Bild 07). **Denoise/Deringing** und **Masking** (MAC-018, Mac)
+folgen unten in Tabelle und Liste; die Verfahren dahinter stehen in `docs/wavelets.md`. Die übrigen Karten (View …,
+Flip and Rotate, Resize Image, Wavelet Filter, Show Linegraph, Cropping Area; in der App
 View Stack Size, Show Line Graph …; die übrigen Schaltflächen sind gesperrt, „Not available yet“) legen ihre
 Tickets fest und ergänzen dieses Dokument.
 
@@ -552,6 +553,8 @@ Tickets fest und ergänzen dieses Dokument.
 | RGB Align | Spaltenköpfe X und Y (12 px, `--muted`), drei Zeilen **Red**, **Green**, **Blue** mit je zwei Feldern, darunter die Zeile **Max shift** mit Feld (in der App: Felder **X (px)**, **Y (px)**, **Max shift (px)**), Hinweis „Auto moves Red and Blue onto Green“ (12 px, `--muted`) | Verschiebung 0.00 px · −20.00 … 20.00, Pfeiltasten ±0.1; positives X nach rechts, positives Y nach unten; Max shift 5 · 1 … 20 |
 | Color Mixing | Zeile **Preset** (Beschriftung links, Menü-Schaltfläche **Choose** rechts: Neutral · Swap Red and Blue · Luminance Gray · Red to All Channels). Darunter drei Gruppen **Red output**, **Green output**, **Blue output** (Gruppenkopf 12 px, `--muted`), jede mit drei Zeilen **Red**, **Green**, **Blue** (Eingangskanal): Beschriftung links (40 px), Regler, Feld (36 px) mit „%“ dahinter, wie bei RGB Balance. Zuletzt das Häkchen **Preserve brightness**. In der Titelzeile **Reset** (gesperrt, solange die Matrix neutral ist) | Diagonale 100 %, sonst 0 % · je −200 … 200; Preserve brightness aus |
 | RGB Balance | Drei Zeilen **Red**, **Green**, **Blue**: Beschriftung links, Regler, Feld rechts (56 px). Die Regler bleiben in der Akzentfarbe, die Kanäle erkennt man an der Beschriftung | 100 % · 0 … 200 (in der App „%“ hinter dem Feld) |
+| Denoise/Deringing | Drei Zeilen aus Beschriftung links, Feld rechts (40 px) und Regler darunter: **Denoise (%)**, **Deringing (%)**, **Radius (px)**; darunter ein Hinweis (12 px, `--muted`) | Denoise 0 · 0 … 100, Deringing 0 · 0 … 100, Radius 4 · 1 … 10; Reset setzt alles auf 0 und 4 |
+| Masking | Häkchen **Use mask**, zwei Zeilen wie oben: **Threshold**, **Feather (px)**, darunter in einer Zeile die Häkchen **Invert** und **Show mask** | aus · Threshold 20 · 0 … 255, Feather 4 · 0 … 50; Invert aus, Show mask aus |
 
 - **Histogram**: *Input* zeigt das Bild vor dem Stretch, das ist das Bild, auf dem Black und White sitzen; *Result* zeigt
   das Ergebnis nach allen Schritten. **Auto** setzt Black und White so, dass vom dunkelsten und vom hellsten Ende je Clip %
@@ -567,6 +570,11 @@ Tickets fest und ergänzen dieses Dokument.
 - **RGB Align**: **Auto** sucht in den Kanälen Red und Blue die Verschiebung, mit der ihre Kanten auf die von Green fallen
   (Green ist die Bezugsfarbe), und trägt sie in die Felder ein. Danach lässt sich von Hand nachstellen. Die Verschiebung
   hat Nachkommastellen, das Bild behält seine Größe, am Rand wird der letzte Pixel wiederholt.
+- **Denoise/Deringing** und **Masking** (MAC-018; kein Soll-Bild, nur Mac): wirken auf das geschärfte Bild und das ungeschärfte Summenbild, von dem
+  es kommt, und stehen in der Reihenfolge **vor** allen anderen Karten: Deringing, Denoise, Maske. 0 und „Use mask“ aus lassen das Bild
+  unverändert. **Show mask** ersetzt im Bildbereich das Bild durch das Bild mit blau eingefärbter Maske (der Teil, der geschärft wird); es ist nur
+  eine Ansicht, wird nicht gespeichert und nicht in Do All oder Save image gerechnet. *Before* zeigt weiter das Summenbild. Schließt man die Karte
+  Masking, ist auch die Maskenansicht weg. Die Werte stehen im Abschnitt `refine` der Projektdatei.
 - **Contrast/Brightness** (festes Panel): 100 und 0 lassen das Bild unverändert. Contrast dreht die Tonwerte um Mittelgrau;
   der volle Brightness-Bereich −512 … 512 entspricht dem ganzen Tonumfang. Das Feld Contrast zeigt die Reglerposition
   geteilt durch 2,5 (250 → 100); dieses Verhältnis ist eine Annahme aus dem einen Wertepaar, nicht belegt.

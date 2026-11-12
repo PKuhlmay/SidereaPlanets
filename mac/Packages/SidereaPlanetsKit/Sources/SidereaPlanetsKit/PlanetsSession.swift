@@ -136,6 +136,11 @@ public final class PlanetsSession: Sendable {
         try await run { try $0.applyColors(settings: settings) }
     }
 
+    /// The preview of Masking: the colour source with the part the sharpening applies to tinted blue.
+    public func refineMaskOverlay(_ settings: RefineSettings) async throws -> RgbaImage {
+        try await run { try $0.refineMaskOverlay(settings: settings) }
+    }
+
     public func colorHistogram(_ settings: ColorSettings, after: Bool) async throws -> HistogramData {
         try await run { try $0.colorHistogram(settings: settings, after: after) }
     }

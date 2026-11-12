@@ -34,7 +34,8 @@ mac/
                          CALayer für das Bild, zieht auch die R.o.Interest-Region), ImageOverlays (Punkte, Ringe, Region), FloatingCards
                          (Framelist, Registrationgraph, Alignmentpoints), FrameBar, StatusBar, Save/SaveViews (Schritt Save, Menü Save image,
                          Gruppe Create AVI im Stack-Panel), Wavelets/ (WaveletsPanel mit Ebenen und Schemes, FunctionsPanel rechts,
-                         FunctionCards Histogram, Gamma, RGB Align, RGB Balance, ColorMixingCard, CompareOverlay (View Compare), WaveletControls: Dezimalfeld, Segmente, Textlinks)
+                         FunctionCards Histogram, Gamma, RGB Align, RGB Balance, ColorMixingCard, CompareOverlay (View Compare), RefineCards
+                         Denoise/Deringing und Masking (MAC-018, Werte in Model/RefineLogic), WaveletControls: Dezimalfeld, Segmente, Textlinks)
   Tests/SidereaPlanetsTests/ Swift Testing: Schrittzustände, MRU, AppModel (mit FakeBackend), Zoom-Rechnung, Dateiangaben, Hilfeseiten (HelpDocsTests), CPUs (CpuSettingsTests)
   Packages/SidereaPlanetsKit/  Swift-Paket um die Rust-Schnittstelle (XCFramework und erzeugte Bindings)
   tickets/               MAC-NNN-kurzer-titel.md
@@ -230,4 +231,5 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-013 | Name „Siderea Planets“ in beiden Apps | erledigt |
 | MAC-014 | Texte für Einsteiger (klare Namen, Tooltips, gesperrte Elemente, kein „the reference program“ in sichtbaren Texten) | erledigt |
 | MAC-015 | CPU- und RAM-Anzeige in der Statusleiste, optimierter Kern im Debug-Build | erledigt |
+| MAC-018 | Adjustments „Denoise/Deringing“ und „Masking“ | erledigt |
 | MAC-019 | Adjustments: Color Mixing (3 × 3 Kanalmischer im Kern) und View Compare (geteilte Ansicht Before/After) | erledigt |

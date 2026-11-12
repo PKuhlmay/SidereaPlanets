@@ -85,7 +85,7 @@ nonisolated func isNeutral(_ colour: ColorSettings) -> Bool {
         && colour.mix.matrix == ColorMixValues.identityMatrix.map(Float.init)
         && colour.red == 100 && colour.green == 100 && colour.blue == 100
         && colour.black == 0 && colour.white == 255 && colour.gamma == 1
-        && colour.contrast == 100 && colour.brightness == 0
+        && colour.contrast == 100 && colour.brightness == 0 && isNeutral(colour.refine)
 }
 
 // MARK: Project file

@@ -184,6 +184,69 @@ Einstellungen gehen als JSON mit den Feldern von `WaveletSettings` (camelCase): 
 | `wavelet_do_all(settings, mode)` | ganzes Bild mit Kennlinie und Farbbehandlung; Antwort binär wie `read_frame` (Breite, Höhe als u32 LE, RGBA). Das Ergebnis bleibt in `WaveletState::processed()` für *Save image* (RK-009) |
 | `save_wavelet_scheme(path, settings)` / `load_wavelet_scheme(path)` | `.rwv` schreiben und lesen |
 
+## Denoise/Deringing und Masking (MAC-018, eigener Entwurf)
+
+Die Karten **Denoise/Deringing** und **Masking** des Adjustments-Panels (Mac) haben im Original keine beobachtete Entsprechung
+(das Original wurde dazu nicht beobachtet); die Verfahren sind unser Entwurf, einfach gehalten und im Rechenkern
+(`crates/core/src/refine.rs`) umgesetzt. Sie arbeiten auf zwei Bildern: dem **geschärften Bild** *S* (Ergebnis von Do All, in der Vorschau das
+Summenbild mit der geschärften Processing Area) und dem **ungeschärften Summenbild** *R*, aus dem es entstanden ist (`ExportState::stack`).
+Alle Schritte laufen vor RGB Align, Balance, Histogram, Gamma und Contrast/Brightness, sowohl für die Anzeige (`Session::apply_colors`, Histogramm)
+als auch beim Speichern (`save` in `crates/session/src/export.rs`, nur für das Wavelet-Bild). Reihenfolge: **Deringing, Denoise, Maske**.
+Stärke 0 (und Maske aus) gibt *S* **bitgleich** zurück; fehlt *R* oder hat es eine andere Größe, laufen Deringing und Maske nicht (ein Graustufen-*R* wird
+für ein RGB-*S* auf drei Kanäle gebracht).
+
+### Deringing
+
+Der dunkle Ring am Planetenrand entsteht, weil das Schärfen neben einer starken Kante unter den Himmelswert fällt. Das Verfahren hebt
+genau diese Unterschreitung an, und nur dort, wo eine starke Kante in der Nähe liegt:
+
+1. Je Kanal und Pixel aus *R* das Minimum `lo` und das Maximum `hi` im Quadratfenster mit Radius `r` (1 bis 10 px, Standard 4), getrennt in zwei
+   Durchläufen (waagerecht, senkrecht), am Bildrand abgeschnitten.
+2. Kantengewicht `t = smoothstep((hi − lo − 0,10) / (0,30 − 0,10))`: unter 0,10 Kontrast keine Wirkung (Wolkenbänder und Krater haben 0,05 bis
+   0,15), ab 0,30 volle Wirkung (ein Planetenrand hat 0,3 und mehr). Die Schwellen sind **geschätzt**, nicht gegen eine Referenz geprüft.
+3. `S' = S + Stärke · t · max(0, lo − S)`. *S'* ist nie kleiner als *S*, und wo *S* ≥ `lo` ist, ändert sich nichts. Bei Stärke 100 % und
+   vollem Kantengewicht liegt *S'* nie unter dem lokalen Minimum des Originals im Radius `r`.
+
+Nur Unterschreitungen werden behandelt, nicht das helle Überschwingen im Planeten. Grenze des Verfahrens: ein Ring, der breiter als `r` ist,
+bleibt in der Mitte stehen; dann hilft ein größerer Radius.
+
+### Denoise
+
+Kantenerhaltende Glättung, ein **bilateraler Filter** über ein 5 × 5-Fenster, vom Ergebnis mit dem Original mit der Stärke gemischt:
+
+- Gewicht eines Nachbarn: `exp(−d² / 2σs²) · exp(−e² / 2σr²)`, `d` Abstand in Pixeln (σs = 1,2), `e` die Wurzel des mittleren Quadrats der
+  Kanaldifferenzen zum mittleren Pixel (alle Kanäle zugleich, damit auch Farbkanten bleiben).
+- `σr` wächst mit der Stärke *s* (0 bis 1) von 0,01 auf 0,15: `σr = 0,01 + 0,14 · s`.
+- `S' = S + s · (Mittel − S)`; Nachbarn außerhalb des Bildes zählen nicht.
+
+Eigenschaften (Tests): Stärke 0 bitgleich; ein ebenes Bild bleibt eben; das Rauschen eines ebenen Feldes nimmt mit der Stärke ab; eine Kante mit
+Kontrast 0,75 ändert sich um weniger als 0,01.
+
+### Maske
+
+Beschränkt das Schärfen auf einen Bereich, meist die Scheibe:
+
+1. Binärmaske aus der **Helligkeit von *R*** (Luminanz): 1 bei `L ≥ Schwelle / 255`, sonst 0 (Schwelle 0 bis 255, Standard 20).
+2. Weiche Kante: Gauß-Unschärfe mit σ = `Feather / 2` Pixel (Feather 0 bis 50, 0 = harte Kante), abgeschnitten bei 3σ, Rand wiederholt. Ein überall
+   gleiches Maskenbild bleibt exakt 0 oder 1 (Werte nahe 0 und 1 werden gesetzt).
+3. **Invert** dreht die Maske um (`1 − m`).
+4. Mischung: `S' = R + m · (S − R)`, bei `m = 0` genau *R*, bei `m = 1` genau *S*. Weil die Maske **zuletzt** wirkt, bleibt auch das
+   Entrauschen und Entringen auf den maskierten Bereich beschränkt.
+
+**Show mask** (nur Ansicht): `mask_overlay` legt die Maske blau (0,1 / 0,6 / 1,0; Deckkraft 0,55 bei Maske 1) über das Bild, Sitzungsmethode
+`Session::refine_mask_overlay`. Das Bild unter der Einfärbung ist das Ausgangsbild der Karten, ohne die anderen Karten.
+
+### Einbindung
+
+- Werte: `RefineSettings` (Kern, serde mit `default`) im Feld `refine` von `ColorSettings` (Sitzung, `#[serde(default)]`: die Tauri-Befehle der
+  Windows-App senden es nicht und lassen das Bild unverändert). Mac: `RefineSettings` und `MaskSettings` der FFI, Swift `RefineValues`
+  (`mac/App/Model/RefineLogic.swift`).
+- Projektdatei: eigener, optionaler Abschnitt `refine` neben `align`, `stack`, `wavelet` und `colour` (`denoise`, `deringing`, `radius`,
+  `maskOn`, `threshold`, `feather`, `invert`; Show mask wird nicht gespeichert). Die Abschnitte `wavelet` und `colour` bleiben im Layout der
+  Windows-App; sie kennt den neuen Abschnitt nicht und ignoriert ihn, und ein Projekt ohne ihn lässt die Werte der Karten, wie sie sind.
+- Zurücksetzen: **Reset** in der Karte und `resetTone` (Restore) setzen auf „aus“; der Standard kommt aus dem Kern
+  (`refine_default_settings`).
+
 ## Schemadateien
 
 Der Klon liest und schreibt das **`.rwv`-Format des Originals** (`docs/formats.md`), damit vorhandene Schemata weiter

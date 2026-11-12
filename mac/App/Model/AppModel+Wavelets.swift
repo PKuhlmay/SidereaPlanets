@@ -31,6 +31,8 @@ struct WaveletData {
     /// Copy To: the image kept for comparison, and the difference to it.
     var clipboard: Shot?
     var difference: Shot?
+    /// Show mask of the card Masking: the base with the part the sharpening applies to tinted blue; `nil` while it is not wanted.
+    var maskOverlay: Shot?
     var toneView = ToneView.current
     /// *Before* in the zoom bar: the stack without anything applied.
     var before = false
@@ -60,6 +62,8 @@ final class WaveletWork {
     var automaticTask: Task<Void, Never>?
     var colourTask: Task<Void, Never>?
     var coloursAgain = false
+    var maskTask: Task<Void, Never>?
+    var maskAgain = false
     /// The pixels the preview is written into: a copy of the stack, so a new preview costs the area, not the whole image.
     var working: Data?
     /// The base the core's colour source was made from.
@@ -78,6 +82,7 @@ extension AppModel {
     var waveletShownImage: CGImage? {
         let data = waveletData
         if data.before { return (data.stack ?? data.base)?.image }
+        if maskOverlayWanted, data.toneView == .current, let overlay = data.maskOverlay { return overlay.image }
         let current = data.current ?? data.base
         switch data.toneView {
         case .current: return current?.image
@@ -145,6 +150,7 @@ extension AppModel {
     /// The panel changed: values, colour mode or Processing Area start a preview (and Automatic a Do All); the rest only changes the window.
     func waveletOptionsChanged(from old: WaveletOptions) {
         guard wavelet != old else { return }
+        if wavelet.functions != old.functions { requestMaskOverlay() }
         let decisive = wavelet.values != old.values || wavelet.mode != old.mode || wavelet.processingAreaSide != old.processingAreaSide
         guard decisive else { return }
         syncWaveletsDone()
@@ -162,6 +168,7 @@ extension AppModel {
     func waveletViewChanged() {
         waveletData.before = false
         status.position = ""
+        requestMaskOverlay()
         triggerPreview()
     }
 
@@ -200,6 +207,7 @@ extension AppModel {
     private func baseChanged() {
         waveletData.baseVersion += 1
         requestColours()
+        requestMaskOverlay()
         refreshDifferenceIfShown()
     }
 
@@ -411,6 +419,52 @@ extension AppModel {
     /// A card value changed: the cards apply to the base image again.
     func toneChanged(from old: ToneValues) {
         if old.core != tone.core { requestColours() }
+        if old.refine != tone.refine { requestMaskOverlay() }
+    }
+
+    // MARK: Show mask
+
+    /// Whether the image area shows the mask: Show mask is on, the card Masking is open and the step is Wavelets.
+    var maskOverlayWanted: Bool { tone.refine.showMask && openCards.contains("Masking") }
+
+    /// Asks the core for the mask preview (or drops it when it is not wanted). Like the cards: one request at a time, the newest
+    /// values win.
+    func requestMaskOverlay() {
+        let work = waveletWork
+        guard maskOverlayWanted else {
+            work.maskAgain = false
+            if waveletData.maskOverlay != nil { waveletData.maskOverlay = nil }
+            return
+        }
+        work.maskAgain = true
+        guard work.maskTask == nil else { return }
+        work.maskTask = Task { [weak self] in
+            guard let self else { return }
+            while work.maskAgain {
+                work.maskAgain = false
+                await applyMaskOverlay()
+            }
+            work.maskTask = nil
+        }
+    }
+
+    private func applyMaskOverlay() async {
+        guard await ensureColourSource() else { return }
+        let version = waveletData.baseVersion
+        do {
+            let result = try await backend.refineMaskOverlay(tone.refine.core)
+            guard maskOverlayWanted else { return }
+            if version == waveletData.baseVersion, let shot = Shot(result) {
+                waveletData.maskOverlay = shot
+            } else {
+                // The base changed while the core worked: the next round starts from the new one.
+                waveletWork.maskAgain = true
+            }
+        } catch is CancellationError {
+            return
+        } catch {
+            status.result = failureText("Show mask", error)
+        }
     }
 
     /// Applies the values to the base. While one request runs, later changes only set a flag, so dragging a slider costs one request at a
@@ -525,7 +579,7 @@ extension AppModel {
 
     /// Waits until the cards have caught up (for tests).
     func settleColours() async {
-        while let task = waveletWork.colourTask { await task.value }
+        while let task = waveletWork.colourTask ?? waveletWork.maskTask { await task.value }
     }
 
     // MARK: Copy To

@@ -8,6 +8,7 @@ use crate::{Session, SessionError, color::ColorSettings, error::lock};
 use planets_core::{
     Image,
     color::{Adjustments, adjust},
+    refine::{RefineSettings, refine as refine_image},
 };
 use planets_io::{
     export::{ExportFormat, save_image as write_image},
@@ -97,22 +98,33 @@ pub fn export_formats(source: ImageSource) -> Vec<FormatInfo> {
 }
 
 /// Writes the image of `source`; with `adjustments` it is written as the colour and tone panels
-/// show it (`docs/formats.md`), not as it came out of Stack or Wavelet.
+/// show it (`docs/formats.md`), not as it came out of Stack or Wavelet. `refine` (*Denoise/Deringing* and *Masking*) finishes the
+/// processed image first, against the stack it was made from; it does not apply to the stack itself.
 fn save(
     state: &ExportState,
     source: ImageSource,
     format: ExportFormat,
     path: &Path,
     adjustments: Option<&Adjustments>,
+    refine: Option<&RefineSettings>,
 ) -> Result<String, SessionError> {
     let image = state.get(source)?;
+    let refined;
+    let image = match refine {
+        Some(r) if source == ImageSource::Wavelet && !r.is_neutral() => {
+            let stack = state.get(ImageSource::Stack).ok();
+            refined = refine_image(&image, stack.as_deref(), r);
+            &refined
+        }
+        _ => &*image,
+    };
     let adjusted;
     let image = match adjustments {
         Some(a) => {
-            adjusted = adjust(&image, a);
+            adjusted = adjust(image, a);
             &adjusted
         }
-        None => &*image,
+        None => image,
     };
     write_image(image, path, format)
         .map(|p| p.to_string_lossy().into_owned())
@@ -164,9 +176,18 @@ impl Session {
         path: &Path,
         adjustments: Option<&ColorSettings>,
     ) -> Result<String, SessionError> {
+        let refine = adjustments.map(|a| a.refine);
         let adjustments = adjustments.map(|a| Adjustments::from(*a));
-        self.compute
-            .install(|| save(&self.export, source, format, path, adjustments.as_ref()))
+        self.compute.install(|| {
+            save(
+                &self.export,
+                source,
+                format,
+                path,
+                adjustments.as_ref(),
+                refine.as_ref(),
+            )
+        })
     }
 }
 
@@ -189,7 +210,15 @@ mod tests {
     fn saving_without_an_image_says_so() {
         let state = ExportState::default();
         let path = std::env::temp_dir().join("planets-cmd-none.png");
-        let err = save(&state, ImageSource::Stack, ExportFormat::Png16, &path, None).unwrap_err();
+        let err = save(
+            &state,
+            ImageSource::Stack,
+            ExportFormat::Png16,
+            &path,
+            None,
+            None,
+        )
+        .unwrap_err();
         assert_eq!(err, SessionError::NoStackedImage);
         assert!(err.to_string().contains("no stacked image"));
         let err = save(
@@ -197,6 +226,7 @@ mod tests {
             ImageSource::Wavelet,
             ExportFormat::Png16,
             &path,
+            None,
             None,
         )
         .unwrap_err();
@@ -220,6 +250,7 @@ mod tests {
             ExportFormat::Tiff16,
             &dir.join("s.bmp"),
             None,
+            None,
         )
         .unwrap();
         // The format wins over the typed extension.
@@ -229,6 +260,7 @@ mod tests {
             ImageSource::Wavelet,
             ExportFormat::Tiff16,
             &dir.join("w.tif"),
+            None,
             None,
         )
         .unwrap();
@@ -263,6 +295,7 @@ mod tests {
             ExportFormat::Tiff16,
             &dir.join("a.tif"),
             Some(&brighter),
+            None,
         )
         .unwrap();
         let read = ImageSequenceReader::open(vec![PathBuf::from(path)])
@@ -270,6 +303,56 @@ mod tests {
             .read_frame(0)
             .unwrap();
         for (got, want) in read.data.iter().zip([0.25, 0.75, 1.0, 0.5]) {
+            assert!((got - want).abs() < 1e-4, "{got} vs {want}");
+        }
+    }
+
+    #[test]
+    fn the_refine_settings_finish_the_processed_image_against_the_stack_when_saved() {
+        use planets_core::refine::MaskSettings;
+        let state = ExportState::default();
+        let row = |data: Vec<f32>| Image {
+            width: 4,
+            height: 1,
+            channels: 1,
+            data,
+        };
+        state.set_stack(row(vec![0.05, 0.05, 0.8, 0.8]));
+        state.set_wavelet(row(vec![0.9; 4]));
+        let refine = RefineSettings {
+            mask: MaskSettings {
+                enabled: true,
+                threshold: 100.0,
+                feather: 0.0,
+                invert: false,
+            },
+            ..RefineSettings::default()
+        };
+        let dir = std::env::temp_dir().join(format!("planets-cmd-ref-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let read = |source, name: &str| {
+            let path = save(
+                &state,
+                source,
+                ExportFormat::Tiff16,
+                &dir.join(name),
+                None,
+                Some(&refine),
+            )
+            .unwrap();
+            ImageSequenceReader::open(vec![PathBuf::from(path)])
+                .unwrap()
+                .read_frame(0)
+                .unwrap()
+                .data
+        };
+        let written = read(ImageSource::Wavelet, "r.tif");
+        for (got, want) in written.iter().zip([0.05, 0.05, 0.9, 0.9]) {
+            assert!((got - want).abs() < 1e-4, "{got} vs {want}");
+        }
+        // The stack itself is saved as it is.
+        let stack = read(ImageSource::Stack, "s.tif");
+        for (got, want) in stack.iter().zip([0.05, 0.05, 0.8, 0.8]) {
             assert!((got - want).abs() < 1e-4, "{got} vs {want}");
         }
     }

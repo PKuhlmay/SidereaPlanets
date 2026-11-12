@@ -34,13 +34,16 @@ import Testing
         let none = ChannelShift(x: 0, y: 0)
         var colour = ColorSettings(
             shifts: ChannelShifts(red: none, green: none, blue: none), mix: ColorMixValues().core, red: 100, green: 100, blue: 100,
-            black: 0, white: 255, gamma: 1, contrast: 100, brightness: 0
+            black: 0, white: 255, gamma: 1, contrast: 100, brightness: 0, refine: RefineValues().core
         )
         #expect(isNeutral(colour))
         colour.gamma = 1.2
         #expect(!isNeutral(colour))
         colour.gamma = 1
         colour.shifts.blue = ChannelShift(x: 0, y: 1)
+        #expect(!isNeutral(colour))
+        colour.shifts.blue = none
+        colour.refine.mask.enabled = true
         #expect(!isNeutral(colour))
     }
 

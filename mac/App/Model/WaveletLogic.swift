@@ -160,7 +160,7 @@ nonisolated let functionNames = [
 ]
 
 /// The cards that exist; the other Functions buttons only report that they are not available yet.
-nonisolated let toneCards = ["Histogram", "Gamma", "Color Mixing", "RGB Align", "RGB Balance"]
+nonisolated let toneCards = ["Histogram", "Gamma", "Color Mixing", "RGB Align", "RGB Balance", "Denoise/Deringing", "Masking"]
 
 /// The buttons that change the view instead of opening a card: they stay pressed while they are on.
 nonisolated let viewFunctions = [compareName]
@@ -179,6 +179,8 @@ nonisolated func functionHelp(_ name: String) -> String {
     case compareName: "Splits the image: the stack on the left, the result on the right."
     case "RGB Align": "Shifts red, green and blue so that they lie on top of each other."
     case "RGB Balance": "Changes the share of red, green and blue."
+    case "Denoise/Deringing": "Smooths noise without blurring edges and softens the dark ring next to bright edges."
+    case "Masking": "Limits the sharpening to the planet, so the sky stays untouched."
     default: "Not available yet"
     }
 }
@@ -232,6 +234,8 @@ nonisolated struct ToneValues: Equatable, Sendable {
     var contrast = 250
     var brightness = 0
     var holdContrast = false
+    /// The cards Denoise/Deringing and Masking.
+    var refine = RefineValues()
 
     static let noShifts = ChannelShifts(
         red: ChannelShift(x: 0, y: 0), green: ChannelShift(x: 0, y: 0), blue: ChannelShift(x: 0, y: 0)
@@ -241,7 +245,7 @@ nonisolated struct ToneValues: Equatable, Sendable {
     var core: ColorSettings {
         ColorSettings(
             shifts: shifts, mix: mix.core, red: Float(red), green: Float(green), blue: Float(blue), black: Float(black), white: Float(white),
-            gamma: Float(gamma), contrast: Float(contrastField(contrast)), brightness: Float(brightness)
+            gamma: Float(gamma), contrast: Float(contrastField(contrast)), brightness: Float(brightness), refine: refine.core
         )
     }
 }
@@ -257,10 +261,12 @@ nonisolated struct HistogramKey: Equatable, Sendable {
     var blue: Float
     var base: Int
     var after: Bool
+    var refine: RefineSettings
 
     init(_ v: ColorSettings, after: Bool, base: Int) {
         self.after = after
         self.base = base
+        refine = v.refine
         shifts = v.shifts
         mix = v.mix
         red = v.red

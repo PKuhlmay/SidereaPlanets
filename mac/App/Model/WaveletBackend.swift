@@ -14,6 +14,8 @@ protocol WaveletBackend: Sendable {
     func setColorSource(_ image: RgbaImage) async throws -> SourceInfo
     func estimateRgbAlign(maxShift: UInt32) async throws -> ChannelShifts
     func applyColors(_ settings: ColorSettings) async throws -> RgbaImage
+    /// Show mask of the card Masking: the colour source with the part the sharpening applies to tinted blue.
+    func refineMaskOverlay(_ settings: RefineSettings) async throws -> RgbaImage
     func colorHistogram(_ settings: ColorSettings, after: Bool) async throws -> HistogramData
     func autoHistogramPoints(_ settings: ColorSettings, clip: Float) async throws -> HistogramPoints
 }

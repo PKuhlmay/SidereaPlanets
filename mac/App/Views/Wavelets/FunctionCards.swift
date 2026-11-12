@@ -15,6 +15,8 @@ struct FunctionCards: View {
                     case "Gamma": GammaCard(model: model)
                     case "Color Mixing": ColorMixingCard(model: model)
                     case "RGB Align": RgbAlignCard(model: model)
+                    case "Denoise/Deringing": DenoiseCard(model: model)
+                    case "Masking": MaskCard(model: model)
                     default: RgbBalanceCard(model: model)
                     }
                 }

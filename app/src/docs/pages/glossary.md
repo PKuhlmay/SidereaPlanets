@@ -30,7 +30,10 @@ The words of planetary photography in plain language, with the name each one has
 | Correct geometry | Correct geometry | Shifts each part of the image by its own movement, which undoes the wobble of the air. When it is off, every frame moves as a whole |
 | Layer spacing | Layer spacing (Linear, Dyadic) | How the wavelet layers grow in size. Linear: evenly. Dyadic: each layer doubles in size |
 | Wavelet scheme | Load Scheme…, Save Scheme… (`.rwv`) | The values of all wavelet layers, stored in a file so that you can use them again |
-| Adjustments | Adjust ›, Adjustments | Tools for color and tone after sharpening: Histogram, Gamma, Color Mixing, RGB Align, RGB Balance and Contrast/Brightness, and the split view View Compare. See [Color and tones](color-and-tones) |
+| Adjustments | Adjust ›, Adjustments | Tools for color, tone and cleanup after sharpening: Histogram, Gamma, Color Mixing, RGB Align, RGB Balance, Contrast/Brightness, Denoise/Deringing and Masking, and the split view View Compare. See [Color and tones](color-and-tones) |
+| Denoise | Denoise (%) | Smooths the noise of the sharpened image but keeps edges, such as the edge of the planet, sharp. Sharpening makes noise stronger, so this is its counterpart. See [Color and tones](color-and-tones) |
+| Ringing, Deringing | Deringing (%), Radius (px) | Strong sharpening can leave a dark ring in the sky next to the bright edge of a planet. Deringing lifts the ring back to the level of the sky. See [Color and tones](color-and-tones) |
+| Mask | Masking, Use mask, Threshold, Feather (px), Invert, Show mask | Limits the sharpening to a part of the image, usually the planet, so the sky stays as it is in the stack. The threshold decides how bright a pixel must be, the feather softens the edge. See [Color and tones](color-and-tones) |
 | Histogram | Histogram, Black point, White point | A graph of how many pixels there are of each brightness. The black point and the white point decide which brightness becomes pure black and pure white |
 | Gamma | Gamma | Brightens or darkens the midtones without changing black and white |
 | RGB Align | RGB Align | Shifts red, green and blue against each other so that they lie on top of each other. This removes the colored fringes that the air causes on a planet |

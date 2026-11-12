@@ -18,6 +18,7 @@ final class WaveletLog: @unchecked Sendable {
     private var sources: [RgbaImage] = []
     private var applied: [ColorSettings] = []
     private var histograms: [(settings: ColorSettings, after: Bool)] = []
+    private var maskOverlays: [RefineSettings] = []
     private var holdsDoAllFlag = false
     private var releasedDoAll = false
     private var previewDelay = Duration.zero
@@ -27,6 +28,7 @@ final class WaveletLog: @unchecked Sendable {
     var colourSources: [RgbaImage] { lock.withLock { sources } }
     var appliedColours: [ColorSettings] { lock.withLock { applied } }
     var histogramRequests: [(settings: ColorSettings, after: Bool)] { lock.withLock { histograms } }
+    var maskOverlayRequests: [RefineSettings] { lock.withLock { maskOverlays } }
     var holdsDoAll: Bool {
         get { lock.withLock { holdsDoAllFlag } }
         set { lock.withLock { holdsDoAllFlag = newValue; releasedDoAll = false } }
@@ -42,6 +44,7 @@ final class WaveletLog: @unchecked Sendable {
     func record(source: RgbaImage) { lock.withLock { sources.append(source) } }
     func record(applied settings: ColorSettings) { lock.withLock { applied.append(settings) } }
     func record(histogram: (settings: ColorSettings, after: Bool)) { lock.withLock { histograms.append(histogram) } }
+    func record(maskOverlay settings: RefineSettings) { lock.withLock { maskOverlays.append(settings) } }
     func releaseDoAll() { lock.withLock { releasedDoAll = true } }
 }
 
@@ -63,6 +66,8 @@ extension FakeBackend {
     static let previewValue: UInt8 = 200
     static let doAllValue: UInt8 = 50
     static let colourValue: UInt8 = 7
+    /// The mask preview of the fake.
+    static let maskValue: UInt8 = 33
 
     func stackedImage() async throws -> RgbaImage {
         flatImage(Self.stackValue)
@@ -103,6 +108,11 @@ extension FakeBackend {
     func applyColors(_ settings: ColorSettings) async throws -> RgbaImage {
         wavelets.record(applied: settings)
         return flatImage(Self.colourValue)
+    }
+
+    func refineMaskOverlay(_ settings: RefineSettings) async throws -> RgbaImage {
+        wavelets.record(maskOverlay: settings)
+        return flatImage(Self.maskValue)
     }
 
     func colorHistogram(_ settings: ColorSettings, after: Bool) async throws -> HistogramData {

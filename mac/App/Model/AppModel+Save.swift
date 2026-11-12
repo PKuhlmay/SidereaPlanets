@@ -122,6 +122,8 @@ extension AppModel {
         [
             "align": alignSection(options, show: show), "stack": stackSection(stackOptions),
             "wavelet": waveletSection(wavelet, tone: tone), "colour": colourSection(wavelet),
+            // Mac only (MAC-018): the Windows app does not know the section and ignores it.
+            "refine": refineSection(tone.refine),
         ]
     }
 
@@ -134,6 +136,7 @@ extension AppModel {
         var toneValues = tone
         applyWaveletSection(sections["wavelet"], to: &waveletOptions, tone: &toneValues)
         applyColourSection(sections["colour"], to: &waveletOptions)
+        applyRefineSection(sections["refine"], to: &toneValues.refine)
         wavelet = waveletOptions
         tone = toneValues
         keepWaveletValuesForNextStack()

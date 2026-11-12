@@ -445,8 +445,8 @@ import Testing
 
     @Test func aButtonWithoutACardSaysSoInTheStatusBar() async {
         await stackedRecording()
-        model.toggleFunction("Masking")
-        #expect(model.status.result == "Masking: not available yet")
+        model.toggleFunction("Show Line Graph")
+        #expect(model.status.result == "Show Line Graph: not available yet")
         #expect(model.wavelet.functions.isEmpty)
     }
 
@@ -648,5 +648,120 @@ import Testing
     @Test func copyToWithoutAnImageSaysSo() {
         model.copyTo()
         #expect(model.status.result == "Remember: no image yet")
+    }
+
+    // MARK: Denoise/Deringing and Masking (MAC-018)
+
+    @Test func denoiseAndDeringingValuesGoToTheCoreWithTheCards() async {
+        await stackedRecording()
+        model.toggleFunction("Denoise/Deringing")
+        #expect(model.openCards == ["Denoise/Deringing"])
+        model.tone.refine.denoise = 40
+        model.tone.refine.deringing = 80
+        model.tone.refine.radius = 6
+        await model.settleColours()
+
+        let sent = backend.wavelets.appliedColours.last
+        #expect(sent?.refine.denoise == 40 && sent?.refine.deringing == 80 && sent?.refine.deringingRadius == 6)
+        #expect(sent?.refine.mask.enabled == false)
+        #expect(pixel(model.waveletData.adjusted?.pixels, 0, 0) == FakeBackend.colourValue)
+    }
+
+    @Test func theMaskValuesGoToTheCoreOnlyWhenTheMaskIsOn() async {
+        await stackedRecording()
+        model.tone.refine.threshold = 60
+        model.tone.refine.feather = 9
+        model.tone.refine.invert = true
+        await model.settleColours()
+        #expect(backend.wavelets.appliedColours.isEmpty, "a mask that is off changes nothing, so there is nothing to apply")
+        model.tone.refine.maskOn = true
+        await model.settleColours()
+        let mask = backend.wavelets.appliedColours.last?.refine.mask
+        #expect(mask == MaskSettings(enabled: true, threshold: 60, feather: 9, invert: true))
+    }
+
+    @Test func showMaskAsksForThePreviewAndShowsItInsteadOfTheImage() async {
+        await stackedRecording()
+        model.toggleFunction("Masking")
+        model.tone.refine.threshold = 50
+        model.tone.refine.showMask = true
+        await model.settleColours()
+
+        #expect(backend.wavelets.maskOverlayRequests.last?.mask.threshold == 50)
+        #expect(pixel(model.waveletData.maskOverlay?.pixels, 0, 0) == FakeBackend.maskValue)
+        #expect(model.shownImage === model.waveletData.maskOverlay?.image)
+
+        // It follows the values.
+        model.tone.refine.threshold = 70
+        await model.settleColours()
+        #expect(backend.wavelets.maskOverlayRequests.last?.mask.threshold == 70)
+
+        // Before shows the stack, and closing the card brings the image back.
+        model.waveletData.before = true
+        #expect(model.shownImage === model.waveletData.stack?.image)
+        model.waveletData.before = false
+        model.closeFunction("Masking")
+        await model.settleColours()
+        #expect(model.waveletData.maskOverlay == nil)
+        #expect(model.shownImage === model.waveletData.processed?.image)
+    }
+
+    @Test func showMaskDoesNothingWhileTheCardIsClosed() async {
+        await stackedRecording()
+        model.tone.refine.showMask = true
+        await model.settleColours()
+        #expect(backend.wavelets.maskOverlayRequests.isEmpty && model.waveletData.maskOverlay == nil)
+        model.toggleFunction("Masking")
+        await model.settleColours()
+        #expect(backend.wavelets.maskOverlayRequests.count == 1)
+    }
+
+    @Test func showMaskIsNotPartOfTheResult() async {
+        await stackedRecording()
+        model.tone.refine.showMask = true
+        #expect(isNeutral(model.tone.core))
+        model.tone.refine.denoise = 10
+        #expect(model.saveAdjustments?.refine.denoise == 10)
+        model.tone.refine.denoise = 0
+        #expect(model.saveAdjustments == nil)
+        await model.settleColours()
+    }
+
+    @Test func theCardsTravelInTheirOwnSectionOfTheProjectFile() async {
+        await stackedRecording()
+        model.tone.refine = RefineValues(core: RefineSettings(
+            denoise: 30, deringing: 60, deringingRadius: 8,
+            mask: MaskSettings(enabled: true, threshold: 90, feather: 20, invert: true)
+        ))
+        let sections = model.projectSections
+        // The layout of the Windows sections stays as it is: the cards are an extra section they ignore.
+        guard case .object(let wavelet)? = sections["wavelet"], case .object(let tone)? = wavelet["tone"] else {
+            Issue.record("no wavelet section")
+            return
+        }
+        #expect(wavelet["refine"] == nil && tone["refine"] == nil)
+        #expect(sections["refine"] == refineSection(model.tone.refine))
+
+        model.tone.refine = RefineValues()
+        model.applyProjectSections(sections)
+        #expect(model.tone.refine.denoise == 30 && model.tone.refine.maskOn && model.tone.refine.threshold == 90)
+        // A project from the Windows app has no such section: the values stay.
+        var windows = sections
+        windows["refine"] = nil
+        model.tone.refine.denoise = 5
+        model.applyProjectSections(windows)
+        #expect(model.tone.refine.denoise == 5)
+        await model.settleColours()
+    }
+
+    @Test func resetToneAlsoBringsTheNewCardsBack() async {
+        await stackedRecording()
+        model.tone.refine = RefineValues(core: RefineSettings(
+            denoise: 30, deringing: 60, deringingRadius: 8,
+            mask: MaskSettings(enabled: true, threshold: 90, feather: 20, invert: true)
+        ))
+        model.resetTone()
+        #expect(model.tone.refine == RefineValues.defaults && isNeutral(model.tone.core))
+        await model.settleColours()
     }
 }

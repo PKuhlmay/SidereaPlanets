@@ -15,19 +15,44 @@ After stacking, the Wavelets step has a set of tools to fix the color and the br
 | Histogram | Sets the black point and the white point and so stretches the brightness range of the image |
 | Gamma | Brightens or darkens the midtones |
 | Contrast/Brightness | Spreads the tones and shifts them up or down |
+| Denoise/Deringing | Smooths noise and softens the dark ring next to bright edges |
+| Masking | Limits the sharpening to the planet, so the sky stays as it is in the stack |
 | Remember, Restore, Difference | Keep an image and compare it with the one you are working on |
 | View Compare | Shows the stack and the result side by side in one image, with a divider you drag |
 
-The other nine **Adjustments** buttons (View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Denoise/Deringing, Wavelet Filter, Masking, Show Line Graph and Cropping Area) are dimmed and cannot be pressed: **Not available yet**.
+The other seven **Adjustments** buttons (View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Wavelet Filter, Show Line Graph and Cropping Area) are dimmed and cannot be pressed: **Not available yet**.
 
 ## How the cards work
 
 - An **Adjustments** button stays pressed while its card is open. Press it again, or press the cross in the card, to close the card.
 - Closing a card keeps its values. **Reset** in the card sets the values back so that the image is not changed.
-- All values are applied to the stacked (or sharpened) image in this order: RGB Align, Color Mixing, RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** shows the image without any of them.
+- All values are applied to the stacked (or sharpened) image in this order: Deringing, Denoise, Masking, RGB Align, Color Mixing, RGB Balance, Histogram, Gamma, Contrast/Brightness. **Before** shows the image without any of them.
 - The values change what the window shows, and **Save Image** in the Save step writes the image with them applied. **Do All** itself does not include them: the sharpened image stays as it is and the cards apply on top of it.
 - RGB Align and RGB Balance need a color image. With a grayscale recording they are grayed out. Color Mixing also works on grayscale images, see below.
 - The cards work on the stacked image, or on the sharpened image once there is one. Pressing **Update Preview** or **Do All** puts a new sharpened image in the window; the cards then apply to that image.
+
+## Denoise/Deringing
+
+Sharpening with wavelets brings out detail, but it also makes noise stronger and can leave a dark ring in the sky next to the bright edge of a planet. This card cleans up both. It needs a stack, because it compares the sharpened image with the stack it was made from.
+
+- **Denoise (%)** smooths noise without blurring edges. Each pixel is averaged with its neighbors, but only with those that have nearly the same color, so the edge of the planet and fine bands keep their sharpness. 0 is off; higher values treat more of the difference between neighbors as noise. Start around 20 to 40.
+- **Deringing (%)** looks for pixels that sharpening has pushed darker than anything the unsharpened stack had nearby, and lifts them back towards that level. It only acts next to strong edges, so detail on the planet, such as belts, stays as sharp as you made it. 100 puts the ring fully back to the level of the stack; 0 is off.
+- **Radius (px)** (1 to 10, default 4) is how far from an edge the ring is searched for. Use about the width of the ring you see.
+- **Reset** sets everything back to off.
+
+Deringing only raises pixels and never makes any darker. If the ring is still there, raise the radius first, then the amount.
+
+## Masking
+
+A mask tells the sharpening where it may work. With the mask on, the image is sharpened only where the unsharpened stack is brighter than the **Threshold**; everywhere else, usually the sky, you see the stack as it was. That keeps the noise of the sky out of the result.
+
+1. Press **Show mask**. The part that will be sharpened is tinted blue over the image. This only changes what you see in the window, not the image.
+2. Move **Threshold** (0 is black, 255 is white) until the red covers the planet and not the sky.
+3. **Feather (px)** softens the edge of the mask over some pixels, so there is no visible step between the sharpened and the unsharpened part. 0 gives a hard edge.
+4. Switch on **Use mask**. Switch off **Show mask** to see the result.
+5. **Invert** sharpens the dark part instead of the bright part. **Reset** sets the card back to off.
+
+While **Show mask** is on, the image area shows the mask instead of the image. **Before** still shows the stack.
 
 ## RGB Align
 

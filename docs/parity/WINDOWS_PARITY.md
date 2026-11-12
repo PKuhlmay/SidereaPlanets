@@ -338,5 +338,27 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
       Projektdatei, die Lage der Linie nicht. Rein Ansicht, kein Kernaufruf. Maße und Farben: `docs/design.md`, „Bildbereich“. Mac:
       `mac/App/Views/CompareOverlay.swift`, `mac/App/Views/ImageCanvas.swift` (`beforeImage`, `divider`), `mac/App/Model/AppModel+Compare.swift`,
       `mac/App/Model/CompareLogic.swift`.
-- [ ] **Die Zahl der gesperrten Adjustments-Knöpfe** sinkt von elf auf neun (Texte in den Hilfeseiten `color-and-tones.md` und
+- [ ] **Die Zahl der gesperrten Adjustments-Knöpfe** sinkt von elf auf sieben (mit MAC-018 Denoise/Deringing und Masking; Texte in den Hilfeseiten `color-and-tones.md` und
       `step-wavelets-save.md` schon angepasst); in der Windows-App ist die Liste der gesperrten Knöpfe ebenso zu kürzen.
+
+## Denoise/Deringing und Masking (Mac: MAC-018)
+
+- [ ] Die beiden Adjustments-Schaltflächen **Denoise/Deringing** und **Masking** öffnen je eine Karte (Aufbau und Werte in `docs/design.md`,
+      Tabelle „Karten hinter den Functions-Schaltflächen“; die Schaltflächen sind bisher gesperrt, „Not available yet“, und `isToneCard` kennt sie nicht).
+      **Denoise/Deringing:** drei Zeilen mit Feld (40 px) und Regler darunter, ganze Zahlen: **Denoise (%)** 0 · 0 … 100, **Deringing (%)**
+      0 · 0 … 100, **Radius (px)** 4 · 1 … 10; Hinweis „Deringing compares the sharpened image with the stack“; **Reset**. **Masking:** Häkchen
+      **Use mask** (aus), **Threshold** 20 · 0 … 255, **Feather (px)** 4 · 0 … 50, Häkchen **Invert** und **Show mask** (beide aus); **Reset** setzt alles
+      zurück und nimmt auch Show mask heraus. Tooltips: siehe `functionHelp` und `RefineCards.swift`.
+- [ ] **Show mask** ersetzt im Bildbereich das Bild durch das Bild mit blau eingefärbter Maske (`Session::refine_mask_overlay`, nur solange Show mask
+      an **und** die Karte Masking offen ist und der Schritt Wavelets gezeigt wird); *Before* und die Ansichten Remembered image und Difference haben
+      Vorrang. Nur Ansicht: nicht gespeichert, nicht in Save image.
+- [ ] Die Werte gehen als `refine` in `ColorSettings` (`crates/session/src/color.rs`, `#[serde(default)]`: die Windows-Befehle laufen unverändert weiter) an
+      `apply_colors`, `color_histogram`, `auto_histogram_points` und `save_image`; Reihenfolge **vor** allen anderen Karten: Deringing, Denoise, Maske. Die
+      Histogramm-Anfrage der Karte hängt auch von diesen Werten ab (Mac: `HistogramKey.refine`). Neutral (`RefineSettings::is_neutral`: Stärken 0, Maske aus)
+      zählt für „Save image schreibt ohne Karten“ mit (`isNeutral`).
+- [ ] Projektdatei: eigener optionaler Abschnitt `refine` (`denoise`, `deringing`, `radius`, `maskOn`, `threshold`, `feather`, `invert`; ganze Zahlen, auf die Grenzen
+      gekürzt), die Abschnitte `wavelet` und `colour` bleiben unverändert; ein Projekt ohne den Abschnitt lässt die Werte, wie sie sind. Mac:
+      `mac/App/Model/RefineLogic.swift` (`refineSection`, `applyRefineSection`), `AppModel.projectSections`.
+- [ ] Verfahren und Konstanten stehen im Rechenkern (`crates/core/src/refine.rs`, beschrieben in `docs/wavelets.md`, Abschnitt „Denoise/Deringing und Masking“);
+      Windows braucht nur die Oberfläche. Mac: `mac/App/Views/Wavelets/RefineCards.swift`, `mac/App/Model/AppModel+Wavelets.swift` (Show mask),
+      Anwenderseiten (`color-and-tones.md`, `step-wavelets-save.md`, Glossary) liegen schon gemeinsam auf `main`.

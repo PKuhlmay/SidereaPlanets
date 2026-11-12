@@ -4,14 +4,17 @@
 //! All values cross the boundary in the units the panels show: percent for balance and contrast,
 //! pixels for shifts, 0..255 for the histogram points, brightness on the -512..512 slider scale.
 
-use crate::{Session, SessionError, error::lock, image::RgbaImage, wavelet::SourceInfo};
+use crate::{
+    ImageSource, Session, SessionError, error::lock, image::RgbaImage, wavelet::SourceInfo,
+};
 use planets_core::{
     Image,
     color::{Adjustments, ChannelMix, RgbBalance, RgbShifts, Shift, adjust, estimate_rgb_shifts},
+    refine::{RefineSettings, mask, mask_overlay, refine},
     tone::{HISTOGRAM_BINS, Levels, auto_levels, histogram},
 };
 use serde::{Deserialize, Serialize};
-use std::sync::Mutex;
+use std::{borrow::Cow, sync::Mutex};
 
 /// The image the panels work on and the last result.
 #[derive(Default)]
@@ -128,6 +131,10 @@ pub struct ColorSettings {
     /// *Contrast* in percent (100 = unchanged) and *Brightness* on the slider scale -512..512.
     pub contrast: f32,
     pub brightness: f32,
+    /// *Denoise/Deringing* and *Masking*: applied to the source before everything above. Optional in JSON, so callers that do
+    /// not know the cards (the Windows app) leave the image as it is.
+    #[serde(default)]
+    pub refine: RefineSettings,
 }
 
 impl From<ColorSettings> for Adjustments {
@@ -208,6 +215,36 @@ impl Session {
         f(guard.as_ref().ok_or(SessionError::NoImageToAdjust)?)
     }
 
+    /// The source with *Denoise/Deringing* and *Masking* applied: they compare with the unsharpened stack, which the session
+    /// holds for saving. The source itself while they are off.
+    fn refined<'a>(&self, source: &'a Image, settings: &RefineSettings) -> Cow<'a, Image> {
+        if settings.is_neutral() {
+            return Cow::Borrowed(source);
+        }
+        let stack = self.export.get(ImageSource::Stack).ok();
+        Cow::Owned(
+            self.compute
+                .install(|| refine(source, stack.as_deref(), settings)),
+        )
+    }
+
+    /// The preview of *Masking*: the source with the part the sharpening applies to tinted blue. Needs the stack the mask is
+    /// made from.
+    pub fn refine_mask_overlay(
+        &self,
+        settings: &RefineSettings,
+    ) -> Result<RgbaImage, SessionError> {
+        let stack = self.export.get(ImageSource::Stack)?;
+        let settings = settings.clamped();
+        self.with_color_source(|source| {
+            let overlay = self.compute.install(|| {
+                let m = mask(&stack, &settings.mask);
+                mask_overlay(source, &m)
+            });
+            Ok(RgbaImage::from_image(&overlay))
+        })
+    }
+
     /// *RGB Align*, automatic: how far red and blue have to move to lie on green, within `max_shift`
     /// pixels. Does not change the image; the panel puts the result into its fields and calls
     /// [`Session::apply_colors`].
@@ -225,8 +262,10 @@ impl Session {
     /// Applies all panel settings to the source and keeps the result for saving.
     pub fn apply_colors(&self, settings: &ColorSettings) -> Result<RgbaImage, SessionError> {
         let adjustments: Adjustments = (*settings).into();
-        let result = self
-            .with_color_source(|image| Ok(self.compute.install(|| adjust(image, &adjustments))))?;
+        let result = self.with_color_source(|image| {
+            let image = self.refined(image, &settings.refine);
+            Ok(self.compute.install(|| adjust(&image, &adjustments)))
+        })?;
         let rgba = RgbaImage::from_image(&result);
         *lock(&self.color.result)? = Some(result);
         Ok(rgba)
@@ -247,9 +286,10 @@ impl Session {
             adjustments.before_levels()
         };
         let h = self.with_color_source(|image| {
+            let image = self.refined(image, &settings.refine);
             Ok(self
                 .compute
-                .install(|| histogram(&adjust(image, &adjustments))))
+                .install(|| histogram(&adjust(&image, &adjustments))))
         })?;
         Ok(HistogramData {
             channels: h.channels,
@@ -267,9 +307,10 @@ impl Session {
     ) -> Result<HistogramPoints, SessionError> {
         let adjustments = Adjustments::from(*settings).before_levels();
         let levels = self.with_color_source(|image| {
+            let image = self.refined(image, &settings.refine);
             Ok(self
                 .compute
-                .install(|| auto_levels(&adjust(image, &adjustments), clip / 100.0)))
+                .install(|| auto_levels(&adjust(&image, &adjustments), clip / 100.0)))
         })?;
         Ok(HistogramPoints {
             black: levels.black * 255.0,
@@ -321,6 +362,7 @@ mod tests {
             gamma: 2.0,
             contrast: 150.0,
             brightness: 256.0,
+            refine: RefineSettings::default(),
         }
         .into();
         assert_eq!(adjustments.shifts.red, Shift { x: 1.0, y: -1.0 });
@@ -378,5 +420,106 @@ mod tests {
         settings.mix.matrix = [0.0, 0.0, 100.0, 0.0, 100.0, 0.0, 100.0, 0.0, 0.0];
         let out = session.apply_colors(&settings).unwrap();
         assert_eq!(&out.into_rgba()[..3], &[50, 100, 200]);
+    }
+
+    // --- Denoise/Deringing and Masking ----------------------------------------------------------
+
+    use planets_core::refine::MaskSettings;
+
+    /// A session whose stack is dark on the left half and bright on the right half (a 4 x 1 mono image) and whose colour source is
+    /// a flat, bright image of the same size: what Do All would have made of it.
+    fn session_with_stack_and_source() -> Session {
+        let session = Session::new().unwrap();
+        let stack = Image {
+            width: 4,
+            height: 1,
+            channels: 1,
+            data: vec![0.05, 0.05, 0.8, 0.8],
+        };
+        session.export.set_stack(stack);
+        let source: Vec<u8> = [230u8; 4].iter().flat_map(|&v| [v, v, v, 255]).collect();
+        session.set_color_source(4, 1, &source).unwrap();
+        session
+    }
+
+    fn masked(threshold: f32) -> RefineSettings {
+        RefineSettings {
+            mask: MaskSettings {
+                enabled: true,
+                threshold,
+                feather: 0.0,
+                invert: false,
+            },
+            ..RefineSettings::default()
+        }
+    }
+
+    #[test]
+    fn settings_without_the_refine_field_are_read_as_off() {
+        let json = r#"{"shifts":{"red":{"x":0,"y":0},"green":{"x":0,"y":0},"blue":{"x":0,"y":0}},
+            "red":100,"green":100,"blue":100,"black":0,"white":255,"gamma":1,"contrast":100,"brightness":0}"#;
+        let parsed = serde_json::from_str::<ColorSettings>(json);
+        assert!(parsed.is_ok(), "{parsed:?}");
+        assert!(parsed.unwrap().refine.is_neutral());
+    }
+
+    #[test]
+    fn the_mask_keeps_the_stack_outside_the_planet_in_the_shown_image() {
+        let session = session_with_stack_and_source();
+        let off = session.apply_colors(&neutral_settings(None)).unwrap();
+        assert_eq!(off.rgba()[0], 230, "without the card the source is shown");
+        let settings = ColorSettings {
+            refine: masked(100.0),
+            ..neutral_settings(None)
+        };
+        let shown = session.apply_colors(&settings).unwrap();
+        // 0.05 of the stack is 13 on the 8 bit scale; the bright half keeps the sharpened 230.
+        let red: Vec<u8> = shown
+            .rgba()
+            .as_chunks::<4>()
+            .0
+            .iter()
+            .map(|px| px[0])
+            .collect();
+        assert_eq!(red, vec![13, 13, 230, 230]);
+    }
+
+    #[test]
+    fn the_histogram_is_made_from_the_refined_image() {
+        let session = session_with_stack_and_source();
+        let settings = ColorSettings {
+            refine: masked(100.0),
+            ..neutral_settings(None)
+        };
+        let before = session
+            .color_histogram(&neutral_settings(None), true)
+            .unwrap();
+        let after = session.color_histogram(&settings, true).unwrap();
+        assert_eq!(before.luma[230], 4);
+        assert_eq!(after.luma[230], 2);
+        assert_eq!(after.luma[13], 2);
+    }
+
+    #[test]
+    fn the_mask_preview_tints_what_the_sharpening_applies_to() {
+        let session = session_with_stack_and_source();
+        let overlay = session.refine_mask_overlay(&masked(100.0)).unwrap();
+        let px = overlay.rgba().as_chunks::<4>().0;
+        assert_eq!(
+            px[0][..3],
+            [230, 230, 230],
+            "outside the mask nothing changes"
+        );
+        assert!(
+            px[3][2] > px[3][1] && px[3][1] > px[3][0],
+            "inside it is blue: {:?}",
+            px[3]
+        );
+    }
+
+    #[test]
+    fn the_mask_preview_needs_a_stack() {
+        let session = Session::new().unwrap();
+        assert!(session.refine_mask_overlay(&masked(100.0)).is_err());
     }
 }

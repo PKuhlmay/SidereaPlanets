@@ -3,7 +3,7 @@
 //! (`usize`) become `u64` and fixed arrays become `Vec`s because UniFFI has no such types.
 
 use crate::error::PlanetsError;
-use planets_core::wavelet as core_wavelet;
+use planets_core::{refine as core_refine, wavelet as core_wavelet};
 use planets_io::{export::ExportFormat as IoExportFormat, project::Project as IoProject};
 use planets_session as session;
 use std::collections::HashMap;
@@ -653,11 +653,73 @@ pub struct ColorSettings {
     pub gamma: f32,
     pub contrast: f32,
     pub brightness: f32,
+    /// *Denoise/Deringing* and *Masking*, applied before everything above.
+    pub refine: RefineSettings,
+}
+
+/// The *Masking* card: percent and pixels as the card shows them, the threshold on a 0..255 scale.
+#[derive(Debug, Clone, Copy, PartialEq, uniffi::Record)]
+pub struct MaskSettings {
+    pub enabled: bool,
+    pub threshold: f32,
+    pub feather: f32,
+    pub invert: bool,
+}
+
+/// The *Denoise/Deringing* and *Masking* cards.
+#[derive(Debug, Clone, Copy, PartialEq, uniffi::Record)]
+pub struct RefineSettings {
+    /// Percent, 0 = off.
+    pub denoise: f32,
+    /// Percent, 0 = off.
+    pub deringing: f32,
+    /// Pixels.
+    pub deringing_radius: u32,
+    pub mask: MaskSettings,
+}
+
+impl From<RefineSettings> for core_refine::RefineSettings {
+    fn from(s: RefineSettings) -> Self {
+        Self {
+            denoise: s.denoise,
+            deringing: s.deringing,
+            deringing_radius: s.deringing_radius,
+            mask: core_refine::MaskSettings {
+                enabled: s.mask.enabled,
+                threshold: s.mask.threshold,
+                feather: s.mask.feather,
+                invert: s.mask.invert,
+            },
+        }
+    }
+}
+
+impl From<core_refine::RefineSettings> for RefineSettings {
+    fn from(s: core_refine::RefineSettings) -> Self {
+        Self {
+            denoise: s.denoise,
+            deringing: s.deringing,
+            deringing_radius: s.deringing_radius,
+            mask: MaskSettings {
+                enabled: s.mask.enabled,
+                threshold: s.mask.threshold,
+                feather: s.mask.feather,
+                invert: s.mask.invert,
+            },
+        }
+    }
+}
+
+/// The values *Reset* on the cards restores.
+#[uniffi::export]
+pub fn refine_default_settings() -> RefineSettings {
+    core_refine::RefineSettings::default().into()
 }
 
 impl From<ColorSettings> for session::ColorSettings {
     fn from(s: ColorSettings) -> Self {
         Self {
+            refine: s.refine.into(),
             shifts: s.shifts.into(),
             mix: s.mix.into(),
             red: s.red,
