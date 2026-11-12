@@ -1,6 +1,6 @@
 //! Commands for the Wavelet tab: preview, Do All and schemes (`docs/wavelets.md`).
 
-use crate::{AppState, export_commands::ExportState};
+use crate::{AppState, compute::ComputeState, export_commands::ExportState};
 use planets_core::{
     Image,
     align::Control,
@@ -40,10 +40,11 @@ impl WaveletState {
     /// [`cancel_wavelet`] changes neither the result nor `export`.
     fn do_all(
         &self,
+        compute: &ComputeState,
         export: &ExportState,
         settings: &WaveletSettings,
         mode: ColourMode,
-        mut progress: impl FnMut(u32, u32),
+        mut progress: impl FnMut(u32, u32) + Send,
     ) -> Result<Arc<Image>, String> {
         let source = {
             let guard = self.previewer.lock().map_err(|e| e.to_string())?;
@@ -54,11 +55,14 @@ impl WaveletState {
                 .clone()
         };
         self.begin();
-        let result = wavelet::do_all_until(&source, settings, mode, |done, total| {
-            progress(done, total);
-            self.checkpoint()
-        })
-        .ok_or("cancelled")?;
+        let result = compute
+            .install(|| {
+                wavelet::do_all_until(&source, settings, mode, |done, total| {
+                    progress(done, total);
+                    self.checkpoint()
+                })
+            })
+            .ok_or("cancelled")?;
         let result = Arc::new(result);
         export.set_wavelet((*result).clone());
         *self.processed.lock().map_err(|e| e.to_string())? = Some(result.clone());
@@ -151,13 +155,14 @@ pub async fn wavelet_preview(
     area: Region,
     mode: ColourMode,
     state: State<'_, WaveletState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<Response, String> {
     let mut guard = state.previewer.lock().map_err(|e| e.to_string())?;
     let previewer = guard.as_mut().ok_or("no image to sharpen")?;
-    let preview = match settings {
+    let preview = compute.install(|| match settings {
         Some(settings) => previewer.render(&settings, mode, area),
         None => previewer.before(area),
-    };
+    });
     let r = preview.region;
     let mut out = Vec::with_capacity(16 + preview.rgba.len());
     for v in [r.x, r.y, r.width, r.height] {
@@ -177,8 +182,10 @@ pub async fn wavelet_do_all(
     mode: ColourMode,
     app: AppHandle,
     state: State<'_, WaveletState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<Response, String> {
     let result = state.do_all(
+        &compute,
         &app.state::<ExportState>(),
         &settings,
         mode,
@@ -252,9 +259,10 @@ mod tests {
     #[test]
     fn do_all_keeps_the_result_for_the_wavelet_tab_and_for_saving() {
         let (state, export, settings) = ready();
+        let compute = ComputeState::default();
         let mut seen = Vec::new();
         let result = state
-            .do_all(&export, &settings, ColourMode::Colour, |d, t| {
+            .do_all(&compute, &export, &settings, ColourMode::Colour, |d, t| {
                 seen.push((d, t))
             })
             .unwrap();
@@ -264,11 +272,27 @@ mod tests {
     }
 
     #[test]
+    fn do_all_runs_in_the_pool_of_the_cpus_field() {
+        let (state, export, settings) = ready();
+        // One thread: any machine with more cores shows the difference to the global pool.
+        let compute = ComputeState::with_threads(1).unwrap();
+        let mut threads = Vec::new();
+        state
+            .do_all(&compute, &export, &settings, ColourMode::Colour, |_, _| {
+                threads.push(rayon::current_num_threads())
+            })
+            .unwrap();
+        assert_eq!(threads, vec![1; 4]);
+    }
+
+    #[test]
     fn a_cancelled_do_all_changes_neither_the_result_nor_the_export() {
         let (state, export, settings) = ready();
+        let compute = ComputeState::default();
         // An earlier Do All left a result behind.
         let earlier = state
             .do_all(
+                &compute,
                 &export,
                 &WaveletSettings::default(),
                 ColourMode::Colour,
@@ -277,13 +301,19 @@ mod tests {
             .unwrap();
         let mut layers_done = 0;
         let err = state
-            .do_all(&export, &settings, ColourMode::Colour, |done, _| {
-                layers_done = done;
-                // Cancel arrives while the first layer is being worked on.
-                if done == 1 {
-                    state.cancelled.store(true, Ordering::Relaxed);
-                }
-            })
+            .do_all(
+                &compute,
+                &export,
+                &settings,
+                ColourMode::Colour,
+                |done, _| {
+                    layers_done = done;
+                    // Cancel arrives while the first layer is being worked on.
+                    if done == 1 {
+                        state.cancelled.store(true, Ordering::Relaxed);
+                    }
+                },
+            )
             .unwrap_err();
         assert_eq!(err, "cancelled");
         assert_eq!(layers_done, 1, "no layer is worked on after Cancel");
@@ -294,23 +324,31 @@ mod tests {
     #[test]
     fn a_cancel_from_before_the_run_does_not_stop_the_next_one() {
         let (state, export, settings) = ready();
+        let compute = ComputeState::default();
         state.cancelled.store(true, Ordering::Relaxed);
-        let run = state.do_all(&export, &settings, ColourMode::Colour, |_, _| {});
+        let run = state.do_all(&compute, &export, &settings, ColourMode::Colour, |_, _| {});
         assert!(run.is_ok());
     }
 
     #[test]
     fn pause_holds_the_run_until_it_is_resumed() {
         let (state, export, settings) = ready();
+        let compute = ComputeState::default();
         let state = Arc::new(state);
         let worker = {
             let state = state.clone();
             std::thread::spawn(move || {
-                state.do_all(&export, &settings, ColourMode::Colour, |done, _| {
-                    if done == 1 {
-                        state.paused.store(true, Ordering::Relaxed);
-                    }
-                })
+                state.do_all(
+                    &compute,
+                    &export,
+                    &settings,
+                    ColourMode::Colour,
+                    |done, _| {
+                        if done == 1 {
+                            state.paused.store(true, Ordering::Relaxed);
+                        }
+                    },
+                )
             })
         };
         std::thread::sleep(Duration::from_millis(300));

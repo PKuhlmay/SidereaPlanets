@@ -104,6 +104,7 @@ export const defaultLayer = (): WaveletLayer => ({ enabled: true, denoise: 0, sh
 
 export function createSettings() {
   return {
+    /** Placeholder until the backend reports the number of cores; compute.ts then sets all of them. */
     cpus: 1,
     menu: {
       darkframeFactor: 1,

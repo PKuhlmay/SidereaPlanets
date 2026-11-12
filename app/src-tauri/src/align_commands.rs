@@ -1,6 +1,6 @@
 //! Commands for the Align tab: Set Alignpoints, Align and Limit (`docs/workflow.md`, section 2).
 
-use crate::AppState;
+use crate::{AppState, compute::ComputeState};
 use planets_core::align::{
     AlignError, AlignParams, AlignPoint, Control, FrameAlignment, IntensityMode, LimitMode,
     PointParams, Reference, Roi, align_sequence, apply_threshold, default_threshold,
@@ -117,6 +117,7 @@ pub async fn set_alignpoints(
     app: AppHandle,
     recording: State<'_, AppState>,
     state: State<'_, AlignState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<Alignpoints, String> {
     let image = {
         let mut guard = recording.0.lock().map_err(|e| e.to_string())?;
@@ -137,7 +138,7 @@ pub async fn set_alignpoints(
         hi: settings.hi,
         box_size: settings.box_size,
     };
-    let candidates = find_alignpoints(&image, &params);
+    let candidates = compute.install(|| find_alignpoints(&image, &params));
     *state.threshold.lock().map_err(|e| e.to_string())? = default_threshold(candidates.len());
     *state.candidates.lock().map_err(|e| e.to_string())? = candidates;
     *state.reference_frame.lock().map_err(|e| e.to_string())? = frame;
@@ -191,6 +192,7 @@ pub async fn align(
     app: AppHandle,
     recording: State<'_, AppState>,
     state: State<'_, AlignState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<Aligned, String> {
     let points: Vec<AlignPoint> = {
         let candidates = state.candidates.lock().map_err(|e| e.to_string())?;
@@ -231,28 +233,33 @@ pub async fn align(
     state.cancelled.store(false, Ordering::Relaxed);
     state.paused.store(false, Ordering::Relaxed);
     let started = Instant::now();
-    let results = align_sequence(&reference, total, read, |done| {
-        while state.paused.load(Ordering::Relaxed) && !state.cancelled.load(Ordering::Relaxed) {
-            std::thread::sleep(Duration::from_millis(50));
-        }
-        let _ = app.emit(
-            "align-progress",
-            Progress {
-                done,
-                total,
-                elapsed_ms: started.elapsed().as_millis() as u64,
-            },
-        );
-        if state.cancelled.load(Ordering::Relaxed) {
-            Control::Cancel
-        } else {
-            Control::Continue
-        }
-    })
-    .map_err(|e| match e {
-        AlignError::Read(message) => message,
-        AlignError::Cancelled => "cancelled".to_owned(),
-    })?;
+    let results = compute
+        .install(|| {
+            align_sequence(&reference, total, read, |done| {
+                while state.paused.load(Ordering::Relaxed)
+                    && !state.cancelled.load(Ordering::Relaxed)
+                {
+                    std::thread::sleep(Duration::from_millis(50));
+                }
+                let _ = app.emit(
+                    "align-progress",
+                    Progress {
+                        done,
+                        total,
+                        elapsed_ms: started.elapsed().as_millis() as u64,
+                    },
+                );
+                if state.cancelled.load(Ordering::Relaxed) {
+                    Control::Cancel
+                } else {
+                    Control::Continue
+                }
+            })
+        })
+        .map_err(|e| match e {
+            AlignError::Read(message) => message,
+            AlignError::Cancelled => "cancelled".to_owned(),
+        })?;
 
     let aligned = Aligned {
         frames: results

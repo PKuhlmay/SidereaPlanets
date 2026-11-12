@@ -4,6 +4,7 @@
 //! All values cross the boundary in the units the panels show: percent for balance and contrast,
 //! pixels for shifts, 0..255 for the histogram points, brightness on the -512..512 slider scale.
 
+use crate::compute::ComputeState;
 use planets_core::{
     Image,
     color::{Adjustments, RgbBalance, RgbShifts, Shift, adjust, estimate_rgb_shifts},
@@ -189,11 +190,14 @@ fn with_source<T>(
 pub async fn estimate_rgb_align(
     max_shift: u32,
     state: State<'_, ColorState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<ChannelShifts, String> {
     // The search grows with the square of the range; 20 px is far beyond any dispersion.
     let max_shift = max_shift.clamp(1, 20);
     with_source(&state, |image| {
-        Ok(estimate_rgb_shifts(image, max_shift).into())
+        Ok(compute
+            .install(|| estimate_rgb_shifts(image, max_shift))
+            .into())
     })
 }
 
@@ -203,8 +207,12 @@ pub async fn estimate_rgb_align(
 pub async fn apply_colors(
     settings: ColorSettings,
     state: State<'_, ColorState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<Response, String> {
-    let result = with_source(&state, |image| Ok(adjust(image, &settings.into())))?;
+    let adjustments: Adjustments = settings.into();
+    let result = with_source(&state, |image| {
+        Ok(compute.install(|| adjust(image, &adjustments)))
+    })?;
     let mut out = Vec::with_capacity(8 + result.width as usize * result.height as usize * 4);
     out.extend(result.width.to_le_bytes());
     out.extend(result.height.to_le_bytes());
@@ -229,6 +237,7 @@ pub async fn color_histogram(
     settings: ColorSettings,
     after: bool,
     state: State<'_, ColorState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<HistogramData, String> {
     let adjustments: Adjustments = settings.into();
     let adjustments = if after {
@@ -236,7 +245,9 @@ pub async fn color_histogram(
     } else {
         adjustments.before_levels()
     };
-    let h = with_source(&state, |image| Ok(histogram(&adjust(image, &adjustments))))?;
+    let h = with_source(&state, |image| {
+        Ok(compute.install(|| histogram(&adjust(image, &adjustments))))
+    })?;
     Ok(HistogramData {
         channels: h.channels,
         luma: h.luma,
@@ -257,10 +268,11 @@ pub async fn auto_histogram_points(
     settings: ColorSettings,
     clip: f32,
     state: State<'_, ColorState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<HistogramPoints, String> {
     let adjustments = Adjustments::from(settings).before_levels();
     let levels = with_source(&state, |image| {
-        Ok(auto_levels(&adjust(image, &adjustments), clip / 100.0))
+        Ok(compute.install(|| auto_levels(&adjust(image, &adjustments), clip / 100.0)))
     })?;
     Ok(HistogramPoints {
         black: levels.black * 255.0,

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { runAction } from "../actions";
+import { cpu } from "../compute";
 import { cancelJob, togglePause } from "../jobs";
 import { LUMINANCE, type ProcessingArea, type StretchFit } from "../logic/settings";
 import { recentLabel } from "../logic/recent";
@@ -171,7 +172,7 @@ function resetLuminance() {
         Help
       </button>
       <button type="button" class="btn ghost" @click="runAction('about')">About</button>
-      <label class="cpus">CPUs <NumberField v-model="settings.cpus" :min="1" :width="52" label="CPUs" /></label>
+      <label class="cpus">CPUs <NumberField v-model="settings.cpus" :min="1" :max="cpu.max" :width="52" label="CPUs" /></label>
     </div>
   </header>
 </template>

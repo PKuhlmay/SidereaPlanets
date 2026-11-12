@@ -6,7 +6,7 @@
 //! frontend only decides *what* to save. The steps that produce an image hand it over with
 //! [`ExportState::set_stack`] and [`ExportState::set_wavelet`].
 
-use crate::color_commands::ColorSettings;
+use crate::{color_commands::ColorSettings, compute::ComputeState};
 use planets_core::{
     Image,
     color::{Adjustments, adjust},
@@ -20,7 +20,7 @@ use std::{
     path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Manager, State};
 use tauri_plugin_dialog::{DialogExt, FileDialogBuilder};
 
 /// The images that *Save image* can write.
@@ -117,15 +117,18 @@ pub async fn save_image(
     path: String,
     adjustments: Option<ColorSettings>,
     state: State<'_, ExportState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<String, String> {
     let adjustments = adjustments.map(Adjustments::from);
-    save(
-        &state,
-        source,
-        format,
-        Path::new(&path),
-        adjustments.as_ref(),
-    )
+    compute.install(|| {
+        save(
+            &state,
+            source,
+            format,
+            Path::new(&path),
+            adjustments.as_ref(),
+        )
+    })
 }
 
 /// Opens the save dialog for `format` and writes the image there. `None` if the user cancels.
@@ -144,12 +147,15 @@ pub async fn save_image_as(
     let adjustments = adjustments.map(Adjustments::from);
     // Fail before the dialog if there is nothing to save.
     state.get(source)?;
+    let compute = app.state::<ComputeState>();
     let name = suggested_name.map(|n| format.with_extension(Path::new(&n)));
     let dialog = start_dialog(&app, name.as_deref(), directory.as_deref())
         .set_title("Save image")
         .add_filter(format.label(), format.extensions());
     match pick_save(dialog)? {
-        Some(path) => save(&state, source, format, &path, adjustments.as_ref()).map(Some),
+        Some(path) => compute
+            .install(|| save(&state, source, format, &path, adjustments.as_ref()))
+            .map(Some),
         None => Ok(None),
     }
 }

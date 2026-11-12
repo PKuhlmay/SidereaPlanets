@@ -4,7 +4,7 @@
 //! take it from there without going through the UI.
 
 use crate::{
-    AppState, align_commands::RoiSettings, export_commands::ExportState,
+    AppState, align_commands::RoiSettings, compute::ComputeState, export_commands::ExportState,
     wavelet_commands::WaveletState,
 };
 use planets_core::{
@@ -153,6 +153,7 @@ pub async fn stack(
     app: AppHandle,
     recording: State<'_, AppState>,
     state: State<'_, StackState>,
+    compute: State<'_, ComputeState>,
 ) -> Result<Stacked, String> {
     if settings.points.is_empty() {
         return Err("set alignpoints first".into());
@@ -169,30 +170,33 @@ pub async fn stack(
     state.begin();
     let total = settings.frames.len() as u32;
     let started = Instant::now();
-    let stacked = stack_sequence(
-        &reference,
-        &reference_frame,
-        &params,
-        &settings.frames,
-        read,
-        |done| {
-            let control = state.checkpoint();
-            let _ = app.emit(
-                "stack-progress",
-                Progress {
-                    done,
-                    total,
-                    elapsed_ms: started.elapsed().as_millis() as u64,
+    let stacked = compute
+        .install(|| {
+            stack_sequence(
+                &reference,
+                &reference_frame,
+                &params,
+                &settings.frames,
+                read,
+                |done| {
+                    let control = state.checkpoint();
+                    let _ = app.emit(
+                        "stack-progress",
+                        Progress {
+                            done,
+                            total,
+                            elapsed_ms: started.elapsed().as_millis() as u64,
+                        },
+                    );
+                    control
                 },
-            );
-            control
-        },
-    )
-    .map_err(|e| match e {
-        StackError::NoFrames => "no frames selected".to_owned(),
-        StackError::Read(message) => message,
-        StackError::Cancelled => "cancelled".to_owned(),
-    })?;
+            )
+        })
+        .map_err(|e| match e {
+            StackError::NoFrames => "no frames selected".to_owned(),
+            StackError::Read(message) => message,
+            StackError::Cancelled => "cancelled".to_owned(),
+        })?;
 
     let summary = Stacked {
         width: stacked.image.width,

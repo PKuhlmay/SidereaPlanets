@@ -8,6 +8,7 @@
 use crate::{
     AppState,
     align_commands::AlignState,
+    compute::ComputeState,
     export_commands::{pick_save, start_dialog},
     stack_commands::{StackSettings, StackState},
 };
@@ -20,7 +21,7 @@ use planets_core::{
 use planets_io::avi_write::AviWriter;
 use serde::{Deserialize, Serialize};
 use std::{path::Path, time::Instant};
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 
 /// What *Save Aligned* and *Save Integrated* need: the Stack tab as for *Stack*, plus *Create AVI*.
 #[derive(Deserialize)]
@@ -165,33 +166,36 @@ fn write(
     }
 
     state.begin();
+    let compute = app.state::<ComputeState>();
     let total = selection.len() as u32;
     let started = Instant::now();
-    let frames = write_video(
-        Path::new(path),
-        &VideoJob {
-            fps: settings.framerate,
-            average: matches!(mode, Mode::Integrated).then_some(settings.average_frames),
-            reference: &reference,
-            reference_frame: &reference_frame,
-            params: &stack.params(),
-            selection: &selection,
-            known: known.as_deref(),
-        },
-        read,
-        |done| {
-            let control = state.checkpoint();
-            let _ = app.emit(
-                "sequence-progress",
-                Progress {
-                    done,
-                    total,
-                    elapsed_ms: started.elapsed().as_millis() as u64,
-                },
-            );
-            control
-        },
-    )?;
+    let frames = compute.install(|| {
+        write_video(
+            Path::new(path),
+            &VideoJob {
+                fps: settings.framerate,
+                average: matches!(mode, Mode::Integrated).then_some(settings.average_frames),
+                reference: &reference,
+                reference_frame: &reference_frame,
+                params: &stack.params(),
+                selection: &selection,
+                known: known.as_deref(),
+            },
+            read,
+            |done| {
+                let control = state.checkpoint();
+                let _ = app.emit(
+                    "sequence-progress",
+                    Progress {
+                        done,
+                        total,
+                        elapsed_ms: started.elapsed().as_millis() as u64,
+                    },
+                );
+                control
+            },
+        )
+    })?;
     Ok(SavedVideo {
         path: path.to_owned(),
         frames,

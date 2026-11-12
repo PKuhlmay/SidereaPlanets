@@ -1,5 +1,6 @@
 mod align_commands;
 mod color_commands;
+mod compute;
 mod export_commands;
 mod sequence_commands;
 mod stack_commands;
@@ -90,6 +91,7 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(AppState::default())
+        .manage(compute::ComputeState::default())
         .manage(align_commands::AlignState::default())
         .manage(stack_commands::StackState::default())
         .manage(wavelet_commands::WaveletState::default())
@@ -98,6 +100,8 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             open_recording,
             read_frame,
+            compute::cpu_count,
+            compute::set_cpus,
             align_commands::set_alignpoints,
             align_commands::set_alignpoint_threshold,
             align_commands::align,

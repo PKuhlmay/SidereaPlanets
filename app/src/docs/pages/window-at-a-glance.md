@@ -9,7 +9,7 @@ The window guides you through the work in seven steps. The names of all buttons 
 
 | Part | What it does |
 |---|---|
-| Toolbar | **Select** opens a recording. The menus MRU, Flat/Dark/Reference, Tools and Settings sit next to it, followed by **Open** and **Save** for project files. **Cancel** and **Pause** are in the middle; **Help**, **About** and the number of CPUs on the right |
+| Toolbar | **Select** opens a recording. The menus MRU, Flat/Dark/Reference, Tools and Settings sit next to it, followed by **Open** and **Save** for project files. **Cancel** and **Pause** are in the middle; **Help**, **About** and the number of CPUs (threads for the calculations, all cores by default) on the right |
 | Step bar | The seven steps **Open · Alignpoints · Align · Limit · Stack · Wavelets · Save**. At the right: file name, codec, size and number of frames |
 | Step panel (left) | Shows only the step you are on: what it does, its settings and, at the bottom, the one button that runs it |
 | Image area | The image. **Show ▾** at the top right holds the check boxes that switch things on the image on and off; in the Wavelets step **Functions »** sits next to it |

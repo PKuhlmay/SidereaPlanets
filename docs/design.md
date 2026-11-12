@@ -92,7 +92,7 @@ Schaltflächen, 600 für Gruppenüberschriften, die angezeigte Pille der Schritt
 
 | Bereich | Höhe | Inhalt und Regeln |
 |---|---|---|
-| Werkzeugleiste | 44 px | Drei Zonen: links Select, die vier Menüs und die Projekt-Schaltflächen Open und Save, in der Mitte (im Rest zwischen links und rechts zentriert) Cancel und Pause, rechts Help, About und CPUs. Help, Open und Save gibt es im Original nicht: Help öffnet die Doku in der App (RK-012), Open und Save öffnen und speichern die Projektdatei (RK-009) |
+| Werkzeugleiste | 44 px | Drei Zonen: links Select, die vier Menüs und die Projekt-Schaltflächen Open und Save, in der Mitte (im Rest zwischen links und rechts zentriert) Cancel und Pause, rechts Help, About und CPUs (die Zahl der Threads aller Berechnungen: Standard alle logischen Kerne, Bereich 1 bis dahin; das Feld klemmt Eingaben darauf). Help, Open und Save gibt es im Original nicht: Help öffnet die Doku in der App (RK-012), Open und Save öffnen und speichern die Projektdatei (RK-009) |
 | Schrittleiste | 40 px | Die sieben Schritte als Pillen (siehe [Schrittleiste](#schrittleiste)). Rechts Dateiname, Codec, Größe und Frame-Zahl in `--muted`, wird bei Platzmangel mit „…“ gekürzt, die Pillen nie |
 | Arbeitsbereich | Rest | Linkes Panel fest 272 px mit dem offenen Schritt (siehe [Schrittpanel](#schrittpanel)), Bildbereich füllt den Rest, rechtes Panel 248 px nur im Schritt Wavelets. Panels scrollen senkrecht, wenn das Fenster zu niedrig ist; der Fuß des linken Panels mit der Aktion bleibt stehen |
 | Frame-Leiste | 40 px | Nur in den Schritten Alignpoints, Align und Limit |
@@ -602,6 +602,7 @@ dark“ und „Docs · light“), nicht aus dem klickbaren Entwurf; der Entwurf 
 | „Step Increment“ | „Step Incr.“ mit vollem Namen im Tooltip | Platz neben Initial Layer |
 | Set Alignpoints und Align ab Align gesperrt | bleiben bedienbar, ein neuer Lauf verwirft Limit, Stack und Wavelet-Ergebnis | RK-005; Philipp wollte ohne erneutes Öffnen neu ausrichten können, siehe [Zustände](#zustände) |
 | Dezimalkomma je nach Windows-Einstellung | Punkt | einheitlich auf allen Plattformen |
+| CPUs: Standard 1 | Standard = Zahl der logischen Kerne, Bereich 1 bis dahin; die Zahl wirkt auf alle Berechnungen (eigener Thread-Pool im Backend) und wird nicht in der Projektdatei gespeichert | RK-010; Philipp (2026-11-12): die Auswahl soll wirklich wirken und der Rechner standardmäßig ausgelastet sein; die Kernzahl gehört zum Rechner, nicht zum Projekt |
 | » klappt das Functions-Panel | „Functions »“ oben im Bildbereich | Beschriftung sagt, was geklappt wird |
 
 ## Was im Entwurf nur Platzhalter ist

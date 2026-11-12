@@ -13,7 +13,7 @@ ohne zu korrigieren. Ihre Grenzen gelten deshalb als unbekannt, siehe `docs/offe
 | Bereich | Inhalt |
 |---|---|
 | Titelleiste | „the reference program V6“, nach dem Laden „the reference program processing AVI: ‹Pfad›(‹Codec› vids) (‹B›x‹H›)“ |
-| Werkzeugleiste | **Select** · **MRU ▾** · **Flat/Dark/Reference ▾** · **Tools ▾** · **Settings ▾** · **Cancel** · **Pause** · **About** · **CPUs:** [Zahl, Standard 1] |
+| Werkzeugleiste | **Select** · **MRU ▾** · **Flat/Dark/Reference ▾** · **Tools ▾** · **Settings ▾** · **Cancel** · **Pause** · **About** · **CPUs:** [Zahl, Standard 1; im Klon Standard = Zahl der logischen Kerne, Bereich 1 bis dahin, siehe Abweichungen in `design.md`] |
 | Reiterleiste | **Align** · **Stack** · **Wavelet**, rechts daneben „File Version: 6.1.0.0“, Datum und „Memory Used/Free/Total: …Mb“ |
 | Bildbereich | Vorschau mit Scrollbalken. Je nach Reiter liegen Punkte oder Rahmen darüber |
 | Statusleiste | Fortschrittsbalken in %, aktuelle Aktion („Loading frame: 10“), Ergebnis („Alignment finished.“), „Time used / Time left“ |
