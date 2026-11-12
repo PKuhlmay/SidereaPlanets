@@ -377,7 +377,7 @@ Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und
   Klick öffnet die Datei; leer „No recent files“ in `--muted`. Nach dem Laden steht darüber die geladene Datei mit
   Codec, Größe und Frame-Zahl.
 - Advanced: entfällt.
-- Aktion: **Select Recording…** (bis 2026-11-12 „Select“ wie im Original; umbenannt, weil der Knopf Videos und Bildserien öffnet). Select Recording… und MRU in der Werkzeugleiste bleiben und tun dasselbe.
+- Aktion: **Select Recording…** (bis 2026-11-12 „Select“ wie im Original; umbenannt, weil der Knopf Videos und Bildserien öffnet). Select Recording… und Recent Recordings in der Werkzeugleiste bleiben und tun dasselbe.
 - Bildbereich vor dem Laden: mittig „Press Select Recording to open a video or a series of images“ in `--muted`.
 
 ### 2 Alignpoints
@@ -550,7 +550,7 @@ Rechnung `wavelet::ColourMode` mit `color::with_luminance`, siehe `docs/wavelets
 | Settings | ![Menü Settings](design/screenshots/11-menu-settings.png) |
 | Flat/Dark/Reference | ![Menü Flat/Dark/Reference](design/screenshots/12-menu-flat-dark-reference.png) |
 
-MRU zeigt die zuletzt geöffneten Dateien als Einträge, leer den Text „No recent files“ in `--muted`. Tools hat zwei
+Recent Recordings (im Original „MRU“, umbenannt 2026-11-12) zeigt die zuletzt geöffneten Dateien als Einträge, leer den Text „No recent files“ in `--muted`. Tools hat zwei
 Einträge: eine Aktion und ein Häkchen (Open und Save stehen nicht mehr dort, sondern als Schaltflächen daneben).
 
 ### Doku

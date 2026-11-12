@@ -7,9 +7,9 @@ order: 8
 
 A menu closes with Escape or a click outside. An entry with an arrow opens a submenu to its right.
 
-## MRU
+## Recent Recordings
 
-The files you opened last, newest first (up to ten). A click opens the file again. The list is kept between runs.
+The recordings you opened last, newest first (up to ten); the original the reference program calls this menu MRU (most recently used). A click opens the file again. The list is kept between runs.
 
 ## Flat/Dark/Reference
 

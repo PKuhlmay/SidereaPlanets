@@ -33,7 +33,7 @@ struct ContentView: View {
     }
 }
 
-/// The toolbar: Select and MRU at the left, Cancel and Pause in the middle (they act on a running Align; Cancel is ⌘. in the
+/// The toolbar: Select Recording… and Recent Recordings at the left, Cancel and Pause in the middle (they act on a running Align; Cancel is ⌘. in the
 /// Process menu), Open project and Save project. Help and CPUs follow with their tickets.
 struct AppToolbar: ToolbarContent {
     let model: AppModel
@@ -43,7 +43,7 @@ struct AppToolbar: ToolbarContent {
             Button("Select Recording…") { Task { await model.select() } }
                 .disabled(model.isBusy)
                 .help("Select a recording: a video or a series of images (⌘O)")
-            Menu("MRU") {
+            Menu("Recent Recordings") {
                 RecentMenuItems(model: model)
             }
             .help("Recently opened recordings")

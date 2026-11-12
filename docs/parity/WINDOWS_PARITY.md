@@ -79,3 +79,10 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
       gemeinsam auf `main`. Mac: `ViewStep.action` (`mac/App/Model/StepLogic.swift`), `AppToolbar` (`mac/App/Views/ContentView.swift`),
       `mac/App/Views/ImageArea.swift`.
 
+## Menü „Recent Recordings“ (Mac, 2026-11-12)
+
+- [ ] Das Menü der zuletzt geöffneten Aufnahmen in der Werkzeugleiste heißt **Recent Recordings** statt „MRU“
+      (`app/src/components/Toolbar.vue`, `label="MRU"`). Inhalt und Verhalten bleiben. Die Anwenderseiten
+      (`menus-and-settings.md`, Abschnitt „Recent Recordings“, und `window-at-a-glance.md`) liegen schon gemeinsam auf `main`.
+      Mac: `AppToolbar` (`mac/App/Views/ContentView.swift`).
+
