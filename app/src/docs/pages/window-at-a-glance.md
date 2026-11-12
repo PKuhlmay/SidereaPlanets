@@ -9,7 +9,7 @@ The window guides you through the work in seven steps. The names of all buttons 
 
 | Part | What it does |
 |---|---|
-| Toolbar | **Select** opens a recording. The menus MRU, Flat/Dark/Reference, Tools and Settings sit next to it, followed by **Open** and **Save** for project files. **Cancel** and **Pause** are in the middle; **Help**, **About** and the number of CPUs (threads for the calculations, all cores by default) on the right |
+| Toolbar | **Select Recording** opens a recording. The menus MRU, Flat/Dark/Reference, Tools and Settings sit next to it, followed by **Open** and **Save** for project files. **Cancel** and **Pause** are in the middle; **Help**, **About** and the number of CPUs (threads for the calculations, all cores by default) on the right |
 | Step bar | The seven steps **Open · Alignpoints · Align · Limit · Stack · Wavelets · Save**. At the right: file name, codec, size and number of frames |
 | Step panel (left) | Shows only the step you are on: what it does, its settings and, at the bottom, the one button that runs it |
 | Image area | The image. **Show ▾** at the top right holds the check boxes that switch things on the image on and off; in the Wavelets step **Functions »** sits next to it |
@@ -23,7 +23,7 @@ The window guides you through the work in seven steps. The names of all buttons 
 
 | Step | What it does | Button at the bottom | Described on |
 |---|---|---|---|
-| 1 Open | Choose a recording | **Select** | [Select a recording](select-a-recording) |
+| 1 Open | Choose a recording | **Select Recording** | [Select a recording](select-a-recording) |
 | 2 Alignpoints | Mark the details the frames are lined up on | **Set Alignpoints** | [Alignpoints, Align and Limit](steps-alignpoints-align-limit) |
 | 3 Align | Line up every frame and rate its sharpness | **Align** | [Alignpoints, Align and Limit](steps-alignpoints-align-limit) |
 | 4 Limit | Keep the sharpest frames | **Limit** | [Alignpoints, Align and Limit](steps-alignpoints-align-limit) |
@@ -33,7 +33,7 @@ The window guides you through the work in seven steps. The names of all buttons 
 
 ## Before you open a recording
 
-Only the step **Open** is available. The other steps are greyed out, and the image area asks you to press **Select**. Hover over a greyed-out step to see what has to be done first, for example *Run Align first*.
+Only the step **Open** is available. The other steps are greyed out, and the image area asks you to press **Select Recording**. Hover over a greyed-out step to see what has to be done first, for example *Run Align first*.
 
 ## What a step panel shows
 
@@ -47,7 +47,7 @@ From top to bottom:
 
 ## The next step opens by itself
 
-Outside a calculation, exactly one button in the whole window is filled in amber: the button at the bottom of the step panel. When a step has run, the next step opens by itself and its button is the filled one. After **Select** this is Alignpoints, after **Do All** it is Save. While a calculation runs, the button is locked and only **Cancel** is filled.
+Outside a calculation, exactly one button in the whole window is filled in amber: the button at the bottom of the step panel. When a step has run, the next step opens by itself and its button is the filled one. After **Select Recording** this is Alignpoints, after **Do All** it is Save. While a calculation runs, the button is locked and only **Cancel** is filled.
 
 After **Save image** the Save step stays open and shows the result; instead of *Then:* it offers **Open another recording**.
 

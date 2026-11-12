@@ -40,9 +40,9 @@ struct AppToolbar: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .navigation) {
-            Button("Select") { Task { await model.select() } }
+            Button("Select Recording…") { Task { await model.select() } }
                 .disabled(model.isBusy)
-                .help("Select a recording (⌘O)")
+                .help("Select a recording: a video or a series of images (⌘O)")
             Menu("MRU") {
                 RecentMenuItems(model: model)
             }

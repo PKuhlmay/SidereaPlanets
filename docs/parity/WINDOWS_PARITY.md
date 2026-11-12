@@ -68,3 +68,14 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
   und `canGoToBestFrame` (`mac/App/Model/AppModel+Align.swift`), `AlignData.bestFrame` und `bestFrameHint` samt Text `bestFrameHint(frame:)`
   (`mac/App/Model/AlignLogic.swift`), Schaltflächen `GoToBestFrameButton` und `HintNote` (`mac/App/Views/AlignPanels.swift`),
   Karte (`mac/App/Views/FloatingCards.swift`).
+
+## Knopf „Select Recording…“ (Mac, 2026-11-12)
+
+- [ ] Die Schaltfläche, die eine Aufnahme öffnet, heißt **Select Recording…** statt „Select“: im Fuß des Schritts Open (gefüllt) und
+      in der Werkzeugleiste (`app/src/components/Toolbar.vue`, `app/src/logic/workflow.ts` bzw. wo die Aktionsbeschriftung des Schritts
+      steht), Tooltip „Select a recording: a video or a series of images“. Der Hinweis im leeren Bildbereich lautet
+      „Press Select Recording to open a video or a series of images“ (`app/src/App.vue`). Grund: der Knopf öffnet Videos (SER, AVI) und
+      Bildserien (TIFF, PNG, BMP, JPEG, FITS). Die Anwenderseiten (`app/src/docs/pages/`) nennen schon **Select Recording** und liegen
+      gemeinsam auf `main`. Mac: `ViewStep.action` (`mac/App/Model/StepLogic.swift`), `AppToolbar` (`mac/App/Views/ContentView.swift`),
+      `mac/App/Views/ImageArea.swift`.
+

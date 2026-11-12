@@ -23,7 +23,7 @@ struct ImageArea: View {
                 isSelecting: model.isDrawingRegion, onDraft: { draft = $0 }, onSelect: { model.selectRegion($0) }
             )
             if model.shownImage == nil {
-                Text(model.hasRecording ? "No image yet" : "Press Select to open a recording")
+                Text(model.hasRecording ? "No image yet" : "Press Select Recording to open a video or a series of images")
                     .font(.rk)
                     .foregroundStyle(RK.onCanvas.opacity(0.6))
             } else {

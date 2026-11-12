@@ -207,7 +207,7 @@ Links oben im Bildbereich steht in derselben Art, aber nicht anklickbar, was das
 „Stack of ‹n› frames“ oder „Sharpened stack“. Im Schritt Wavelets steht links neben Show der Umschalter **Functions »**
 (gleiche Form, gedrückt mit Umriss und Text in `--accent`).
 
-Text auf dem Bildbereich steht in `--on-canvas` (Hinweise wie „Press Select to open a recording“ mit 60 % Deckkraft),
+Text auf dem Bildbereich steht in `--on-canvas` (Hinweise wie „Press Select Recording to open a video or a series of images“ mit 60 % Deckkraft),
 nie in `--muted` oder `--accent-ink`: Der Bildbereich ist in beiden Themen dunkel, diese Töne wären im hellen Thema
 unlesbar. Ohne geladene Aufnahme fehlen Bildname, Show und Zoom-Leiste; es steht nur der Hinweis.
 
@@ -377,8 +377,8 @@ Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und
   Klick öffnet die Datei; leer „No recent files“ in `--muted`. Nach dem Laden steht darüber die geladene Datei mit
   Codec, Größe und Frame-Zahl.
 - Advanced: entfällt.
-- Aktion: **Select**. Select und MRU in der Werkzeugleiste bleiben und tun dasselbe.
-- Bildbereich vor dem Laden: mittig „Press Select to open a recording“ in `--muted`.
+- Aktion: **Select Recording…** (bis 2026-11-12 „Select“ wie im Original; umbenannt, weil der Knopf Videos und Bildserien öffnet). Select Recording… und MRU in der Werkzeugleiste bleiben und tun dasselbe.
+- Bildbereich vor dem Laden: mittig „Press Select Recording to open a video or a series of images“ in `--muted`.
 
 ### 2 Alignpoints
 
@@ -688,7 +688,7 @@ Für diese Teile gibt es kein Soll-Bild. Wer sie braucht, baut sie aus den vorha
 dieses Dokument im selben Commit.
 
 - Zustand vor dem Laden (festgelegt in RK-010, angepasst in RK-014): Schritt Open ist offen, Select im Fuß des Panels
-  gefüllt, alle anderen Pillen gesperrt, keine Frame-Leiste. Der Bildbereich zeigt mittig „Press Select to open a recording“ in `--on-canvas` mit 60 % Deckkraft.
+  gefüllt, alle anderen Pillen gesperrt, keine Frame-Leiste. Der Bildbereich zeigt mittig „Press Select Recording to open a video or a series of images“ in `--on-canvas` mit 60 % Deckkraft.
 - Fehlermeldungen (festgelegt in RK-010): Text mit Präfix „Error:“ im Ergebnisfeld der Statusleiste (Feld 3), in
   `--text`; kein Dialog, kein Rot.
 - Speicherangabe („Memory used/free/total“) in der Schrittleiste: entfällt vorerst, sie braucht einen Befehl im Backend.

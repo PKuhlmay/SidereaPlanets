@@ -33,7 +33,7 @@ nonisolated enum ViewStep: Int, CaseIterable, Identifiable, Sendable {
     /// Label of the action button: the one of the original.
     var action: String {
         switch self {
-        case .open: "Select"
+        case .open: "Select Recording…"
         case .alignpoints: "Set Alignpoints"
         case .align: "Align"
         case .limit: "Limit"

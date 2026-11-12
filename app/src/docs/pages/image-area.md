@@ -5,7 +5,7 @@ order: 4
 ---
 # The image area
 
-The image sits on a dark background in the middle of the window. It shows the frame you are on (steps Alignpoints, Align, Limit and, until the stack exists, Stack), the stacked image (Stack, after Stack) and the sharpened image (Wavelets and Save). At the top left a label says which one it is: *Frame 3 of 10*, *Stack of 8 frames* or *Sharpened stack*. Before a recording is open the area asks you to press **Select**.
+The image sits on a dark background in the middle of the window. It shows the frame you are on (steps Alignpoints, Align, Limit and, until the stack exists, Stack), the stacked image (Stack, after Stack) and the sharpened image (Wavelets and Save). At the top left a label says which one it is: *Frame 3 of 10*, *Stack of 8 frames* or *Sharpened stack*. Before a recording is open the area asks you to press **Select Recording**.
 
 ## Show menu
 

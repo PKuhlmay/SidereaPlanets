@@ -50,4 +50,4 @@ Fifteen buttons in three columns, from Histogram to Cropping Area. Each is a swi
 
 ## Save
 
-The Save step writes the sharpened stack with the colour and tone settings. It has no settings of its own; **Save image** opens the list of file types, see [Save and export](save-and-export). If the result of **Do All** does not match the current values, the panel says *Do All runs first with the current values.* After saving, the step shows the file name; **Open another recording** works like **Select**.
+The Save step writes the sharpened stack with the colour and tone settings. It has no settings of its own; **Save image** opens the list of file types, see [Save and export](save-and-export). If the result of **Do All** does not match the current values, the panel says *Do All runs first with the current values.* After saving, the step shows the file name; **Open another recording** works like **Select Recording**.

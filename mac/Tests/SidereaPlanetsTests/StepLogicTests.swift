@@ -61,4 +61,9 @@ import Testing
         #expect(formatDuration(65) == "00:01:05")
         #expect(formatDuration(3725) == "01:02:05")
     }
+
+    /// Step 1 opens videos and series of images, so its button says "Select Recording…" (Philipp, 2026-11-12).
+    @Test func openStepButtonSaysSelectRecording() {
+        #expect(ViewStep.open.action == "Select Recording…")
+    }
 }
