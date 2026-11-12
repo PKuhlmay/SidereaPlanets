@@ -22,6 +22,33 @@ Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, 
 Oberfläche sonst nachbauen müsste (Zustand, Verwerfen der Ergebnisse nach neuem Align, Thread-Pool, Abbrechen und Pausieren), gehört in
 den Kern, nicht in die Oberfläche. Die Mac-Schnittstelle `crates/ffi` (MAC-004) legt sich über dieselbe `Session`.
 
+## Rust-Schnittstelle und Swift-Paket (MAC-004)
+
+```
+crates/ffi/                          UniFFI-Schnittstelle: ein Objekt `CoreSession` um `Session`, Records und Enums als Spiegel der
+                                     Anfrage- und Ergebnistypen, `PlanetsError` mit dem Text des Kerns, Fortschritt über `ProgressListener`
+mac/Packages/SidereaPlanetsKit/
+  SidereaPlanetsFFI.xcframework            statische Bibliothek und C-Header (erzeugt, nicht in Git)
+  Sources/SidereaPlanetsBindings/          das von UniFFI erzeugte Swift (erzeugt, nicht in Git)
+  Sources/SidereaPlanetsKit/               dünne Schicht: `PlanetsSession` mit `async`, Fortschritt, Abbruch, `CGImage`
+  Tests/SidereaPlanetsKitTests/            `swift test` gegen JUPITER.AVI
+```
+
+- `crates/ffi` erbt die Workspace-Lints **nicht**: UniFFI erzeugt `unsafe`-Code, das nur hier erlaubt ist (Begründung in
+  `Cargo.toml` und `lib.rs`); alle anderen Crates bleiben bei `forbid`.
+- `scripts/build-ffi.sh` baut die Bibliothek (Debug nur arm64, `--release` zusätzlich x86_64 und `lipo` zu einer universalen),
+  erzeugt die Bindings im Bibliotheksmodus mit dem `uniffi-bindgen` dieses Workspace und legt XCFramework und Swift-Datei ins Paket.
+  Vor dem ersten `swift build`/`swift test` und nach jeder Änderung an `crates/ffi` oder `crates/session` laufen lassen; der
+  Deploy-Hook tut es selbst.
+- Prüfen: `scripts/build-ffi.sh && cd mac/Packages/SidereaPlanetsKit && swift test` (der Test überspringt sich ohne
+  `re-local/testdata/astropix/JUPITER.AVI`).
+- Lange Aufrufe (Align, Stack, Do All, Save Aligned/Integrated) blockieren in Rust; `PlanetsSession` führt sie auf einer
+  Hintergrund-Queue aus (`async`), meldet Fortschritt über ein Closure und bricht ab, wenn der Swift-`Task` abgebrochen wird oder
+  `cancel(_:)` gerufen wird (Fehler `PlanetsError.Cancelled`, `isCancelled`). Den Fehlertext liefert `PlanetsError.message`.
+- Der Rust-Typ `Operation` heißt in Swift `SessionOperation` (Foundation hat schon eine `Operation`).
+- Das Release-Profil des Workspace hat `panic = "abort"`: ein Panic im Kern beendet in einem Release-Bau die App, statt als Fehler
+  anzukommen.
+
 ## Voraussetzungen am Mac
 
 ```bash
@@ -95,7 +122,7 @@ Wird mit `MAC-001` ausgefüllt (xcodegen, `xcodebuild`, Bündel, Signierung und 
 | MAC-001 | Mac-App aufbauen (Klammer) | in Arbeit |
 | MAC-002 | Kern am Mac und Deploy der Mac-App | erledigt |
 | MAC-003 | Sitzungslogik im Kern (`crates/session`) | erledigt |
-| MAC-004 | Rust-Schnittstelle (UniFFI), XCFramework, Swift-Paket | offen |
+| MAC-004 | Rust-Schnittstelle (UniFFI), XCFramework, Swift-Paket | erledigt |
 | MAC-005 | App-Gerüst, Fenster, Bildbereich, Open | offen |
 | MAC-006 | Alignpoints, Align, Limit | offen |
 | MAC-007 | Stack | offen |

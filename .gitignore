@@ -17,3 +17,9 @@ mac/*.xcodeproj/
 mac/DerivedData/
 /build/
 *.xcuserstate
+
+# Mac package: built by scripts/build-ffi.sh (MAC-004) and SwiftPM
+mac/Packages/SidereaPlanetsKit/SidereaPlanetsFFI.xcframework/
+mac/Packages/SidereaPlanetsKit/Sources/SidereaPlanetsBindings/*.swift
+mac/Packages/SidereaPlanetsKit/.build/
+mac/Packages/SidereaPlanetsKit/.swiftpm/
