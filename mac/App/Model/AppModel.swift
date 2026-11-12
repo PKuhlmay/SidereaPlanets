@@ -208,6 +208,11 @@ final class AppModel {
         Set((defaults.array(forKey: advancedKey) as? [Int] ?? []).compactMap(ViewStep.init(rawValue:)))
     }
 
+    #if DEBUG
+    /// Debug launch argument `-advanced wavelets,stack`: opens those Advanced sections without saving the choice.
+    func openAdvancedForDebug(_ steps: Set<ViewStep>) { advancedOpen = steps }
+    #endif
+
     func toggleAdvanced(_ step: ViewStep) {
         if advancedOpen.contains(step) { advancedOpen.remove(step) } else { advancedOpen.insert(step) }
         defaults.set(advancedOpen.map(\.rawValue).sorted(), forKey: Self.advancedKey)

@@ -58,7 +58,7 @@ Notarisierung), nicht über den App Store, und dafür ist die Sandbox keine Pfli
 -open <Datei[:Datei…]> -appearance light|dark -step open|alignpoints|… -frame <n>`.
 Dazu für Bilder der späteren Schritte: `-run alignpoints,align,limit,stack` drückt die Schaltflächen nacheinander (`alignpaused` startet Align und
 hält es nach dem ersten Frame an, `stackpaused` dasselbe für Stack, `roidraw` drückt Draw Region, `bestframe` drückt Go to Best Frame), `-show framelist,registrationgraph` (interne Namen; in der App Frame List und Quality Graph), `-roi x,y,breite,höhe`,
-`-limit lowestQuality|bestPercent|framesPerPoint|bestCount`.
+`-limit lowestQuality|bestPercent|framesPerPoint|bestCount`, `-advanced wavelets,stack` (oder `all`) klappt Advanced dieser Schritte auf, ohne es zu merken.
 
 Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik in
 `crates/session` (aus den Tauri-Befehlen gezogen, MAC-003; die Tauri-Shell ist nur noch eine dünne Hülle darüber). Alles, was eine

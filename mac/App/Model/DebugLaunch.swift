@@ -16,7 +16,7 @@ extension AppModel {
     /// For the Wavelets step: `-run …,process` and `…,doall` press Process and Do All (`doallpaused` pauses Do All after the first layer),
     /// `-layers 32,22,14,10,10,10` sets the sliders, `-functions Histogram,Gamma` opens cards, `-colour colour|lrgb|gray`,
     /// `-tone black=10,white=240,gamma=1.3,red=110,contrast=300,brightness=20` sets card values, `-before 1` shows Before; `-show` also knows
-    /// `processingarea` and `wavealignpoints`.
+    /// `processingarea` and `wavealignpoints`. `-advanced wavelets,stack` (or `all`) opens those Advanced sections.
     func applyLaunchArguments() async {
         let defaults = UserDefaults.standard
         switch defaults.string(forKey: "appearance") {
@@ -75,6 +75,11 @@ extension AppModel {
             }
         }
         applyWaveletArguments(defaults)
+        if let list = defaults.string(forKey: "advanced") {
+            // `-advanced wavelets,stack` (or `all`) opens those Advanced sections, for pictures of the long panels.
+            let names = list.split(separator: ",").map { $0.lowercased() }
+            openAdvancedForDebug(Set(ViewStep.allCases.filter { names.contains("all") || names.contains($0.label.lowercased()) }))
+        }
         if let name = defaults.string(forKey: "step"), let step = ViewStep.allCases.first(where: { $0.label.lowercased() == name }) {
             show(step)
         }

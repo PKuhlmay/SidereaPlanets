@@ -21,8 +21,8 @@ struct StepPanel: View {
                     header
                     content
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(RKMetrics.panelPadding)
+                .modifier(KeepPanelWidth())
             }
             .scrollIndicators(.automatic)
             foot
@@ -161,6 +161,27 @@ struct StepPanel: View {
         case .wavelets: Task { await model.doAll() }
         case .save: break
         }
+    }
+}
+
+/// Gives the content of the panel exactly the width the scroll view offers (the panel without a scroll bar) and anchors it at the
+/// left. A row that is too wide for the panel is then cut off at the right; without this the scroll view takes the widest row as the
+/// width of the content, centres it and cuts off the left edge of every row.
+private struct KeepPanelWidth: ViewModifier {
+    func body(content: Content) -> some View {
+        KeepWidthLayout { content }
+    }
+}
+
+private struct KeepWidthLayout: Layout {
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let width = proposal.width ?? subviews.first?.sizeThatFits(.unspecified).width ?? 0
+        let height = subviews.first?.sizeThatFits(ProposedViewSize(width: width, height: nil)).height ?? 0
+        return CGSize(width: width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        subviews.first?.place(at: bounds.origin, anchor: .topLeading, proposal: ProposedViewSize(width: bounds.width, height: bounds.height))
     }
 }
 

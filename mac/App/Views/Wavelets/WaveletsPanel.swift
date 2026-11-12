@@ -9,7 +9,9 @@ import UniformTypeIdentifiers
 struct WaveletsStepView: View {
     @Bindable var model: AppModel
 
-    private let columns = (layer: CGFloat(34), field: CGFloat(68), preview: CGFloat(50))
+    // The three rows below must stay narrower than the panel minus the padding and a legacy scroll bar (272 - 24 - 15 = 233 pt):
+    // 32 + 68 + 68 + 40 plus four gaps of 4 is 224 pt. Anything wider is laid out shifted to the left and cut off there.
+    private let columns = (layer: CGFloat(32), field: CGFloat(68), preview: CGFloat(40), gap: CGFloat(4))
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -45,13 +47,13 @@ struct WaveletsStepView: View {
     // MARK: Layers
 
     private var header: some View {
-        HStack(spacing: 8) {
-            Text("Layer").frame(width: columns.layer, alignment: .leading)
+        HStack(spacing: columns.gap) {
+            Text("Layer").minimumScaleFactor(0.85).frame(width: columns.layer, alignment: .leading)
                 .help("Layer 1 holds the finest detail, higher layers coarser structures; switch a layer off to leave it out.")
             Text("Denoise").frame(width: columns.field, alignment: .leading).help("Smooths the noise in this layer.")
             Text("Sharpen").frame(width: columns.field, alignment: .leading).help("Fine adjustment of this layer; the slider sets the main strength.")
             Spacer(minLength: 0)
-            Text("Preview").frame(width: columns.preview, alignment: .trailing)
+            Text("Preview").minimumScaleFactor(0.85).frame(width: columns.preview, alignment: .trailing)
         }
         .font(.rkSmall)
         .foregroundStyle(RK.muted)
@@ -62,7 +64,7 @@ struct WaveletsStepView: View {
     private func layer(_ index: Int) -> some View {
         let number = index + 1
         return VStack(spacing: 2) {
-            HStack(spacing: 8) {
+            HStack(spacing: columns.gap) {
                 Toggle(isOn: $model.wavelet.values.layers[index].enabled) { Text("\(number)").font(.rk).foregroundStyle(RK.text) }
                     .toggleStyle(.checkbox)
                     .frame(width: columns.layer, alignment: .leading)
@@ -83,7 +85,7 @@ struct WaveletsStepView: View {
                     .help("Preview layer \(number): Not available yet")
                     .accessibilityLabel("Preview layer \(number)")
             }
-            HStack(spacing: 8) {
+            HStack(spacing: columns.gap) {
                 Slider(
                     value: Binding(
                         get: { Double(model.wavelet.values.layers[index].level) },
@@ -162,14 +164,10 @@ struct WaveletsStepView: View {
                 .labelsHidden()
                 .disabled(true)
                 .help("Not available yet")
-            HStack(spacing: 6) {
-                Button("Load Scheme…") { Task { await model.chooseSchemeToLoad() } }
-                    .buttonStyle(.rkWide)
-                    .disabled(model.isBusy)
-                    .help("Loads the layer values from a wavelet scheme file (.rwv).")
-                Button("Save Scheme…") { model.chooseSchemeToSave() }
-                    .buttonStyle(.rkWide)
-                    .help("Saves the layer values as a wavelet scheme file (.rwv).")
+            // Side by side when both labels fit the panel, otherwise one below the other instead of cut-off labels.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 6) { schemeButtons }
+                VStack(spacing: 6) { schemeButtons }
             }
             .padding(.top, 2)
 
@@ -186,6 +184,19 @@ struct WaveletsStepView: View {
                 .disabled(true)
                 .help("Not available yet")
         }
+    }
+}
+
+extension WaveletsStepView {
+    @ViewBuilder
+    fileprivate var schemeButtons: some View {
+        Button("Load Scheme…") { Task { await model.chooseSchemeToLoad() } }
+            .buttonStyle(.rkWide)
+            .disabled(model.isBusy)
+            .help("Loads the layer values from a wavelet scheme file (.rwv).")
+        Button("Save Scheme…") { model.chooseSchemeToSave() }
+            .buttonStyle(.rkWide)
+            .help("Saves the layer values as a wavelet scheme file (.rwv).")
     }
 }
 
