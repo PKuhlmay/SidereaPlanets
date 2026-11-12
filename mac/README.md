@@ -28,12 +28,13 @@ mac/
                          Projektabschnitte, JSON), SavePanels (NSSavePanel und NSOpenPanel),
                          AppModel+Wavelets (Vorschau, Process, Do All, Schemes, Karten, Contrast/Brightness, Copy To), WaveletLogic (Werte,
                          Verknüpfte Regler, Processing Area, Töne, Histogramm, Differenz), WaveletBackend (was der Schritt vom Kern braucht),
-                         WaveletProject (Abschnitte wavelet und colour der Projektdatei), ColorMixLogic (Matrix, Presets), CompareLogic und AppModel+Compare (View Compare)
+                         WaveletProject (Abschnitte wavelet und colour der Projektdatei), ColorMixLogic (Matrix, Presets), CompareLogic und AppModel+Compare (View Compare),
+                         AppModel+Crop, CropLogic und CropRectangle (Zuschneiden: Zustand, Formate, Geometrie des Rechtecks, MAC-016)
     Views/               ContentView (Fenster und Werkzeugleiste), StepBar, StepPanel, AlignPanels (Alignpoints, Align, Limit mit
                          Qualitätsdiagramm), StackPanel, Controls (Zahlenfeld, Auswahl), ImageArea (mit Show-Menü), ImageCanvas (NSView mit einer
                          CALayer für das Bild, zieht auch die R.o.Interest-Region), ImageOverlays (Punkte, Ringe, Region), FloatingCards
                          (Framelist, Registrationgraph, Alignmentpoints), FrameBar, StatusBar, Save/SaveViews (Schritt Save, Menü Save image,
-                         Gruppe Create AVI im Stack-Panel), Wavelets/ (WaveletsPanel mit Ebenen und Schemes, FunctionsPanel rechts,
+                         Gruppe Create AVI im Stack-Panel, CropViews: Karte und Gruppe des Zuschneidens, MAC-016), CropOverlay (Rechteck über dem Bild), Wavelets/ (WaveletsPanel mit Ebenen und Schemes, FunctionsPanel rechts,
                          FunctionCards Histogram, Gamma, RGB Align, RGB Balance, ColorMixingCard, CompareOverlay (View Compare), RefineCards
                          Denoise/Deringing und Masking (MAC-018, Werte in Model/RefineLogic), WaveletControls: Dezimalfeld, Segmente, Textlinks)
   Tests/SidereaPlanetsTests/ Swift Testing: Schrittzustände, MRU, AppModel (mit FakeBackend), Zoom-Rechnung, Dateiangaben, Hilfeseiten (HelpDocsTests), CPUs (CpuSettingsTests)
@@ -60,6 +61,7 @@ Notarisierung), nicht über den App Store, und dafür ist die Sandbox keine Pfli
 Dazu für Bilder der späteren Schritte: `-run alignpoints,align,limit,stack` drückt die Schaltflächen nacheinander (`alignpaused` startet Align und
 hält es nach dem ersten Frame an, `stackpaused` dasselbe für Stack, `roidraw` drückt Draw Region, `bestframe` drückt Go to Best Frame), `-show framelist,registrationgraph` (interne Namen; in der App Frame List und Quality Graph), `-roi x,y,breite,höhe`,
 `-limit lowestQuality|bestPercent|framesPerPoint|bestCount`, `-advanced wavelets,stack` (oder `all`) klappt Advanced dieser Schritte auf, ohne es zu merken.
+Für das Zuschneiden (MAC-016) öffnet `-crop free|1:1|3:2|4:3` (dazu `,done` zum Übernehmen) im Schritt Wavelets oder Save das Werkzeug, `-croprect x,y,breite,höhe` setzt das Rechteck.
 
 Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik in
 `crates/session` (aus den Tauri-Befehlen gezogen, MAC-003; die Tauri-Shell ist nur noch eine dünne Hülle darüber). Alles, was eine
@@ -231,5 +233,6 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-013 | Name „Siderea Planets“ in beiden Apps | erledigt |
 | MAC-014 | Texte für Einsteiger (klare Namen, Tooltips, gesperrte Elemente, kein „the reference program“ in sichtbaren Texten) | erledigt |
 | MAC-015 | CPU- und RAM-Anzeige in der Statusleiste, optimierter Kern im Debug-Build | erledigt |
+| MAC-016 | Zuschneiden vor dem Speichern (Free, 1:1, 3:2, 4:3, Fadenkreuz in der Mitte) | erledigt |
 | MAC-018 | Adjustments „Denoise/Deringing“ und „Masking“ | erledigt |
 | MAC-019 | Adjustments: Color Mixing (3 × 3 Kanalmischer im Kern) und View Compare (geteilte Ansicht Before/After) | erledigt |

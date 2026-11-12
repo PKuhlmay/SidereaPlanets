@@ -21,7 +21,9 @@ struct ImageArea: View {
             ImageCanvas(
                 image: model.shownImage, beforeImage: model.compareBeforeImage, divider: model.wavelet.compareDivider,
                 transform: viewport.transform, viewport: viewport,
-                isSelecting: model.isDrawingRegion, onDraft: { draft = $0 }, onSelect: { model.selectRegion($0) }
+                isSelecting: model.isDrawingRegion, onDraft: { draft = $0 }, onSelect: { model.selectRegion($0) },
+                isCropping: model.crop.isEditing, crop: model.crop.draft, cropAspect: model.cropAspect,
+                onCropChange: { model.setCropDraft($0) }
             )
             if model.shownImage == nil {
                 Text(model.hasRecording ? "No image to show yet" : "Select a recording or drop a video or images here")
@@ -38,13 +40,14 @@ struct ImageArea: View {
                         draft: draft
                     )
                 }
+                cropMark
                 // The split view has its own labels for the two sides.
                 if model.isComparing { CompareOverlay(model: model) } else { caption }
                 if model.viewStep != .open && (showsFrameMarks || isStackStep || isWaveletView) { ShowMenu(model: model) }
                 if (showsFrameMarks && model.progress.step != .empty) || (isStackStep && model.progress.step >= .limited) {
                     FloatingCards(model: model)
                 }
-                if model.viewStep == .wavelets { FunctionCards(model: model) }
+                if model.viewStep == .wavelets || (model.viewStep == .save && model.crop.isEditing) { FunctionCards(model: model) }
                 ZoomBar(
                     viewport: viewport,
                     before: isWaveletView ? Binding(get: { model.waveletData.before }, set: { model.setBefore($0) }) : nil
@@ -55,6 +58,16 @@ struct ImageArea: View {
         .clipped()
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Image")
+    }
+
+    /// The crop rectangle: with its grips while it is edited, as the dimmed outside with the size once Done kept it (Wavelets and Save).
+    @ViewBuilder
+    private var cropMark: some View {
+        if isWaveletView, let shown = model.crop.isEditing ? model.crop.draft : model.crop.applied,
+           let size = model.cropImageSize,
+           !shown.isFull(imageWidth: size.width, imageHeight: size.height) {
+            CropOverlay(transform: model.viewport.transform, rectangle: shown, isEditing: model.crop.isEditing)
+        }
     }
 
     /// The preview area as a dashed rectangle, with Show Preview Area in the Wavelets and Save steps.

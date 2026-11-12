@@ -34,7 +34,8 @@ pub async fn save_image(
     adjustments: Option<ColorSettings>,
     session: State<'_, Session>,
 ) -> CommandResult<String> {
-    Ok(session.save_image(source, format, Path::new(&path), adjustments.as_ref())?)
+    // The crop belongs to the Mac app for now (MAC-016); the Windows app saves the whole image.
+    Ok(session.save_image(source, format, Path::new(&path), adjustments.as_ref(), None)?)
 }
 
 /// Opens the save dialog for `format` and writes the image there. `None` if the user cancels.
@@ -62,6 +63,7 @@ pub async fn save_image_as(
             format,
             &path,
             adjustments.as_ref(),
+            None,
         )?)),
         None => Ok(None),
     }

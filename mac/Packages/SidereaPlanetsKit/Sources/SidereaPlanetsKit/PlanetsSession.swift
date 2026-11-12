@@ -156,14 +156,14 @@ public final class PlanetsSession: Sendable {
         try core.requireImage(source: source)
     }
 
-    /// Writes the image of `source` in `format`, with `adjustments` as the colour panels show it. Returns the file
-    /// that was written (the extension is corrected to match the format).
+    /// Writes the image of `source` in `format`, with `adjustments` as the colour panels show it and cut to `crop` if there is one.
+    /// Returns the file that was written (the extension is corrected to match the format).
     public func saveImage(
-        _ source: ImageSource, format: ExportFormat, to url: URL, adjustments: ColorSettings? = nil
+        _ source: ImageSource, format: ExportFormat, to url: URL, adjustments: ColorSettings? = nil, crop: CropRect? = nil
     ) async throws -> URL {
         let path = url.path
         let written = try await run {
-            try $0.saveImage(source: source, format: format, path: path, adjustments: adjustments)
+            try $0.saveImage(source: source, format: format, path: path, adjustments: adjustments, crop: crop)
         }
         return URL(fileURLWithPath: written)
     }

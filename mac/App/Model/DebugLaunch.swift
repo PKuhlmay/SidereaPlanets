@@ -17,6 +17,7 @@ extension AppModel {
     /// `-layers 32,22,14,10,10,10` sets the sliders, `-functions Histogram,Gamma` opens cards, `-colour colour|lrgb|gray`,
     /// `-tone black=10,white=240,gamma=1.3,red=110,contrast=300,brightness=20` sets card values (also `denoise`, `deringing`, `radius`, `mask`, `threshold`, `feather`, `invert`, `showmask`), `-before 1` shows Before; `-show` also knows
     /// `processingarea` and `wavealignpoints`. `-advanced wavelets,stack` (or `all`) opens those Advanced sections.
+    /// `-crop 4:3[,done]` and `-croprect x,y,w,h` open the crop tool (Wavelets and Save).
     func applyLaunchArguments() async {
         let defaults = UserDefaults.standard
         switch defaults.string(forKey: "appearance") {
@@ -83,11 +84,23 @@ extension AppModel {
         if let name = defaults.string(forKey: "step"), let step = ViewStep.allCases.first(where: { $0.label.lowercased() == name }) {
             show(step)
         }
+        if let spec = defaults.string(forKey: "crop") { applyCropArgument(spec, rectangle: defaults.string(forKey: "croprect")) }
         if defaults.integer(forKey: "frame") > 0 {
             showFrame(defaults.integer(forKey: "frame") - 1)
         }
         waveletData.before = defaults.integer(forKey: "before") > 0
         await settleWaveletPreview()
+    }
+
+    /// `-crop 4:3` opens the crop tool in that format (`free`, `1:1`, `3:2`, `4:3`), `-crop 4:3,done` also keeps the rectangle, and
+    /// `-croprect x,y,width,height` sets it (default: the middle 80 %). Needs the step Wavelets or Save.
+    private func applyCropArgument(_ spec: String, rectangle: String?) {
+        let tokens = spec.split(separator: ",").map(String.init)
+        startCrop()
+        if let format = CropFormat.allCases.first(where: { tokens.contains($0.title.lowercased()) }) { setCropFormat(format) }
+        let box = (rectangle ?? "").split(separator: ",").compactMap { Int($0) }
+        if box.count == 4 { setCropDraft(CropRectangle(minX: box[0], minY: box[1], maxX: box[0] + box[2], maxY: box[1] + box[3])) }
+        if tokens.contains("done") { finishCrop() }
     }
 
     /// The Wavelets arguments: values of the layers and cards, applied once the stack is there.

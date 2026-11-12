@@ -35,7 +35,7 @@ struct FunctionsPanel: View {
             GroupHeading(title: "Adjustments")
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 3), spacing: 6) {
                 ForEach(functionNames, id: \.self) { name in
-                    FunctionButton(title: name, isOn: model.wavelet.functions.contains(name)) { model.toggleFunction(name) }
+                    FunctionButton(title: name, isOn: name == cropFunction ? model.crop.isEditing : model.wavelet.functions.contains(name)) { model.toggleFunction(name) }
                 }
             }
         }

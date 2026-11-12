@@ -217,6 +217,7 @@ actor FakeBackend: SessionBackend {
         var format: ExportFormat
         var url: URL
         var adjustments: ColorSettings?
+        var crop: CropRect?
     }
 
     struct VideoSave {
@@ -239,8 +240,8 @@ actor FakeBackend: SessionBackend {
         if let message = log.missingImage { throw Failure(message: message) }
     }
 
-    func saveImage(_ source: ImageSource, format: ExportFormat, to url: URL, adjustments: ColorSettings?) async throws -> URL {
-        imageSaves.append(ImageSave(source: source, format: format, url: url, adjustments: adjustments))
+    func saveImage(_ source: ImageSource, format: ExportFormat, to url: URL, adjustments: ColorSettings?, crop: CropRect?) async throws -> URL {
+        imageSaves.append(ImageSave(source: source, format: format, url: url, adjustments: adjustments, crop: crop))
         if let saveError { throw Failure(message: saveError) }
         return url
     }

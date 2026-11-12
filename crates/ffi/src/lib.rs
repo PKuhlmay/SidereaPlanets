@@ -210,19 +210,22 @@ impl CoreSession {
     }
 
     /// Writes the image of `source` to `path` in `format`; with `adjustments` as the colour panels show
-    /// it. Returns the path that was written (the extension is corrected to match the format).
+    /// it, and with `crop` only that part of the image. Returns the path that was written (the extension is
+    /// corrected to match the format).
     pub fn save_image(
         &self,
         source: ImageSource,
         format: ExportFormat,
         path: String,
         adjustments: Option<ColorSettings>,
+        crop: Option<CropRect>,
     ) -> Result<String> {
         Ok(self.inner.save_image(
             source.into(),
             format.into(),
             Path::new(&path),
             adjustments.map(Into::into).as_ref(),
+            crop.map(Into::into),
         )?)
     }
 

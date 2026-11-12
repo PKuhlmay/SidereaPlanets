@@ -24,8 +24,9 @@ protocol SessionBackend: WaveletBackend {
 
     /// Throws if there is no image of `source` to save, so the app can fail before it opens a file dialog.
     func requireImage(_ source: ImageSource) throws
-    /// Writes the image of `source`, with `adjustments` as the colour panels show it; returns the file that was written.
-    func saveImage(_ source: ImageSource, format: ExportFormat, to url: URL, adjustments: ColorSettings?) async throws -> URL
+    /// Writes the image of `source`, with `adjustments` as the colour panels show it and cut to `crop` if there is one; returns the file
+    /// that was written.
+    func saveImage(_ source: ImageSource, format: ExportFormat, to url: URL, adjustments: ColorSettings?, crop: CropRect?) async throws -> URL
     func saveAligned(to url: URL, _ settings: SequenceSettings, progress: ProgressHandler?) async throws -> SavedVideo
     func saveIntegrated(to url: URL, _ settings: SequenceSettings, progress: ProgressHandler?) async throws -> SavedVideo
 }

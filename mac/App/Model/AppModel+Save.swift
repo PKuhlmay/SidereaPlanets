@@ -72,7 +72,7 @@ extension AppModel {
         saveState.isWriting = true
         defer { saveState.isWriting = false }
         do {
-            let written = try await backend.saveImage(source, format: format.id, to: url, adjustments: saveAdjustments)
+            let written = try await backend.saveImage(source, format: format.id, to: url, adjustments: saveAdjustments, crop: saveCrop)
             status.result = "Saved \(written.lastPathComponent)"
             if source == .wavelet {
                 saveState.savedName = written.lastPathComponent

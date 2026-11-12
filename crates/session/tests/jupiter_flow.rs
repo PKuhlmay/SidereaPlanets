@@ -3,7 +3,7 @@
 //! for a plausible result, not for a match with the original (that is what the `*_reference.rs`
 //! tests of `crates/io` do).
 
-use planets_core::wavelet::ColourMode;
+use planets_core::{crop::CropRect, wavelet::ColourMode};
 use planets_io::{export::ExportFormat, images::ImageSequenceReader};
 use planets_session::{
     ColorSettings, ImageSource, LimitSettings, Operation, PointSettings, RoiSettings, Session,
@@ -140,6 +140,7 @@ fn jupiter_runs_from_select_to_save_image() {
             ExportFormat::Tiff16,
             &dir.join(name),
             Some(&identity_colors()),
+            None,
         );
         assert!(written.is_ok(), "Save image {name}: {written:?}");
         let written = written.unwrap();
@@ -151,6 +152,33 @@ fn jupiter_runs_from_select_to_save_image() {
         assert_eq!((back.width, back.height), (1024, 680));
     }
 
+    // A crop writes only that part of the sharpened image, and the pixels are the ones of the whole image.
+    let crop = CropRect {
+        x: 100,
+        y: 50,
+        width: 600,
+        height: 450,
+    };
+    let whole = ImageSequenceReader::open(vec![dir.join("sharp.tif")])
+        .unwrap()
+        .read_frame(0)
+        .unwrap();
+    let written = session
+        .save_image(
+            ImageSource::Wavelet,
+            ExportFormat::Tiff16,
+            &dir.join("cropped"),
+            Some(&identity_colors()),
+            Some(crop),
+        )
+        .unwrap();
+    let cropped = ImageSequenceReader::open(vec![PathBuf::from(&written)])
+        .unwrap()
+        .read_frame(0)
+        .unwrap();
+    assert_eq!((cropped.width, cropped.height), (600, 450));
+    assert_eq!(Some(cropped), whole.cropped(crop));
+
     // Aligning again throws it all away: Save image has nothing left to write.
     session.set_alignpoints(0, &point_settings()).unwrap();
     assert_eq!(
@@ -158,6 +186,7 @@ fn jupiter_runs_from_select_to_save_image() {
             ImageSource::Stack,
             ExportFormat::Tiff16,
             &dir.join("gone"),
+            None,
             None
         ),
         Err(SessionError::NoStackedImage)

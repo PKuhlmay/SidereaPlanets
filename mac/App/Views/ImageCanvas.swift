@@ -8,7 +8,8 @@ import SwiftUI
 ///
 /// - pinch (trackpad) zooms around the fingers, a two-finger double tap toggles Fit and 100 %
 /// - scrolling with ⌥ or ⌘ held (mouse wheel or trackpad) zooms around the pointer; plain scrolling moves the image
-/// - dragging moves the image, or, while R.o.Interest waits for a region, draws a rectangle (the cross-hair cursor)
+/// - dragging moves the image, or, while R.o.Interest waits for a region, draws a rectangle (the cross-hair cursor), or, while the crop
+///   tool is open, moves, resizes or draws the crop rectangle (MAC-016)
 struct ImageCanvas: NSViewRepresentable {
     let image: CGImage?
     /// View Compare: the image shown left of the divider, at the same zoom and position; `nil` outside it.
@@ -23,6 +24,12 @@ struct ImageCanvas: NSViewRepresentable {
     var onDraft: (RoiSettings?) -> Void = { _ in }
     /// A finished rectangle in image pixels; a drag too small to be a region is dropped.
     var onSelect: (RoiSettings) -> Void = { _ in }
+    /// The crop tool is open: a drag edits `crop` (the rectangle drawn by `CropOverlay`) instead of moving the image.
+    var isCropping = false
+    var crop: CropRectangle?
+    /// The shape the rectangle keeps while it is dragged; `nil` is free.
+    var cropAspect: CropAspect?
+    var onCropChange: (CropRectangle) -> Void = { _ in }
 
     func makeNSView(context: Context) -> ImageCanvasView {
         ImageCanvasView(viewport: viewport)
@@ -32,6 +39,10 @@ struct ImageCanvas: NSViewRepresentable {
         view.onDraft = onDraft
         view.onSelect = onSelect
         view.isSelecting = isSelecting
+        view.onCropChange = onCropChange
+        view.cropAspect = cropAspect
+        view.crop = crop
+        view.isCropping = isCropping
         view.show(image: image, before: beforeImage, divider: divider, transform: transform)
     }
 }
@@ -58,6 +69,23 @@ final class ImageCanvasView: NSView {
             window?.invalidateCursorRects(for: self)
         }
     }
+    var isCropping = false {
+        didSet {
+            guard isCropping != oldValue else { return }
+            window?.invalidateCursorRects(for: self)
+        }
+    }
+    /// The rectangle being edited; a rectangle that covers the whole image counts as none drawn yet, so the next drag starts a new one.
+    var crop: CropRectangle? {
+        didSet {
+            guard crop != oldValue else { return }
+            window?.invalidateCursorRects(for: self)
+        }
+    }
+    var cropAspect: CropAspect?
+    var onCropChange: (CropRectangle) -> Void = { _ in }
+    /// The crop drag in progress: what was grabbed (`nil` = a new rectangle), where, and the rectangle then.
+    private var cropDrag: (handle: CropRectangle.Handle?, start: CGPoint, rect: CropRectangle?)?
 
     init(viewport: ImageViewport) {
         self.viewport = viewport
@@ -100,6 +128,7 @@ final class ImageCanvasView: NSView {
             CATransaction.commit()
         }
         self.divider = divider
+        if transform != self.transform, isCropping { window?.invalidateCursorRects(for: self) }
         self.transform = transform
         placeImage()
     }
@@ -110,7 +139,75 @@ final class ImageCanvasView: NSView {
     }
 
     override func resetCursorRects() {
-        addCursorRect(bounds, cursor: isSelecting ? .crosshair : .openHand)
+        if isCropping {
+            addCropCursorRects()
+        } else {
+            addCursorRect(bounds, cursor: isSelecting ? .crosshair : .openHand)
+        }
+    }
+
+    // MARK: Crop
+
+    /// The rectangle to grab, `nil` while it is the whole image (nothing drawn yet).
+    private var editableCrop: CropRectangle? {
+        guard let image, let crop, !crop.isFull(imageWidth: image.width, imageHeight: image.height) else { return nil }
+        return crop
+    }
+
+    /// How far from an edge or corner the pointer still takes hold of it, in image pixels at the current zoom. `mouseDown` and the cursor
+    /// rects both use it, so the cursor shows what a click does.
+    private var cropGrabReach: Double { Double(CropOverlay.Metrics.grabDistance) / Double(max(transform.scale, 0.01)) }
+
+    /// A rectangle of the image in the coordinates of the view (bottom left origin).
+    private func viewRect(x: Double, y: Double, width: Double, height: Double) -> CGRect {
+        CGRect(
+            x: transform.x + x * transform.scale, y: bounds.height - (transform.y + (y + height) * transform.scale),
+            width: width * transform.scale, height: height * transform.scale
+        )
+    }
+
+    /// Cursor rects of the crop tool: a crosshair for drawing a new rectangle, the open hand inside, a resize cursor on each edge and
+    /// corner (added last, so they win where they overlap).
+    private func addCropCursorRects() {
+        addCursorRect(bounds, cursor: .crosshair)
+        guard let rect = editableCrop else { return }
+        let reach = rect.effectiveTolerance(cropGrabReach)
+        let x = Double(rect.minX), y = Double(rect.minY), w = Double(rect.width), h = Double(rect.height)
+        addCursorRect(viewRect(x: x, y: y, width: w, height: h).intersection(bounds), cursor: .openHand)
+        let bands: [(CGRect, CropRectangle.Handle)] = [
+            (viewRect(x: x + reach, y: y - reach, width: w - 2 * reach, height: 2 * reach), .top),
+            (viewRect(x: x + reach, y: y + h - reach, width: w - 2 * reach, height: 2 * reach), .bottom),
+            (viewRect(x: x - reach, y: y + reach, width: 2 * reach, height: h - 2 * reach), .left),
+            (viewRect(x: x + w - reach, y: y + reach, width: 2 * reach, height: h - 2 * reach), .right),
+        ]
+        let corners: [(CGRect, CropRectangle.Handle)] = [
+            (viewRect(x: x - reach, y: y - reach, width: 2 * reach, height: 2 * reach), .topLeft),
+            (viewRect(x: x + w - reach, y: y - reach, width: 2 * reach, height: 2 * reach), .topRight),
+            (viewRect(x: x - reach, y: y + h - reach, width: 2 * reach, height: 2 * reach), .bottomLeft),
+            (viewRect(x: x + w - reach, y: y + h - reach, width: 2 * reach, height: 2 * reach), .bottomRight),
+        ]
+        for (area, handle) in bands + corners { addCursorRect(area.intersection(bounds), cursor: Self.cursor(for: handle)) }
+    }
+
+    /// The resize cursors with a diagonal arrow need macOS 15; before that the corners show the same arrows as the edges.
+    private static func cursor(for handle: CropRectangle.Handle) -> NSCursor {
+        if #available(macOS 15, *) {
+            switch handle {
+            case .left, .right: return .columnResize
+            case .top, .bottom: return .rowResize
+            case .topLeft: return .frameResize(position: .topLeft, directions: .all)
+            case .topRight: return .frameResize(position: .topRight, directions: .all)
+            case .bottomLeft: return .frameResize(position: .bottomLeft, directions: .all)
+            case .bottomRight: return .frameResize(position: .bottomRight, directions: .all)
+            case .body: return .openHand
+            }
+        }
+        switch handle {
+        case .left, .right: return .resizeLeftRight
+        case .top, .bottom: return .resizeUpDown
+        case .topLeft, .topRight, .bottomLeft, .bottomRight: return .crosshair
+        case .body: return .openHand
+        }
     }
 
     override var acceptsFirstResponder: Bool { true }
@@ -186,6 +283,15 @@ final class ImageCanvasView: NSView {
     }
 
     override func mouseDown(with event: NSEvent) {
+        if isCropping, image != nil {
+            let position = imagePosition(point(of: event))
+            if let rect = editableCrop, let handle = rect.handle(atX: position.x, y: position.y, tolerance: cropGrabReach) {
+                cropDrag = (handle, position, rect)
+            } else {
+                cropDrag = (nil, position, nil)
+            }
+            return
+        }
         if isSelecting, let image {
             let start = imagePosition(point(of: event))
             corner = start
@@ -202,6 +308,18 @@ final class ImageCanvasView: NSView {
     }
 
     override func mouseDragged(with event: NSEvent) {
+        if let drag = cropDrag, let image {
+            let position = imagePosition(point(of: event))
+            let width = image.width, height = image.height
+            let updated: CropRectangle?
+            if let handle = drag.handle, let rect = drag.rect {
+                updated = rect.dragged(handle, byX: position.x - drag.start.x, y: position.y - drag.start.y, imageWidth: width, imageHeight: height, aspect: cropAspect)
+            } else {
+                updated = CropRectangle.drawn(fromX: drag.start.x, y: drag.start.y, toX: position.x, y: position.y, imageWidth: width, imageHeight: height, aspect: cropAspect)
+            }
+            if let updated, updated != crop { onCropChange(updated) }
+            return
+        }
         if let corner, let image {
             setDraft(rectBetween(corner, imagePosition(point(of: event)), image: CGSize(width: image.width, height: image.height)))
             return
@@ -214,6 +332,11 @@ final class ImageCanvasView: NSView {
     }
 
     override func mouseUp(with event: NSEvent) {
+        if cropDrag != nil {
+            cropDrag = nil
+            window?.invalidateCursorRects(for: self)
+            return
+        }
         if corner != nil {
             if let draft, isRegion(draft) { onSelect(draft) }
             corner = nil

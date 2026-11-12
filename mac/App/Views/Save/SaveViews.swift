@@ -10,15 +10,19 @@ struct SaveStepView: View {
     let model: AppModel
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Saves the sharpened stack with your color and tone settings.")
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
-            if !model.progress.waveletsDone {
-                Text("Your latest changes are applied to the whole image first (Do All).")
+        VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Saves the sharpened stack with your color and tone settings.")
                     .font(.rkSmall)
                     .foregroundStyle(RK.muted)
+                if !model.progress.waveletsDone {
+                    Text("Your latest changes are applied to the whole image first (Do All).")
+                        .font(.rkSmall)
+                        .foregroundStyle(RK.muted)
+                }
             }
+            RK.line.frame(height: 1)
+            CropSection(model: model)
         }
     }
 }

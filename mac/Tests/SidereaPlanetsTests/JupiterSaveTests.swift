@@ -1,4 +1,5 @@
 import Foundation
+import ImageIO
 import SidereaPlanetsKit
 import Testing
 
@@ -31,8 +32,10 @@ struct JupiterSaveTests {
         return AppModel(backend: try PlanetsSession(), defaults: defaults)
     }
 
+    /// A new folder for the files of one test; `$PLANETS_KEEP_FILES` names the folder to make it in, so the files can be looked at.
     private func tempFolder() throws -> URL {
-        let folder = FileManager.default.temporaryDirectory.appendingPathComponent("planets-jupiter-save-\(UUID().uuidString)")
+        let parent = ProcessInfo.processInfo.environment["PLANETS_KEEP_FILES"].map { URL(fileURLWithPath: $0) } ?? FileManager.default.temporaryDirectory
+        let folder = parent.appendingPathComponent("planets-jupiter-save-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder
     }
@@ -71,6 +74,41 @@ struct JupiterSaveTests {
         await model.runAlign()
         #expect(!model.canSaveImage && model.stacked == nil)
         #expect(throws: PlanetsError.self) { try model.backend.requireImage(.stack) }
+    }
+
+    /// The size in pixels of an image file, read from its header.
+    private func pixelSize(of url: URL) throws -> (width: Int, height: Int) {
+        let source = try #require(CGImageSourceCreateWithURL(url as CFURL, nil))
+        let properties = try #require(CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any])
+        return (try #require(properties[kCGImagePropertyPixelWidth] as? Int), try #require(properties[kCGImagePropertyPixelHeight] as? Int))
+    }
+
+    @Test func aCropIsWrittenAsTheSmallerFileOfEveryFormat() async throws {
+        let model = try await stackedModel()
+        let folder = try tempFolder()
+        model.show(.wavelets)
+        model.startCrop()
+        model.setCropFormat(.fourByThree)
+        model.setCropDraft(CropRectangle(minX: 100, minY: 50, maxX: 700, maxY: 500))
+        model.finishCrop()
+        model.show(.save)
+
+        // 600 x 450 is 4:3. TIFF 16 bit and PNG 16 bit both come out at that size.
+        for id in [ExportFormat.tiff16, .png16] {
+            let format = try #require(model.formats(for: .wavelet).first { $0.id == id })
+            let url = folder.appendingPathComponent("crop-\(id)")
+            await model.saveImage(format, choose: Dialogs(answer: url).save)
+            #expect(model.status.result.hasPrefix("Saved crop-"), "\(model.status.result)")
+            let written = try #require(try FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil).first { $0.lastPathComponent.hasPrefix("crop-\(id)") })
+            let size = try pixelSize(of: written)
+            #expect(size.width == 600 && size.height == 450, "\(id): \(size)")
+        }
+        // Without the crop the whole 1024 x 680 image is written again.
+        model.removeCrop()
+        let tiff = try #require(model.formats(for: .wavelet).first { $0.id == .tiff16 })
+        await model.saveImage(tiff, choose: Dialogs(answer: folder.appendingPathComponent("whole")).save)
+        let whole = try pixelSize(of: folder.appendingPathComponent("whole.tif"))
+        #expect(whole.width == 1024 && whole.height == 680)
     }
 
     @Test func alignedFramesAndTheProjectOfARealSession() async throws {

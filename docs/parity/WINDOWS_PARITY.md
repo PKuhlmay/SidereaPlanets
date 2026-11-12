@@ -362,3 +362,29 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
 - [ ] Verfahren und Konstanten stehen im Rechenkern (`crates/core/src/refine.rs`, beschrieben in `docs/wavelets.md`, Abschnitt „Denoise/Deringing und Masking“);
       Windows braucht nur die Oberfläche. Mac: `mac/App/Views/Wavelets/RefineCards.swift`, `mac/App/Model/AppModel+Wavelets.swift` (Show mask),
       Anwenderseiten (`color-and-tones.md`, `step-wavelets-save.md`, Glossary) liegen schon gemeinsam auf `main`.
+
+## Zuschneiden vor dem Speichern (Mac: MAC-016)
+
+- [ ] **Werkzeug Crop** für das Speichern des geschärften Bildes (Schritte Wavelets und Save). Die Schaltfläche **Cropping Area** des
+      Panels Adjustments heißt **Crop** und ist nicht mehr gesperrt (sie war es nach MAC-014, Tabelle 3 (f), zusammen mit zehn weiteren;
+      mit MAC-019 und diesem Punkt sperrt Windows nur noch **sechs** Knöpfe: View Zoomed, View Stack Size, Flip and Rotate, Resize Image,
+      Wavelet Filter, Show Line Graph; mit MAC-018 sind Denoise/Deringing und Masking frei). Im Schritt **Save** kommt über Save Image die Gruppe **Crop** („The whole picture is saved.“ /
+      „Only 800 × 600 px is saved.“) mit **Crop…** und, solange ein Zuschnitt gilt, dem Link **Remove Crop** dazu; beides öffnet dasselbe
+      Werkzeug.
+- [ ] **Verhalten:** Rechteck über dem Bild (Außenseite abgedunkelt, Rand, Drittel-Raster, **kleines Fadenkreuz in der Mitte**, acht Griffe,
+      Größe „W × H“ auf einer Platte), Karte **Crop** mit den **Formaten Free · 1:1 · 3:2 · 4:3**, Größe in Pixeln, **Reset**, **Cancel** und
+      **Done**. Ziehen im Rechteck verschiebt, an Kante und Ecke ändert die Größe, außerhalb zeichnet ein neues; ein festes Format bleibt
+      beim Ziehen erhalten (liegend oder stehend, wie das Rechteck gerade ist, **kein Umschalter**), ein anderes Format formt das Rechteck um
+      (gleiche Mitte und Fläche); Mindestgröße 8 × 8 Bildpunkte, nie außerhalb des Bildes. **View Compare geht beim Öffnen des Werkzeugs aus und ist gesperrt, solange es offen ist** (Statuszeile „View Compare: finish or cancel the crop first“); Start auf der Mitte (80 % jeder Seite) oder dem
+      angewendeten Rechteck; ein Rechteck, das das ganze Bild deckt, ist kein Zuschnitt. Alle Maße, Deckkräfte und Texte stehen in
+      `docs/design.md`, „Zuschneiden (Mac-016)“; die Geometrie (Ziehen, feste Formate, Klemmen) ist reiner Code ohne Oberfläche in
+      `mac/App/Model/CropRectangle.swift` und die Tests dazu in `mac/Tests/SidereaPlanetsTests/CropRectangleTests.swift`, Zustand und Regeln in
+      `mac/App/Model/AppModel+Crop.swift` und `CropLogic.swift`; Zeichnen in `mac/App/Views/CropOverlay.swift`, Ziehen in
+      `mac/App/Views/ImageCanvas.swift`, Karte und Gruppe in `mac/App/Views/Save/CropViews.swift`.
+- [ ] **Wirkung:** Der Zuschnitt gilt für **jedes Format** von Save Image im Schritt Wavelets und Save (das Bild des Schritts Stack wird immer
+      ganz geschrieben), wird **nach** den Farb- und Tonwerten ausgeschnitten und ist bis zum nächsten Stack oder einer anderen Aufnahme
+      gültig. Er steht **nicht in der Projektdatei** (das Stack-Bild auch nicht). **Rechenkern schon gemeinsam auf `main`:**
+      `planets_core::crop::CropRect` (`clamp`, `is_full`) und `Image::cropped`, `Session::save_image(…, crop: Option<CropRect>)`; die Tauri-Befehle
+      `save_image` und `save_image_as` reichen vorerst `None` durch (`app/src-tauri/src/export_commands.rs`), Windows ergänzt dort das
+      Argument `crop` (`{x, y, width, height}`) und im Frontend `app/src/saving.ts`/`exporting.ts` den Aufruf. Die Anwenderseiten
+      (`save-and-export.md`, `step-wavelets-save.md`, `color-and-tones.md`, `glossary.md`) beschreiben das Werkzeug schon.

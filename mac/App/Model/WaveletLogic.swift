@@ -156,7 +156,7 @@ nonisolated let functionNames = [
     "View Zoomed", "View Compare", "View Stack Size",
     "Flip and Rotate", "RGB Align", "RGB Balance",
     "Resize Image", "Denoise/Deringing", "Wavelet Filter",
-    "Masking", "Show Line Graph", "Cropping Area",
+    "Masking", "Show Line Graph", "Crop",
 ]
 
 /// The cards that exist; the other Functions buttons only report that they are not available yet.
@@ -167,8 +167,8 @@ nonisolated let viewFunctions = [compareName]
 
 nonisolated func isToneCard(_ name: String) -> Bool { toneCards.contains(name) }
 
-/// Whether the button does something; the others are dimmed and locked.
-nonisolated func isFunctionBuilt(_ name: String) -> Bool { isToneCard(name) || viewFunctions.contains(name) }
+/// Whether the button does something; the others are dimmed and locked. Crop opens the crop tool (MAC-016).
+nonisolated func isFunctionBuilt(_ name: String) -> Bool { isToneCard(name) || viewFunctions.contains(name) || name == cropFunction }
 
 /// The tooltip of an Adjustments button: what its card does, or that the button is locked.
 nonisolated func functionHelp(_ name: String) -> String {
@@ -181,6 +181,7 @@ nonisolated func functionHelp(_ name: String) -> String {
     case "RGB Balance": "Changes the share of red, green and blue."
     case "Denoise/Deringing": "Smooths noise without blurring edges and softens the dark ring next to bright edges."
     case "Masking": "Limits the sharpening to the planet, so the sky stays untouched."
+    case cropFunction: "Cuts the picture to a rectangle when it is saved."
     default: "Not available yet"
     }
 }

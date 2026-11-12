@@ -8,9 +8,10 @@ extension AppModel {
     /// The View Compare button is on.
     var compareIsOn: Bool { wavelet.functions.contains(compareName) }
 
-    /// The split view is shown: in the Wavelets step, with the stack as pixels, and not while Before/After shows the stack in full.
+    /// The split view is shown: in the Wavelets step, with the stack as pixels, and not while Before/After shows the stack in full or the
+    /// crop tool is open (the rectangle is set on one picture).
     var isComparing: Bool {
-        viewStep == .wavelets && compareIsOn && waveletData.stack != nil && !waveletData.before
+        viewStep == .wavelets && compareIsOn && waveletData.stack != nil && !waveletData.before && !crop.isEditing
     }
 
     /// The left half of the split view: the stack with nothing applied. The right half is `shownImage`.

@@ -20,7 +20,7 @@ After stacking, the Wavelets step has a set of tools to fix the color and the br
 | Remember, Restore, Difference | Keep an image and compare it with the one you are working on |
 | View Compare | Shows the stack and the result side by side in one image, with a divider you drag |
 
-The other seven **Adjustments** buttons (View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Wavelet Filter, Show Line Graph and Cropping Area) are dimmed and cannot be pressed: **Not available yet**.
+**Crop** opens a tool of its own, see [Cropping before you save](save-and-export). The other six **Adjustments** buttons (View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Wavelet Filter and Show Line Graph) are dimmed and cannot be pressed: **Not available yet**.
 
 ## How the cards work
 

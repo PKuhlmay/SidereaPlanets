@@ -34,6 +34,7 @@ The words of planetary photography in plain language, with the name each one has
 | Denoise | Denoise (%) | Smooths the noise of the sharpened image but keeps edges, such as the edge of the planet, sharp. Sharpening makes noise stronger, so this is its counterpart. See [Color and tones](color-and-tones) |
 | Ringing, Deringing | Deringing (%), Radius (px) | Strong sharpening can leave a dark ring in the sky next to the bright edge of a planet. Deringing lifts the ring back to the level of the sky. See [Color and tones](color-and-tones) |
 | Mask | Masking, Use mask, Threshold, Feather (px), Invert, Show mask | Limits the sharpening to a part of the image, usually the planet, so the sky stays as it is in the stack. The threshold decides how bright a pixel must be, the feather softens the edge. See [Color and tones](color-and-tones) |
+| Crop | Crop, Crop… | Cuts the picture to a rectangle when it is saved. You choose the shape (Free, 1:1, 3:2 or 4:3) and drag the rectangle over the image; a small cross marks its center. See [Cropping before you save](save-and-export) |
 | Histogram | Histogram, Black point, White point | A graph of how many pixels there are of each brightness. The black point and the white point decide which brightness becomes pure black and pure white |
 | Gamma | Gamma | Brightens or darkens the midtones without changing black and white |
 | RGB Align | RGB Align | Shifts red, green and blue against each other so that they lie on top of each other. This removes the colored fringes that the air causes on a planet |

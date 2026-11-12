@@ -231,12 +231,14 @@ import Testing
 
     @Test func theFunctionsGridHasFifteenButtonsAndTheOnesThatWorkAreUnlocked() {
         #expect(functionNames.count == 15 && Set(functionNames).count == 15)
-        #expect(functionNames.first == "Histogram" && functionNames.last == "Cropping Area")
+        #expect(functionNames.first == "Histogram" && functionNames.last == "Crop")
         #expect(toneCards.allSatisfy { functionNames.contains($0) })
-        #expect(isToneCard("Gamma") && isToneCard("RGB Align") && !isToneCard("Show Line Graph"))
+        #expect(isToneCard("Gamma") && isToneCard("RGB Align") && !isToneCard("Show Line Graph") && !isToneCard("Crop"))
         #expect(isToneCard("Denoise/Deringing") && isToneCard("Masking"))
-        // The buttons that do nothing yet are locked: their tooltip says so.
-        #expect(functionNames.filter { !isFunctionBuilt($0) }.allSatisfy { functionHelp($0) == "Not available yet" })
+        // Crop works with its own tool; the six buttons that do nothing yet are locked: their tooltip says so.
+        let locked = functionNames.filter { !isFunctionBuilt($0) }
+        #expect(locked.count == 6 && !locked.contains("Crop"))
+        #expect(locked.allSatisfy { functionHelp($0) == "Not available yet" })
         #expect(functionNames.filter(isFunctionBuilt).allSatisfy { functionHelp($0) != "Not available yet" })
     }
 }

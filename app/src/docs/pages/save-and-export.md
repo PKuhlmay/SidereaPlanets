@@ -31,6 +31,21 @@ Pressing **Save Image** first opens a short list of file types, such as *TIFF 16
 
 > An existing file with the same name is replaced only when the new file was written completely. If saving fails, the old file stays as it was.
 
+## Cropping before you save
+
+Use **Crop** to save only a part of the sharpened image, for example a planet in the middle of a dark border, in a shape for printing or posting. The crop works for every file type of **Save Image** in the steps *Wavelets* and *Save*.
+
+Open the crop tool in one of two ways: press **Crop** in the Adjustments panel of the Wavelets step, or press **Crop…** in the Save step above **Save Image**. It is the same tool. A rectangle appears over the image, with everything outside it dimmed, and the card **Crop** shows at the top right.
+
+- **Format** is **Free**, **1:1**, **3:2** or **4:3**. With a fixed format the rectangle keeps its shape while you drag it. It stays lying (wider than tall) or standing (taller than wide), as it is; to change that, draw a new rectangle by dragging the other way round. Choosing another format reshapes the rectangle around its center.
+- **Move** the rectangle by dragging inside it and **resize** it with the small squares on its edges and corners. It cannot leave the image and cannot be smaller than 8 × 8 pixels. Dragging outside the rectangle draws a new one.
+- A **small cross** marks the center of the rectangle, and thin lines divide it in thirds, to help you line up the planet.
+- The **size** in pixels (width × height) shows in the corner of the rectangle and in the card.
+- **View Compare** is switched off while the crop tool is open, because the rectangle is set on one picture; press it again after **Done** or **Cancel**.
+- **Reset** brings back the whole image (the next drag draws a new rectangle). **Cancel**, or the cross of the card, closes the tool and drops your changes. **Done** keeps the rectangle.
+
+After **Done** the image shows the rectangle with a dimmed outside, and the Save step says *Only 800 × 600 px is saved.* **Remove Crop** takes it away again. **Save Image** then writes only what is inside the rectangle, at full precision and with the color and tone values applied; the rectangle is not made smaller or scaled. The rectangle belongs to the stacked image: a new **Stack**, or another recording, removes it. It is not stored in a project file. The stacked image saved from the step *Stack* is always written whole.
+
 ## Saving a project
 
 A project remembers your session: the recording and the settings of the steps (alignpoint settings, stacking options, wavelet layers, color). Save it with **Save Project…** in the toolbar and open it again later with **Open Project…**. Both buttons sit to the right of the menus; **Save Project…** is locked until a recording is open, and both are locked while a calculation runs. Project files end in `.rkproj`.

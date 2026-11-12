@@ -48,6 +48,7 @@ final class AppModel {
             syncViewport()
             viewport.fit()
             waveletViewChanged()
+            cropViewChanged()
         }
     }
 
@@ -61,11 +62,13 @@ final class AppModel {
     /// What the step Save keeps: the file type of Save image, the name it wrote last, a write under way.
     var saveState = SaveState()
     /// The stack, from Stack until Set Alignpoints, Align or Limit runs again.
-    var stacked: StackedImage? { didSet { waveletStackChanged() } }
+    var stacked: StackedImage? { didSet { waveletStackChanged(); clearCrop() } }
     /// The step Wavelets: the values of the panel, of the Functions cards and of Contrast/Brightness, the pictures, and the requests that run.
     var wavelet = WaveletOptions() { didSet { waveletOptionsChanged(from: oldValue) } }
     var tone = ToneValues() { didSet { toneChanged(from: oldValue) } }
     var waveletData = WaveletData()
+    /// The crop tool: the rectangle Save Image writes and the one being edited (MAC-016).
+    var crop = CropState()
     @ObservationIgnored let waveletWork = WaveletWork()
     /// The next drag in the image draws the region (Draw Region).
     var isDrawingRegion = false

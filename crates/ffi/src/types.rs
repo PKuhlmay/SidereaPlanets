@@ -105,6 +105,28 @@ pub trait ProgressListener: Send + Sync {
     fn progress(&self, operation: SessionOperation, done: u32, total: u32, elapsed_ms: u64);
 }
 
+// --- Save --------------------------------------------------------------------------------------
+
+/// The part of the image that Save Image writes, in pixels from the top left corner (MAC-016).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Record)]
+pub struct CropRect {
+    pub x: u32,
+    pub y: u32,
+    pub width: u32,
+    pub height: u32,
+}
+
+impl From<CropRect> for session::CropRect {
+    fn from(r: CropRect) -> Self {
+        Self {
+            x: r.x,
+            y: r.y,
+            width: r.width,
+            height: r.height,
+        }
+    }
+}
+
 // --- Align -------------------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, uniffi::Record)]
@@ -916,6 +938,18 @@ mod tests {
         let ffi = WaveletSettings::from(settings.clone());
         assert_eq!(ffi.layers.len(), core_wavelet::settings::LAYERS);
         assert_eq!(core_wavelet::WaveletSettings::try_from(ffi), Ok(settings));
+    }
+
+    #[test]
+    fn a_crop_rectangle_keeps_every_field() {
+        let rect = CropRect {
+            x: 1,
+            y: 2,
+            width: 30,
+            height: 40,
+        };
+        let core = session::CropRect::from(rect);
+        assert_eq!((core.x, core.y, core.width, core.height), (1, 2, 30, 40));
     }
 
     #[test]

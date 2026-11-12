@@ -380,6 +380,14 @@ extension AppModel {
 
     /// A Functions button: opens or closes its card; the buttons without a card say so in the status bar.
     func toggleFunction(_ name: String) {
+        if name == compareName && crop.isEditing {
+            status.result = "View Compare: finish or cancel the crop first"
+            return
+        }
+        if name == cropFunction {
+            if crop.isEditing { cancelCrop() } else { startCrop() }
+            return
+        }
         guard isFunctionBuilt(name) else {
             status.result = "\(name): not available yet"
             return
@@ -399,7 +407,11 @@ extension AppModel {
     }
 
     /// The cards that are open in the Wavelets step, in the order the buttons were pressed.
-    var openCards: [String] { viewStep == .wavelets ? wavelet.functions.filter(isToneCard) : [] }
+    /// The crop tool, while it is open, is one of them in the steps Wavelets and Save, and the first, so its buttons are always in view.
+    var openCards: [String] {
+        let cards = viewStep == .wavelets ? wavelet.functions.filter(isToneCard) : []
+        return crop.isEditing && (viewStep == .wavelets || viewStep == .save) ? [cropFunction] + cards : cards
+    }
 
     /// Contrast/Brightness back to 100 and 0.
     func resetContrast() {

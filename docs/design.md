@@ -525,9 +525,10 @@ Dieser Abschnitt legt die Karten fest, die RK-008 braucht: **Histogram**, **Gamm
 dazu (MAC-019) **Color Mixing**; **View Compare** ist keine Karte, sondern eine Ansicht (Abschnitt am Ende dieses Teils).
 Contrast/Brightness bleibt das feste Panel unter dem Raster (Soll-Bild 07). **Denoise/Deringing** und **Masking** (MAC-018, Mac)
 folgen unten in Tabelle und Liste; die Verfahren dahinter stehen in `docs/wavelets.md`. Die übrigen Karten (View …,
-Flip and Rotate, Resize Image, Wavelet Filter, Show Linegraph, Cropping Area; in der App
+Flip and Rotate, Resize Image, Wavelet Filter, Show Linegraph; in der App
 View Stack Size, Show Line Graph …; die übrigen Schaltflächen sind gesperrt, „Not available yet“) legen ihre
-Tickets fest und ergänzen dieses Dokument.
+Tickets fest und ergänzen dieses Dokument. **Cropping Area** heißt in der Mac-App **Crop** und hat ein eigenes Werkzeug, siehe
+[Zuschneiden](#zuschneiden-mac-016).
 
 **Gemeinsames Verhalten**
 
@@ -649,6 +650,34 @@ dark“ und „Docs · light“), nicht aus dem klickbaren Entwurf; der Entwurf 
 |---|---|
 | Limit | ![Limit, hell](design/screenshots/15-limit-light.png) |
 | Wavelets | ![Wavelets, hell](design/screenshots/16-wavelets-light.png) |
+
+## Zuschneiden (Mac-016)
+
+Das Werkzeug **Crop** legt fest, welchen Ausschnitt **Save Image** schreibt (nur Schritte Wavelets und Save, nur das geschärfte Bild).
+Aussehen und Verhalten wie im Zuschneiden von Siderea, übernommen mit den Maßen von dort.
+
+- **Aufruf:** Schaltfläche **Crop** im Panel Adjustments (Schalter wie die anderen, an solange das Werkzeug offen ist) und **Crop…** im
+  Schritt Save, in der Gruppe **Crop** über Save Image (Text „The whole picture is saved.“ / „Only 800 × 600 px is saved.“, dazu der
+  Link **Remove Crop**). Beides öffnet dasselbe Werkzeug.
+- **Rechteck über dem Bild** (`CropOverlay`, Bildpunkte wie die anderen Marken, Linien in Bildschirmpunkten): Außenseite abgedunkelt
+  (Schwarz 55 %, nach Done 40 %), Rand 1 pt Weiß über 3 pt Schwarz (60 %), Drittel-Raster (0,5 pt Weiß 55 % über 2 pt Schwarz 35 %), kleines
+  **Fadenkreuz in der Mitte** (Arme 10 pt, höchstens ein Viertel der kürzeren Seite, Rand-Stil), acht quadratische Griffe (8 pt, weiß, Rand
+  Schwarz 70 %) und die Größe „Breite × Höhe“ auf einer Platte (11 pt, Schwarz 60 %, Radius 3, Abstand 10 pt von der linken oberen Ecke).
+  Die Bildfläche ist in beiden Erscheinungsbildern dunkel, die Farben sind fest. Nach **Done** zeigt das Bild nur Außenseite, Rand und
+  Größe.
+- **Karte „Crop“** (wie die Karten der Adjustments, oben rechts, immer die oberste): Titel, Link **Reset**, Kreuz (= Cancel), Segmentleiste
+  **Free · 1:1 · 3:2 · 4:3**, Zeile *Size* mit „W × H px“, ein Hinweis („Drag on the image to draw the part to keep.“ / „Drag the rectangle
+  to move it and its handles to resize it. Save Image writes only what is inside.“) und die Knöpfe **Cancel** und **Done** (gefüllt).
+- **Bedienung:** Ziehen im Rechteck verschiebt, Ziehen an Kante oder Ecke (Reichweite 7 pt, höchstens ein Drittel der kürzeren Seite)
+  ändert die Größe, Ziehen außerhalb zeichnet ein neues. Ein festes Format bleibt beim Ziehen erhalten und liegt oder steht, wie das
+  Rechteck gerade ist (kein Umschalter); ein anderes Format formt das Rechteck um (gleiche Mitte und Fläche). Mindestgröße 8 × 8 px, nie
+  außerhalb des Bildes. Zeiger: Fadenkreuz über dem Bild, Hand im Rechteck, Pfeile an Kanten und Ecken. Zoomen und Scrollen gehen weiter,
+  Verschieben des Bildes ist während des Werkzeugs aus.
+- **View Compare:** beim Öffnen des Werkzeugs geht die geteilte Ansicht aus (Schaltfläche kommt hoch), solange es offen ist, ist View Compare
+  gesperrt (Statuszeile „View Compare: finish or cancel the crop first“); danach schaltet man es wieder ein.
+- **Anfang:** das Werkzeug öffnet auf dem angewendeten Rechteck, sonst auf der Mitte (80 % jeder Seite, in der Form des Formats).
+  **Reset** setzt das ganze Bild und Format Free; ein Rechteck, das das ganze Bild deckt, ist kein Zuschnitt, dann zeigt das Bild keins und
+  der nächste Zug zeichnet ein neues.
 
 ## Texte und Schreibweise (MAC-014)
 

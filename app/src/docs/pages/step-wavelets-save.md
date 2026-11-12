@@ -17,6 +17,8 @@ Steps 6 and 7: bring out fine detail in the stacked image, then write the result
 | Realign with Processed | Wavelets, under Advanced | Aligns again with the sharpened image | Dimmed: Not available yet |
 | Stack Again | Wavelets, under Advanced | Stacks again | Dimmed: Not available yet |
 | Adjust › | Top of the image area | Shows or hides the Adjustments panel on the right | Works |
+| Crop | Adjustments panel | Opens the crop tool: choose the part of the image that is saved, see [Cropping before you save](save-and-export) | Works |
+| Crop… | Save, in the panel | The same crop tool | Works |
 
 Save is possible as soon as the stack exists: if **Do All** has not run for the current values, **Save Image** runs it first.
 
@@ -44,10 +46,10 @@ In the Wavelets and Save steps **Show ▾** at the top right of the image holds:
 
 ## Adjustments (right)
 
-Fifteen buttons in three columns, from Histogram to Cropping Area. Histogram, Gamma, Color Mixing, RGB Align, RGB Balance, Denoise/Deringing and Masking work: each is a switch for its own card over the image, see [Color and tones](color-and-tones). **View Compare** is a switch for the split view of stack and result. The other seven (View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Wavelet Filter, Show Line Graph and Cropping Area) are dimmed and cannot be pressed: **Not available yet**.
+Fifteen buttons in three columns, from Histogram to Crop. Histogram, Gamma, Color Mixing, RGB Align, RGB Balance, Denoise/Deringing and Masking work: each is a switch for its own card over the image, see [Color and tones](color-and-tones). **View Compare** is a switch for the split view of stack and result. **Crop** opens the crop tool, see [Cropping before you save](save-and-export). The other six (View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Wavelet Filter and Show Line Graph) are dimmed and cannot be pressed: **Not available yet**.
 
 **Contrast/Brightness** has two sliders, each with its label and a field above it. Contrast starts at 100 and Brightness at 0. **Reset** returns both. **Keep** is **Not available yet**. **Remember**, **Restore** and **Difference** keep and compare images, see [Color and tones](color-and-tones); *Remembered image* is locked until something is remembered.
 
 ## Save
 
-The Save step saves the sharpened stack with your color and tone settings. It has no settings of its own; **Save Image** opens the list of file types, see [Save and export](save-and-export). If the result of **Do All** does not match the current values, the panel says that your latest changes are applied to the whole image first (Do All). After saving, the step shows the file name; **Select Another Recording…** works like **Select Recording**.
+The Save step saves the sharpened stack with your color and tone settings. Above **Save Image** is the group **Crop** with **Crop…**: it cuts the picture to a rectangle when it is saved, see [Cropping before you save](save-and-export). **Save Image** opens the list of file types, see [Save and export](save-and-export). If the result of **Do All** does not match the current values, the panel says that your latest changes are applied to the whole image first (Do All). After saving, the step shows the file name; **Select Another Recording…** works like **Select Recording**.

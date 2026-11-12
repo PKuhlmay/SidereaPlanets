@@ -8,6 +8,7 @@ use crate::{Session, SessionError, color::ColorSettings, error::lock};
 use planets_core::{
     Image,
     color::{Adjustments, adjust},
+    crop::CropRect,
     refine::{RefineSettings, refine as refine_image},
 };
 use planets_io::{
@@ -99,7 +100,8 @@ pub fn export_formats(source: ImageSource) -> Vec<FormatInfo> {
 
 /// Writes the image of `source`; with `adjustments` it is written as the colour and tone panels
 /// show it (`docs/formats.md`), not as it came out of Stack or Wavelet. `refine` (*Denoise/Deringing* and *Masking*) finishes the
-/// processed image first, against the stack it was made from; it does not apply to the stack itself.
+/// processed image first, against the stack it was made from; it does not apply to the stack itself. With `crop` only that part of the
+/// image is written, cut last (after refine and the adjustments, so the edge pixels are treated like all others).
 fn save(
     state: &ExportState,
     source: ImageSource,
@@ -107,6 +109,7 @@ fn save(
     path: &Path,
     adjustments: Option<&Adjustments>,
     refine: Option<&RefineSettings>,
+    crop: Option<CropRect>,
 ) -> Result<String, SessionError> {
     let image = state.get(source)?;
     let refined;
@@ -123,6 +126,16 @@ fn save(
         Some(a) => {
             adjusted = adjust(image, a);
             &adjusted
+        }
+        None => image,
+    };
+    let cropped;
+    let image = match crop {
+        Some(rect) => {
+            cropped = image
+                .cropped(rect)
+                .ok_or_else(|| SessionError::failed("the crop rectangle is outside the image"))?;
+            &cropped
         }
         None => image,
     };
@@ -167,14 +180,15 @@ impl Session {
         self.export.get(source).map(|_| ())
     }
 
-    /// Writes the image of `source` to `path` in `format`. The extension is corrected to match the
-    /// format; the result is the path that was written.
+    /// Writes the image of `source` to `path` in `format`; with `crop` only that part of it. The extension is
+    /// corrected to match the format; the result is the path that was written.
     pub fn save_image(
         &self,
         source: ImageSource,
         format: ExportFormat,
         path: &Path,
         adjustments: Option<&ColorSettings>,
+        crop: Option<CropRect>,
     ) -> Result<String, SessionError> {
         let refine = adjustments.map(|a| a.refine);
         let adjustments = adjustments.map(|a| Adjustments::from(*a));
@@ -186,6 +200,7 @@ impl Session {
                 path,
                 adjustments.as_ref(),
                 refine.as_ref(),
+                crop,
             )
         })
     }
@@ -217,6 +232,7 @@ mod tests {
             &path,
             None,
             None,
+            None,
         )
         .unwrap_err();
         assert_eq!(err, SessionError::NoStackedImage);
@@ -226,6 +242,7 @@ mod tests {
             ImageSource::Wavelet,
             ExportFormat::Png16,
             &path,
+            None,
             None,
             None,
         )
@@ -251,6 +268,7 @@ mod tests {
             &dir.join("s.bmp"),
             None,
             None,
+            None,
         )
         .unwrap();
         // The format wins over the typed extension.
@@ -260,6 +278,7 @@ mod tests {
             ImageSource::Wavelet,
             ExportFormat::Tiff16,
             &dir.join("w.tif"),
+            None,
             None,
             None,
         )
@@ -296,6 +315,7 @@ mod tests {
             &dir.join("a.tif"),
             Some(&brighter),
             None,
+            None,
         )
         .unwrap();
         let read = ImageSequenceReader::open(vec![PathBuf::from(path)])
@@ -303,6 +323,157 @@ mod tests {
             .read_frame(0)
             .unwrap();
         for (got, want) in read.data.iter().zip([0.25, 0.75, 1.0, 0.5]) {
+            assert!((got - want).abs() < 1e-4, "{got} vs {want}");
+        }
+    }
+
+    fn read_back(path: &str) -> Image {
+        ImageSequenceReader::open(vec![PathBuf::from(path)])
+            .unwrap()
+            .read_frame(0)
+            .unwrap()
+    }
+
+    /// A 4 x 3 gray image whose samples are 0/12 .. 11/12, so every pixel is told apart.
+    fn ramp() -> Image {
+        Image {
+            width: 4,
+            height: 3,
+            channels: 1,
+            data: (0..12).map(|i| i as f32 / 12.0).collect(),
+        }
+    }
+
+    #[test]
+    fn a_crop_writes_only_that_part_of_the_image() {
+        let state = ExportState::default();
+        state.set_stack(ramp());
+        let dir = std::env::temp_dir().join(format!("planets-cmd-crop-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let crop = CropRect {
+            x: 1,
+            y: 1,
+            width: 2,
+            height: 2,
+        };
+        let path = save(
+            &state,
+            ImageSource::Stack,
+            ExportFormat::Tiff16,
+            &dir.join("c.tif"),
+            None,
+            None,
+            Some(crop),
+        )
+        .unwrap();
+        let out = read_back(&path);
+        assert_eq!((out.width, out.height), (2, 2));
+        for (got, want) in out.data.iter().zip([5.0, 6.0, 9.0, 10.0]) {
+            assert!((got - want / 12.0).abs() < 1e-4, "{got} vs {}", want / 12.0);
+        }
+    }
+
+    #[test]
+    fn a_crop_over_the_edge_is_cut_at_the_edge_and_the_full_image_is_unchanged() {
+        let state = ExportState::default();
+        state.set_stack(ramp());
+        let dir = std::env::temp_dir().join(format!("planets-cmd-crop2-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let over = CropRect {
+            x: 3,
+            y: 2,
+            width: 50,
+            height: 50,
+        };
+        let path = save(
+            &state,
+            ImageSource::Stack,
+            ExportFormat::Tiff16,
+            &dir.join("o.tif"),
+            None,
+            None,
+            Some(over),
+        )
+        .unwrap();
+        let out = read_back(&path);
+        assert_eq!((out.width, out.height), (1, 1));
+        assert!((out.data[0] - 11.0 / 12.0).abs() < 1e-4);
+
+        let full = CropRect {
+            x: 0,
+            y: 0,
+            width: 4,
+            height: 3,
+        };
+        let path = save(
+            &state,
+            ImageSource::Stack,
+            ExportFormat::Tiff16,
+            &dir.join("f.tif"),
+            None,
+            None,
+            Some(full),
+        )
+        .unwrap();
+        assert_eq!((read_back(&path).width, read_back(&path).height), (4, 3));
+    }
+
+    #[test]
+    fn a_crop_outside_the_image_is_an_error_and_writes_nothing() {
+        let state = ExportState::default();
+        state.set_stack(ramp());
+        let path =
+            std::env::temp_dir().join(format!("planets-cmd-crop3-{}.tif", std::process::id()));
+        let _ = std::fs::remove_file(&path);
+        let outside = CropRect {
+            x: 10,
+            y: 10,
+            width: 2,
+            height: 2,
+        };
+        let err = save(
+            &state,
+            ImageSource::Stack,
+            ExportFormat::Tiff16,
+            &path,
+            None,
+            None,
+            Some(outside),
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("crop"), "{err}");
+        assert!(!path.exists());
+    }
+
+    #[test]
+    fn the_crop_is_cut_from_the_adjusted_image() {
+        let state = ExportState::default();
+        state.set_stack(ramp());
+        let dir = std::env::temp_dir().join(format!("planets-cmd-crop4-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let brighter = Adjustments {
+            brightness: 0.25,
+            ..Adjustments::default()
+        };
+        let crop = CropRect {
+            x: 0,
+            y: 0,
+            width: 2,
+            height: 1,
+        };
+        let path = save(
+            &state,
+            ImageSource::Stack,
+            ExportFormat::Tiff16,
+            &dir.join("b.tif"),
+            Some(&brighter),
+            None,
+            Some(crop),
+        )
+        .unwrap();
+        let out = read_back(&path);
+        assert_eq!((out.width, out.height), (2, 1));
+        for (got, want) in out.data.iter().zip([0.25, 0.25 + 1.0 / 12.0]) {
             assert!((got - want).abs() < 1e-4, "{got} vs {want}");
         }
     }
@@ -338,6 +509,7 @@ mod tests {
                 &dir.join(name),
                 None,
                 Some(&refine),
+                None,
             )
             .unwrap();
             ImageSequenceReader::open(vec![PathBuf::from(path)])
