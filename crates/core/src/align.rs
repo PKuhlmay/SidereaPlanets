@@ -3,7 +3,10 @@
 //! The behaviour of the reference program is only known from the outside (`docs/offene-fragen.md`); the
 //! algorithms here are our own and are checked against the original's results (`docs/testdaten.md`).
 
-use crate::Image;
+use crate::{
+    Image,
+    batch::{Stop, batch_size, for_each_batch},
+};
 use rayon::prelude::*;
 
 /// How the pixel value of a candidate point is tested against *Lo* and *Hi*.
@@ -761,24 +764,39 @@ pub enum Control {
     Cancel,
 }
 
-/// Registers all frames against `reference`, one frame after the other: `read` may borrow a file, and
-/// the points of a frame are matched in parallel ([`Reference::align_frame`]), so all cores work on
-/// the current frame. That way `progress` receives the number of finished frames after each frame and
-/// a cancel takes effect within one frame, not only after a whole batch.
-pub fn align_sequence<E>(
+/// Registers all frames against `reference`. The frames are read in recording order, one batch of about
+/// one frame per thread of the current `rayon` pool at a time (`read` may borrow a file; the next batch is
+/// read while the current one is registered, so memory holds two batches at most), and the frames of a
+/// batch are registered in parallel. The result is the one of registering frame after frame: it does not
+/// depend on the number of threads. `progress` receives 1, 2, 3, ... after each registered frame (once a
+/// batch is done) and a cancel takes effect after that batch.
+pub fn align_sequence<E: Send>(
     reference: &Reference,
     frame_count: u32,
-    mut read: impl FnMut(u32) -> Result<Image, E>,
-    mut progress: impl FnMut(u32) -> Control,
+    read: impl FnMut(u32) -> Result<Image, E> + Send,
+    mut progress: impl FnMut(u32) -> Control + Send,
 ) -> Result<Vec<FrameAlignment>, AlignError<E>> {
+    let indices: Vec<u32> = (0..frame_count).collect();
+    // The channel count is not known before the first frame; assume the most common one with colour.
+    let frame_bytes = reference.width as usize * reference.height as usize * 3 * 4;
     let mut results = Vec::with_capacity(frame_count as usize);
-    for index in 0..frame_count {
-        let frame = read(index).map_err(AlignError::Read)?;
-        results.push(reference.align_frame(&frame));
-        if progress(index + 1) == Control::Cancel {
-            return Err(AlignError::Cancelled);
+    for_each_batch(&indices, batch_size(frame_bytes), read, |frames| {
+        let aligned: Vec<FrameAlignment> = frames
+            .par_iter()
+            .map(|frame| reference.align_frame(frame))
+            .collect();
+        for alignment in aligned {
+            results.push(alignment);
+            if progress(results.len() as u32) == Control::Cancel {
+                return Control::Cancel;
+            }
         }
-    }
+        Control::Continue
+    })
+    .map_err(|stop| match stop {
+        Stop::Read(error) => AlignError::Read(error),
+        Stop::Cancelled => AlignError::Cancelled,
+    })?;
     Ok(results)
 }
 
@@ -1075,6 +1093,49 @@ mod tests {
         assert_eq!(failed.err(), Some(AlignError::Read("broken")));
     }
 
+    #[test]
+    fn align_sequence_is_identical_to_registering_frame_by_frame_on_any_number_of_threads() {
+        let reference = reference_of(&blobs(200, 160, (0.0, 0.0), 0.0));
+        let frames: Vec<Image> = (0..19)
+            .map(|i| {
+                blobs(
+                    200,
+                    160,
+                    ((i % 5) as f32 * 0.7 - 1.0, (i % 3) as f32 * 0.9),
+                    0.1 * (i % 4) as f32,
+                )
+            })
+            .collect();
+        let expected: Vec<FrameAlignment> =
+            frames.iter().map(|f| reference.align_frame(f)).collect();
+        for threads in [1, 2, 3, 8] {
+            let pool = rayon::ThreadPoolBuilder::new()
+                .num_threads(threads)
+                .build()
+                .unwrap();
+            let mut progress = Vec::new();
+            let results = pool
+                .install(|| {
+                    align_sequence::<()>(
+                        &reference,
+                        frames.len() as u32,
+                        |i| Ok(frames[i as usize].clone()),
+                        |done| {
+                            progress.push(done);
+                            Control::Continue
+                        },
+                    )
+                })
+                .unwrap();
+            assert_eq!(results, expected, "{threads} threads");
+            assert_eq!(
+                progress,
+                (1..=19).collect::<Vec<u32>>(),
+                "{threads} threads"
+            );
+        }
+    }
+
     /// A pool wide enough that the whole sequence would fit in one batch of frames.
     fn wide_pool() -> rayon::ThreadPool {
         rayon::ThreadPoolBuilder::new()
@@ -1103,14 +1164,14 @@ mod tests {
     }
 
     #[test]
-    fn cancel_after_the_first_frame_stops_before_the_others_are_read() {
+    fn cancel_after_the_first_report_reads_no_more_than_two_batches() {
         let reference = reference_of(&blobs(300, 240, (0.0, 0.0), 0.0));
         let frame = blobs(300, 240, (0.0, 0.0), 0.0);
         let mut reads = 0;
         let result = wide_pool().install(|| {
             align_sequence::<()>(
                 &reference,
-                6,
+                100,
                 |_| {
                     reads += 1;
                     Ok(frame.clone())
@@ -1119,7 +1180,8 @@ mod tests {
             )
         });
         assert_eq!(result.err(), Some(AlignError::Cancelled));
-        assert_eq!(reads, 1);
+        // The batch that was worked on and the one read next, 8 frames each, of 100.
+        assert!(reads <= 16, "{reads} frames were read");
     }
 
     #[test]

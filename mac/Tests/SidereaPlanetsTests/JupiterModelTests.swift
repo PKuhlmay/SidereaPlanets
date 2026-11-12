@@ -87,7 +87,12 @@ struct JupiterModelTests {
     }
 
     @Test func cancellingARealAlignLeavesTheStepReadyToRunAgain() async throws {
-        let model = try makeModel()
+        // With one CPU the frames are rated one after the other; on all cores the ten frames of this recording
+        // would be done within one batch, before the first progress reaches this test.
+        let session = try PlanetsSession()
+        try session.setCpus(1)
+        let defaults = try #require(UserDefaults(suiteName: "JupiterModelTests-\(UUID().uuidString)"))
+        let model = AppModel(backend: session, defaults: defaults)
         await model.open([jupiter!])
         await model.setAlignpoints()
 

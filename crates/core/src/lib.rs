@@ -1,6 +1,7 @@
 //! GUI-free image processing for the the reference program clone.
 
 pub mod align;
+mod batch;
 pub mod color;
 pub mod sequence;
 pub mod stack;

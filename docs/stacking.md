@@ -54,11 +54,14 @@ Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist
 - Die Summe liegt in `f64`, die Zählung in `u32` je Pixel. Samples sind in `f32` auf `0..1` normiert; tausende 16-Bit-Frames
   laufen ohne Überlauf und ohne sichtbares Rundungsrauschen auf (Test mit 70 000 Frames voller Aussteuerung).
   Der Preis ist Speicher: 8 Byte je Messwert, bei 4096 × 4096 RGB etwa 400 MB. Bei Bedarf auf `f32` mit Blocksummen umstellen.
-- Gestreamt wird Frame für Frame: lesen (die Datei wird nur von einem Thread gelesen), dann registrieren parallel über die
-  Alignpoints (`rayon`) und addieren parallel nach Bildzeilen. Fortschritt und Abbruch/Pause greifen so nach jedem Frame
-  (RK-005-Prüflauf: vorher Stapel von `2 × Threads` Frames, bei 10 Frames kam der Fortschritt einmal am Ende und ein Abbruch
-  erst nach dem ganzen Lauf). Gleiches gilt für Align und für Save Aligned/Integrated. Im Speicher liegen nur der Stapel
-  und die Summen.
+- Gestreamt wird in Stapeln von etwa einem Frame je Thread des Pools (Feld *CPUs*; bei sehr großen Frames weniger, höchstens
+  1 GiB für zwei Stapel): Ein Thread liest die Datei der Reihe nach, und während ein Stapel bearbeitet wird, liest er den nächsten
+  (`crates/core/src/batch.rs`). Im Stapel werden die Frames parallel registriert (`rayon`, über die Frames, nicht nur über die
+  Alignpoints) und dann in der Reihenfolge der Auswahl addiert, parallel nach Bildzeilen. Das Summenbild ist deshalb bitgleich zu
+  dem, das Frame für Frame entsteht, und hängt nicht von der Zahl der Threads ab (Tests in `stack.rs` und
+  `crates/session/tests/parallel.rs`). Fortschritt zählt 1, 2, 3, ... und kommt je Stapel gesammelt; Abbruch und Pause greifen
+  nach einem Stapel (RK-015; vorher nach jedem Frame, aber nur mit der Arbeit eines Frames auf wenigen Kernen). Gleiches gilt für
+  Align; Save Aligned/Integrated arbeiten weiter Frame für Frame. Im Speicher liegen höchstens zwei Stapel und die Summen.
 - Frames anderer Größe oder Kanalzahl werden ausgelassen und nicht mitgezählt (`StackResult::frames`).
 
 ### Schnittstelle für Folgetickets

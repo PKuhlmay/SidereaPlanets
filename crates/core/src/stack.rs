@@ -6,12 +6,13 @@
 //! by seeing is straightened locally. How the original does this is unobserved, the scheme here is
 //! our own guess and is checked against its result (`docs/stacking.md`, `docs/testdaten.md`).
 //!
-//! Frames are processed in small batches, so that only a few frames are in memory at a time. The sum
+//! Frames are processed in batches of about one frame per thread, so that only a few frames are in memory at a time. The sum
 //! is kept in `f64`: thousands of 16-bit frames add up without overflow or visible rounding.
 
 use crate::{
     Image,
     align::{AlignPoint, Control, FrameAlignment, Reference},
+    batch::{Stop, batch_size, for_each_batch},
 };
 use rayon::prelude::*;
 
@@ -381,8 +382,11 @@ impl<'a> Stacker<'a> {
 
     /// The factor that brings a frame to the brightness of the reference, if that is asked for.
     fn gain(&self, frame: &Image) -> f32 {
+        if !self.params.normalize {
+            return 1.0;
+        }
         let frame_mean = mean(&frame.data);
-        if self.params.normalize && frame_mean > 0.0 {
+        if frame_mean > 0.0 {
             self.target_mean / frame_mean
         } else {
             1.0
@@ -444,29 +448,45 @@ pub struct StackResult {
 }
 
 /// Registers the frames `selection` (indices as `read` takes them) against `reference` and stacks
-/// them. Frames are read and added one after the other (`read` may borrow a file); registering and
-/// adding work in parallel inside a frame, so all cores are busy. `progress` receives the number of
-/// finished frames after each frame, and a cancel takes effect within one frame.
-pub fn stack_sequence<E>(
+/// them. The frames are read in the order of `selection`, one batch of about one frame per thread of the
+/// current `rayon` pool at a time (`read` may borrow a file; the next batch is read while the current one
+/// is worked on, so memory holds two batches at most). The frames of a batch are registered in parallel and
+/// added to the sum in the order of `selection`, so the stack is the one of adding frame after frame, bit
+/// for bit, and does not depend on the number of threads. `progress` receives 1, 2, 3, ... after each frame
+/// (once a batch is done) and a cancel takes effect after that batch.
+pub fn stack_sequence<E: Send>(
     reference: &Reference,
     reference_frame: &Image,
     params: &StackParams,
     selection: &[u32],
-    mut read: impl FnMut(u32) -> Result<Image, E>,
-    mut progress: impl FnMut(u32) -> Control,
+    read: impl FnMut(u32) -> Result<Image, E> + Send,
+    mut progress: impl FnMut(u32) -> Control + Send,
 ) -> Result<StackResult, StackError<E>> {
     if selection.is_empty() {
         return Err(StackError::NoFrames);
     }
     let mut stacker = Stacker::new(reference, reference_frame, params.clone());
-    for (done, &index) in selection.iter().enumerate() {
-        let frame = read(index).map_err(StackError::Read)?;
-        let alignment = reference.align_frame(&frame);
-        stacker.add_aligned(&[(&frame, &alignment)]);
-        if progress(done as u32 + 1) == Control::Cancel {
-            return Err(StackError::Cancelled);
+    let frame_bytes = reference_frame.data.len() * std::mem::size_of::<f32>();
+    let mut done = 0u32;
+    for_each_batch(selection, batch_size(frame_bytes), read, |frames| {
+        let alignments: Vec<FrameAlignment> = frames
+            .par_iter()
+            .map(|frame| reference.align_frame(frame))
+            .collect();
+        let batch: Vec<(&Image, &FrameAlignment)> = frames.iter().zip(&alignments).collect();
+        stacker.add_aligned(&batch);
+        for _ in frames {
+            done += 1;
+            if progress(done) == Control::Cancel {
+                return Control::Cancel;
+            }
         }
-    }
+        Control::Continue
+    })
+    .map_err(|stop| match stop {
+        Stop::Read(error) => StackError::Read(error),
+        Stop::Cancelled => StackError::Cancelled,
+    })?;
     let frames = stacker.frames();
     Ok(StackResult {
         image: stacker.finish(),
@@ -1011,15 +1031,19 @@ mod tests {
         assert_eq!(empty.err(), Some(StackError::NoFrames));
     }
 
+    fn pool(threads: usize) -> rayon::ThreadPool {
+        rayon::ThreadPoolBuilder::new()
+            .num_threads(threads)
+            .build()
+            .unwrap()
+    }
+
     #[test]
-    fn stack_sequence_reports_every_frame_and_stops_right_after_a_cancel() {
+    fn stack_sequence_reports_every_frame_in_order_and_stops_after_a_cancel() {
         let frame = scene(60, 50, (0.0, 0.0));
         let points = grid_points(60, 50, 12);
         let reference = reference_of(&frame, &points);
-        let pool = rayon::ThreadPoolBuilder::new()
-            .num_threads(8)
-            .build()
-            .unwrap();
+        let pool = pool(8);
         let mut reported = Vec::new();
         pool.install(|| {
             stack_sequence(
@@ -1036,22 +1060,142 @@ mod tests {
             .unwrap()
         });
         assert_eq!(reported, vec![1, 2, 3, 4, 5, 6]);
-        let mut reads = 0;
+
+        // A cancel at the first report: at most the batch that was worked on and the one read next
+        // (8 frames each) have been read, of 100.
+        let reads = std::sync::atomic::AtomicUsize::new(0);
         let cancelled = pool.install(|| {
             stack_sequence(
                 &reference,
                 &frame,
                 &StackParams::default(),
-                &[0, 0, 0, 0, 0, 0],
+                &[0; 100],
                 |_| {
-                    reads += 1;
+                    reads.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
                     Ok::<_, ()>(frame.clone())
                 },
                 |_| Control::Cancel,
             )
         });
         assert_eq!(cancelled.err(), Some(StackError::Cancelled));
-        assert_eq!(reads, 1);
+        assert!(reads.load(std::sync::atomic::Ordering::Relaxed) <= 16);
+    }
+
+    #[test]
+    fn stack_sequence_reads_only_a_bounded_number_of_frames_ahead() {
+        use std::sync::{
+            Arc,
+            atomic::{AtomicUsize, Ordering},
+        };
+        let frame = scene(60, 50, (0.0, 0.0));
+        let reference = reference_of(&frame, &grid_points(60, 50, 12));
+        let reads = Arc::new(AtomicUsize::new(0));
+        let counted = reads.clone();
+        let mut worst_lead = 0;
+        let source = &frame;
+        pool(4).install(|| {
+            stack_sequence(
+                &reference,
+                &frame,
+                &StackParams::default(),
+                &[0; 60],
+                move |_| {
+                    counted.fetch_add(1, Ordering::Relaxed);
+                    Ok::<_, ()>(source.clone())
+                },
+                |done| {
+                    worst_lead = worst_lead.max(reads.load(Ordering::Relaxed) - done as usize);
+                    Control::Continue
+                },
+            )
+            .unwrap()
+        });
+        // The batch that was worked on is done; one more is read or being read: 4 frames.
+        assert!(worst_lead <= 8, "{worst_lead} frames were read ahead");
+    }
+
+    /// A colour frame with a distortion that differs from frame to frame, and its own brightness.
+    fn distorted(index: u32, width: u32, height: u32) -> Image {
+        let i = index as f32;
+        let mut img = Image::new(width, height, 3);
+        for y in 0..height {
+            for x in 0..width {
+                let px = x as f32 - 1.5 * (i * 0.7).sin() - 0.8 * (y as f32 * 0.05 + i).sin();
+                let py = y as f32 - 1.2 * (i * 0.4).cos() - 0.6 * (x as f32 * 0.04 + i).cos();
+                for c in 0..3 {
+                    let v = 0.4
+                        + 0.2 * (px * 0.35 + c as f32).sin()
+                        + 0.2 * (py * 0.27).cos()
+                        + 0.1 * ((px + py) * 0.15).sin();
+                    img.data[((y * width + x) * 3 + c) as usize] =
+                        v * (0.8 + 0.05 * (index % 5) as f32);
+                }
+            }
+        }
+        img
+    }
+
+    fn bits(image: &Image) -> Vec<u32> {
+        image.data.iter().map(|v| v.to_bits()).collect()
+    }
+
+    /// The stack the way it was made before the frames went in batches: one frame after the other.
+    fn stack_frame_by_frame(
+        reference: &Reference,
+        reference_frame: &Image,
+        params: &StackParams,
+        frames: &[Image],
+    ) -> StackResult {
+        let mut stacker = Stacker::new(reference, reference_frame, params.clone());
+        for frame in frames {
+            let alignment = reference.align_frame(frame);
+            stacker.add_aligned(&[(frame, &alignment)]);
+        }
+        let frames = stacker.frames();
+        StackResult {
+            image: stacker.finish(),
+            frames,
+        }
+    }
+
+    #[test]
+    fn stack_sequence_is_bit_identical_to_stacking_frame_by_frame_on_any_number_of_threads() {
+        let (w, h) = (96, 80);
+        let first = distorted(0, w, h);
+        let reference = reference_of(&first, &grid_points(w, h, 20));
+        let frames: Vec<Image> = (0..23).map(|i| distorted(i, w, h)).collect();
+        // The mean must not hide an order: use the options that change the sum the most.
+        for (geometry, normalize, edge_skip) in
+            [(true, true, 3), (true, false, 0), (false, false, 0)]
+        {
+            let params = StackParams {
+                correct_geometry: geometry,
+                normalize,
+                edge_skip,
+                ..StackParams::default()
+            };
+            let expected = stack_frame_by_frame(&reference, &first, &params, &frames);
+            for threads in [1, 2, 3, 8] {
+                let selection: Vec<u32> = (0..frames.len() as u32).collect();
+                let result = pool(threads).install(|| {
+                    stack_sequence(
+                        &reference,
+                        &first,
+                        &params,
+                        &selection,
+                        |i| Ok::<_, ()>(frames[i as usize].clone()),
+                        |_| Control::Continue,
+                    )
+                    .unwrap()
+                });
+                assert_eq!(result.frames, expected.frames, "{threads} threads");
+                assert!(
+                    bits(&result.image) == bits(&expected.image),
+                    "stack differs from frame by frame on {threads} threads \
+                     (geometry {geometry}, normalize {normalize}, edge skip {edge_skip})"
+                );
+            }
+        }
     }
 
     #[test]
