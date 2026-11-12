@@ -41,6 +41,35 @@ input[type="range"] {
   outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
+
+/* scrollbars: narrow, no arrow buttons, thumb in the line colours of the tokens (docs/design.md, "Scrollbalken") */
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+*::-webkit-scrollbar-button {
+  display: none;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+  border-radius: 5px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--off);
+  background-clip: padding-box;
+}
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;

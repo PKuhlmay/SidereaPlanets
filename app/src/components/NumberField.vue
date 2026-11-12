@@ -85,7 +85,11 @@ function onKey(event: KeyboardEvent) {
 .num:focus-within {
   border-color: var(--accent);
 }
-.num:has(input:disabled) {
+/* Locked: dimmed, with the text greyed as well. A label row does that for its fields, the values in Limit Setup
+   stand without one. A panel that is a disabled fieldset locks its fields the same way. */
+.num:has(input:disabled),
+fieldset:disabled .num {
+  color: var(--off);
   opacity: 0.45;
 }
 input[type="text"] {

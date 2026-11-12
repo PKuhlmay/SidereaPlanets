@@ -13,6 +13,13 @@ import MenuButton from "./MenuButton.vue";
 import NumberField from "./NumberField.vue";
 
 const loaded = computed(() => session.step !== "empty");
+
+// Help moves the focus into another window. After a mouse click the button gives its focus up, otherwise the main
+// window shows the focus ring on it when the help window closes; a keyboard press (detail 0) keeps the focus.
+function onHelp(event: MouseEvent) {
+  if (event.detail > 0) (event.currentTarget as HTMLElement).blur();
+  void openHelp();
+}
 const busy = computed(() => status.busy !== null);
 
 const processingAreas: ProcessingArea[] = [2048, 1024, 512, 256, 128];
@@ -157,7 +164,7 @@ function resetLuminance() {
     </div>
 
     <div class="zone right">
-      <button type="button" class="btn ghost" @click="openHelp">
+      <button type="button" class="btn ghost" @click="onHelp">
         <svg class="ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
           <path d="M8 3.5C6.5 2.5 4.5 2.3 1.5 2.5v10c3-.2 5 0 6.5 1zm0 0c1.5-1 3.5-1.2 6.5-1v10c-3-.2-5 0-6.5 1" />
         </svg>

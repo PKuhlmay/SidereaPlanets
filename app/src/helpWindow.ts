@@ -27,6 +27,7 @@ export async function openHelp(): Promise<void> {
     height: 720,
     minWidth: 640,
     minHeight: 400,
+    center: true,
     parent: "main",
   });
   help.once("tauri://error", (event) => console.error("Help window:", event.payload));

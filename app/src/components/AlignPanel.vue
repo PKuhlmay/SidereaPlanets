@@ -95,6 +95,10 @@ const countMode = computed(() => align.limitMode === "framesPerPoint" || align.l
 </template>
 
 <style scoped>
+/* a label never wraps: the panel is fixed at 272 px and the rows are built for one line (design 01) */
+.row {
+  white-space: nowrap;
+}
 .lohi {
   gap: 6px;
 }

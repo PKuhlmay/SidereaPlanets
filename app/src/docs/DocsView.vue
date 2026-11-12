@@ -178,12 +178,13 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
 .content {
   overflow-y: auto;
 }
+/* 720 px of text in a wide window; the column and its side margin shrink with a narrow one */
 .page {
-  width: 720px;
-  max-width: 100%;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 816px;
   margin: 0 auto;
-  padding: 36px 48px 48px;
-  box-sizing: content-box;
+  padding: 36px clamp(16px, 5vw, 48px) 48px;
 }
 .crumb {
   margin: 0 0 14px;

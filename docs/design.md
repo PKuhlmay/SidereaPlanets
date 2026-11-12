@@ -145,7 +145,8 @@ Zwischenüberschrift (12 px, `--muted`) darüber, ohne Rahmen um die Gruppe.
 
 Feld in `--field` mit rechtsbündigem Wert und zwei kleinen Pfeiltasten rechts. Höhe `--h-field`, Breite 66 px
 (Ausnahmen: 84 px bei vierstelligen Werten, 46–56 px in engen Zeilen). Fokus färbt den Umriss in `--accent`.
-Das Feld steht rechts in der Zeile, die Beschriftung links. Gesperrt: 45 % Deckkraft.
+Das Feld steht rechts in der Zeile, die Beschriftung links. Gesperrt: 45 % Deckkraft und Wert in `--off`, auch
+außerhalb einer Zeile (Limit Setup) und wenn nur das Panel darum gesperrt ist.
 
 Dezimaltrenner ist der Punkt. Nachkommastellen: Denoise 2, Sharpen 3, Preview 1, Faktoren 1, Gamma 2, Verschiebung in RGB Align 2, Clip in
 Histogram 1, alles andere ganzzahlig.
@@ -192,6 +193,10 @@ Zahlenfelder (Luminance Setting mit Reset Luminance).
 Panels haben keinen eigenen Kopf mit Minimieren/Maximieren. Eine Gruppe beginnt mit ihrer Überschrift (Gewicht 600)
 und ist von der nächsten durch eine Linie in `--line` getrennt. Innenabstand des Panels 12 px. Aktionen, die im
 Original im Panelkopf stehen (Reset Wavelets, Hold, Reset), stehen als Textlinks rechts in der Gruppenüberschrift.
+
+Scrollbalken (Panels, Seitenliste der Doku, Text) sind schmal: 10 px breit, ohne Pfeilknöpfe, Spur durchsichtig, Griff in
+`--line-strong` mit Radius 5 px, beim Überfahren `--off`. Der Standardbalken von Windows kommt nirgends vor; er würde
+außerdem 17 px der 272 px des Panels kosten und Beschriftungen wie „Minimum distance between“ umbrechen.
 
 ### Schwebende Karten
 
@@ -380,13 +385,15 @@ Einträge: eine Aktion und ein Häkchen (Open und Save stehen nicht mehr dort, s
 
 ### Doku
 
-Help in der Werkzeugleiste öffnet die Doku in einem eigenen Fenster (1000 × 720 px, mindestens 640 × 400) vor dem Hauptfenster,
+Help in der Werkzeugleiste öffnet die Doku in einem eigenen Fenster (1000 × 720 px, mindestens 640 × 400), zentriert auf
+dem Bildschirm und vor dem Hauptfenster,
 nicht in der App selbst. Ein zweiter Klick holt das offene Fenster nach vorn; Escape oder Schließen beendet es. Die
 Arbeitsansicht bleibt unberührt und benutzbar. Das Help-Fenster zeigt nur die Doku, ohne Werkzeugleiste, Reiterleiste,
 Aktionszeile und Statusleiste; die Schaltfläche Help bleibt im Hauptfenster ungedrückt wie jede Schaltfläche ohne Zustand.
 
 Zwei Spalten: links die Seitenliste (Breite wie das linke Panel, 272 px, `--panel`, Linie rechts), rechts der Text auf
-`--bg`, 720 px breit und waagerecht zentriert, 36 px Abstand oben.
+`--bg`, 720 px breit und waagerecht zentriert, 36 px Abstand oben. In einem schmaleren Fenster schrumpft die Spalte samt
+Seitenrand (48 px, bis 16 px) mit; es gibt keinen waagerechten Balken, auch nicht bei 640 px Fensterbreite.
 
 | Teil | Regel |
 |---|---|
