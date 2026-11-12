@@ -19,3 +19,21 @@ lto = true
 opt-level = 3
 panic = "abort"
 strip = true
+
+# The Rust core inside the Debug build of the Mac app (scripts/build-ffi.sh without --release, MAC-015). The unoptimised `dev` profile
+# makes Align and Stack many times slower than the release build, so the Debug app would be unusable on a real recording.
+# Optimised like release, but built fast and debuggable:
+[profile.ffi-dev]
+inherits = "release"
+# Thin or fat LTO costs minutes per build and gains little for code that is already one hot loop per crate.
+lto = false
+# Parallel code generation: slightly slower code, much shorter builds.
+codegen-units = 16
+# The FFI layer catches panics (UniFFI turns them into errors); `abort` from `release` would kill the app instead.
+panic = "unwind"
+# Rebuilds after a change in one crate reuse the rest.
+incremental = true
+# File and line numbers in panic messages and crash reports, without the size and link time of full debug info.
+debug = "line-tables-only"
+# Keep the symbols (release strips them), so a crash report of the Debug app names the functions.
+strip = false

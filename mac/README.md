@@ -79,7 +79,7 @@ mac/Packages/SidereaPlanetsKit/
 
 - `crates/ffi` erbt die Workspace-Lints **nicht**: UniFFI erzeugt `unsafe`-Code, das nur hier erlaubt ist (Begründung in
   `Cargo.toml` und `lib.rs`); alle anderen Crates bleiben bei `forbid`.
-- `scripts/build-ffi.sh` baut die Bibliothek (Debug nur arm64, `--release` zusätzlich x86_64 und `lipo` zu einer universalen),
+- `scripts/build-ffi.sh` baut die Bibliothek (Debug nur arm64 und optimiert mit dem Cargo-Profil `ffi-dev`, `--release` zusätzlich x86_64 und `lipo` zu einer universalen),
   erzeugt die Bindings im Bibliotheksmodus mit dem `uniffi-bindgen` dieses Workspace und legt XCFramework und Swift-Datei ins Paket.
   Vor dem ersten `swift build`/`swift test` und nach jeder Änderung an `crates/ffi` oder `crates/session` laufen lassen; der
   Deploy-Hook tut es selbst.
@@ -229,3 +229,4 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-012 | App-Icon (beide Apps, Debug mit DEV-Abzeichen) | erledigt |
 | MAC-013 | Name „Siderea Planets“ in beiden Apps | erledigt |
 | MAC-014 | Texte für Einsteiger (klare Namen, Tooltips, gesperrte Elemente, kein „the reference program“ in sichtbaren Texten) | erledigt |
+| MAC-015 | CPU- und RAM-Anzeige in der Statusleiste, optimierter Kern im Debug-Build | erledigt |

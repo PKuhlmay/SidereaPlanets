@@ -2,7 +2,8 @@
 # Builds the Rust interface (crates/ffi) for the Mac app: the static library, the Swift bindings (UniFFI library mode) and
 # mac/Packages/SidereaPlanetsKit/SidereaPlanetsFFI.xcframework, and copies the generated Swift file into the package (MAC-004).
 #
-#   scripts/build-ffi.sh             debug, aarch64-apple-darwin only (fast; what deploy-mac.sh and `swift test` need)
+#   scripts/build-ffi.sh             Debug app, aarch64-apple-darwin only (what deploy-mac.sh and `swift test` need): the core is built
+#                                    optimised but fast with the Cargo profile `ffi-dev` (root Cargo.toml), not unoptimised (MAC-015)
 #   scripts/build-ffi.sh --release   release for aarch64 and x86_64, joined to one universal library with lipo
 #
 # The outputs are git-ignored: the XCFramework and Sources/SidereaPlanetsBindings/SidereaPlanetsBindings.swift. Runs with the bash 3.2 of macOS.
@@ -31,9 +32,10 @@ if [ "$release" = 1 ]; then
   targets="aarch64-apple-darwin x86_64-apple-darwin"
   cargo_flags="--release"
 else
-  profile="debug"
+  # Cargo writes the artifacts of a custom profile to target/<triple>/<profile>/, named like the profile.
+  profile="ffi-dev"
   targets="aarch64-apple-darwin"
-  cargo_flags=""
+  cargo_flags="--profile ffi-dev"
 fi
 
 for target in $targets; do

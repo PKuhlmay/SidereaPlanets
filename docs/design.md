@@ -321,6 +321,11 @@ Fünf Felder, durch Linien getrennt, Schrift 12 px in `--muted`, Meldungen in `-
 
 Die Meldungstexte waren die des Originals (`docs/workflow.md`); seit MAC-014 gelten die Texte aus `docs/parity/WINDOWS_PARITY.md`.
 
+Ganz links, vor dem Fortschrittsbalken, steht die **Auslastung** der App (wie in Siderea): „CPU (12)“ mit der Last als Anteil aller
+12 Kerne („ 50 %“, ab 90 % `--accent` und fett) und „RAM“ mit dem belegten Speicher („1.5 GB“), Werte in `--text`, Beschriftung
+`--muted`, ein Strich statt des Werts ohne Messung, Tooltips erklären die Zahl. Bei Platzmangel fällt zuerst der Speicher weg, nie
+bricht die Zeile um. Gemessen wird nur bei sichtbarem Fenster; ein Schalter in den Settings blendet das Feld aus.
+
 ## Zustände
 
 Die Sperrlogik stammt aus `docs/workflow.md`; hier steht, wie sie aussieht.

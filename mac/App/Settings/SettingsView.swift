@@ -56,6 +56,7 @@ struct SettingsView: View {
                     .foregroundStyle(RK.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }
+            ResourceSettingsSection()
         }
         .formStyle(.grouped)
         .frame(width: 440)

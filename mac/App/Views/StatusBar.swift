@@ -7,6 +7,7 @@ struct StatusBar: View {
 
     var body: some View {
         HStack(spacing: 0) {
+            ResourceField()
             HStack(spacing: 8) {
                 ZStack(alignment: .leading) {
                     Capsule().fill(RK.raised)

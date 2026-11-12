@@ -297,3 +297,19 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
   `app/src/logic/{align,stack,settings,numbers,workflow}.test.ts`. Dazu die Windows-Beschriftungen aus den Tabellen oben (alle Texte
   der Spalte „alt“, die in `app/src/components/*.vue`, `app/src/logic/*.ts`, `app/src/App.vue` stehen). Der Windows-Installer
   (`tauri.conf.json`) nennt the reference program nirgends.
+
+## Auslastung in der Statusleiste (Mac: MAC-015)
+
+- [ ] Ganz links in der Statusleiste, vor dem Fortschrittsbalken, die Auslastung der App wie in Siderea: **„CPU (n)“** mit der CPU-Last
+      des Prozesses als **Anteil aller n logischen Kerne** (Prozess-CPU-Zeit je Sekunde Wanduhr ÷ n, ganze Prozent, auf drei Stellen mit
+      Leerzeichen aufgefüllt: `  7 %`, ` 50 %`, `100 %`, bei 100 gedeckelt; bei einem fehlenden oder nicht endlichen Wert ein „–“) und
+      **„RAM“** mit dem Arbeitsspeicher des Prozesses (Windows: Working Set; Mac: `ri_phys_footprint`) in den Einheiten B, KB, MB, GB, TB zu
+      je 1024: bis 1 KB ohne Nachkommastelle, ab 100 ohne, dazwischen eine, höchstens 8 Zeichen („1.5 GB“, „250 MB“). Ab 90 % aller Kerne
+      ist der CPU-Wert `--accent` und fett. Tooltips: „CPU load of Siderea Planets as a share of all n processor cores. 100 % means every
+      core is fully busy.“ und „Memory Siderea Planets currently holds.“ Bei Platzmangel fällt zuerst RAM weg, nie Umbruch.
+      Gemessen wird einmal pro Sekunde, **nur solange das Fenster sichtbar ist** (nicht minimiert, nicht im Hintergrund versteckt).
+- [ ] **Settings:** Schalter **Show CPU and memory usage** (Standard an); aus, verschwindet das Feld samt Trennlinie und die Messung stoppt.
+      Mac: `mac/App/Monitor/` (`ProcessUsage.swift` Formate und Schwelle, `ResourceMonitor.swift`, `DarwinProcessSampler.swift`),
+      `mac/App/Views/ResourceReadout.swift` (`ResourceField` in `StatusBar`), `mac/App/Settings/ResourceSettings.swift`; die Rechenregeln
+      sind in `mac/Tests/SidereaPlanetsTests/ProcessUsageTests.swift` festgehalten. Die Anwenderseite `window-at-a-glance.md` nennt die Anzeige
+      schon.
