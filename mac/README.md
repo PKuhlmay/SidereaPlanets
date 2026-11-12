@@ -53,7 +53,7 @@ Notarisierung), nicht über den App Store, und dafür ist die Sandbox keine Pfli
 **Debug-Argumente** (nur Debug-Builds, für Screenshots und Handproben): `open -a build/mac/Build/Products/Debug/SidereaPlanets.app --args
 -open <Datei[:Datei…]> -appearance light|dark -step open|alignpoints|… -frame <n>`.
 Dazu für Bilder der späteren Schritte: `-run alignpoints,align,limit,stack` drückt die Schaltflächen nacheinander (`alignpaused` startet Align und
-hält es nach dem ersten Frame an, `stackpaused` dasselbe für Stack, `roidraw` drückt R.o.Interest), `-show framelist,registrationgraph`, `-roi x,y,breite,höhe`,
+hält es nach dem ersten Frame an, `stackpaused` dasselbe für Stack, `roidraw` drückt R.o.Interest, `bestframe` drückt Go to best frame), `-show framelist,registrationgraph`, `-roi x,y,breite,höhe`,
 `-limit lowestQuality|bestPercent|framesPerPoint|bestCount`.
 
 Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik in
@@ -218,3 +218,4 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-008 | Wavelets, Farbe, Functions | erledigt |
 | MAC-009 | Save, Export, Projektdatei | erledigt |
 | MAC-010 | Hilfe, Menüs, CPUs, Release | erledigt |
+| MAC-011 | Go to best frame | erledigt |

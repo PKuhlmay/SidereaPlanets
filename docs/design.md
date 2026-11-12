@@ -283,6 +283,8 @@ Die Karten sind nicht verschiebbar.
 
 - Framelist: Check all · Check none · Empty List, darunter die Frames mit Häkchen, nach Align nach Qualität sortiert
   mit dem Wert rechts.
+- Go to best frame (neu gegenüber dem Original, MAC-011): zweite Zeile der Karte unter den drei Schaltflächen, kompakte
+  Standardschaltfläche über die volle Kartenbreite, bis Align gelaufen ist gesperrt; Wirkung siehe „4 Limit“.
 - Registrationgraph: Liniendiagramm, Quality in `--accent`, Difference in `--info`, Legende darunter. Vor Align steht
   ein Hinweis statt leerer Achsen.
 
@@ -411,6 +413,10 @@ Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und
   Textalternative („Quality of 10 frames, best first. 8 are kept.“). Ausnahme Frames/Apoint: Welche Frames je Punkt
   bleiben, rechnet erst der Rechenkern; das Diagramm zeigt in dieser Art die Auswahl des letzten Limit (davor alle
   Frames) und folgt dem Wert nicht sofort.
+- Go to best frame (neu gegenüber dem Original, MAC-011): Standardschaltfläche über die volle Panelbreite unter dem Diagramm, bis Align
+  gelaufen ist gesperrt. Sie zeigt den ersten Platz der Rangliste im Bildbereich und in der Frame-Leiste und öffnet den Schritt
+  Alignpoints, dort steht oben ein Hinweis (Fläche `--accent-soft`, Streifen links in `--accent`): „Best frame: 295 — run Set Alignpoints
+  and Align again to use it as reference.“ (Nummer ab 1). Die Ergebnisse bleiben, bis Set Alignpoints läuft.
 - Advanced: entfällt.
 - Aktion: **Limit**. Frame-Leiste sichtbar.
 

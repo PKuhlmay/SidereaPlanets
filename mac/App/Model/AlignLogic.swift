@@ -84,6 +84,9 @@ nonisolated struct AlignData: Equatable, Sendable {
     var pointShifts: [PointShift?] = []
     /// The region of interest of Set Alignpoints and Align, in image pixels; `nil` is the whole frame.
     var roi: RoiSettings?
+    /// The frame (0-based) that *Go to best frame* jumped to, so that the step Alignpoints can name it. A new Set Alignpoints or Align
+    /// makes it obsolete (`discardRating`).
+    var bestFrameHint: Int?
 
     init(frameCount: Int = 0) {
         frames = (0..<frameCount).map { FrameEntry(index: $0) }
@@ -110,6 +113,7 @@ nonisolated struct AlignData: Equatable, Sendable {
     /// A new Set Alignpoints or Align replaces the alignment: the rating and the choice of frames go.
     mutating func discardRating() {
         pointShifts = []
+        bestFrameHint = nil
         for i in frames.indices {
             frames[i].checked = true
             frames[i].quality = nil
@@ -121,6 +125,9 @@ nonisolated struct AlignData: Equatable, Sendable {
     var listed: [FrameEntry] {
         isRated ? frames.sorted { ($0.quality ?? -1, -$0.index) > ($1.quality ?? -1, -$1.index) } : frames
     }
+
+    /// The first frame of the ranking (0-based), `nil` before Align. Frames of equal quality rank by their number.
+    var bestFrame: Int? { isRated ? listed.first?.index : nil }
 
     /// The best quality in percent, `nil` before Align.
     var bestQuality: Double? { frames.compactMap(\.quality).max() }
@@ -206,6 +213,11 @@ nonisolated func limitMessages(kept: Int, keptQualities: [Double]) -> (action: S
     let action = "Processing limited to \(kept) frames"
     guard let weakest = keptQualities.min() else { return (action, "Stacksize: \(kept)") }
     return (action, "Stacksize: \(kept)  Low quality: \(String(format: "%.2f", weakest))%")
+}
+
+/// The note in the step Alignpoints after *Go to best frame*; the number counts from 1 like the frame bar.
+nonisolated func bestFrameHint(frame: Int) -> String {
+    "Best frame: \(frame + 1) — run Set Alignpoints and Align again to use it as reference."
 }
 
 /// "00:00:03" left of a run that is `progress` (0...1) done after `elapsed` seconds; unknown at the very start.

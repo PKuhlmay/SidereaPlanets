@@ -43,4 +43,4 @@ At the bottom: the state (*Loaded*, after Align *Aligned*), **Goto Frame**, a sl
 
 ## Framelist and Registrationgraph
 
-**Show Framelist** lists every frame with a check mark; after Align the best frame comes first, with its quality in percent of the best frame. **Check all** and **Check none** work, **Empty List** is **Not available yet**. **Show Registrationgraph** draws Quality and Difference per frame as two lines; before Align it asks you to run Align.
+**Show Framelist** lists every frame with a check mark; after Align the best frame comes first, with its quality in percent of the best frame. **Check all** and **Check none** work, **Empty List** is **Not available yet**. **Go to best frame** in the card (and under the quality chart in the step Limit) shows the best frame and opens the step Alignpoints, so that you can use it as reference; it is greyed out until Align has run. See [Frame quality and Limit](frame-quality-and-limit). **Show Registrationgraph** draws Quality and Difference per frame as two lines; before Align it asks you to run Align.

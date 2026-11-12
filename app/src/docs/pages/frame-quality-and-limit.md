@@ -42,6 +42,17 @@ The number of frames is only free in the two modes that count frames, **Best Fra
 
 > the reference program offers the same four modes. How it handles Frames/Apoint was not checked, SidereaPlanets works as described here.
 
+## Use the best frame as reference
+
+Set Alignpoints and Align use the frame that is shown when you press **Set Alignpoints** as the reference for all others. A sharp reference gives better points, and Align has just told you which frame is the sharpest. Press **Go to best frame** to use it:
+
+1. Run Align. **Go to best frame** is greyed out until then.
+2. Press **Go to best frame**, under the quality chart in the step *Limit* or in the Framelist card. The best frame, the first of the ranking, shows in the image and in the frame bar, and the step *Alignpoints* opens.
+3. The panel names the frame, for example *Best frame: 295 — run Set Alignpoints and Align again to use it as reference.* The number is the one the frame bar shows.
+4. Press **Set Alignpoints again** and then **Align** again, and run **Limit** and **Stack** once more.
+
+Nothing is discarded by the jump: the rating, the choice of frames and the stack stay as they are until you run **Set Alignpoints** again. The new alignment then replaces them, see [Align your frames](align-your-frames). If you move to another frame before you press **Set Alignpoints**, that frame becomes the reference instead.
+
 ## After Limit
 
 The status bar reports how many frames stay, for example *Processing limited to 10 frames*, and in its result field the *Stacksize* with *Low quality*, the quality of the weakest frame that stays in percent of the best one (for example *Stacksize: 8  Low quality: 87.20%*). The step *Stack* opens. The alignpoints now show as yellow rings. The green stroke on each ring shows how far that point sits from where the movement of the whole frame puts it, on average over the frames that stay, enlarged four times so that it can be seen. A short stroke means a steady picture, a long one a picture that is bent there. You can click the step *Limit* again, change the Limit mode and press **Limit again**; that discards an existing stack. You can also run **Set Alignpoints** or **Align** again, which discards the Limit choice as well, see [Align your frames](align-your-frames).

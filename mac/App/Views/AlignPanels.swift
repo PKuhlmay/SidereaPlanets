@@ -17,6 +17,9 @@ struct AlignpointsStepView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
+            if let best = model.align.bestFrameHint {
+                HintNote(text: bestFrameHint(frame: best))
+            }
             VStack(spacing: 2) {
                 HStack {
                     Text("weakest").foregroundStyle(RK.muted)
@@ -151,6 +154,7 @@ struct LimitStepView: View {
             limitRow(.bestCount, value: nil, label: "")
             QualityChartView(frames: model.align.frames, options: model.options)
                 .padding(.top, 4)
+            GoToBestFrameButton(model: model)
         }
     }
 
@@ -167,6 +171,42 @@ struct LimitStepView: View {
             }
         }
         .frame(minHeight: value == nil ? 0 : RKMetrics.fieldHeight)
+    }
+}
+
+/// A note in a step panel (docs/design.md, "Hinweis"): `--accent-soft`, a 3 pt strip in `--accent` at the left.
+private struct HintNote: View {
+    let text: String
+
+    var body: some View {
+        Text(text)
+            .font(.rkSmall)
+            .foregroundStyle(RK.text)
+            .lineSpacing(2)
+            .fixedSize(horizontal: false, vertical: true)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.vertical, 8)
+            .padding(.leading, 13)
+            .padding(.trailing, 10)
+            .background(RK.accentSoft, in: RoundedRectangle(cornerRadius: RKMetrics.radius))
+            .overlay(alignment: .leading) {
+                UnevenRoundedRectangle(topLeadingRadius: RKMetrics.radius, bottomLeadingRadius: RKMetrics.radius)
+                    .fill(RK.accent)
+                    .frame(width: 3)
+            }
+            .accessibilityElement(children: .combine)
+    }
+}
+
+/// Go to best frame: under the quality chart. Locked until Align has run.
+private struct GoToBestFrameButton: View {
+    let model: AppModel
+
+    var body: some View {
+        Button("Go to best frame") { model.goToBestFrame() }
+            .buttonStyle(.rkWide)
+            .disabled(!model.canGoToBestFrame)
+            .help(model.progress.step >= .aligned ? "Show the best frame and open Alignpoints to use it as reference" : "Run Align first")
     }
 }
 

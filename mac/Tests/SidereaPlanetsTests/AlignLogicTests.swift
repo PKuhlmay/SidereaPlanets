@@ -130,6 +130,31 @@ import Testing
         #expect(data.bestQuality == 100)
     }
 
+    @Test func theBestFrameIsTheFirstOfTheRankingAndNoneBeforeAlign() {
+        var data = AlignData(frameCount: 3)
+        #expect(data.bestFrame == nil)
+        data.frames[0].quality = 90
+        data.frames[1].quality = 100
+        data.frames[2].quality = 100
+        #expect(data.bestFrame == 1)  // equal qualities: the earlier frame
+        data.frames[0].quality = 100
+        #expect(data.bestFrame == 0)
+        data.frames[0].checked = false  // the check marks do not change the ranking
+        #expect(data.bestFrame == 0)
+    }
+
+    @Test func theBestFrameHintCountsFromOneLikeTheFrameBar() {
+        #expect(bestFrameHint(frame: 294) == "Best frame: 295 — run Set Alignpoints and Align again to use it as reference.")
+        #expect(bestFrameHint(frame: 0).hasPrefix("Best frame: 1 — "))
+    }
+
+    @Test func discardingTheRatingTakesBackTheBestFrameHint() {
+        var data = AlignData(frameCount: 2)
+        data.bestFrameHint = 1
+        data.discardRating()
+        #expect(data.bestFrameHint == nil)
+    }
+
     @Test func discardingTheRatingChecksAllFramesAgain() {
         var data = AlignData(frameCount: 2)
         data.frames[0].quality = 100

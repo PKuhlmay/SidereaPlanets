@@ -198,6 +198,18 @@ extension AppModel {
 
     // MARK: Framelist
 
+    /// Go to best frame needs the ranking, so it waits for Align.
+    var canGoToBestFrame: Bool { progress.step >= .aligned && align.bestFrame != nil && !isBusy }
+
+    /// Shows the best frame (first of the ranking) in the image and the frame bar and opens the step Alignpoints, so that Set Alignpoints
+    /// takes it as reference. The results stay until Set Alignpoints or Align runs again.
+    func goToBestFrame() {
+        guard canGoToBestFrame, let best = align.bestFrame else { return }
+        align.bestFrameHint = best
+        showFrame(best)
+        show(.alignpoints)
+    }
+
     func setFrameChecked(_ index: Int, _ checked: Bool) {
         guard align.frames.indices.contains(index) else { return }
         align.frames[index].checked = checked

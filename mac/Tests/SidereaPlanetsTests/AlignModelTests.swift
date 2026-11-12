@@ -304,6 +304,91 @@ import Testing
         #expect(model.stepStates[.wavelets]?.status == .locked)
     }
 
+    // MARK: Go to best frame
+
+    @Test func goToBestFrameShowsTheBestFrameAndOpensAlignpointsWithTheHint() async {
+        await limitedRecording()
+        model.show(.limit)
+        #expect(model.canGoToBestFrame)
+        #expect(model.frameIndex == 0)
+
+        model.goToBestFrame()
+
+        #expect(model.frameIndex == 9)  // frame 10 in the frame bar: the first of the ranking
+        #expect(await eventually { model.image?.width == 10 })
+        #expect(model.viewStep == .alignpoints)
+        #expect(model.showsFrameBar)
+        #expect(model.align.bestFrameHint == 9)
+        #expect(bestFrameHint(frame: 9) == "Best frame: 10 — run Set Alignpoints and Align again to use it as reference.")
+    }
+
+    @Test func goToBestFrameKeepsTheResults() async {
+        await limitedRecording()
+        let before = model.align
+        let pointCalls = await backend.pointCalls.count
+        let alignCalls = await backend.alignCalls.count
+        model.goToBestFrame()
+
+        #expect(model.progress.step == .limited)
+        #expect(model.align.frames == before.frames)
+        #expect(model.align.points == before.points && model.align.pointShifts == before.pointShifts)
+        #expect(model.align.referenceFrame == before.referenceFrame)
+        #expect(model.result(of: .limit) == "3 of 10 kept")
+        #expect(await backend.pointCalls.count == pointCalls)
+        #expect(await backend.alignCalls.count == alignCalls)
+    }
+
+    @Test func goToBestFrameWaitsForAlign() async {
+        model.goToBestFrame()  // no recording
+        #expect(!model.canGoToBestFrame && model.align.bestFrameHint == nil)
+        await model.open([jupiter])
+        await model.setAlignpoints()
+        #expect(!model.canGoToBestFrame)
+        let step = model.viewStep
+        model.goToBestFrame()  // points only, nothing rated
+        #expect(model.frameIndex == 0 && model.viewStep == step && model.align.bestFrameHint == nil)
+        await model.runAlign()
+        #expect(model.canGoToBestFrame)
+    }
+
+    @Test func goToBestFrameIsLockedDuringARun() async {
+        await limitedRecording()
+        await backend.setHoldsAlign(true)
+        let running = Task { await model.runAlign() }
+        #expect(await eventually { await backend.isAlignHeld })
+        #expect(!model.canGoToBestFrame)
+        model.goToBestFrame()
+        #expect(model.align.bestFrameHint == nil && model.frameIndex == 0)
+        await backend.finishAlign()
+        await running.value
+    }
+
+    @Test func theHintStaysUntilSetAlignpointsOrAlignRunsAgain() async {
+        await limitedRecording()
+        model.goToBestFrame()
+        model.showFrame(2)  // the user moves on: the hint still names the best frame
+        #expect(model.align.bestFrameHint == 9)
+
+        await model.setAlignpoints()  // Set Alignpoints on the frame that is shown: the new reference, the old hint is obsolete
+        #expect(model.align.bestFrameHint == nil)
+        #expect(model.align.referenceFrame == 2)
+        #expect(!model.align.isRated)  // only now the results go
+
+        await model.runAlign()
+        model.goToBestFrame()
+        #expect(model.align.bestFrameHint == 9)
+        await model.runAlign()
+        #expect(model.align.bestFrameHint == nil)
+    }
+
+    @Test func anotherRecordingForgetsTheHint() async {
+        await limitedRecording()
+        model.goToBestFrame()
+        await backend.setRecording(FakeBackend.info(frames: 3))
+        await model.open([URL(fileURLWithPath: "/data/CLAVIUS.AVI")])
+        #expect(model.align.bestFrameHint == nil)
+    }
+
     // MARK: Opening, Framelist, Advanced
 
     @Test func anotherRecordingStartsTheAlignTabOver() async {

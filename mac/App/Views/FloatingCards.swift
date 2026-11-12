@@ -79,6 +79,11 @@ private struct FramelistCard: View {
                 .buttonStyle(.rkCompact)
                 .padding(.horizontal, 8)
                 .padding(.top, 6)
+                Button("Go to best frame") { model.goToBestFrame() }
+                    .buttonStyle(.rkCompact)
+                    .disabled(!model.canGoToBestFrame)
+                    .help(model.progress.step >= .aligned ? "Show the best frame and open Alignpoints to use it as reference" : "Run Align first")
+                    .padding(.horizontal, 8)
                 ScrollView {
                     LazyVStack(spacing: 0) {
                         ForEach(model.align.listed) { frame in

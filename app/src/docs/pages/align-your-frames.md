@@ -10,7 +10,7 @@ A planet wobbles from frame to frame: the air makes it dance, the mount drifts. 
 ## Step by step
 
 1. [Select a recording](select-a-recording). The first frame shows in the image area and the step *Alignpoints* opens.
-2. Move to a frame that is sharp and shows the planet well, with **Goto Frame** or the slider at the bottom. This frame is the reference for all others.
+2. Move to a frame that is sharp and shows the planet well, with **Goto Frame** or the slider at the bottom. This frame is the reference for all others. After a first Align, **Go to best frame** takes you to the sharpest one, see [Frame quality and Limit](frame-quality-and-limit).
 3. Press **Set Alignpoints**. Red points appear on the planet, and the label above the Threshold slider reads *Alignpoints: 82* or similar. The step *Align* opens.
 4. Optional: open the step *Alignpoints* again and move the **Threshold** slider towards *strongest* to keep fewer, steadier points, or towards *weakest* to keep more. More on this under *Alignpoints* below.
 5. Optional: before **Set Alignpoints**, press **R.o.Interest** in the step *Alignpoints* and drag a rectangle over the image, to align on one area only. The points then land inside the rectangle. More on this under *Region of interest* below.
