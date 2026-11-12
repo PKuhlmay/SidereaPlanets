@@ -51,8 +51,8 @@ Oberfläche (nach `docs/design.md`, Soll-Bilder `docs/design/screenshots/`, dunk
       (Histogram, Gamma, RGB Align, RGB Balance), Contrast/Brightness, Load Scheme und Save Scheme
 - [ ] Schritt **Save**: Save image in allen Formaten, Save Aligned, Save Integrated, Save project und Open project
 - [ ] Bildbereich: Zoom um den Zeiger, Pan, 100 %-Klick, Einpassen bei Schrittwechsel, Vorher/Nachher
-- [ ] CPUs-Feld wirkt auf den Thread-Pool des Kerns (Standard alle Kerne)
-- [ ] Help öffnet die Anwenderseiten (`app/src/docs/pages/`, dieselben Markdown-Dateien) in einem eigenen Fenster
+- [x] CPUs-Feld wirkt auf den Thread-Pool des Kerns (Standard alle Kerne)
+- [x] Help öffnet die Anwenderseiten (`app/src/docs/pages/`, dieselben Markdown-Dateien) in einem eigenen Fenster
 - [ ] Mac-Konventionen als bewusste Abweichung in `docs/design.md` eingetragen: Menüleiste und ⌘-Kürzel (⌘O Open, ⌘S Save image, ⌘.
       Cancel, ⌘? Help), native Dateidialoge, Vollbild, About im App-Menü, Einstellungen im Menü statt in der Werkzeugleiste, wo es der
       Konvention folgt

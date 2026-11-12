@@ -28,6 +28,11 @@ targets:
     platform: macOS
     sources:
       - App
+      # The user pages of the Help window: the shared Markdown files of the Windows app, copied into the bundle as the folder
+      # `pages` (no second copy in Git).
+      - path: ../app/src/docs/pages
+        type: folder
+        buildPhase: resources
     dependencies:
       - package: SidereaPlanetsKit
     info:

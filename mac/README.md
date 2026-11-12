@@ -10,7 +10,10 @@ Native Mac-App in **SwiftUI** auf dem gemeinsamen **Rust-Kern** (`crates/`), ana
 mac/
   project.yml            xcodegen-Spezifikation (Ziele SidereaPlanets und SidereaPlanetsTests, MARKETING_VERSION, ad-hoc-Signierung)
   App/                   SwiftUI-Oberfläche (MAC-005)
-    SidereaPlanetsApp.swift  Fenster (eine Window-Szene), Menüleiste (⌘O, Open Recent, Zoom, Frames)
+    SidereaPlanetsApp.swift  Szenen (Hauptfenster, Help, Settings), Menüleiste (⌘O, Open Recent, Zoom, Frames, Process)
+    Commands/            HelpCommands (Help ⌘?, About), StepMenuItems (Process > Go to Step, ⌥⌘1 bis ⌥⌘7); weitere Menüpunkte (Save …) kommen hier oder in AppCommands dazu
+    Help/                Hilfe-Fenster (MAC-010): DocPage (Kopf, Gruppen, Suche), MarkdownHTML (Renderer), DocStyle (CSS aus den Tokens), HelpModel, HelpView, DocWebView (WKWebView)
+    Settings/            Einstellungen (⌘,): CpuSettings (CPUs, Klemmung, Kern), SettingsView
     Design/              Tokens.swift (Spiegel von docs/design/tokens.css, hell und dunkel), RKButtonStyle
     Model/               AppModel (@Observable, MainActor: Sitzung, Schritt, Frame, Bild, Statustexte), AppModel+Align (Set Alignpoints, Align,
                          Limit, Cancel, Pause, Framelist), AlignLogic (Werte, Diagramm, Meldungen), AppModel+Stack (Stack, Karte
@@ -24,7 +27,7 @@ mac/
                          CALayer für das Bild, zieht auch die R.o.Interest-Region), ImageOverlays (Punkte, Ringe, Region), FloatingCards
                          (Framelist, Registrationgraph, Alignmentpoints), FrameBar, StatusBar, Save/SaveViews (Schritt Save, Menü Save image,
                          Gruppe Create AVI im Stack-Panel)
-  Tests/SidereaPlanetsTests/ Swift Testing: Schrittzustände, MRU, AppModel (mit FakeBackend), Zoom-Rechnung, Dateiangaben
+  Tests/SidereaPlanetsTests/ Swift Testing: Schrittzustände, MRU, AppModel (mit FakeBackend), Zoom-Rechnung, Dateiangaben, Hilfeseiten (HelpDocsTests), CPUs (CpuSettingsTests)
   Packages/SidereaPlanetsKit/  Swift-Paket um die Rust-Schnittstelle (XCFramework und erzeugte Bindings)
   tickets/               MAC-NNN-kurzer-titel.md
   CHANGELOG.md           ab dem ersten Mac-Release
@@ -39,8 +42,9 @@ Aufrufe dort und ihre Panels in `StepPanel` ein; `ViewStep.isBuilt` sagt, welche
 Frames lesen und umrechnen auf einer Hintergrund-Queue (`@concurrent`), immer nur einer zugleich, mit dem neuesten Wunsch als nächstem.
 
 **Sandbox aus:** Die App darf vorerst Aufnahmen an jedem Ort lesen und Ergebnisse überall schreiben (`ENABLE_APP_SANDBOX: NO` in
-`project.yml`); für ein sandboxed Release brauchte es Security-scoped Bookmarks für die MRU und Entitlements für Dateizugriff. Das
-entscheidet MAC-010 mit der Signierung.
+`project.yml`); für ein sandboxed Release brauchte es Security-scoped Bookmarks für die MRU und Entitlements für Dateizugriff.
+Entscheidung mit MAC-010: **Sandbox bleibt aus**. Die App wird als Download verteilt (ad hoc signiert, später Developer ID mit
+Notarisierung), nicht über den App Store, und dafür ist die Sandbox keine Pflicht. Der Mac App Store wäre ein eigenes Ticket.
 
 **Debug-Argumente** (nur Debug-Builds, für Screenshots und Handproben): `open -a build/mac/Build/Products/Debug/SidereaPlanets.app --args
 -open <Datei[:Datei…]> -appearance light|dark -step open|alignpoints|… -frame <n>`.
@@ -143,7 +147,7 @@ Hook startet es im Hintergrund; nur der Haupt-Checkout auf `main` löst aus (Wor
 
 ## Bauen und veröffentlichen
 
-Vollständig wird dieser Abschnitt mit `MAC-001` (Bündel, Signierung, Notarisierung). Bis dahin:
+### Entwicklung (Debug)
 
 ```bash
 export PATH=/opt/homebrew/opt/rustup/bin:$PATH
@@ -162,6 +166,39 @@ scripts/deploy-mac.sh --run                   # alles zusammen, dann die App neu
   eigenen Swift.
 - Ein Test, der die Oberfläche braucht, startet die App als Host; Screenshots des laufenden Fensters: `screencapture -x -l <Fenster-ID>`
   (die ID aus `CGWindowListCopyWindowInfo`).
+- Die Hilfeseiten sind keine zweite Kopie: `project.yml` bindet `app/src/docs/pages/` als Ordner-Ressource ein, der Bau kopiert ihn als
+  `Resources/pages` ins Bündel (`HelpModel.bundled()` liest ihn dort). Eine neue Seite ist eine neue Datei in diesem Ordner.
+
+### Release-Bündel
+
+```bash
+scripts/build-mac-release.sh            # build/release/SidereaPlanets.app und SidereaPlanets-<version>-mac.zip
+scripts/build-mac-release.sh --dmg      # zusätzlich SidereaPlanets-<version>-mac.dmg
+```
+
+Das Skript tut der Reihe nach: `scripts/build-ffi.sh --release` (Kern für arm64 und x86_64, mit `lipo` zu einer Bibliothek),
+`xcodegen generate`, `xcodebuild` in Release mit `ARCHS="arm64 x86_64"` und `ONLY_ACTIVE_ARCH=NO` (Derived Data unter
+`build/mac-release/`), Kopie nach `build/release/`, `codesign`, Prüfung mit `codesign --verify`, `lipo -info` (muss `x86_64 arm64`
+zeigen) und das Zip mit `ditto -c -k --keepParent` (erhält die Signatur und die Dateiattribute; kein `zip`). Alles liegt unter `build/`
+und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wird. Das Release-Profil hat `panic = "abort"`.
+
+- **Signierung heute: ad hoc** (`CODE_SIGN_IDENTITY: "-"`, „Sign to Run Locally“). Das Bündel läuft auf dem eigenen Mac. Auf einem
+  anderen Mac blockiert Gatekeeper es, weil es nicht notarisiert ist: Rechtsklick auf die App, Öffnen, bestätigen (oder in den
+  Systemeinstellungen unter „Datenschutz & Sicherheit“ „Trotzdem öffnen“). Das gilt nur, solange die Datei eine Quarantäne-Markierung
+  trägt (Download); ein Zip vom eigenen Rechner hat keine.
+- **Notarisierung: beschrieben, offen, bis eine Developer-ID hinterlegt ist** (Apple Developer Program, 99 USD im Jahr). Dann:
+  1. Das Zertifikat „Developer ID Application“ in den Schlüsselbund laden, die Zugangsdaten für `notarytool` einmal ablegen:
+     `xcrun notarytool store-credentials sidereaplanets --apple-id <Apple-ID> --team-id <TEAMID> --password <App-spezifisches Kennwort>`.
+  2. Bündel mit Hardened Runtime signieren: `SIGN_IDENTITY="Developer ID Application: Name (TEAMID)" scripts/build-mac-release.sh`
+     (das Skript setzt dann `--options runtime --timestamp`; die App braucht keine Entitlements, die Sandbox ist aus).
+  3. Einreichen und warten: `xcrun notarytool submit build/release/SidereaPlanets-<version>-mac.zip --keychain-profile sidereaplanets --wait`.
+  4. Das Ticket in die App heften und das Zip neu erzeugen: `xcrun stapler staple build/release/SidereaPlanets.app`, dann
+     `ditto -c -k --sequesterRsrc --keepParent build/release/SidereaPlanets.app SidereaPlanets-<version>-mac.zip`. Prüfen mit
+     `spctl --assess --type execute -v build/release/SidereaPlanets.app` („accepted, source=Notarized Developer ID“).
+  Bis dahin ist dieser Weg nicht erprobt; er wandert in das Skript, sobald es eine Developer-ID gibt.
+- **Version:** `MARKETING_VERSION` in `project.yml` (die Build-Nummer `CURRENT_PROJECT_VERSION` zählt bei Bedarf hoch). Veröffentlicht
+  wird nur mit `/release mac <version>` (Skill `release`, Abschnitt 3b): Version setzen, `mac/CHANGELOG.md` füllen, prüfen, bauen, committen,
+  taggen (`v<version>`), pushen nach Philipps OK.
 
 ## Status
 
@@ -176,4 +213,4 @@ scripts/deploy-mac.sh --run                   # alles zusammen, dann die App neu
 | MAC-007 | Stack | erledigt |
 | MAC-008 | Wavelets, Farbe, Functions | offen |
 | MAC-009 | Save, Export, Projektdatei | in Arbeit (Farbwerte im Save-Bild mit MAC-008) |
-| MAC-010 | Hilfe, Menüs, CPUs, Release | offen |
+| MAC-010 | Hilfe, Menüs, CPUs, Release | in Arbeit |

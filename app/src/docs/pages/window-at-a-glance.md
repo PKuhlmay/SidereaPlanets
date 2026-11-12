@@ -72,7 +72,7 @@ Wavelets counts as done as long as the result of **Do All** matches the current 
 
 ## Help
 
-**Help** in the toolbar opens this documentation in a window of its own, in front of the main window. Your work stays where it is, so you can keep the help open beside it. Press Escape in the help window, or close it, when you are done.
+**Help** in the toolbar opens this documentation in a window of its own, in front of the main window. Your work stays where it is, so you can keep the help open beside it. Press Escape in the help window, or close it, when you are done. On the Mac the menu bar has it: **Help ▸ SidereaPlanets Help** (⌘?); see [Menus and settings](menus-and-settings).
 
 ## Title of the window
 

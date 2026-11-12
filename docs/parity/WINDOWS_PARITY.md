@@ -36,3 +36,10 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
   (Pfeil links und rechts, ohne Rahmen, am ersten bzw. letzten Frame gesperrt; Tooltip nennt das Kürzel). Der Mac belegt sie mit ⌘[ und
   ⌘], eine Windows-Belegung (z. B. ← und →, solange kein Feld den Fokus hat) legt das Windows-Ticket fest. Mac:
   `mac/App/Views/FrameBar.swift`, `AppModel.showNextFrame(by:)`.
+
+### Schritte per Tastatur (MAC-010)
+
+- [ ] Die sieben Schritte der Schrittleiste lassen sich per Tastenkürzel öffnen: Schritt n (1 Open bis 7 Save) mit einem Kürzel, am Mac
+  ⌥⌘1 bis ⌥⌘7 im Menü Process > Go to Step. Wie ein Klick auf die Schrittleiste: ein gesperrter Schritt und jede laufende Berechnung
+  sperren das Kürzel. Eine Windows-Belegung (z. B. Alt+1 bis Alt+7) legt das Windows-Ticket fest. Mac:
+  `mac/App/Commands/StepMenuItems.swift`, `AppModel.show(_:)`.

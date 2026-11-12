@@ -21,9 +21,10 @@ Ticket, Details im Ticket unter „Umsetzung“.
   auf das Fenster ziehen; „Open Recent“ (auch „Clear Menu“) und MRU in der Werkzeugleiste.
 - [ ] Bildbereich: Pinch auf dem Trackpad zoomt um die Finger, ⌥+Scrollen und ⌘+Scrollen zoomen um den Zeiger, Scrollen verschiebt,
   Zwei-Finger-Doppeltipp wechselt zwischen Fit und 100 %; ⌘+ ⌘- ⌘0 ⌘1 und ⌘[ ⌘] per Tastatur (Menü View).
-- [ ] Help-Fenster öffnet getrennt vom Hauptfenster; Suche und Blättern.
-- [ ] Menüleiste und ⌘-Kürzel (Open, Save image, Cancel, Help) wirken.
-- [ ] CPUs-Feld: Standard sind alle Kerne; mit 1 ist ein langer Align deutlich langsamer.
+- [ ] Help (⌘?) öffnet ein eigenes Fenster getrennt vom Hauptfenster (ein zweiter Aufruf holt es nach vorn, Escape schließt es); Seitenliste, Suche (Eingabe in das Feld, Treffer in der Liste, Klick öffnet), Links zwischen Seiten und Blättern unten; Tabellen, Zahlenkreise und Hinweise sehen in hell und dunkel aus wie in `docs/design/screenshots/13-docs.png` und `14-docs-light.png`.
+- [ ] Menüleiste und ⌘-Kürzel (Open ⌘O, Cancel ⌘., Help ⌘?, Settings… ⌘,, About im App-Menü, Enter Full Screen im Menü View, Process > Go to Step mit ⌥⌘1 bis ⌥⌘7) wirken; Save image ⌘S, Save project und Open project kommen mit dem Schritt Save.
+- [ ] Settings… (⌘,): Fenster mit dem Feld CPUs; Standard sind alle Kerne; Zahl eintippen und mit Return bestätigen, 99 wird zur Kernzahl, 0 zu 1; mit 1 ist ein langer Align deutlich langsamer (Activity Monitor: nur ein Kern ausgelastet).
+- [ ] Release-Bündel (`scripts/build-mac-release.sh`, `build/release/SidereaPlanets-<Version>-mac.zip`) auf einem anderen Mac: Rechtsklick > Öffnen startet es (ad hoc signiert, nicht notarisiert), Help zeigt die Seiten, Intel-Mac und Apple-Silicon-Mac laufen beide.
 - [ ] Helles und dunkles Thema, auch beim Umschalten der macOS-Darstellung.
 
 ## Windows

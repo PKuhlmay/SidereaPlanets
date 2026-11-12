@@ -12,7 +12,12 @@ struct SidereaPlanetsApp: App {
         }
         .defaultSize(width: 1440, height: 900)
         .windowToolbarStyle(.unified)
-        .commands { AppCommands(model: model) }
+        .commands {
+            AppCommands(model: model)
+            HelpCommands()
+        }
+        HelpScene()
+        Settings { SettingsView(model: model) }
     }
 }
 
@@ -60,6 +65,8 @@ struct AppCommands: Commands {
                 .disabled(!model.canCancel)
             Button(model.run?.paused == true ? "Resume" : "Pause") { model.togglePause() }
                 .disabled(!model.canCancel)
+            Divider()
+            Menu("Go to Step") { StepMenuItems(model: model) }
         }
         CommandGroup(after: .toolbar) {
             Divider()
