@@ -20,13 +20,12 @@ Bei Widersprüchen gewinnt für Begriffe und Werte `docs/ui.md`, für Aussehen u
 | `docs/design/tokens.css` | Farben, Schrift, Maße. Einzige Quelle für diese Werte, wird ins Frontend übernommen |
 | `docs/design/oberflaeche-entwurf.html` | Klickbarer Entwurf aller sieben Schritte, im Browser öffnen |
 | `docs/design/screenshots/` | Soll-Bilder der Zustände bei 1440×900, erzeugt aus dem Entwurf |
-| `docs/design/siderea-planets.figcraft` | Die drei Reiter und die Doku als FigCraft-Datei, je dunkel und hell (acht Frames 1440×900). Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light. **Veraltet für die Arbeitsansicht:** zeigt noch Reiter und Aktionszeile, die Schrittleiste (RK-014) fehlt; maßgeblich sind Entwurf und Soll-Bilder |
+| `docs/design/siderea-planets.figcraft` | Die sieben Schritte (Open, Alignpoints, Align, Limit, Stack, Wavelets, Save) als FigCraft-Datei, je dunkel und hell, dazu Limit mit geöffnetem Menü Show, Stack im erledigten Zustand und das Help-Fenster: 20 Frames, 18 davon 1440×900, die zwei Help-Fenster 1000×720. Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
 | `docs/design/vorschlag-gefuehrter-ablauf.html` | Überholt: die drei Vorschläge, aus denen die Schrittleiste (RK-014) gewählt wurde |
 | `docs/design/figcraft-build.mjs` | Baut die FigCraft-Datei neu und liest die Farben dabei aus `tokens.css`. Aufruf: `node docs/design/figcraft-build.mjs` |
 
-Die sechs Frames der Reiter entstehen aus dem Skript, die zwei Doku-Frames (RK-012) sind dagegen von Hand in
-FigCraft gebaut und stehen nicht im Skript. Ein Lauf des Skripts schreibt die Datei neu und entfernt sie. Wer ihn
-braucht, sichert die Doku-Frames vorher oder baut sie nach der Beschreibung unter [Doku](#doku) neu.
+Alle Frames, auch die zwei Help-Fenster (RK-012, siehe [Doku](#doku)), entstehen aus dem Skript. Ein Lauf schreibt die
+Datei neu und verliert nichts; Änderungen gehören deshalb ins Skript, nicht von Hand in die Datei.
 
 Der Entwurf ist eine Vorlage zum Ansehen, kein Code zum Übernehmen: Er ist eine einzelne HTML-Datei ohne Vue und
 ohne Rechenkern. Markup und CSS-Regeln dürfen als Orientierung dienen, die Umsetzung baut eigene Komponenten.
@@ -564,8 +563,8 @@ als „Not available yet“. Quelle der Seiten ist Markdown im Repo (RK-012).
 | Doku, dunkel | ![Doku](design/screenshots/13-docs.png) |
 | Doku, hell | ![Doku, hell](design/screenshots/14-docs-light.png) |
 
-Die Soll-Bilder 13 und 14 stammen aus `docs/design/siderea-planets.figcraft`, nicht aus dem klickbaren Entwurf; der
-Entwurf zeigt die Doku nicht.
+Die Soll-Bilder 13 und 14 (Help-Fenster, 1000×720 px) stammen aus `docs/design/siderea-planets.figcraft` (Frames „Docs ·
+dark“ und „Docs · light“), nicht aus dem klickbaren Entwurf; der Entwurf zeigt die Doku nicht.
 
 ### Helles Thema
 
@@ -668,4 +667,4 @@ msedge --headless=new --window-size=1440,900 --hide-scrollbars   --screenshot=do
 | 15-limit-light | `step=aligned&show=framelist,graph&theme=light` |
 | 16-wavelets-light | `step=stacked&theme=light` |
 
-13 und 14 (Doku) stammen aus der FigCraft-Datei und bleiben unverändert.
+13 und 14 (Doku) kommen aus der FigCraft-Datei: Frame in FigCraft auswählen und als PNG exportieren (Maßstab 1).

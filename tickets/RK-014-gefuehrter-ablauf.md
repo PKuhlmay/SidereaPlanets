@@ -23,11 +23,8 @@ Design
 - [x] `docs/design.md` nachgezogen: Grundsatz 1 („gleicher Ort, gleicher Name“ wird „gleicher Name“), Fensteraufbau ohne
   Reiterleiste und Aktionszeile, neue Komponente Schrittleiste, Abschnitte Zustände und Bildschirme je Schritt, Eintrag
   unter „Bewusste Abweichungen vom Original“
-- [ ] Klickbarer Entwurf `docs/design/oberflaeche-entwurf.html`, Soll-Bilder und die FigCraft-Datei zeigen die sieben
+- [x] Klickbarer Entwurf `docs/design/oberflaeche-entwurf.html`, Soll-Bilder und die FigCraft-Datei zeigen die sieben
   Schritte, dunkel und hell; `vorschlag-gefuehrter-ablauf.html` ist danach gelöscht oder als überholt gekennzeichnet
-  - Entwurf, Soll-Bilder (01–12, 15, 16) und Überholt-Hinweis sind fertig. Offen ist nur die FigCraft-Datei:
-    `figcraft-build.mjs` würde die von Hand gebauten Doku-Frames löschen, und der FigCraft-Server war in der Sitzung
-    nicht erreichbar. `docs/design.md` markiert die Datei als veraltet.
 
 Schrittleiste
 - [x] Eine Zeile unter der Werkzeugleiste mit den sieben Schritten als Pillen mit Nummer im Kreis: offen in
