@@ -14,7 +14,7 @@ Gleicher Aufbau und gleiche Begriffe wie im Original, sodass bisherige the refer
 - [x] Reiter und Schritte in der Reihenfolge des Originals, gleiche Beschriftungen
 - [ ] Bildbereich mit Zoom, Pan, Vorher/Nachher
 - [x] Reglerwerte und Standardwerte wie in `docs/ui.md`
-- [ ] Fortschrittsanzeige und Abbrechen bei langen Berechnungen
+- [x] Fortschrittsanzeige und Abbrechen bei langen Berechnungen (Release-App, 2026-11-12: Align mit Box 100 und Max movement 40 zeigt Balken, Frame-Zähler und Restzeit, Pause hält an, Cancel stoppt nach 0,2 s und leert den Balken)
 
 ## Umsetzung
 
