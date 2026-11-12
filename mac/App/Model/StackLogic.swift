@@ -67,7 +67,8 @@ nonisolated func stackSettings(_ stack: StackOptions, align: AlignOptions, data:
         normalize: stack.normalize,
         edgeSkip: wholeNumber(stack.edgePixels, minimum: 0),
         roi: data.roi,
-        derotation: derotationSettings(stack)
+        derotation: derotationSettings(stack),
+        centreOfGravity: centreOfGravityThreshold(align)
     )
 }
 

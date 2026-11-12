@@ -73,6 +73,9 @@ pub struct StackSettings {
     /// *De-rotate images*: turn the frames back to a common time before they are stacked. Absent means off.
     #[serde(default)]
     pub derotation: Option<DerotationSettings>,
+    /// *Align by center of gravity* of the Align step: its *Brightness threshold* (0..=255), absent means off.
+    #[serde(default)]
+    pub centre_of_gravity: Option<f32>,
 }
 
 impl StackSettings {
@@ -85,6 +88,7 @@ impl StackSettings {
             &AlignParams {
                 box_size: self.box_size,
                 max_movement: self.max_movement,
+                centre_of_gravity: self.centre_of_gravity,
             },
             self.roi.map(Roi::from),
         )

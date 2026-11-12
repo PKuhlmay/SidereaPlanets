@@ -163,6 +163,9 @@ pub struct AlignSettings {
     pub max_movement: u32,
     /// Measure the drift between frames inside this region only; use the one the points were set in.
     pub roi: Option<RoiSettings>,
+    /// *Align by center of gravity*: its *Brightness threshold* (0..=255), absent means off.
+    #[serde(default)]
+    pub centre_of_gravity: Option<f32>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
@@ -240,6 +243,7 @@ impl Session {
             &AlignParams {
                 box_size: settings.box_size,
                 max_movement: settings.max_movement,
+                centre_of_gravity: settings.centre_of_gravity,
             },
             settings.roi.map(Roi::from),
         );

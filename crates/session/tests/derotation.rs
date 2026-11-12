@@ -72,6 +72,7 @@ fn settings(derotation: Option<DerotationSettings>) -> StackSettings {
         edge_skip: 0,
         roi: None,
         derotation,
+        centre_of_gravity: None,
     }
 }
 

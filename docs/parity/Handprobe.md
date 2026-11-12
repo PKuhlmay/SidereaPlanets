@@ -31,6 +31,12 @@ Ticket, Details im Ticket unter „Umsetzung“.
   verändern das Bild sofort, Contrast/Brightness, Copy To, Load to, Difference; Load Scheme und Save Scheme (Advanced und Settings…) mit einer `.rwv`-Datei von Windows.
 - [ ] Helles und dunkles Thema, auch beim Umschalten der macOS-Darstellung.
 
+### MAC-021 Align by center of gravity
+
+- [ ] Eine Planetenaufnahme mit starker Drift (oder ein Video, in dem der Planet weit springt): Align ohne das Häkchen und mit ihm vergleichen,
+  Show Quality Graph und das Stackergebnis ansehen. Brightness threshold ist nur mit dem Häkchen bedienbar; der Wert steht nach Save Project und
+  erneutem Öffnen wieder da. Mondaufnahme mit dem Häkchen: Align fällt nicht aus, auch wenn das Ergebnis schlechter sein darf.
+
 ## Windows
 
 ### MAC-003 Sitzungslogik im Kern

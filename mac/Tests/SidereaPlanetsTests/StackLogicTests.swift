@@ -64,6 +64,16 @@ import Testing
         #expect(data.pointShifts.isEmpty)
     }
 
+    // MARK: Align by center of gravity (MAC-021)
+
+    @Test func theStackRegistersWithTheCentreOfGravityOfTheAlignStep() {
+        var align = AlignOptions()
+        #expect(stackSettings(StackOptions(), align: align, data: data()).centreOfGravity == nil)
+        align.centreOfGravity = true
+        align.brightnessThreshold = 25
+        #expect(stackSettings(StackOptions(), align: align, data: data()).centreOfGravity == 25)
+    }
+
     // MARK: De-rotate images (MAC-020)
 
     @Test func derotationIsOffUnlessTheOptionIsOn() {

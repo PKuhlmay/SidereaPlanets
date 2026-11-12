@@ -84,6 +84,7 @@ fn jupiter_runs_from_select_to_save_image() {
                 box_size: 30,
                 max_movement: 5,
                 roi: None::<RoiSettings>,
+                centre_of_gravity: None,
             },
             &sink,
         )

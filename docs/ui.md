@@ -92,8 +92,8 @@ ohne zu korrigieren. Ihre Grenzen gelten deshalb als unbekannt, siehe `docs/offe
 | | No Align · R.o.Interest · Scan Frames | Schaltflächen | | No Align und R.o.Interest nach dem Laden aktiv, Scan Frames nach Align | **No Align · Scan Frames** (gesperrt, unter Advanced, Beschriftung „Alignment mode“); R.o.Interest heißt **Draw Region** (Schritt Alignpoints) |
 | | Alignmentbox size | Zahl | 30 | | **Box size per point (px)** |
 | | Max Alignpoint movement | Zahl | 5 | | **Max. point shift (px)** |
-| | Align by Centre of gravity | Häkchen | aus | gesperrt | Align by center of gravity (gesperrt) |
-| | Lum. Threshold | Zahl | 0 | gesperrt | Brightness threshold (gesperrt) |
+| | Align by Centre of gravity | Häkchen | aus | gesperrt | Align by center of gravity (Mac: frei seit MAC-021, eigene Umsetzung; Windows gesperrt) |
+| | Lum. Threshold | Zahl | 0 | gesperrt | Brightness threshold, 0–255, Standard **20** (Mac: frei seit MAC-021, nur mit dem Häkchen aktiv; Windows gesperrt) |
 | | Estimate Rotation | Häkchen | aus | gesperrt | Estimate rotation (gesperrt) |
 | Limit Setup | Lowest Quality (%) · Best Frames (%) · Frames/Apoint · Best Frames | Auswahl | Lowest Quality (%) | | **At least % of the best quality** · **Best % of frames** · Best frames per point · **Best number of frames**; Standard At least % of the best quality; Gruppe im Schritt **Best Frames** (Original: Limit Setup) |
 | | Prozentwert | Zahl | 80 | | — |

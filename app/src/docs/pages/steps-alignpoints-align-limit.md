@@ -27,7 +27,7 @@ The steps follow each other in this order: **Align** is possible after **Set Ali
 
 **Draw Region** works, see [Align your frames](align-your-frames). **No Align** and **Scan Frames** are dimmed and marked **Not available yet**.
 
-*Keep points inside the scan frame*, *Show Alignment*, *Align by center of gravity*, *Brightness threshold* and *Estimate rotation* are also **Not available yet**.
+*Keep points inside the scan frame*, *Show Alignment* and *Estimate rotation* are also **Not available yet**. *Align by center of gravity* with its *Brightness threshold* works in the Mac version (locked in the Windows version for now), see [Align your frames](align-your-frames).
 
 ## Quality chart
 

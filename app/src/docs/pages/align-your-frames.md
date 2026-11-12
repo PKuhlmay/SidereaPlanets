@@ -53,6 +53,19 @@ Set Alignpoints reads these settings when you press it, and Align reads *Box siz
 
 > **Frames that drift.** A frame may sit up to about 64 pixels away from the reference. Siderea Planets finds that drift first, on a reduced picture of the whole frame, and only then looks for the points within *Max. point shift* of it. So the points need to move 5 pixels at most, however far the whole picture drifted.
 
+## Align by center of gravity
+
+If the planet jumps further than about 64 pixels between frames (strong seeing, a mount that does not track well), the search above loses it. **Align by center of gravity** under **Advanced** in the step *Align* finds the drift another way: from the centre of the planet's brightness, like the middle of a bright coin on a dark table. That works however far the planet moves, as long as it stays whole in the frame. The points then look within *Max. point shift* of that centre as before.
+
+1. In the step *Align*, open **Advanced** and turn on **Align by center of gravity**.
+2. **Brightness threshold** (0–255, 20 to start with): pixels up to this brightness do not count, so the dark sky and its noise do not pull the centre towards the middle of the frame. Raise it if a moon or a bright edge pulls the planet off; keep it below the faint edge of the planet.
+3. Press **Align** (or **Align Again**). Stack uses the same setting when it lines up the frames.
+
+- Use it for a whole planet against a dark sky. For the Moon, or the Sun in close-up where the surface fills the frame, leave it off: there is no centre to follow, and the search finds the drift from the details.
+- The centre is measured in the whole frame, also when a region is drawn: the region stays where it is, while the planet may jump out of it.
+- If no pixel is brighter than the threshold, Siderea Planets falls back to the search on the reduced picture.
+- Works in the Mac version. In the Windows version the check box is locked for now.
+
 ## Region of interest
 
 Not everything in the frame is the planet: a moon at the edge, a dark border, hot pixels. **Draw Region** lets you draw a rectangle that alignment is based on. The rectangle is called a region of interest.

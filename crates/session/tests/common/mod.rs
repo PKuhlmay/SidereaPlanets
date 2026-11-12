@@ -80,6 +80,7 @@ pub fn align_settings() -> AlignSettings {
         box_size: 12,
         max_movement: 3,
         roi: None,
+        centre_of_gravity: None,
     }
 }
 
@@ -100,6 +101,7 @@ pub fn stack_settings(points: &Alignpoints) -> StackSettings {
         edge_skip: 0,
         roi: None,
         derotation: None,
+        centre_of_gravity: None,
     }
 }
 

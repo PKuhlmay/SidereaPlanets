@@ -49,6 +49,25 @@ import Testing
         #expect(alignSettings(AlignOptions(), roi: roi) == AlignSettings(boxSize: 30, maxMovement: 5, roi: roi))
     }
 
+    // MARK: Align by center of gravity (MAC-021)
+
+    @Test func centreOfGravityIsOffByDefaultWithAThresholdOf20() {
+        let options = AlignOptions()
+        #expect(!options.centreOfGravity && options.brightnessThreshold == 20)
+        #expect(alignSettings(options, roi: nil).centreOfGravity == nil)
+    }
+
+    @Test func centreOfGravitySendsItsThresholdHeldTo0To255() {
+        var options = AlignOptions()
+        options.centreOfGravity = true
+        options.brightnessThreshold = 35
+        #expect(alignSettings(options, roi: nil).centreOfGravity == 35)
+        options.brightnessThreshold = 300
+        #expect(centreOfGravityThreshold(options) == 255)
+        options.brightnessThreshold = -5
+        #expect(centreOfGravityThreshold(options) == 0)
+    }
+
     @Test func typedValuesAreHeldToWhatTheCoreCanTake() {
         #expect(wholeNumber(-4, minimum: 0) == 0)
         #expect(wholeNumber(0, minimum: 1) == 1)

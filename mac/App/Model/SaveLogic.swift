@@ -203,6 +203,8 @@ nonisolated func alignSection(_ options: AlignOptions, show: ShowOptions) -> JSO
         "showAlignment": .bool(options.showAlignment),
         "boxSize": .number(Double(options.boxSize)),
         "maxMovement": .number(Double(options.maxMovement)),
+        "centreOfGravity": .bool(options.centreOfGravity),
+        "brightnessThreshold": .number(Double(options.brightnessThreshold)),
         "limitMode": .string(options.limitMode.rawValue),
         "limitPercent": .number(Double(options.limitPercent)),
         "limitCount": .number(Double(options.limitCount)),
@@ -226,6 +228,8 @@ nonisolated func applyAlignSection(_ section: JSON?, to options: inout AlignOpti
     read.bool("showAlignment", &options.showAlignment)
     read.int("boxSize", &options.boxSize)
     read.int("maxMovement", &options.maxMovement)
+    read.bool("centreOfGravity", &options.centreOfGravity)
+    read.int("brightnessThreshold", &options.brightnessThreshold)
     read.choice("limitMode", &options.limitMode)
     read.int("limitPercent", &options.limitPercent)
     read.int("limitCount", &options.limitCount)

@@ -115,17 +115,23 @@ struct AlignStepView: View {
                     LockedSegments(first: "No Align", second: "Scan Frames")
                     Text("Not available yet").font(.rkSmall).foregroundStyle(RK.muted)
                     PanelCheckbox(title: "Show alignment", isOn: .constant(false), isLocked: true)
-                    // Locked because the way they work is not known (docs/ui.md).
-                    PanelCheckbox(title: "Align by center of gravity", isOn: .constant(false), isLocked: true)
+                    PanelCheckbox(
+                        title: "Align by center of gravity", isOn: $model.options.centreOfGravity,
+                        help: "Follows the planet by the centre of its brightness, however far it jumps between frames. For a whole planet against a dark sky; leave it off for the Moon or the Sun in close-up."
+                    )
+                    let gravityOn = model.options.centreOfGravity
                     HStack(spacing: 8) {
-                        Text("Brightness threshold").font(.rk).foregroundStyle(RK.off)
+                        Text("Brightness threshold").font(.rk).foregroundStyle(gravityOn ? RK.text : RK.off)
                         Spacer(minLength: 4)
-                        NumberField(label: "Brightness threshold", value: .constant(0))
-                            .disabled(true)
-                            .opacity(0.45)
+                        NumberField(label: "Brightness threshold", value: $model.options.brightnessThreshold, range: 0...255)
+                            .disabled(!gravityOn)
+                            .opacity(gravityOn ? 1 : 0.45)
                     }
                     .padding(.leading, 20)
-                    .help("Not available yet")
+                    .help(gravityOn
+                        ? "Pixels up to this brightness (0–255) do not count towards the centre: the sky and its noise. Raise it if a moon or a bright edge pulls the planet off."
+                        : "Turn on Align by center of gravity to use it.")
+                    // Locked because the way it works is not known (docs/ui.md).
                     PanelCheckbox(title: "Estimate rotation", isOn: .constant(false), isLocked: true)
                 }
             }

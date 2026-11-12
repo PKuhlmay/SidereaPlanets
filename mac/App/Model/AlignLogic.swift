@@ -48,6 +48,9 @@ nonisolated struct AlignOptions: Equatable, Sendable {
     var boxSize = 30
     var maxMovement = 5
     var showAlignment = false
+    /// Align by center of gravity and its Brightness threshold (0–255); our own design, not a default of the reference program (MAC-021).
+    var centreOfGravity = false
+    var brightnessThreshold = 20
     // Limit
     var limitMode = LimitMode.lowestQuality
     var limitPercent = 80
@@ -168,8 +171,14 @@ nonisolated func alignSettings(_ options: AlignOptions, roi: RoiSettings?) -> Al
     AlignSettings(
         boxSize: wholeNumber(options.boxSize, minimum: 1),
         maxMovement: wholeNumber(options.maxMovement, minimum: 0),
-        roi: roi
+        roi: roi,
+        centreOfGravity: centreOfGravityThreshold(options)
     )
+}
+
+/// The Brightness threshold of Align by center of gravity, held to 0–255; `nil` while the option is off.
+nonisolated func centreOfGravityThreshold(_ options: AlignOptions) -> Float? {
+    options.centreOfGravity ? Float(min(max(options.brightnessThreshold, 0), 255)) : nil
 }
 
 /// Lowest Quality (%) and Best Frames (%) take the percent field, the two count modes the number field.

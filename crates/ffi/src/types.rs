@@ -341,6 +341,9 @@ pub struct AlignSettings {
     pub box_size: u32,
     pub max_movement: u32,
     pub roi: Option<RoiSettings>,
+    /// *Align by center of gravity*: its *Brightness threshold* (0..=255); `None` is off.
+    #[uniffi(default = None)]
+    pub centre_of_gravity: Option<f32>,
 }
 
 impl From<AlignSettings> for session::AlignSettings {
@@ -349,6 +352,7 @@ impl From<AlignSettings> for session::AlignSettings {
             box_size: s.box_size,
             max_movement: s.max_movement,
             roi: s.roi.map(Into::into),
+            centre_of_gravity: s.centre_of_gravity,
         }
     }
 }
@@ -460,6 +464,9 @@ pub struct StackSettings {
     /// *De-rotate images*; `None` is off.
     #[uniffi(default = None)]
     pub derotation: Option<DerotationSettings>,
+    /// *Align by center of gravity* of the Align step: its *Brightness threshold* (0..=255); `None` is off.
+    #[uniffi(default = None)]
+    pub centre_of_gravity: Option<f32>,
 }
 
 impl From<StackSettings> for session::StackSettings {
@@ -480,6 +487,7 @@ impl From<StackSettings> for session::StackSettings {
             edge_skip: s.edge_skip,
             roi: s.roi.map(Into::into),
             derotation: s.derotation.map(Into::into),
+            centre_of_gravity: s.centre_of_gravity,
         }
     }
 }

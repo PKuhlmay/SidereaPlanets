@@ -424,8 +424,13 @@ Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und
 - Wichtig: Alignmentbox size (in der App: Box size per point (px)); Max Alignpoint movement (in der App: Max. point shift (px)).
   Die Segmente No Align · Scan Frames (beide noch ohne Funktion: gesperrt, Tooltip und Hinweis „Not available yet“) stehen seit
   MAC-014 unter Advanced, Beschriftung „Alignment mode“.
-- Advanced: der Rest der Gruppe Alignment setup, dazu die Segmente No Align · Scan Frames; Show Alignment, Align by Centre of
-  gravity, Lum. Threshold und Estimate Rotation (in der App: Align by center of gravity, Brightness threshold, Estimate rotation) sind gesperrt.
+- Advanced: der Rest der Gruppe Alignment setup, dazu die Segmente No Align · Scan Frames; Show Alignment und Estimate Rotation sind
+  gesperrt. **Align by center of gravity** (Original: Align by Centre of gravity) ist seit MAC-021 frei: Häkchen, darunter eingerückt
+  (20 px) **Brightness threshold** (0–255, Standard 20), Feld und Beschriftung nur mit dem Häkchen aktiv, sonst auf 45 % gedimmt und
+  Tooltip „Turn on Align by center of gravity to use it.“ Tooltip des Häkchens: „Follows the planet by the centre of its brightness,
+  however far it jumps between frames. For a whole planet against a dark sky; leave it off for the Moon or the Sun in close-up.“,
+  des Felds: „Pixels up to this brightness (0–255) do not count towards the centre: the sky and its noise. Raise it if a moon or a
+  bright edge pulls the planet off.“
 - Aktion: **Align**. Frame-Leiste sichtbar.
 
 ### 4 Limit (in der App: Best Frames)

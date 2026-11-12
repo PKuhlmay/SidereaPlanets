@@ -437,3 +437,18 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
       `glossary.md` beschreiben die Funktion schon (Zeile in `step-stack.md`: „Works in the Mac version“; die Windows-Version nennt sie bis dahin gesperrt, dann ist die Zeile
       und der Test `describes De-rotate images as working in the Mac version` anzupassen). *Save Aligned* und *Save Integrated* derotieren nicht.
 
+## Align by center of gravity (Mac: MAC-021)
+
+- [ ] Im Schritt Align, Advanced, sind **Align by center of gravity** (Häkchen, Standard aus) und **Brightness threshold** (0–255, Standard **20**,
+      eingerückt 20 px, nur mit dem Häkchen aktiv, sonst 45 % gedimmt) frei; *Estimate rotation* bleibt gesperrt. Tooltips und Aufbau in `docs/design.md`,
+      Abschnitt „3 Align“. Windows: `app/src/components/AlignStep.vue` (heute gesperrt, Feld heißt dort noch „Lum. Threshold“ mit 0), neue Werte
+      `settings.align.centreOfGravity` und `settings.align.brightnessThreshold`. Mac: `mac/App/Views/AlignPanels.swift`, `mac/App/Model/AlignLogic.swift`
+      (`centreOfGravityThreshold`: aus = `null`, an = Schwelle auf 0–255 begrenzt).
+- [ ] Align **und** Stack schicken den Wert mit: `AlignSettings.centreOfGravity` und `StackSettings.centreOfGravity` (Zahl 0–255 oder fehlend/`null` = aus).
+      Windows: `app/src/logic/align.ts` (`alignArgs`), `app/src/logic/stack.ts`. Mac: `mac/App/Model/StackLogic.swift` (`stackSettings`).
+- [ ] **Projektdatei:** Abschnitt `align` bekommt `centreOfGravity` (bool) und `brightnessThreshold` (Zahl); fehlen sie, bleiben die Werte.
+      Mac: `mac/App/Model/SaveLogic.swift` (`alignSection`, `applyAlignSection`).
+- [ ] **Schon gemeinsam auf `main`:** Rechenkern (`AlignParams.centre_of_gravity`, `crates/core/src/align.rs`), Session (`#[serde(default)]`, die Tauri-Befehle
+      reichen den Wert durch, die Windows-App schickt bisher keinen) und die Hilfe (`align-your-frames.md`, Abschnitt „Align by center of gravity“, mit der Zeile
+      „Works in the Mac version. In the Windows version the check box is locked for now.“; `steps-alignpoints-align-limit.md`; `glossary.md`). Beim Nachziehen
+      die Windows-Hinweise in diesen Seiten streichen.

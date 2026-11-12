@@ -258,6 +258,10 @@ pub struct AlignParams {
     pub box_size: u32,
     /// *Max Alignpoint movement*: how far a point may move against the reference, in pixels.
     pub max_movement: u32,
+    /// *Align by center of gravity* with its *Brightness threshold* on a 0..=255 scale; `None` is off. The drift of a frame then
+    /// comes from the brightness centroid instead of the coarse correlation search, with no limit on its size. Our own design,
+    /// never observed in the original (`docs/offene-fragen.md`, question 21).
+    pub centre_of_gravity: Option<f32>,
 }
 
 impl Default for AlignParams {
@@ -265,6 +269,7 @@ impl Default for AlignParams {
         Self {
             box_size: 30,
             max_movement: 5,
+            centre_of_gravity: None,
         }
     }
 }
@@ -287,6 +292,8 @@ pub struct Reference {
     templates: Vec<Option<Template>>,
     /// The whole frame at coarse scales, for the global shift.
     coarse: Vec<Level>,
+    /// Brightness centroid of the reference frame when *Align by center of gravity* is on.
+    centroid: Option<(f64, f64)>,
 }
 
 /// A frame drifts between exposures. The drift is found at coarse scales first, so that the points
@@ -339,6 +346,25 @@ impl Level {
             region,
         }
     }
+}
+
+/// The brightness centroid `(x, y)` of a luminance image: every pixel weighs by how far it lies above `threshold` (0..=255), pixels
+/// at or below it do not count. `None` if no pixel is above it.
+fn centroid(luma: &Image, threshold: f32) -> Option<(f64, f64)> {
+    let t = f64::from(threshold) / 255.0;
+    let w = luma.width as usize;
+    let (mut sum, mut sx, mut sy) = (0.0f64, 0.0f64, 0.0f64);
+    for (y, row) in luma.data.chunks_exact(w.max(1)).enumerate() {
+        for (x, &v) in row.iter().enumerate() {
+            let weight = f64::from(v) - t;
+            if weight > 0.0 {
+                sum += weight;
+                sx += weight * x as f64;
+                sy += weight * y as f64;
+            }
+        }
+    }
+    (sum > 0.0).then(|| (sx / sum, sy / sum))
 }
 
 /// The integer shift `(dx, dy)` within `radius` of `centre` for which `img` shifted by it matches
@@ -428,6 +454,9 @@ impl Reference {
             height: frame.height,
             points: points.to_vec(),
             templates,
+            centroid: params
+                .centre_of_gravity
+                .and_then(|threshold| centroid(&luma, threshold)),
             coarse: COARSE_FACTORS
                 .iter()
                 .filter(|&&f| {
@@ -439,8 +468,17 @@ impl Reference {
         }
     }
 
-    /// How far `luma` has drifted against the reference, in whole pixels.
+    /// How far `luma` has drifted against the reference, in whole pixels: from the brightness centroids when *Align by center of
+    /// gravity* is on, otherwise by correlation at coarse scales.
     fn global_shift(&self, luma: &Image) -> (i32, i32) {
+        // With nothing above the threshold, in the reference or in this frame, the correlation search still has a go.
+        if let Some(((rx, ry), (fx, fy))) = self
+            .params
+            .centre_of_gravity
+            .and_then(|threshold| self.centroid.zip(centroid(luma, threshold)))
+        {
+            return ((fx - rx).round() as i32, (fy - ry).round() as i32);
+        }
         let mut shift = (0, 0);
         let mut radius = MAX_DRIFT / COARSE_FACTORS[0] as i32;
         for level in &self.coarse {
@@ -840,6 +878,66 @@ mod tests {
             }
         }
         img
+    }
+
+    /// A textured planet of radius 50 on a faintly noisy sky (about 15 of 255), its centre at `(150, 170) + shift`.
+    fn planet(shift: (f32, f32)) -> Image {
+        let (width, height) = (400u32, 300u32);
+        let (cx, cy) = (150.0 + shift.0, 170.0 + shift.1);
+        let mut img = Image::new(width, height, 1);
+        let mut seed = 777u32;
+        for y in 0..height {
+            for x in 0..width {
+                seed = seed.wrapping_mul(1664525).wrapping_add(1013904223);
+                let sky = 0.05 + 0.02 * ((seed >> 8) as f32 / (1u32 << 24) as f32);
+                let (u, v) = (x as f32 - cx, y as f32 - cy);
+                img.data[(y * width + x) as usize] = if u.hypot(v) < 50.0 {
+                    // Bands and spots that move with the disc.
+                    0.55 + 0.15 * (v * 0.35).sin() + 0.1 * (u * 0.21 + v * 0.13).cos()
+                } else {
+                    sky
+                };
+            }
+        }
+        img
+    }
+
+    fn planet_reference(centre_of_gravity: Option<f32>) -> (Image, Reference) {
+        let frame = planet((0.0, 0.0));
+        let points = find_alignpoints(&frame, &PointParams::default());
+        let params = AlignParams {
+            centre_of_gravity,
+            ..AlignParams::default()
+        };
+        let reference = Reference::new(&frame, &points, &params);
+        (frame, reference)
+    }
+
+    #[test]
+    fn centre_of_gravity_follows_a_drift_beyond_the_coarse_search() {
+        // 110 px is beyond MAX_DRIFT, the correlation search cannot reach it.
+        let truth = (110.0, -40.0);
+        let (_, reference) = planet_reference(Some(20.0));
+        assert!(!reference.points().is_empty());
+        let result = reference.align_frame(&planet(truth));
+        assert!((result.shift.0 - truth.0).abs() < 0.3, "{:?}", result.shift);
+        assert!((result.shift.1 - truth.1).abs() < 0.3, "{:?}", result.shift);
+        let tracked = result.points.iter().flatten().count();
+        assert!(
+            tracked * 2 > result.points.len(),
+            "tracked {tracked} of {}",
+            result.points.len()
+        );
+    }
+
+    #[test]
+    fn centre_of_gravity_falls_back_to_the_search_when_nothing_is_bright_enough() {
+        // No pixel reaches 255, so there is no centroid; the correlation search still finds a small drift.
+        let truth = (20.0, 10.0);
+        let (_, reference) = planet_reference(Some(255.0));
+        let result = reference.align_frame(&planet(truth));
+        assert!((result.shift.0 - truth.0).abs() < 0.3, "{:?}", result.shift);
+        assert!((result.shift.1 - truth.1).abs() < 0.3, "{:?}", result.shift);
     }
 
     fn reference_of(frame: &Image) -> Reference {

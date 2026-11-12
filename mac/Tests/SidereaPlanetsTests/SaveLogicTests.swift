@@ -94,12 +94,24 @@ import Testing
         #expect(optionsBack == options && showBack == show && stackBack == stack)
     }
 
+    @Test func centreOfGravityAndItsThresholdSurviveTheProjectFile() {
+        var options = AlignOptions()
+        options.centreOfGravity = true
+        options.brightnessThreshold = 42
+        var back = AlignOptions()
+        var show = ShowOptions()
+        applyAlignSection(alignSection(options, show: ShowOptions()), to: &back, show: &show)
+        #expect(back.centreOfGravity && back.brightnessThreshold == 42)
+    }
+
     @Test func theAlignSectionHasTheKeysOfTheWindowsSettingsWithoutTheThreshold() throws {
         guard case .object(let keys) = alignSection(AlignOptions(), show: ShowOptions()) else { throw Missing() }
         #expect(Set(keys.keys) == [
             "showFullImage", "showRoi", "showAlignpoints", "showAligndata", "showFramelist", "showRegistrationgraph", "showPrefilter",
             "minDistance", "edgeDistance", "intensity", "lo", "hi", "showAlignment", "boxSize", "maxMovement", "limitMode",
             "limitPercent", "limitCount",
+            // MAC-021, not in the Windows settings yet (docs/parity/WINDOWS_PARITY.md).
+            "centreOfGravity", "brightnessThreshold",
         ])
         #expect(keys["intensity"] == .string("default"))
         #expect(keys["limitMode"] == .string("lowestQuality"))
