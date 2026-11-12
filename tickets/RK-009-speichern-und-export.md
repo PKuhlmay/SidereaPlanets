@@ -18,6 +18,11 @@ Do All geändert, oder lief noch keins, startet `saveImage` (`app/src/saving.ts`
 in den Schlüssel, weil sie das Do-All-Ergebnis nicht beeinflusst (sie bestimmt nur die Vorschau); die Farb- und Tonkarten auch nicht, sie werden beim
 Schreiben angewendet. Tests: `app/src/flow.test.ts` („Save image in the Wavelet tab“), rot an Assertionen gesehen, dann grün. Nicht in der laufenden App geprüft.
 
+Open project behält die Ebenenwerte der Datei (2026-11-12, Fund aus dem Durchlauf der Release-App): Der Schritt Wavelets ist bis Stack gesperrt, und ein
+neues Summenbild setzt die Ebenen ohne Hold Wavelet Setting zurück; Layer 1 stand nach Open project und Stack wieder auf 1.0. `openProject` ruft jetzt
+`keepWaveletValuesForNextStack` (`app/src/wavelet.ts`) auf: das nächste Summenbild überspringt das Zurücksetzen einmal, danach gilt wieder die alte
+Regel, Hold bleibt unverändert. Test: `app/src/projectWavelet.test.ts`, rot an Assertionen gesehen, dann grün.
+
 Backend und Oberfläche sind angebunden. Die Testläufe sind grün (`cargo test --workspace`, `cargo clippy`, `pnpm build`, `pnpm test`), neue
 Tests waren vorher rot. Die Kriterien bleiben offen, bis das Speichern in der laufenden App von Hand geprüft ist (dieser Stand
 wurde nur über Tests und Bau geprüft, die App selbst wurde nicht gestartet).

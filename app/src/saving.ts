@@ -13,7 +13,7 @@ import { buildSequenceRequest } from "./logic/stack";
 import { openRecording } from "./recording";
 import { imageKind } from "./logic/workflow";
 import { advance } from "./steps";
-import { doAllIsUpToDate, runDoAll } from "./wavelet";
+import { doAllIsUpToDate, keepWaveletValuesForNextStack, runDoAll } from "./wavelet";
 import { session, settings, status } from "./state";
 
 export type ImageSource = "stack" | "wavelet";
@@ -159,6 +159,7 @@ export async function openProject(): Promise<void> {
     // openRecording reports its own error; the settings only apply if the recording is the one that is open now.
     if (session.paths.join("|") !== project.recording.join("|")) return;
     applyProject(settings, project);
+    keepWaveletValuesForNextStack();
     status.result = `Opened ${fileName(loaded.path)}`;
   } catch (e) {
     status.result = message("Open project", e);

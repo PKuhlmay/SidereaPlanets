@@ -71,7 +71,7 @@ These three check boxes (under **Advanced**) are not fully known from the refere
 | Check box | What it does here |
 |---|---|
 | Automatic | Once you stop moving the sliders for about half a second, **Do All** runs by itself |
-| Hold Wavelet Setting | Keeps the layer values when a new stacked image arrives. Without it, the layers go back to their start values |
+| Hold Wavelet Setting | Keeps the layer values when a new stacked image arrives. Without it, the layers go back to their start values. Layer values that come from a project file are kept for the first stacked image after **Open** in any case |
 | Use Linked Wavelets | Moving one slider moves all six by the same amount |
 
 ## Schemes

@@ -172,10 +172,24 @@ export async function saveScheme(): Promise<void> {
 
 // Hold Wavelet Setting keeps the values when a new stacked image arrives; without it they start over.
 // (The original's behaviour is a guess, see docs/offene-fragen.md.)
+// Open project is the exception: the Wavelets step stays locked until Stack, so the values from the project file
+// would be gone before anyone saw them. They are kept for the first stacked image after it, Hold or not.
+let keepForNextStack = false;
+
+/** Open project calls this after it put the values of the file into the settings. */
+export function keepWaveletValuesForNextStack(): void {
+  keepForNextStack = true;
+}
+
 watch(
   () => session.stackImage,
   (stack) => {
-    if (!inTauri() || !stack || settings.wavelet.hold) return;
+    if (!inTauri() || !stack) return;
+    if (keepForNextStack) {
+      keepForNextStack = false;
+      return;
+    }
+    if (settings.wavelet.hold) return;
     settings.wavelet.layers.forEach((layer) => Object.assign(layer, defaultLayer()));
   },
 );
