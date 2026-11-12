@@ -17,6 +17,10 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] Ganzer Ablauf mit JUPITER.AVI: Select, Set Alignpoints, Align, Limit, Stack, Do All, Save image (TIFF 16 Bit), Datei öffnet.
 - [ ] Align mit Pause und Cancel bei einem langen Lauf; Balken und Frame-Zähler laufen.
 - [ ] Zoom per Trackpad und Mausrad, Verschieben, 100 %-Klick, Vorher/Nachher.
+- [ ] Open mit SER, mit einer Bildserie (mehrere TIFF/PNG zusammen markieren, Reihenfolge nach Name) und mit FITS; Datei aus dem Finder
+  auf das Fenster ziehen; „Open Recent“ (auch „Clear Menu“) und MRU in der Werkzeugleiste.
+- [ ] Bildbereich: Pinch auf dem Trackpad zoomt um die Finger, ⌥+Scrollen und ⌘+Scrollen zoomen um den Zeiger, Scrollen verschiebt,
+  Zwei-Finger-Doppeltipp wechselt zwischen Fit und 100 %; ⌘+ ⌘- ⌘0 ⌘1 und ⌘[ ⌘] per Tastatur (Menü View).
 - [ ] Help-Fenster öffnet getrennt vom Hauptfenster; Suche und Blättern.
 - [ ] Menüleiste und ⌘-Kürzel (Open, Save image, Cancel, Help) wirken.
 - [ ] CPUs-Feld: Standard sind alle Kerne; mit 1 ist ein langer Align deutlich langsamer.

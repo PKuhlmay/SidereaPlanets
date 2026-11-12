@@ -1,21 +1,42 @@
 # SidereaPlanets für den Mac
 
 Native Mac-App in **SwiftUI** auf dem gemeinsamen **Rust-Kern** (`crates/`), analog zu Siderea: Die Mac-App führt, die Windows-App
-(`app/`, Tauri und Vue) zieht nach. Die Mac-App gibt es noch nicht; sie entsteht mit
-[`tickets/MAC-001-mac-app-aufbauen.md`](tickets/MAC-001-mac-app-aufbauen.md) am Mac.
+(`app/`, Tauri und Vue) zieht nach. Die Mac-App entsteht mit
+[`tickets/MAC-001-mac-app-aufbauen.md`](tickets/MAC-001-mac-app-aufbauen.md) am Mac; Stand siehe „Status“.
 
-## Aufbau (geplant, MAC-001 legt ihn an)
+## Aufbau
 
 ```
 mac/
-  project.yml            xcodegen-Spezifikation (Ziel SidereaPlanets, MARKETING_VERSION)
-  App/                   SwiftUI-Oberfläche: Schrittleiste, Panels, Bildbereich, Fenster, Menüs
+  project.yml            xcodegen-Spezifikation (Ziele SidereaPlanets und SidereaPlanetsTests, MARKETING_VERSION, ad-hoc-Signierung)
+  App/                   SwiftUI-Oberfläche (MAC-005)
+    SidereaPlanetsApp.swift  Fenster (eine Window-Szene), Menüleiste (⌘O, Open Recent, Zoom, Frames)
+    Design/              Tokens.swift (Spiegel von docs/design/tokens.css, hell und dunkel), RKButtonStyle
+    Model/               AppModel (@Observable, MainActor: Sitzung, Schritt, Frame, Bild, Statustexte), StepLogic (Schrittzustände),
+                         RecentList (MRU), RecordingDetails (Dateiangaben), ViewTransform und ImageViewport (Zoom und Pan),
+                         SessionBackend (was die App vom Kern braucht), RecordingPicker (NSOpenPanel), DebugLaunch (nur Debug)
+    Views/               ContentView (Fenster und Werkzeugleiste), StepBar, StepPanel, ImageArea, ImageCanvas (NSView mit einer
+                         CALayer für das Bild), FrameBar, StatusBar
+  Tests/SidereaPlanetsTests/ Swift Testing: Schrittzustände, MRU, AppModel (mit FakeBackend), Zoom-Rechnung, Dateiangaben
   Packages/SidereaPlanetsKit/  Swift-Paket um die Rust-Schnittstelle (XCFramework und erzeugte Bindings)
   tickets/               MAC-NNN-kurzer-titel.md
   CHANGELOG.md           ab dem ersten Mac-Release
   README.md              diese Datei
-crates/ffi/              Rust-Schnittstelle (UniFFI) auf den Rechenkern, GUI-frei (von MAC-001 angelegt)
+crates/ffi/              Rust-Schnittstelle (UniFFI) auf den Rechenkern, GUI-frei (MAC-004)
 ```
+
+Die App rechnet nichts selbst: `AppModel` hält nur, was die Ansichten zeigen, und ruft den Kern über das Protokoll `SessionBackend`
+(`PlanetsSession` ist die echte Umsetzung, die Tests bringen eine Attrappe). Spätere Schritte (MAC-006 bis MAC-010) hängen ihre
+Aufrufe dort und ihre Panels in `StepPanel` ein; `ViewStep.isBuilt` sagt, welche Schritte schon ein Panel haben. Das Bild geht als
+`CGImage` in eine Layer (`ImageCanvas`): Zoomen und Verschieben ändern nur ihr Frame, die Pixel werden pro Frame einmal hochgeladen, und
+Frames lesen und umrechnen auf einer Hintergrund-Queue (`@concurrent`), immer nur einer zugleich, mit dem neuesten Wunsch als nächstem.
+
+**Sandbox aus:** Die App darf vorerst Aufnahmen an jedem Ort lesen und Ergebnisse überall schreiben (`ENABLE_APP_SANDBOX: NO` in
+`project.yml`); für ein sandboxed Release brauchte es Security-scoped Bookmarks für die MRU und Entitlements für Dateizugriff. Das
+entscheidet MAC-010 mit der Signierung.
+
+**Debug-Argumente** (nur Debug-Builds, für Screenshots und Handproben): `open -a build/mac/Build/Products/Debug/SidereaPlanets.app --args
+-open <Datei[:Datei…]> -appearance light|dark -step open|alignpoints|… -frame <n>`.
 
 Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik in
 `crates/session` (aus den Tauri-Befehlen gezogen, MAC-003; die Tauri-Shell ist nur noch eine dünne Hülle darüber). Alles, was eine
@@ -112,8 +133,25 @@ Hook startet es im Hintergrund; nur der Haupt-Checkout auf `main` löst aus (Wor
 
 ## Bauen und veröffentlichen
 
-Wird mit `MAC-001` ausgefüllt (xcodegen, `xcodebuild`, Bündel, Signierung und Notarisierung). Bis dahin gilt das Gerüst im Skill
-`release`.
+Vollständig wird dieser Abschnitt mit `MAC-001` (Bündel, Signierung, Notarisierung). Bis dahin:
+
+```bash
+export PATH=/opt/homebrew/opt/rustup/bin:$PATH
+scripts/build-ffi.sh                          # XCFramework und Swift-Bindings (Debug arm64; --release universal)
+cd mac && xcodegen generate                   # schreibt SidereaPlanets.xcodeproj und App/Info.plist (beide nicht in Git)
+cd .. && xcodebuild -project mac/SidereaPlanets.xcodeproj -scheme SidereaPlanets -configuration Debug -arch arm64 \
+  -derivedDataPath build/mac build            # die App liegt unter build/mac/Build/Products/Debug/SidereaPlanets.app
+xcodebuild test -project mac/SidereaPlanets.xcodeproj -scheme SidereaPlanets -destination 'platform=macOS,arch=arm64' \
+  -derivedDataPath build/mac-test             # Swift-Tests der App (der Test startet die App kurz als Host)
+scripts/deploy-mac.sh --run                   # alles zusammen, dann die App neu starten
+```
+
+- Bundle-ID `de.kuhlmay.sidereaplanets`, `MARKETING_VERSION` 0.1.0, macOS 14 oder neuer, Swift 6 (strikte Nebenläufigkeit), Signierung
+  ad-hoc („Sign to Run Locally“, `CODE_SIGN_IDENTITY: "-"`).
+- Zu jedem Commit der App gehören die Tests grün (`xcodebuild test` oben, dazu `swift test` im Paket) und ein Bau ohne Warnungen im
+  eigenen Swift.
+- Ein Test, der die Oberfläche braucht, startet die App als Host; Screenshots des laufenden Fensters: `screencapture -x -l <Fenster-ID>`
+  (die ID aus `CGWindowListCopyWindowInfo`).
 
 ## Status
 
@@ -123,7 +161,7 @@ Wird mit `MAC-001` ausgefüllt (xcodegen, `xcodebuild`, Bündel, Signierung und 
 | MAC-002 | Kern am Mac und Deploy der Mac-App | erledigt |
 | MAC-003 | Sitzungslogik im Kern (`crates/session`) | erledigt |
 | MAC-004 | Rust-Schnittstelle (UniFFI), XCFramework, Swift-Paket | erledigt |
-| MAC-005 | App-Gerüst, Fenster, Bildbereich, Open | offen |
+| MAC-005 | App-Gerüst, Fenster, Bildbereich, Open | erledigt |
 | MAC-006 | Alignpoints, Align, Limit | offen |
 | MAC-007 | Stack | offen |
 | MAC-008 | Wavelets, Farbe, Functions | offen |

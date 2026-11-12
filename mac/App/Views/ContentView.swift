@@ -1,0 +1,74 @@
+import SwiftUI
+
+/// The window (docs/design.md, "Fensteraufbau"): step bar, left panel with the image area, frame bar and status bar under the
+/// native toolbar. Dark and light follow macOS.
+struct ContentView: View {
+    let model: AppModel
+
+    var body: some View {
+        VStack(spacing: 0) {
+            StepBar(model: model)
+            HStack(spacing: 0) {
+                StepPanel(model: model) { Task { await model.select() } }
+                ImageArea(model: model)
+            }
+            if model.showsFrameBar {
+                FrameBar(model: model)
+            }
+            StatusBar(status: model.status)
+        }
+        .background(RK.bg)
+        .frame(minWidth: RKMetrics.minWindowSize.width, minHeight: RKMetrics.minWindowSize.height)
+        .tint(RK.accent)
+        .navigationTitle(model.windowTitle)
+        .toolbar { AppToolbar(model: model) }
+        .dropDestination(for: URL.self) { urls, _ in
+            Task { await model.open(urls) }
+            return !urls.isEmpty
+        }
+        #if DEBUG
+        .task { await model.applyLaunchArguments() }
+        #endif
+    }
+}
+
+/// The toolbar: Select and MRU at the left, Cancel and Pause in the middle (they get their work with Align in MAC-006).
+/// Open project, Save, Help and CPUs follow with their tickets.
+struct AppToolbar: ToolbarContent {
+    let model: AppModel
+
+    var body: some ToolbarContent {
+        ToolbarItemGroup(placement: .navigation) {
+            Button("Select") { Task { await model.select() } }
+                .disabled(model.isBusy)
+                .help("Select a recording (⌘O)")
+            Menu("MRU") {
+                RecentMenuItems(model: model)
+            }
+            .help("Recently opened recordings")
+        }
+        ToolbarItemGroup(placement: .principal) {
+            Button("Cancel") {}.disabled(true)
+            Button("Pause") {}.disabled(true)
+        }
+    }
+}
+
+/// The recent recordings as menu items (toolbar MRU and File > Open Recent): newest first, the files of a sequence
+/// as "name (+n)", with the folder as tooltip.
+struct RecentMenuItems: View {
+    let model: AppModel
+
+    var body: some View {
+        if model.recent.entries.isEmpty {
+            Text("No recent files")
+        }
+        ForEach(model.recent.entries, id: \.self) { paths in
+            Button(RecentList.label(for: paths)) {
+                Task { await model.open(paths.map { URL(fileURLWithPath: $0) }) }
+            }
+            .disabled(model.isBusy)
+            .help(paths.joined(separator: "\n"))
+        }
+    }
+}

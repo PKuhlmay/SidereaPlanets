@@ -1,0 +1,73 @@
+# xcodegen specification of the Mac app (MAC-005). `cd mac && xcodegen generate` writes SidereaPlanets.xcodeproj (not in Git);
+# scripts/deploy-mac.sh does that and builds. The Rust core comes in through the local Swift package SidereaPlanetsKit, whose
+# XCFramework scripts/build-ffi.sh builds first.
+name: SidereaPlanets
+options:
+  bundleIdPrefix: de.kuhlmay
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+packages:
+  SidereaPlanetsKit:
+    path: Packages/SidereaPlanetsKit
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    SWIFT_STRICT_CONCURRENCY: complete
+    MARKETING_VERSION: 0.1.0
+    CURRENT_PROJECT_VERSION: 1
+    # Ad-hoc signing ("Sign to Run Locally"): no Developer ID yet, see mac/README.md.
+    CODE_SIGN_STYLE: Manual
+    CODE_SIGN_IDENTITY: "-"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+targets:
+  SidereaPlanets:
+    type: application
+    platform: macOS
+    sources:
+      - App
+    dependencies:
+      - package: SidereaPlanetsKit
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: SidereaPlanets
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSMinimumSystemVersion: "14.0"
+        LSApplicationCategoryType: public.app-category.photography
+        NSHumanReadableCopyright: "SidereaPlanets, a clone of the reference program for planetary stacking."
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: de.kuhlmay.sidereaplanets
+        PRODUCT_NAME: SidereaPlanets
+        # The app is not sandboxed for now: it opens recordings anywhere on disk (mac/README.md).
+        ENABLE_APP_SANDBOX: NO
+        ENABLE_HARDENED_RUNTIME: NO
+        GENERATE_INFOPLIST_FILE: NO
+  SidereaPlanetsTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - Tests
+    dependencies:
+      - target: SidereaPlanets
+      - package: SidereaPlanetsKit
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: de.kuhlmay.sidereaplanets.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  SidereaPlanets:
+    build:
+      targets:
+        SidereaPlanets: all
+        SidereaPlanetsTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SidereaPlanetsTests

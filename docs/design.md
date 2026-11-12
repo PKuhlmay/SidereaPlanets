@@ -1,6 +1,7 @@
 # Design der Oberfläche
 
-Verbindliche Vorgabe für alles, was im Klon sichtbar ist. Umgesetzt wird sie im Frontend unter `app/src` (RK-010);
+Verbindliche Vorgabe für alles, was im Klon sichtbar ist. Umgesetzt wird sie im Frontend unter `app/src` (RK-010) und in der
+Mac-App unter `mac/App` (MAC-005, SwiftUI; ihre bewussten Abweichungen stehen in [Mac-App](#mac-app-bewusste-abweichungen));
 jedes Ticket, das Bedienelemente anfasst, hält sich daran.
 
 Die Arbeitsteilung der Dokumente:
@@ -18,6 +19,7 @@ Bei Widersprüchen gewinnt für Begriffe und Werte `docs/ui.md`, für Aussehen u
 | Datei | Inhalt |
 |---|---|
 | `docs/design/tokens.css` | Farben, Schrift, Maße. Einzige Quelle für diese Werte, wird ins Frontend übernommen |
+| `mac/App/Design/Tokens.swift` | Dieselben Werte als Swift-Farben und -Maße für die Mac-App, je Wert mit hellem und dunklem Zweig. Ein Wert ändert sich zuerst in `tokens.css`, dann hier |
 | `docs/design/oberflaeche-entwurf.html` | Klickbarer Entwurf aller sieben Schritte, im Browser öffnen |
 | `docs/design/screenshots/` | Soll-Bilder der Zustände bei 1440×900, erzeugt aus dem Entwurf |
 | `docs/design/siderea-planets.figcraft` | Die sieben Schritte (Open, Alignpoints, Align, Limit, Stack, Wavelets, Save) als FigCraft-Datei, je dunkel und hell, dazu Limit mit geöffnetem Menü Show, Stack im erledigten Zustand und das Help-Fenster: 20 Frames, 18 davon 1440×900, die zwei Help-Fenster 1000×720. Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
@@ -609,6 +611,28 @@ dark“ und „Docs · light“), nicht aus dem klickbaren Entwurf; der Entwurf 
 | Dezimalkomma je nach Windows-Einstellung | Punkt | einheitlich auf allen Plattformen |
 | CPUs: Standard 1 | Standard = Zahl der logischen Kerne, Bereich 1 bis dahin; die Zahl wirkt auf alle Berechnungen (eigener Thread-Pool im Backend) und wird nicht in der Projektdatei gespeichert | RK-010; Philipp (2026-11-12): die Auswahl soll wirklich wirken und der Rechner standardmäßig ausgelastet sein; die Kernzahl gehört zum Rechner, nicht zum Projekt |
 | » klappt das Functions-Panel | „Functions »“ oben im Bildbereich | Beschriftung sagt, was geklappt wird |
+
+## Mac-App: bewusste Abweichungen
+
+Die Mac-App (`mac/App`, SwiftUI) übernimmt Tokens, Fensteraufbau, Schrittleiste, Panels, Bildbereich, Frame- und Statusleiste dieses
+Dokuments. Bedienelemente und Eingaben folgen dort, wo es eine Mac-Konvention gibt, dieser statt dem Entwurf:
+
+| Entwurf (Windows) | Mac-App | Grund |
+|---|---|---|
+| Werkzeugleiste als eigene Leiste, 44 px, Fenstertitel nur der des Systems | Native Werkzeugleiste im Fenster (Select, MRU, in der Mitte Cancel und Pause); Titel `SidereaPlanets — ‹Datei›` in der Titelleiste | Mac-Fensteraufbau; Help, CPUs und die Projekt-Schaltflächen kommen mit MAC-009 und MAC-010 |
+| Select und MRU nur in der Werkzeugleiste | zusätzlich **⌘O** „Open…“ und **Datei > Open Recent** (mit „Clear Menu“) | Menüleiste und ⌘-Kürzel (Mac-Konvention) |
+| Dateidialog des Betriebssystems | `NSOpenPanel`, Mehrfachauswahl; die Dateien einer Bildserie gehen nach Namen sortiert an den Kern | nativ |
+| Mausrad zoomt, Ziehen verschiebt | Pinch auf dem Trackpad zoomt um die Finger, **⌥ oder ⌘ + Scrollen** zoomt um den Zeiger, einfaches Scrollen und Ziehen verschieben, Zwei-Finger-Doppeltipp schaltet zwischen Fit und 100 % | Mac-Gesten; ein Mausrad ohne Taste zoomt nicht |
+| Zoom-Leiste − · Prozent · + · Fit | gleich, dazu **⌘+ ⌘- ⌘0** (Fit) und **⌘1** (100 %) im Menü View (auf einem deutschen Mac „Darstellung“) | Mac-Kürzel |
+| Frame-Leiste: Goto Frame und Regler | zusätzlich Schaltflächen zum vorigen und nächsten Frame sowie **⌘[** und **⌘]** | schnelles Blättern ohne Regler |
+| Thema in Settings > Theme umschaltbar | folgt der Darstellung von macOS (hell und dunkel), kein Theme-Eintrag | Systemeinstellung gilt |
+| Felder, Regler, Stepper, Menüs der Oberfläche | Systemschrift (SF) in 13 und 12 pt, native Steuerelemente (`Stepper`, `Slider`, `TextField`) mit Akzent `--accent`; eigene Gestaltung nur dort, wo dieses Dokument sie festlegt (Pillen, Schaltflächen, Zoom-Leiste, Statusleiste) | Mac-Steuerelemente, Fokus und Bedienungshilfen kommen vom System |
+| – | Eine Datei aus dem Finder auf das Fenster ziehen öffnet sie | Mac-Konvention |
+| Ansicht der Doku im Help-Fenster | Help-Fenster, About im App-Menü, Einstellungen im Menü (⌘,) und Vollbild nach Mac-Art | folgt mit MAC-010 |
+
+Die Dateiangaben im Schritt Open zeigen auf dem Mac zusätzlich zu Dateiname, Codec, Größe und Frame-Zahl auch Format, Bittiefe,
+Farbe, Bildrate und (wo die Datei sie hat) Beobachter, Instrument und Teleskop; Windows zieht das nach
+(`docs/parity/WINDOWS_PARITY.md`).
 
 ## Was im Entwurf nur Platzhalter ist
 

@@ -17,5 +17,22 @@ schon gemeinsam auf `main` liegt. Abschnitte heißen wie das Feature, gruppiert 
 erledigten Punkt aus `docs/parity/MAC_PARITY.md` (Mac zieht nach) oder trägt `[mac-only]` in der Nachricht.
 `scripts/parity-status.sh` listet die offenen Punkte je Mac-Version.
 
-Noch keine Punkte: Die Mac-App existiert noch nicht. Sie entsteht mit `mac/tickets/MAC-001-mac-app-aufbauen.md` nach dem Stand der
-Windows-App (Release-Build vom 2026-11-12, `app/`); erst danach führt der Mac, und diese Liste füllt sich.
+Bis `MAC-001` fertig ist, ist die Windows-App die Vorlage: hier stehen nur Verhalten, die der Mac vorab hat, weil sie nützlich sind
+und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dialoge stehen als Abweichung in `docs/design.md`,
+„Mac-App“). Danach führt der Mac, und diese Liste füllt sich mit jeder Änderung.
+
+## v0.1.0 (Mac, in Arbeit)
+
+### Schritt Open: Dateiangaben (MAC-005)
+
+- [ ] Das Panel des Schritts Open zeigt unter dem Dateinamen die Zeilen Format, Codec, Size, Bit depth, Frames, Colour, Frame rate
+  und, wo die Datei sie hat, Observer, Instrument und Telescope (12 px, Beschriftung `--muted`, Wert `--text`), statt nur Codec,
+  Größe und Frame-Zahl in einer Zeile. `RecordingInfo` des Rechenkerns liefert alle Werte schon. Mac:
+  `mac/App/Model/RecordingDetails.swift`, `mac/App/Views/StepPanel.swift` (`OpenStepView`).
+
+### Frame-Leiste: vorheriger und nächster Frame (MAC-005)
+
+- [ ] In der Frame-Leiste stehen zwischen Goto Frame und Regler zwei Schaltflächen „vorheriger Frame“ und „nächster Frame“
+  (Pfeil links und rechts, ohne Rahmen, am ersten bzw. letzten Frame gesperrt; Tooltip nennt das Kürzel). Der Mac belegt sie mit ⌘[ und
+  ⌘], eine Windows-Belegung (z. B. ← und →, solange kein Feld den Fokus hat) legt das Windows-Ticket fest. Mac:
+  `mac/App/Views/FrameBar.swift`, `AppModel.showNextFrame(by:)`.
