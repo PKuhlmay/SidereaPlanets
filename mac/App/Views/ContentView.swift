@@ -32,8 +32,8 @@ struct ContentView: View {
     }
 }
 
-/// The toolbar: Select and MRU at the left, Cancel and Pause in the middle (they get their work with Align in MAC-006).
-/// Open project, Save, Help and CPUs follow with their tickets.
+/// The toolbar: Select and MRU at the left, Cancel and Pause in the middle (they act on a running Align; Cancel is ⌘. in the
+/// Process menu). Open project, Save, Help and CPUs follow with their tickets.
 struct AppToolbar: ToolbarContent {
     let model: AppModel
 
@@ -48,8 +48,10 @@ struct AppToolbar: ToolbarContent {
             .help("Recently opened recordings")
         }
         ToolbarItemGroup(placement: .principal) {
-            Button("Cancel") {}.disabled(true)
-            Button("Pause") {}.disabled(true)
+            CancelButton(model: model)
+            Button(model.run?.paused == true ? "Resume" : "Pause") { model.togglePause() }
+                .disabled(!model.canCancel)
+                .help("Hold the calculation; press again to go on")
         }
     }
 }
@@ -69,6 +71,24 @@ struct RecentMenuItems: View {
             }
             .disabled(model.isBusy)
             .help(paths.joined(separator: "\n"))
+        }
+    }
+}
+
+/// Cancel is filled in the accent colour while a calculation runs (docs/design.md, "Während einer Berechnung").
+private struct CancelButton: View {
+    let model: AppModel
+
+    var body: some View {
+        if model.canCancel {
+            Button("Cancel") { model.cancelRun() }
+                .buttonStyle(.borderedProminent)
+                .tint(RK.accent)
+                .help("Stop the calculation (⌘.)")
+        } else {
+            Button("Cancel") {}
+                .disabled(true)
+                .help("Stop the calculation (⌘.)")
         }
     }
 }

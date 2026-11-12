@@ -5,8 +5,34 @@ import Testing
 
 @testable import SidereaPlanets
 
+/// What the synchronous calls (threshold, cancel, pause) leave behind; they are called from the main actor while a run is held back in
+/// the actor, so they cannot live in it.
+final class CallLog: @unchecked Sendable {
+    private let lock = NSLock()
+    private var thresholdValue = 0
+    private var cancelled: [SessionOperation] = []
+    private var pauses: [Bool] = []
+    private var cancelHandler: (@Sendable () -> Void)?
+
+    func setThreshold(_ value: Int) { lock.withLock { thresholdValue = value } }
+    var threshold: Int { lock.withLock { thresholdValue } }
+    var cancelledOperations: [SessionOperation] { lock.withLock { cancelled } }
+    var pauseCalls: [Bool] { lock.withLock { pauses } }
+    func onCancel(_ handler: @escaping @Sendable () -> Void) { lock.withLock { cancelHandler = handler } }
+
+    func recordCancel(_ operation: SessionOperation) {
+        let handler = lock.withLock { () -> (@Sendable () -> Void)? in
+            cancelled.append(operation)
+            return cancelHandler
+        }
+        handler?()
+    }
+
+    func recordPause(_ paused: Bool) { lock.withLock { pauses.append(paused) } }
+}
+
 /// A stand-in for the Rust core: opens whatever it is given, answers frames with a (n+1) x 1 image and can hold frame reads back
-/// so a test decides when each one finishes.
+/// so a test decides when each one finishes. Alignpoints, Align and Limit answer with the values set on it.
 actor FakeBackend: SessionBackend {
     struct Failure: Error, LocalizedError {
         let message: String
@@ -46,6 +72,90 @@ actor FakeBackend: SessionBackend {
         let rgba = RgbaImage(width: UInt32(width), height: 1, rgba: Data(count: width * 4))
         return try #require(rgba.makeCGImage())
     }
+
+    // MARK: Alignpoints, Align, Limit
+
+    nonisolated let log = CallLog()
+    /// Eight candidate points; the default threshold drops the two weakest.
+    static let candidateCount = 8
+    static let defaultThreshold = 2
+    var noPoints = false
+    /// The quality of each frame Align reports (10 frames, as the recording).
+    var qualities: [Float] = [92.1, 88.4, 97.3, 85.0, 90.6, 99.2, 83.7, 95.8, 87.2, 100.0]
+    /// The frames Limit keeps, best first.
+    var keptFrames: [UInt32] = [9, 5, 2]
+    var alignError: String?
+    var holdsAlign = false
+    private(set) var pointCalls: [(frame: UInt32, settings: PointSettings)] = []
+    private(set) var alignCalls: [AlignSettings] = []
+    private(set) var limitCalls: [LimitSettings] = []
+    private var alignWaiter: CheckedContinuation<Void, Error>?
+
+    func setNoPoints(_ value: Bool) { noPoints = value }
+    func setAlignError(_ message: String?) { alignError = message }
+    func setHoldsAlign(_ hold: Bool) { holdsAlign = hold }
+    func setKeptFrames(_ frames: [UInt32]) { keptFrames = frames }
+    var isAlignHeld: Bool { alignWaiter != nil }
+
+    private static func points(_ count: Int) -> [Point] {
+        (0..<count).map { Point(x: UInt32(20 * ($0 + 1)), y: UInt32(10 * ($0 + 1))) }
+    }
+
+    func setAlignpoints(frame: UInt32, _ settings: PointSettings) async throws -> Alignpoints {
+        pointCalls.append((frame, settings))
+        if noPoints { return Alignpoints(points: [], total: 0, threshold: 0) }
+        log.setThreshold(Self.defaultThreshold)
+        return Alignpoints(
+            points: Self.points(Self.candidateCount - Self.defaultThreshold), total: UInt64(Self.candidateCount),
+            threshold: UInt64(Self.defaultThreshold)
+        )
+    }
+
+    nonisolated func setAlignpointThreshold(_ threshold: UInt64) throws -> Alignpoints {
+        log.setThreshold(Int(threshold))
+        return Alignpoints(
+            points: Self.points(max(Self.candidateCount - Int(threshold), 0)), total: UInt64(Self.candidateCount), threshold: threshold
+        )
+    }
+
+    func align(_ settings: AlignSettings, progress: ProgressHandler?) async throws -> Aligned {
+        alignCalls.append(settings)
+        if let alignError { throw Failure(message: alignError) }
+        let total = UInt32(qualities.count)
+        for done in 1...max(total / 2, 1) {
+            progress?(OperationProgress(operation: .align, done: done, total: total, elapsed: .milliseconds(Int64(done) * 100)))
+        }
+        if holdsAlign {
+            log.onCancel { [weak self] in Task { await self?.failHeldAlign() } }
+            try await withCheckedThrowingContinuation { alignWaiter = $0 }
+        }
+        progress?(OperationProgress(operation: .align, done: total, total: total, elapsed: .seconds(1)))
+        return Aligned(
+            frames: qualities.enumerated().map {
+                FrameRating(index: UInt32($0.offset), quality: $0.element, shiftX: 0, shiftY: 0, difference: Float($0.offset))
+            },
+            ranking: qualities.enumerated().sorted { $0.element > $1.element }.map { UInt32($0.offset) }
+        )
+    }
+
+    /// Lets a held Align finish.
+    func finishAlign() {
+        alignWaiter?.resume()
+        alignWaiter = nil
+    }
+
+    private func failHeldAlign() {
+        alignWaiter?.resume(throwing: PlanetsError.Cancelled(message: "cancelled"))
+        alignWaiter = nil
+    }
+
+    func limit(_ settings: LimitSettings) async throws -> Limited {
+        limitCalls.append(settings)
+        return Limited(frames: keptFrames, pointShifts: [])
+    }
+
+    nonisolated func cancel(_ operation: SessionOperation) { log.recordCancel(operation) }
+    nonisolated func pause(_ operation: SessionOperation, _ paused: Bool) { log.recordPause(paused) }
 
     var waitingReads: Int { waiting.count }
 

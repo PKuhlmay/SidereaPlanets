@@ -28,7 +28,8 @@ extension AppModel {
     }
 }
 
-/// The menu bar: ⌘O Open and Open Recent in File, zoom and frame stepping in View (docs/design.md, "Bewusste Abweichungen").
+/// The menu bar: ⌘O Open and Open Recent in File, zoom and frame stepping in View, Cancel (⌘.) and Pause in Process
+/// (docs/design.md, "Bewusste Abweichungen").
 struct AppCommands: Commands {
     let model: AppModel
 
@@ -43,6 +44,13 @@ struct AppCommands: Commands {
                 Button("Clear Menu") { model.clearRecent() }
                     .disabled(model.recent.entries.isEmpty)
             }
+        }
+        CommandMenu("Process") {
+            Button("Cancel") { model.cancelRun() }
+                .keyboardShortcut(".")
+                .disabled(!model.canCancel)
+            Button(model.run?.paused == true ? "Resume" : "Pause") { model.togglePause() }
+                .disabled(!model.canCancel)
         }
         CommandGroup(after: .toolbar) {
             Divider()

@@ -8,6 +8,16 @@ protocol SessionBackend: Sendable {
     func openRecording(_ urls: [URL]) async throws -> RecordingInfo
     /// One frame of the open recording (0-based), ready for display.
     func frameImage(_ index: UInt32) async throws -> CGImage
+
+    /// Sets alignpoints on one frame. Starts a new alignment: results built on the old one are gone.
+    func setAlignpoints(frame: UInt32, _ settings: PointSettings) async throws -> Alignpoints
+    /// The *Threshold* slider; synchronous, because it moves with every step of the slider.
+    func setAlignpointThreshold(_ threshold: UInt64) throws -> Alignpoints
+    func align(_ settings: AlignSettings, progress: ProgressHandler?) async throws -> Aligned
+    func limit(_ settings: LimitSettings) async throws -> Limited
+    /// Stops a running operation; it then throws `PlanetsError.Cancelled`.
+    func cancel(_ operation: SessionOperation)
+    func pause(_ operation: SessionOperation, _ paused: Bool)
 }
 
 struct FrameConversionError: Error, LocalizedError {

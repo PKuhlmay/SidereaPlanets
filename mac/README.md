@@ -12,11 +12,14 @@ mac/
   App/                   SwiftUI-Oberfläche (MAC-005)
     SidereaPlanetsApp.swift  Fenster (eine Window-Szene), Menüleiste (⌘O, Open Recent, Zoom, Frames)
     Design/              Tokens.swift (Spiegel von docs/design/tokens.css, hell und dunkel), RKButtonStyle
-    Model/               AppModel (@Observable, MainActor: Sitzung, Schritt, Frame, Bild, Statustexte), StepLogic (Schrittzustände),
+    Model/               AppModel (@Observable, MainActor: Sitzung, Schritt, Frame, Bild, Statustexte), AppModel+Align (Set Alignpoints, Align,
+                         Limit, Cancel, Pause, Framelist), AlignLogic (Werte, Diagramm, Meldungen), StepLogic (Schrittzustände),
                          RecentList (MRU), RecordingDetails (Dateiangaben), ViewTransform und ImageViewport (Zoom und Pan),
                          SessionBackend (was die App vom Kern braucht), RecordingPicker (NSOpenPanel), DebugLaunch (nur Debug)
-    Views/               ContentView (Fenster und Werkzeugleiste), StepBar, StepPanel, ImageArea, ImageCanvas (NSView mit einer
-                         CALayer für das Bild), FrameBar, StatusBar
+    Views/               ContentView (Fenster und Werkzeugleiste), StepBar, StepPanel, AlignPanels (Alignpoints, Align, Limit mit
+                         Qualitätsdiagramm), Controls (Zahlenfeld, Auswahl), ImageArea (mit Show-Menü), ImageCanvas (NSView mit einer
+                         CALayer für das Bild, zieht auch die R.o.Interest-Region), ImageOverlays (Punkte, Region), FloatingCards
+                         (Framelist, Registrationgraph), FrameBar, StatusBar
   Tests/SidereaPlanetsTests/ Swift Testing: Schrittzustände, MRU, AppModel (mit FakeBackend), Zoom-Rechnung, Dateiangaben
   Packages/SidereaPlanetsKit/  Swift-Paket um die Rust-Schnittstelle (XCFramework und erzeugte Bindings)
   tickets/               MAC-NNN-kurzer-titel.md
@@ -37,6 +40,9 @@ entscheidet MAC-010 mit der Signierung.
 
 **Debug-Argumente** (nur Debug-Builds, für Screenshots und Handproben): `open -a build/mac/Build/Products/Debug/SidereaPlanets.app --args
 -open <Datei[:Datei…]> -appearance light|dark -step open|alignpoints|… -frame <n>`.
+Dazu für Bilder der späteren Schritte: `-run alignpoints,align,limit` drückt die Schaltflächen nacheinander (`alignpaused` startet Align und
+hält es nach dem ersten Frame an, `roidraw` drückt R.o.Interest), `-show framelist,registrationgraph`, `-roi x,y,breite,höhe`,
+`-limit lowestQuality|bestPercent|framesPerPoint|bestCount`.
 
 Das einzige, was Mac und Windows teilen, ist der **Rechenkern**: `crates/core`, `crates/io` und die GUI-freie Sitzungslogik in
 `crates/session` (aus den Tauri-Befehlen gezogen, MAC-003; die Tauri-Shell ist nur noch eine dünne Hülle darüber). Alles, was eine
@@ -162,7 +168,7 @@ scripts/deploy-mac.sh --run                   # alles zusammen, dann die App neu
 | MAC-003 | Sitzungslogik im Kern (`crates/session`) | erledigt |
 | MAC-004 | Rust-Schnittstelle (UniFFI), XCFramework, Swift-Paket | erledigt |
 | MAC-005 | App-Gerüst, Fenster, Bildbereich, Open | erledigt |
-| MAC-006 | Alignpoints, Align, Limit | offen |
+| MAC-006 | Alignpoints, Align, Limit | erledigt |
 | MAC-007 | Stack | offen |
 | MAC-008 | Wavelets, Farbe, Functions | offen |
 | MAC-009 | Save, Export, Projektdatei | offen |

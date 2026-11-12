@@ -14,6 +14,15 @@ struct StatusTexts: Equatable {
     var timeLeft = 0.0
 }
 
+/// A running calculation (Set Alignpoints, Align, Limit): its name for the window title and whether it can be cancelled and paused.
+struct Run: Equatable {
+    var name: String
+    /// The core operation Cancel and Pause act on; `nil` for the calls that are over in a moment.
+    var operation: SessionOperation?
+    var paused = false
+    var cancelled = false
+}
+
 /// The state of the window: the recording, the step and the shown frame. Calculations happen in the Rust core behind
 /// `backend`; this class only holds what the views show and decides what the buttons do.
 @MainActor @Observable
@@ -22,13 +31,30 @@ final class AppModel {
     @ObservationIgnored private let defaults: UserDefaults
     let viewport = ImageViewport()
 
-    /// How far the calculation has come (the results that exist).
-    private(set) var progress = StepProgress()
+    /// How far the calculation has come (the results that exist). Written by the open and run functions only.
+    var progress = StepProgress() {
+        // A step that became locked (Set Alignpoints or Align ran again and dropped what came after) cannot stay open.
+        didSet { if progress.state(of: viewStep).status == .locked { viewStep = progress.nextOpen } }
+    }
     /// The step the left panel shows. Another step fits the image into the area again, because the area changes with the
     /// frame bar and the right panel.
     var viewStep: ViewStep = .open {
         didSet { if viewStep != oldValue { viewport.fit() } }
     }
+
+    /// The values of the panels Alignpoints, Align and Limit, and the check marks of the Show menu.
+    var options = AlignOptions()
+    var show = ShowOptions()
+    /// The points, the rating of the frames and the region of the Align tab.
+    var align = AlignData()
+    /// The next drag in the image draws the region (R.o.Interest).
+    var isDrawingRegion = false
+    /// A calculation is running: no pill opens and the actions are locked.
+    var run: Run?
+    @ObservationIgnored var clock = JobClock()
+    @ObservationIgnored var ticker: Task<Void, Never>?
+    /// The steps whose Advanced section is open; kept until closed again, also after a restart.
+    private(set) var advancedOpen: Set<ViewStep>
 
     private(set) var details: RecordingDetails?
     private(set) var fileURLs: [URL] = []
@@ -49,6 +75,7 @@ final class AppModel {
         self.backend = backend
         self.defaults = defaults
         recent = RecentList.load(from: defaults)
+        advancedOpen = Self.loadAdvanced(from: defaults)
     }
 
     // MARK: Derived state
@@ -59,11 +86,11 @@ final class AppModel {
     var stepStates: [ViewStep: StepState] {
         Dictionary(uniqueKeysWithValues: ViewStep.allCases.map { ($0, progress.state(of: $0)) })
     }
-    /// A calculation is running: no pill opens and the actions are locked. Nothing is calculated yet in this version.
-    var isBusy: Bool { isOpening }
+    /// Opening or a calculation is running: no pill opens and the actions are locked.
+    var isBusy: Bool { isOpening || run != nil }
 
     var windowTitle: String {
-        makeWindowTitle(fileName: details?.fileName ?? "", busy: nil)
+        makeWindowTitle(fileName: details?.fileName ?? "", busy: run.map { (name: $0.name, progress: status.progress) })
     }
 
     /// The steps that work on single frames show the frame bar.
@@ -78,6 +105,9 @@ final class AppModel {
     func result(of step: ViewStep) -> String {
         switch step {
         case .open: details.map { "\($0.fileName) · \($0.info.frameCount) frames" } ?? ""
+        case .alignpoints: "\(align.points.count) set"
+        case .align: "best quality \(Int((align.bestQuality ?? 0).rounded())) %"
+        case .limit: "\(align.keptCount) of \(frameCount) kept"
         default: ""
         }
     }
@@ -94,7 +124,7 @@ final class AppModel {
 
     /// Opens a recording: a video, or one or more still frames as a sequence. A failure keeps what was open.
     func open(_ urls: [URL]) async {
-        guard !urls.isEmpty, !isOpening else { return }
+        guard !urls.isEmpty, !isBusy else { return }
         isOpening = true
         defer { isOpening = false }
         status.action = "Opening \(urls[0].lastPathComponent)"
@@ -120,12 +150,27 @@ final class AppModel {
         generation += 1
         wantedFrame = nil
         progress = StepProgress(step: .loaded)
+        align = AlignData(frameCount: Int(info.frameCount))
+        isDrawingRegion = false
         details = RecordingDetails(fileName: urls[0].lastPathComponent, info: info)
         fileURLs = urls
         frameIndex = 0
         image = nil
         status = StatusTexts()
         viewStep = progress.nextOpen
+    }
+
+    // MARK: Advanced
+
+    private static let advancedKey = "rk-advanced"
+
+    private static func loadAdvanced(from defaults: UserDefaults) -> Set<ViewStep> {
+        Set((defaults.array(forKey: advancedKey) as? [Int] ?? []).compactMap(ViewStep.init(rawValue:)))
+    }
+
+    func toggleAdvanced(_ step: ViewStep) {
+        if advancedOpen.contains(step) { advancedOpen.remove(step) } else { advancedOpen.insert(step) }
+        defaults.set(advancedOpen.map(\.rawValue).sorted(), forKey: Self.advancedKey)
     }
 
     func clearRecent() {

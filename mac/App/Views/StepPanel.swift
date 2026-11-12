@@ -53,9 +53,12 @@ struct StepPanel: View {
 
     @ViewBuilder
     private var content: some View {
-        if step == .open {
-            OpenStepView(model: model)
-        } else {
+        switch step {
+        case .open: OpenStepView(model: model)
+        case .alignpoints: AlignpointsStepView(model: model)
+        case .align: AlignStepView(model: model)
+        case .limit: LimitStepView(model: model)
+        default:
             Text("Comes in a later version")
                 .font(.rkSmall)
                 .foregroundStyle(RK.muted)
@@ -83,7 +86,7 @@ struct StepPanel: View {
                 }
                 Button("Continue: \(model.progress.nextOpen.label) ›") { model.show(model.progress.nextOpen) }
                     .buttonStyle(.rkFilled)
-                    .disabled(model.progress.nextOpen == step)
+                    .disabled(model.progress.nextOpen == step || model.isBusy)
             } else {
                 Button(step.action, action: act)
                     .buttonStyle(.rkFilled)
@@ -99,9 +102,15 @@ struct StepPanel: View {
         .overlay(alignment: .top) { RK.line.frame(height: 1) }
     }
 
-    /// The action of the shown step; only Select exists so far.
+    /// The action of the shown step; Stack, Do All and Save image come with their tickets.
     private func act() {
-        if step == .open { select() }
+        switch step {
+        case .open: select()
+        case .alignpoints: Task { await model.setAlignpoints() }
+        case .align: Task { await model.runAlign() }
+        case .limit: Task { await model.runLimit() }
+        case .stack, .wavelets, .save: break
+        }
     }
 }
 

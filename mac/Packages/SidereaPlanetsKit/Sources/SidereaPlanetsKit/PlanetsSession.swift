@@ -11,6 +11,13 @@ public struct OperationProgress: Sendable, Equatable {
     public let total: UInt32
     public let elapsed: Duration
 
+    public init(operation: SessionOperation, done: UInt32, total: UInt32, elapsed: Duration) {
+        self.operation = operation
+        self.done = done
+        self.total = total
+        self.elapsed = elapsed
+    }
+
     /// 0...1; 0 while `total` is not known yet.
     public var fraction: Double { total == 0 ? 0 : Double(done) / Double(total) }
 }

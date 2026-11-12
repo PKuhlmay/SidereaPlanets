@@ -5,6 +5,8 @@ import SwiftUI
 struct FrameBar: View {
     let model: AppModel
 
+    private var aligned: Bool { model.progress.step >= .aligned }
+
     /// Goto Frame counts from 1, the slider and the model from 0.
     private var goto: Binding<Int> {
         Binding(
@@ -20,8 +22,10 @@ struct FrameBar: View {
     var body: some View {
         HStack(spacing: 14) {
             HStack(spacing: 6) {
-                Circle().fill(RK.ok).frame(width: 9, height: 9).opacity(0.45)
-                Text("Loaded").font(.rkSmall).foregroundStyle(RK.muted)
+                Circle().fill(RK.ok).frame(width: 9, height: 9).opacity(aligned ? 1 : 0.45)
+                Text(aligned ? "Aligned" : "Loaded")
+                    .font(.rk(RKMetrics.fontSizeSmall, aligned ? .semibold : .regular))
+                    .foregroundStyle(aligned ? RK.ok : RK.muted)
             }
             .frame(minWidth: 76, alignment: .leading)
 

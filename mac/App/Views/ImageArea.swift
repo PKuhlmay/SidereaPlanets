@@ -1,21 +1,40 @@
+import SidereaPlanetsKit
 import SwiftUI
 
 /// The image area (docs/design.md, "Bildbereich"): the frame on `--canvas`, the caption at the top left and the zoom bar at the
 /// bottom. The area stays dark in both appearances.
 struct ImageArea: View {
-    let model: AppModel
+    @Bindable var model: AppModel
+    /// The rectangle of the region that is being dragged, in image pixels.
+    @State private var draft: RoiSettings?
+
+    /// The frame steps show the alignpoints and the region; the later steps show other images.
+    private var showsFrameMarks: Bool { [.open, .alignpoints, .align, .limit].contains(model.viewStep) }
 
     var body: some View {
         let viewport = model.viewport
         ZStack {
             RK.canvas
-            ImageCanvas(image: model.image, transform: viewport.transform, viewport: viewport)
+            ImageCanvas(
+                image: model.image, transform: viewport.transform, viewport: viewport,
+                isSelecting: model.isDrawingRegion, onDraft: { draft = $0 }, onSelect: { model.selectRegion($0) }
+            )
             if model.image == nil {
                 Text(model.hasRecording ? "No image yet" : "Press Select to open a recording")
                     .font(.rk)
                     .foregroundStyle(RK.onCanvas.opacity(0.6))
             } else {
+                if showsFrameMarks {
+                    ImageOverlays(
+                        transform: viewport.transform,
+                        points: model.show.alignpoints && model.progress.step >= .points ? model.align.points : [],
+                        region: model.show.roi ? model.align.roi : nil,
+                        draft: draft
+                    )
+                }
                 caption
+                if model.viewStep != .open && showsFrameMarks { ShowMenu(model: model) }
+                if showsFrameMarks && model.progress.step != .empty { FloatingCards(model: model) }
                 ZoomBar(viewport: viewport)
             }
         }
@@ -39,6 +58,41 @@ struct ImageArea: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .allowsHitTesting(false)
         }
+    }
+}
+
+/// The Show menu at the top right (docs/design.md, "Show am Bild"): the check marks of the Align tab of the original. Show ROI is
+/// locked until a region is drawn.
+private struct ShowMenu: View {
+    @Bindable var model: AppModel
+
+    var body: some View {
+        Menu {
+            Toggle("Show Full Image", isOn: $model.show.fullImage)
+            Toggle("Show ROI", isOn: $model.show.roi).disabled(model.align.roi == nil)
+            Toggle("Show Alignpoints", isOn: $model.show.alignpoints)
+            Toggle("Show Aligndata", isOn: $model.show.aligndata)
+            Toggle("Show Framelist", isOn: $model.show.framelist)
+            Toggle("Show Registrationgraph", isOn: $model.show.registrationgraph)
+            Toggle("Show Prefilter", isOn: $model.show.prefilter)
+        } label: {
+            HStack(spacing: 5) {
+                Text("Show").font(.rk(RKMetrics.fontSizeSmall, .medium))
+                Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
+            }
+            .foregroundStyle(RK.onCanvas)
+            .padding(.horizontal, 10)
+            .frame(height: 28)
+            .background(RK.canvasChrome, in: RoundedRectangle(cornerRadius: RKMetrics.radiusLarge))
+            .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusLarge).strokeBorder(RK.canvasLine, lineWidth: 1) }
+        }
+        .menuStyle(.button)
+        .buttonStyle(.plain)
+        .menuIndicator(.hidden)
+        .fixedSize()
+        .padding(10)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
+        .help("What the image and the cards show")
     }
 }
 

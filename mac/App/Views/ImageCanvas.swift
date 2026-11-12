@@ -1,3 +1,4 @@
+import SidereaPlanetsKit
 import AppKit
 import SwiftUI
 
@@ -7,17 +8,26 @@ import SwiftUI
 ///
 /// - pinch (trackpad) zooms around the fingers, a two-finger double tap toggles Fit and 100 %
 /// - scrolling with ⌥ or ⌘ held (mouse wheel or trackpad) zooms around the pointer; plain scrolling moves the image
-/// - dragging moves the image
+/// - dragging moves the image, or, while R.o.Interest waits for a region, draws a rectangle (the cross-hair cursor)
 struct ImageCanvas: NSViewRepresentable {
     let image: CGImage?
     let transform: ViewTransform
     let viewport: ImageViewport
+    /// The next drag draws a rectangle instead of moving the image.
+    var isSelecting = false
+    /// The rectangle while it is drawn, in image pixels; `nil` when the drag ends.
+    var onDraft: (RoiSettings?) -> Void = { _ in }
+    /// A finished rectangle in image pixels; a drag too small to be a region is dropped.
+    var onSelect: (RoiSettings) -> Void = { _ in }
 
     func makeNSView(context: Context) -> ImageCanvasView {
         ImageCanvasView(viewport: viewport)
     }
 
     func updateNSView(_ view: ImageCanvasView, context: Context) {
+        view.onDraft = onDraft
+        view.onSelect = onSelect
+        view.isSelecting = isSelecting
         view.show(image: image, transform: transform)
     }
 }
@@ -28,6 +38,17 @@ final class ImageCanvasView: NSView {
     private var image: CGImage?
     private var transform = ViewTransform()
     private var lastDragPoint: CGPoint?
+    /// The corner where the drag of a region started, in image pixels.
+    private var corner: CGPoint?
+    private var draft: RoiSettings?
+    var onDraft: (RoiSettings?) -> Void = { _ in }
+    var onSelect: (RoiSettings) -> Void = { _ in }
+    var isSelecting = false {
+        didSet {
+            guard isSelecting != oldValue else { return }
+            window?.invalidateCursorRects(for: self)
+        }
+    }
 
     init(viewport: ImageViewport) {
         self.viewport = viewport
@@ -63,7 +84,7 @@ final class ImageCanvasView: NSView {
     }
 
     override func resetCursorRects() {
-        addCursorRect(bounds, cursor: .openHand)
+        addCursorRect(bounds, cursor: isSelecting ? .crosshair : .openHand)
     }
 
     override var acceptsFirstResponder: Bool { true }
@@ -118,12 +139,32 @@ final class ImageCanvasView: NSView {
         }
     }
 
+    /// A point of the area in image pixels, also outside the image and between pixels.
+    private func imagePosition(_ point: CGPoint) -> CGPoint {
+        CGPoint(x: (point.x - transform.x) / transform.scale, y: (point.y - transform.y) / transform.scale)
+    }
+
     override func mouseDown(with event: NSEvent) {
+        if isSelecting, let image {
+            let start = imagePosition(point(of: event))
+            corner = start
+            setDraft(rectBetween(start, start, image: CGSize(width: image.width, height: image.height)))
+            return
+        }
         lastDragPoint = point(of: event)
         NSCursor.closedHand.set()
     }
 
+    private func setDraft(_ rect: RoiSettings?) {
+        draft = rect
+        onDraft(rect)
+    }
+
     override func mouseDragged(with event: NSEvent) {
+        if let corner, let image {
+            setDraft(rectBetween(corner, imagePosition(point(of: event)), image: CGSize(width: image.width, height: image.height)))
+            return
+        }
         guard let last = lastDragPoint else { return }
         let now = point(of: event)
         // A click without moving pans by zero, which does not count as moving the image: it keeps following the area.
@@ -132,6 +173,12 @@ final class ImageCanvasView: NSView {
     }
 
     override func mouseUp(with event: NSEvent) {
+        if corner != nil {
+            if let draft, isRegion(draft) { onSelect(draft) }
+            corner = nil
+            setDraft(nil)
+            return
+        }
         lastDragPoint = nil
         NSCursor.openHand.set()
     }
