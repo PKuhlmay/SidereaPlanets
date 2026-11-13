@@ -8,6 +8,7 @@ mod color_commands;
 mod export_commands;
 mod sequence_commands;
 mod stack_commands;
+mod usage_commands;
 mod wavelet_commands;
 
 use planets_session::{
@@ -121,11 +122,13 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(Session::new().expect("cannot start the calculation threads"))
+        .manage(usage_commands::UsageState::default())
         .invoke_handler(tauri::generate_handler![
             open_recording,
             read_frame,
             cpu_count,
             set_cpus,
+            usage_commands::process_usage,
             align_commands::set_alignpoints,
             align_commands::set_alignpoint_threshold,
             align_commands::align,

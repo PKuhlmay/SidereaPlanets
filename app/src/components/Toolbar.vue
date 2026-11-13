@@ -8,6 +8,7 @@ import { applyTheme } from "../theme";
 import { chooseFiles, openRecording, recent } from "../recording";
 import { session, settings, status, theme } from "../state";
 import { openHelp } from "../helpWindow";
+import { resourceSettings } from "../resource";
 import { openProject, saveProject } from "../saving";
 import MenuButton from "./MenuButton.vue";
 import NumberField from "./NumberField.vue";
@@ -88,6 +89,9 @@ const lockedSettings = [
         </div>
         <label class="mi" title="Opens the Advanced section of every step">
           <input v-model="settings.menu.advancedControls" type="checkbox" />Show Advanced Controls
+        </label>
+        <label class="mi" title="CPU load of this app as a share of all cores and the memory it holds, at the left end of the status bar">
+          <input v-model="resourceSettings.shown" type="checkbox" />Show CPU and Memory Usage
         </label>
         <hr />
         <div class="cap">Not available yet</div>

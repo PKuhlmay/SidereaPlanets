@@ -18,6 +18,7 @@ The recordings you opened last, newest first (up to ten). A click opens the file
 | Preview Area | 2048 × 2048 px · 1024 × 1024 px · 512 × 512 px · 256 × 256 px · 128 × 128 px | 512 × 512 px |
 | Theme | Dark · Light | Dark |
 | Show Advanced Controls | check box: opens the *Advanced* section of every step panel when you tick it. You can close and open each section on its own afterwards; unticking leaves them as they are | off |
+| Show CPU and Memory Usage | check box: the CPU load of the app as a share of all cores and the memory it holds, at the left end of the status bar. It is measured once a second while the window is visible; unticked, the field goes and nothing is measured | on |
 
 Below them, under *Not available yet*, the menu lists dimmed entries that no step uses yet: Automatic Processing, Autodetect Color/BW, Luminance Setting, Stretch FIT/TIFF, Play Sounds, Swap Red/Blue Channel, Wait When Loading a Single Image, Maximize During Messages, Save to Subdir and Bias Subtract. The check boxes that switch things on the image on and off are not in a menu of the toolbar but in **Show ▾** at the top right of the image, see [The image area](image-area). The **Preview Area** is the part of the image that the wavelet preview calculates, see [Wavelet sharpening](wavelet-sharpening).
 

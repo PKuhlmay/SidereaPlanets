@@ -20,3 +20,5 @@ planets-session = { path = "../../crates/session" }
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 tauri-plugin-dialog = "2"
+# CPU time and memory of the app for the status bar (RK-019), without unsafe code of our own.
+sysinfo = { version = "0.40.3", default-features = false, features = ["system"] }

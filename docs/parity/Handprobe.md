@@ -72,3 +72,10 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] JUPITER.AVI: vor Align ist Go to Best Frame gesperrt (Tooltip „Run Align first“). Nach Align zeigt ein Klick im Panel Best Frames
   und in der Frame List den obersten Frame der Liste, die Frame-Leiste steht auf ihm, Alignpoints öffnet mit dem Hinweis „Best frame: N. …“.
 - [ ] Danach Keep Best Frames und Stack sind noch erledigt (nichts verworfen); erst Set Alignpoints Again löscht Hinweis und Ergebnisse.
+
+### RK-019 Auslastung in der Statusleiste (windows-v0.1.0)
+
+- [ ] Links in der Statusleiste steht „CPU (n)“ mit n = Zahl der logischen Kerne und „RAM“; bei einem langen Align mit allen Kernen
+  steigt die CPU auf über 90 % und wird fett und amber; der RAM-Wert passt grob zum Working Set im Task-Manager.
+- [ ] Settings > Show CPU and Memory Usage aus: das Feld verschwindet; nach einem Neustart bleibt es aus. Minimiertes Fenster: im
+  Task-Manager kaum CPU-Last der App.

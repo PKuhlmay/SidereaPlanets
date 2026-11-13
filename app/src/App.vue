@@ -21,6 +21,7 @@ import WaveletsStep from "./components/WaveletsStep.vue";
 import type { Rect } from "./logic/align";
 import { startColour } from "./colour";
 import { openDroppedFiles } from "./recording";
+import { startResourceMonitor } from "./resource";
 import { handleShortcut } from "./shortcuts";
 import { pickToneImage } from "./logic/colour";
 import { imageCaption, imageKind, pickImage, windowTitle } from "./logic/workflow";
@@ -41,6 +42,7 @@ const image = computed(() =>
 const wavelet = computed(() => kind.value === "wavelet");
 startColour();
 openDroppedFiles();
+startResourceMonitor();
 // ← and → page through the frames, Alt+1 to Alt+7 open the steps (shortcuts.ts).
 onMounted(() => window.addEventListener("keydown", handleShortcut));
 onBeforeUnmount(() => window.removeEventListener("keydown", handleShortcut));
