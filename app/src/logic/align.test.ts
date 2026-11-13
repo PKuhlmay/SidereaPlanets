@@ -135,15 +135,15 @@ describe("roomForPoints", () => {
 
 describe("limitMessages", () => {
   it("reports the frames that stay and the quality of the weakest of them", () => {
-    expect(limitMessages(8, [100, 93.5, 87.2, 90])).toEqual({
-      action: "Processing limited to 8 frames",
-      result: "Stacksize: 8  Low quality: 87.20%",
+    expect(limitMessages(8, 10, [100, 93.5, 87.2, 90])).toEqual({
+      action: "Keeping 8 of 10 frames",
+      result: "8 frames will be stacked · weakest kept: 87%",
     });
-    expect(limitMessages(1, [100]).result).toBe("Stacksize: 1  Low quality: 100.00%");
+    expect(limitMessages(1, 10, [100]).result).toBe("1 frame will be stacked · weakest kept: 100%");
   });
 
   it("leaves the quality out when no kept frame has one", () => {
-    expect(limitMessages(10, [])).toEqual({ action: "Processing limited to 10 frames", result: "Stacksize: 10" });
+    expect(limitMessages(10, 10, [])).toEqual({ action: "Keeping 10 of 10 frames", result: "10 frames will be stacked" });
   });
 });
 

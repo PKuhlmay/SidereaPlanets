@@ -2,7 +2,9 @@
 
 import { reactive } from "vue";
 import { invoke } from "@tauri-apps/api/core";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import { failureText } from "./jobs";
 import { pushRecent, fileName } from "./logic/recent";
 import { session, settings, status, type RecordingInfo } from "./state";
 
@@ -52,7 +54,7 @@ export async function showFrame(index: number) {
     const image = await readFrameImage(index);
     if (request === latestRequest) session.frameImage = image;
   } catch (e) {
-    if (request === latestRequest) status.result = `Error: ${String(e)}`;
+    if (request === latestRequest) status.result = failureText("Showing the frame", e);
   }
 }
 
@@ -68,7 +70,7 @@ export async function openRecording(paths: string[]) {
   try {
     info = await invoke<RecordingInfo>("open_recording", { paths });
   } catch (e) {
-    status.result = `Error: ${String(e)}`;
+    status.result = failureText("Open", e);
     return;
   }
   startSession(info, fileName(paths[0] ?? ""));
@@ -114,4 +116,20 @@ export function startSession(info: RecordingInfo, name: string) {
   status.progress = 0;
   status.action = "";
   status.position = "";
+}
+
+/**
+ * Files dropped onto the window open like the files picked with Select Recording… (several still frames form one
+ * sequence). Nothing opens during a calculation. Outside the Tauri window (browser preview) there is nothing to listen to.
+ */
+export function openDroppedFiles(): void {
+  try {
+    void getCurrentWebview()
+      .onDragDropEvent((event) => {
+        if (event.payload.type === "drop" && event.payload.paths.length > 0 && status.busy === null) void openRecording(event.payload.paths);
+      })
+      .catch(() => undefined);
+  } catch {
+    // Not running inside Tauri.
+  }
 }

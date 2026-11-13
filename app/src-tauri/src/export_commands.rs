@@ -63,7 +63,7 @@ pub async fn save_image_as(
     session.require_image(source)?;
     let name = suggested_name.map(|n| format.with_extension(Path::new(&n)));
     let dialog = start_dialog(&app, name.as_deref(), directory.as_deref())
-        .set_title("Save image")
+        .set_title("Save Image")
         .add_filter(format.label(), format.extensions());
     match pick_save(dialog)? {
         Some(path) => Ok(Some(session.save_image(
@@ -95,7 +95,7 @@ pub async fn project_save_as(
 ) -> CommandResult<Option<String>> {
     let name = suggested_name.map(|n| with_project_extension(Path::new(&n)));
     let dialog = start_dialog(&app, name.as_deref(), directory.as_deref())
-        .set_title("Save project")
+        .set_title("Save Project")
         .add_filter("Siderea Planets project", &[PROJECT_EXTENSION]);
     match pick_save(dialog)? {
         Some(path) => Ok(Some(write_project(&project, &path)?)),
@@ -116,7 +116,7 @@ pub async fn project_open(
     directory: Option<String>,
 ) -> CommandResult<Option<LoadedProject>> {
     let dialog = start_dialog(&app, None, directory.as_deref())
-        .set_title("Open project")
+        .set_title("Open Project")
         .add_filter("Siderea Planets project", &[PROJECT_EXTENSION]);
     let picked = dialog
         .blocking_pick_file()

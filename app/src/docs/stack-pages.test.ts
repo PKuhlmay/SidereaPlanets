@@ -52,21 +52,24 @@ describe("the step panel Stack", () => {
   };
 
   it("locks every option that does nothing yet and keeps it out of the settings", () => {
-    for (const label of ["Minimized", "Maximized", "R.of Interest", "Stretch histogram after stacking", "De-rotate images", "Resampling", "Drizzling"]) {
+    const locked = ["Smallest common area", "Largest area", "Region", "Stretch histogram after stacking", "De-rotate images", "Resampling", "Drizzling"];
+    for (const label of [...locked, "Use prefilters", "Compressed"]) {
       expect(line(label), label).toContain("disabled");
       expect(line(label), label).not.toContain("v-model");
     }
   });
 
-  it("marks each locked option as not available yet in its row", () => {
+  it("marks each locked option as not available yet, in its tooltip and, where the row has room, in a note (MAC-014)", () => {
     const count = (text: string): number => stackStep.split(text).length - 1;
-    // one tooltip and one note in the row of each of the seven locked options
-    expect(count(`title="Not available yet"`)).toBe(7);
-    expect(count(`class="factor">Not available yet</span>`)).toBe(7);
+    // Seven locked options of Stacking, three locked frame sizes, Compressed, Use prefilters, Codec and Compression quality.
+    expect(count(`title="Not available yet`)).toBe(14);
+    // A note in the row of every locked option except the side-by-side Use prefilters and the two locked fields.
+    expect(count(`class="factor">Not available yet</span>`)).toBe(11);
+    expect(stackStep).toContain(`title="Not available yet. Turns the frames back against the rotation of the planet."`);
   });
 
   it("leaves the options that work switchable", () => {
-    for (const label of ["Default", "Correct geometry", "Normalization of frame intensity"]) {
+    for (const label of ["Default", "Correct geometry", "Even out frame brightness", "Sort by quality", "Moving average"]) {
       expect(line(label), label).not.toContain("disabled");
       expect(line(label), label).toContain("v-model");
     }

@@ -123,3 +123,16 @@ export function differencePixels(a: Pixels, b: Pixels): Pixels | null {
   }
   return { width: a.width, height: a.height, data };
 }
+
+/** Whether an Adjustments button does something; the others are dimmed and locked (MAC-014). */
+export const isFunctionBuilt = (name: string): boolean => isToneCard(name);
+
+const functionHelps: Record<ToneCard, string> = {
+  Histogram: "Black point, white point and brightness of the image.",
+  Gamma: "Brightens or darkens the midtones.",
+  "RGB Align": "Shifts red, green and blue so that they lie on top of each other.",
+  "RGB Balance": "Changes the share of red, green and blue.",
+};
+
+/** The tooltip of an Adjustments button: what its card does, or that the button is locked. */
+export const functionHelp = (name: string): string => (isToneCard(name) ? functionHelps[name] : "Not available yet");

@@ -31,6 +31,16 @@ vi.mock("@tauri-apps/api/event", () => ({
   },
 }));
 vi.mock("@tauri-apps/plugin-dialog", () => ({ open: vi.fn(), save: vi.fn() }));
+// Files dropped onto the window arrive as a drag and drop event of the webview.
+const dropped = vi.hoisted(() => ({ handler: null as ((event: { payload: { type: string; paths?: string[] } }) => void) | null }));
+vi.mock("@tauri-apps/api/webview", () => ({
+  getCurrentWebview: () => ({
+    onDragDropEvent: async (handler: (event: { payload: { type: string; paths?: string[] } }) => void) => {
+      dropped.handler = handler;
+      return () => undefined;
+    },
+  }),
+}));
 
 // The tests run in node: the few browser objects the code touches are replaced.
 class FakeImageData {
@@ -48,7 +58,7 @@ import { runAction } from "./actions";
 import { autoAlign } from "./colour";
 import { cancelJob, togglePause } from "./jobs";
 import { process } from "./wavelet";
-import { openRecording, startSession } from "./recording";
+import { openDroppedFiles, openRecording, startSession } from "./recording";
 import { session, settings, status, type RecordingInfo } from "./state";
 import { advancedOpen, nextOpen, states, toggleAdvanced } from "./steps";
 
@@ -150,8 +160,25 @@ describe("Select", () => {
       throw new Error("not a recording");
     };
     await openRecording(["C:\\data\\x.txt"]);
-    expect(status.result).toBe("Error: Error: not a recording");
+    expect(status.result).toBe("Open failed: not a recording");
     expect(session.step).toBe("loaded");
+  });
+});
+
+describe("Dropping files onto the window", () => {
+  it("opens them like Select Recording…, but not during a calculation", async () => {
+    openDroppedFiles();
+    await vi.waitFor(() => expect(dropped.handler).not.toBeNull());
+    dropped.handler?.({ payload: { type: "over" } });
+    expect(calls("open_recording")).toHaveLength(0);
+
+    status.busy = { name: "Align", paused: false, cancelled: false };
+    dropped.handler?.({ payload: { type: "drop", paths: ["C:/data/SATURN.SER"] } });
+    expect(calls("open_recording")).toHaveLength(0);
+
+    status.busy = null;
+    dropped.handler?.({ payload: { type: "drop", paths: ["C:/data/a.tif", "C:/data/b.tif"] } });
+    await vi.waitFor(() => expect(calls("open_recording")[0]?.args).toEqual({ paths: ["C:/data/a.tif", "C:/data/b.tif"] }));
   });
 });
 
@@ -175,12 +202,13 @@ describe("Set Alignpoints, Align, Limit, Stack", () => {
     expect(session.frames.map((f) => f.checked)).toEqual([false, true, true, true]);
     expect(session.alignpoints[0]).toMatchObject({ shiftX: 0.5, shiftY: -0.5 });
     expect(session.alignpoints[1]?.shiftX).toBeUndefined();
-    expect(status.action).toBe("Processing limited to 3 frames");
+    expect(status.action).toBe("Keeping 3 of 4 frames");
     // The weakest kept frame is the second one (quality 11 of 13 at best).
-    expect(status.result).toBe("Stacksize: 3  Low quality: 84.62%");
+    expect(status.result).toBe("3 frames will be stacked · weakest kept: 85%");
 
     await runAction("stack");
-    expect(status.result).toBe("Stacking Range : 0-255");
+    expect(status.action).toBe("Stacked 3 frames · 4×3");
+    expect(status.result).toBe("Value range 0–255");
     expect(session.step).toBe("stacked");
     expect(session.stackSize).toBe(3);
     expect(session.stackImage).toMatchObject({ width: W, height: H });
@@ -208,7 +236,7 @@ describe("Set Alignpoints, Align, Limit, Stack", () => {
       return { frames: [], ranking: [] };
     };
     await runAction("align");
-    expect(seen).toEqual([{ progress: 0.5, action: "Loading frame: 2" }]);
+    expect(seen).toEqual([{ progress: 0.5, action: "Aligning frame: 2" }]);
     expect(backend.listeners["align-progress"]).toBeUndefined();
   });
 
@@ -238,7 +266,7 @@ describe("Set Alignpoints, Align, Limit, Stack", () => {
       throw new Error("set alignpoints first");
     };
     await runAction("align");
-    expect(status.result).toBe("Error: Error: set alignpoints first");
+    expect(status.result).toBe("Align failed: set alignpoints first");
     expect(session.step).toBe("points");
     expect(status.busy).toBeNull();
     expect(backend.listeners["align-progress"]).toBeUndefined();
@@ -421,7 +449,7 @@ describe("Do All and Process: Cancel and Pause", () => {
     backend.handlers.wavelet_do_all = () => running.promise;
     const job = runAction("doAll");
     await vi.waitFor(() => expect(calls("wavelet_do_all")).toHaveLength(2));
-    expect(status.busy?.name).toBe("Wavelet");
+    expect(status.busy?.name).toBe("Do All");
 
     const cancelling = cancelJob();
     running.reject("cancelled");
@@ -582,7 +610,7 @@ describe("Save image in the Save step", () => {
     backend.handlers.wavelet_do_all = () => running.promise;
     const saving = runAction("saveImage");
     await vi.waitFor(() => expect(calls("wavelet_do_all")).toHaveLength(1));
-    expect(status.busy?.name).toBe("Wavelet");
+    expect(status.busy?.name).toBe("Do All");
 
     const cancelling = cancelJob();
     running.reject("cancelled");

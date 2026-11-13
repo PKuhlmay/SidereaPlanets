@@ -7,7 +7,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { handlers } from "./actions";
-import { runJob } from "./jobs";
+import { failureText, runJob } from "./jobs";
 import {
   alignArgs,
   limitArgs,
@@ -49,7 +49,7 @@ function discardResults() {
 async function setAlignpoints() {
   const roi = session.roi;
   if (roi && !roomForPoints(roi, settings.align.edgeDistance)) {
-    status.result = "The region is too small for Min distance from edge";
+    status.result = "The region is too small for the distance from the edge; draw a larger region";
     return;
   }
   // The frame is read now: the Frame bar may move on while the points are searched, but they belong to this one.
@@ -63,7 +63,7 @@ async function setAlignpoints() {
     discardResults();
     if (answer.points.length === 0) {
       session.step = "loaded";
-      return "No alignpoints found: try other Lo and Hi values";
+      return "No alignpoints found: lower the distances or widen Min./Max. brightness under Advanced";
     }
     session.step = "points";
     advance();
@@ -77,7 +77,7 @@ export async function setThreshold(threshold: number) {
   try {
     showPoints(await invoke<AlignpointsAnswer>("set_alignpoint_threshold", { threshold }));
   } catch (e) {
-    status.result = `Error: ${String(e)}`;
+    status.result = failureText("Threshold", e);
   }
 }
 
@@ -86,7 +86,7 @@ async function align() {
     // The backend drops its results when Align starts, so the window does the same.
     discardResults();
     const stop = await listen<AlignProgress>("align-progress", (event) =>
-      job.progress(event.payload.done, event.payload.total, `Loading frame: ${event.payload.done}`),
+      job.progress(event.payload.done, event.payload.total, `Aligning frame: ${event.payload.done}`),
     );
     let answer: AlignedAnswer;
     try {
@@ -101,12 +101,12 @@ async function align() {
     }
     session.step = "aligned";
     advance();
-    return "Alignment finished.";
+    return "Alignment finished";
   });
 }
 
 async function limit() {
-  await runJob("Limit", async () => {
+  await runJob("Keep Best Frames", async () => {
     const answer = await invoke<LimitedAnswer>("limit", limitArgs(settings.align));
     const kept = new Set(answer.frames);
     session.frames.forEach((f) => (f.checked = kept.has(f.index)));
@@ -124,7 +124,7 @@ async function limit() {
     session.step = "limited";
     advance();
     const qualities = answer.frames.flatMap((index) => session.frames[index]?.quality ?? []);
-    const messages = limitMessages(answer.frames.length, qualities);
+    const messages = limitMessages(answer.frames.length, session.frames.length, qualities);
     status.action = messages.action;
     return messages.result;
   });

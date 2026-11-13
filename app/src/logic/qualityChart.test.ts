@@ -53,7 +53,7 @@ describe("qualityChart", () => {
   it("draws Lowest Quality (%) as a horizontal line at the value", () => {
     const chart = qualityChart(frames(QUALITY), limit("lowestQuality", 90), 240);
     expect(chart.line).toEqual({ kind: "level", at: 0.9 });
-    expect(chart.value).toBe("90 %");
+    expect(chart.value).toBe("90%");
   });
 
   it("draws the other modes as a vertical line after the last kept frame", () => {

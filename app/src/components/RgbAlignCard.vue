@@ -23,15 +23,15 @@ const channels = [
       <button type="button" class="link" :disabled="mono" @click="autoAlign">Auto</button>
       <button type="button" class="link" :disabled="mono" @click="tone.shifts = defaultShifts()">Reset</button>
     </template>
-    <fieldset class="cardbody" :disabled="mono" :title="mono ? 'Needs a colour image' : undefined">
-      <div class="line heads"><span /><span>X</span><span>Y</span></div>
+    <fieldset class="cardbody" :disabled="mono" :title="mono ? 'Needs a color image' : undefined">
+      <div class="line heads"><span /><span>X (px)</span><span>Y (px)</span></div>
       <div v-for="channel in channels" :key="channel.key" class="line">
         <span>{{ channel.label }}</span>
         <NumberField v-model="tone.shifts[channel.key].x" :decimals="2" :step="0.1" :min="-limit" :max="limit" :width="68" :label="`${channel.label} X`" />
         <NumberField v-model="tone.shifts[channel.key].y" :decimals="2" :step="0.1" :min="-limit" :max="limit" :width="68" :label="`${channel.label} Y`" />
       </div>
       <label class="row">
-        Max shift
+        Max shift (px)
         <NumberField v-model="tone.maxShift" :min="TONE_LIMITS.maxShift.min" :max="TONE_LIMITS.maxShift.max" :width="56" label="Max shift in pixels" />
       </label>
       <p class="hint">Auto moves Red and Blue onto Green</p>

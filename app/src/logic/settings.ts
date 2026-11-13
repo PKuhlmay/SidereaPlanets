@@ -36,11 +36,11 @@ export const BRIGHTNESS_RANGE = { min: -512, max: 512 };
 export const formatPreview = (level: number): string => (level / 10).toFixed(1);
 
 export const functionNames = [
-  "Histogram", "Gamma", "Colour Mixing",
-  "View Zoomed", "View Compare", "View Stacksize",
+  "Histogram", "Gamma", "Color Mixing",
+  "View Zoomed", "View Compare", "View Stack Size",
   "Flip and Rotate", "RGB Align", "RGB Balance",
-  "Resize Image", "Denoise/ Deringing", "Wavelet Filter",
-  "Masking", "Show Linegraph", "Cropping Area",
+  "Resize Image", "Denoise/Deringing", "Wavelet Filter",
+  "Masking", "Show Line Graph", "Cropping Area",
 ] as const;
 
 export const codecs = ["DIB", "cvid", "i420", "iyuv", "mrle", "msvc", "uyvy", "yuy2", "yvu9", "yvyu"] as const;

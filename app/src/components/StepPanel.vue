@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { runAction } from "../actions";
 import { chooseFiles } from "../recording";
-import { againDiscards, stepAfter, stepBefore, stepInfo, stepNumber, type ViewStep } from "../logic/workflow";
+import { againDiscards, againLabel, stepAfter, stepBefore, stepInfo, stepNumber, type ViewStep } from "../logic/workflow";
 import { session, status } from "../state";
 import { advancedOpen, nextOpen, progress, resultOf, states, toggleAdvanced } from "../steps";
 import SaveImageMenu from "./SaveImageMenu.vue";
@@ -21,6 +21,7 @@ const finished = computed(() => props.id === "save" && done.value && isNext.valu
 const before = computed(() => stepBefore(props.id));
 const after = computed(() => stepAfter(props.id));
 const advanced = computed(() => advancedOpen[props.id] === true);
+const updatePreviewHelp = "Calculates the preview area with the current settings.";
 
 function run(id: ViewStep) {
   switch (id) {
@@ -72,17 +73,21 @@ function run(id: ViewStep) {
       <!-- After Save image: the file name, then the way to the next recording -->
       <template v-if="finished">
         <p class="result">✓ {{ resultOf(id) }}</p>
-        <button type="button" class="btn next wide" :disabled="busy" @click="chooseFiles">Open another recording</button>
+        <button type="button" class="btn next wide" :disabled="busy" title="Choose the video or the images to work on." @click="chooseFiles">
+          Select Another Recording…
+        </button>
       </template>
 
       <!-- A done step opened again: its result, the action as a standard button, and the way on -->
       <template v-else-if="done">
         <p class="result">✓ {{ resultOf(id) }}</p>
         <div class="line">
-          <button v-if="id === 'wavelets'" type="button" class="btn" :disabled="busy" @click="runAction('process')">Process</button>
-          <button type="button" class="btn wide" :disabled="busy" @click="run(id)">{{ info.action }} again</button>
+          <button v-if="id === 'wavelets'" type="button" class="btn" :disabled="busy" :title="updatePreviewHelp" @click="runAction('process')">
+            Update Preview
+          </button>
+          <button type="button" class="btn wide" :disabled="busy" :title="info.actionExplanation" @click="run(id)">{{ againLabel(id) }}</button>
         </div>
-        <p v-if="againDiscards(id, progress)" class="then">Running it again discards the steps after it.</p>
+        <p v-if="againDiscards(id, progress)" class="then">Running it again discards the results of the later steps.</p>
         <SaveImageMenu v-if="id === 'stack'" source="stack" :disabled="busy" />
         <button type="button" class="btn next wide" :disabled="busy" @click="session.view = nextOpen">
           Continue: {{ stepInfo(nextOpen).label }} ›
@@ -92,9 +97,11 @@ function run(id: ViewStep) {
       <!-- The open step: its action filled, and what comes then -->
       <template v-else>
         <div class="line">
-          <button v-if="id === 'wavelets'" type="button" class="btn" :disabled="busy" @click="runAction('process')">Process</button>
+          <button v-if="id === 'wavelets'" type="button" class="btn" :disabled="busy" :title="updatePreviewHelp" @click="runAction('process')">
+            Update Preview
+          </button>
           <SaveImageMenu v-if="id === 'save'" source="wavelet" filled :disabled="busy" />
-          <button v-else type="button" class="btn next wide" :disabled="busy" @click="run(id)">{{ info.action }}</button>
+          <button v-else type="button" class="btn next wide" :disabled="busy" :title="info.actionExplanation" @click="run(id)">{{ info.action }}</button>
         </div>
         <p v-if="after" class="then">Then: {{ stepInfo(after).label }}</p>
       </template>

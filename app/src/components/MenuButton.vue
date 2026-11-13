@@ -15,6 +15,8 @@ const props = defineProps<{
   up?: boolean;
   end?: boolean;
   disabled?: boolean;
+  /** Tooltip of the opener. */
+  title?: string;
 }>();
 
 const open = ref(false);
@@ -51,6 +53,7 @@ onBeforeUnmount(() => {
       aria-haspopup="menu"
       :aria-expanded="open"
       :disabled="disabled"
+      :title="title"
       @click="open = !open"
     >
       {{ label }}

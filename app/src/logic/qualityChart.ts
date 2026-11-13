@@ -67,7 +67,7 @@ export function keptCount(sorted: number[], limit: LimitValues): number | null {
 
 function limitValue(limit: LimitValues): string {
   return limit.limitMode === "lowestQuality" || limit.limitMode === "bestPercent"
-    ? `${limit.limitPercent} %`
+    ? `${limit.limitPercent}%`
     : String(Math.round(limit.limitCount));
 }
 

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { runAction } from "../actions";
 import { seriesPoints } from "../logic/chart";
 import { atLeast, imageKind } from "../logic/workflow";
 import { session, settings } from "../state";
 import FloatCard from "./FloatCard.vue";
 
-// Framelist, Registrationgraph (steps up to Limit) and Alignmentpoints (Stack step) as cards over the image. A card is
-// visible while its check mark in the Show menu is set.
+// Frame List, Quality Graph (steps up to Best Frames) and Alignpoints Used for Stacking (Stack step) as cards over the image. A
+// card is visible while its check mark in the Show menu is set.
 const kind = computed(() => imageKind(session.view));
 const showFramelist = computed(() => kind.value === "frame" && settings.align.showFramelist && session.step !== "empty");
 const showGraph = computed(() => kind.value === "frame" && settings.align.showRegistrationgraph && session.step !== "empty");
@@ -21,7 +20,7 @@ const listed = computed(() => {
   return rated.value ? frames.sort((a, b) => (b.quality ?? -1) - (a.quality ?? -1)) : frames;
 });
 
-const frameName = (index: number) => `Frame${String(index + 1).padStart(5, "0")}`;
+const frameName = (index: number) => `Frame ${index + 1}`;
 const setAll = (checked: boolean) => session.frames.forEach((f) => (f.checked = checked));
 
 const chart = { left: 8, top: 10, width: 198, height: 78 };
@@ -30,11 +29,11 @@ const difference = computed(() => seriesPoints(listed.value.map((f) => f.differe
 </script>
 
 <template>
-  <FloatCard v-if="showFramelist" class="grow" title="Framelist" @close="settings.align.showFramelist = false">
+  <FloatCard v-if="showFramelist" class="grow" title="Frame List" @close="settings.align.showFramelist = false">
     <div class="tools">
-      <button type="button" class="btn" @click="setAll(true)">Check all</button>
-      <button type="button" class="btn" @click="setAll(false)">Check none</button>
-      <button type="button" class="btn" @click="runAction('emptyList')">Empty List</button>
+      <button type="button" class="btn" @click="setAll(true)">Check All</button>
+      <button type="button" class="btn" @click="setAll(false)">Check None</button>
+      <button type="button" class="btn" disabled title="Not available yet">Clear List</button>
     </div>
     <div class="list">
       <label v-for="frame in listed" :key="frame.index" class="chk">
@@ -44,7 +43,7 @@ const difference = computed(() => seriesPoints(listed.value.map((f) => f.differe
     </div>
   </FloatCard>
 
-  <FloatCard v-if="showGraph" title="Registrationgraph" @close="settings.align.showRegistrationgraph = false">
+  <FloatCard v-if="showGraph" title="Quality Graph" @close="settings.align.showRegistrationgraph = false">
     <div class="body">
       <svg viewBox="0 0 214 96" width="100%" role="img" aria-label="Quality and difference per frame">
         <text v-if="!rated" x="107" y="52" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">Run Align to see the graph</text>
@@ -55,15 +54,19 @@ const difference = computed(() => seriesPoints(listed.value.map((f) => f.differe
         </template>
       </svg>
       <div class="legend">
-        <span><i style="background: var(--accent)" />Quality</span>
-        <span><i style="background: var(--info)" />Difference</span>
+        <span title="How sharp a frame is, in percent of the best frame."><i style="background: var(--accent)" />Quality</span>
+        <span title="How much a frame differs from the frame all the others are lined up on; higher is worse.">
+          <i style="background: var(--info)" />Difference
+        </span>
       </div>
     </div>
   </FloatCard>
 
-  <FloatCard v-if="showPoints" class="grow" title="Alignmentpoints" @close="settings.stack.showAlignSections = false">
+  <FloatCard v-if="showPoints" class="grow" title="Alignpoints Used for Stacking" @close="settings.stack.showAlignSections = false">
     <div class="list">
-      <label v-for="(point, i) in session.alignpoints" :key="i" class="chk"><input v-model="point.checked" type="checkbox" />Point {{ i + 1 }}</label>
+      <label v-for="(point, i) in session.alignpoints" :key="i" class="chk">
+        <input v-model="point.checked" type="checkbox" />Alignpoint {{ i + 1 }}
+      </label>
     </div>
   </FloatCard>
 </template>

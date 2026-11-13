@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   againDiscards,
+  againLabel,
   atLeast,
   formatDuration,
   imageCaption,
@@ -9,6 +10,7 @@ import {
   pickImage,
   stepAfter,
   stepBefore,
+  stepInfo,
   stepNumber,
   stepResult,
   stepStates,
@@ -36,9 +38,46 @@ function pills(p: Progress): string {
 }
 
 describe("the seven steps", () => {
-  it("come in the order of the step bar with the labels of the original", () => {
-    expect(viewSteps.map((s) => s.label)).toEqual(["Open", "Alignpoints", "Align", "Limit", "Stack", "Wavelets", "Save"]);
-    expect(viewSteps.map((s) => s.action)).toEqual(["Select", "Set Alignpoints", "Align", "Limit", "Stack", "Do All", "Save image"]);
+  it("come in the order of the step bar with the names for newcomers (MAC-014)", () => {
+    expect(viewSteps.map((s) => s.label)).toEqual(["Open", "Alignpoints", "Align", "Best Frames", "Stack", "Wavelets", "Save"]);
+    expect(viewSteps.map((s) => s.action)).toEqual([
+      "Select Recording…",
+      "Set Alignpoints",
+      "Align",
+      "Keep Best Frames",
+      "Stack",
+      "Do All",
+      "Save Image",
+    ]);
+  });
+
+  it("name the button of a done step in Title Case, Open with Select Another Recording…", () => {
+    expect(viewSteps.map((s) => againLabel(s.id))).toEqual([
+      "Select Another Recording…",
+      "Set Alignpoints Again",
+      "Align Again",
+      "Keep Best Frames Again",
+      "Stack Again",
+      "Do All Again",
+      "Save Image Again",
+    ]);
+  });
+
+  it("explain each step and its action in a tooltip", () => {
+    expect(stepInfo("limit").explanation).toBe("Best Frames: choose which frames go into the stack, the sharpest ones.");
+    expect(stepInfo("alignpoints").actionExplanation).toBe("Places alignpoints automatically on the frame that is shown.");
+    expect(viewSteps.every((s) => s.explanation.startsWith(`${s.label}: `))).toBe(true);
+    expect(viewSteps.every((s) => s.actionExplanation.endsWith("."))).toBe(true);
+  });
+
+  it("tell newcomers in the panel header how Open, Alignpoints and Wavelets are used", () => {
+    expect(stepInfo("open").sentence).toBe("Choose a recording: a SER or AVI video or a series of images. You can also drop it onto the window.");
+    expect(stepInfo("alignpoints").sentence).toBe(
+      "Places marks on surface details that every frame is lined up on. Move the slider left for more points, right for fewer.",
+    );
+    expect(stepInfo("wavelets").sentence).toBe(
+      "Sharpens the stack. Raise the first layers for fine detail, then press Do All to apply them to the whole image.",
+    );
   });
 
   it("are numbered from 1 to 7 and know their neighbours", () => {
@@ -78,6 +117,7 @@ describe("step states (docs/design.md, Zustände)", () => {
     expect(stepStates(at("empty")).alignpoints.hint).toBe("Open a recording first");
     expect(stepStates(at("loaded")).align.hint).toBe("Run Set Alignpoints first");
     expect(stepStates(at("points")).limit.hint).toBe("Run Align first");
+    expect(stepStates(at("aligned")).stack.hint).toBe("Run Keep Best Frames first");
     expect(stepStates(at("points")).stack.hint).toBe("Run Align first");
     expect(stepStates(at("limited")).wavelets.hint).toBe("Run Stack first");
     expect(stepStates(at("limited")).save.hint).toBe("Run Stack first");
@@ -141,7 +181,7 @@ describe("step results (docs/design.md, Schrittpanel)", () => {
     fileName: "JUPITER.AVI",
     frameCount: 10,
     alignpoints: 82,
-    bestQuality: 100,
+    rated: 10,
     kept: 8,
     stackSize: 8,
     stackWidth: 1024,
@@ -152,11 +192,11 @@ describe("step results (docs/design.md, Schrittpanel)", () => {
   it("use the texts of the table", () => {
     expect(viewSteps.map((s) => stepResult(s.id, data))).toEqual([
       "JUPITER.AVI · 10 frames",
-      "82 set",
-      "best quality 100 %",
-      "8 of 10 kept",
+      "82 points",
+      "10 frames rated",
+      "8 of 10 frames kept",
       "8 frames · 1024×680",
-      "applied to the whole image",
+      "Sharpening applied",
       "JUPITER.tif",
     ]);
   });

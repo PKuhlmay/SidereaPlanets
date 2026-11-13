@@ -53,3 +53,8 @@ export function buildSequenceRequest(session: Session, settings: Settings): Sequ
     averageFrames: wholeNumber(settings.stack.averageFrames, 1),
   };
 }
+
+/** The status bar after Stack: the frames and the size ("Stacked 10 frames · 1024×680"), then the range of the values. */
+export function stackMessages(frames: number, width: number, height: number): { action: string; result: string } {
+  return { action: `Stacked ${frames} ${frames === 1 ? "frame" : "frames"} · ${width}×${height}`, result: "Value range 0–255" };
+}

@@ -45,3 +45,15 @@ Ticket, Details im Ticket unter „Umsetzung“.
   Alignpoints, Align, Limit, Stack, Do All, Save image (TIFF 16 Bit), Datei öffnet. Dazu Align und Stack mit Pause und Cancel (Balken,
   Frame-Zähler, Meldung „cancelled“, danach läuft ein neuer Lauf), Set Alignpoints oder Align erneut (Stack und Wavelet-Bild sind weg,
   Save image meldet „there is no stacked image yet“) und das CPUs-Feld (1 Kern ist bei einem langen Align deutlich langsamer).
+
+### RK-016 Texte für Einsteiger (windows-v0.1.0)
+
+- [ ] Ganzer Ablauf mit JUPITER.AVI in `pnpm tauri dev`: jede Pille, jeder Aktionsknopf und jedes Feld zeigt den neuen Namen und einen
+  Tooltip (Stichprobe gegen die Mac-App); Statusleiste nach Align „Alignment finished“, nach Keep Best Frames „8 frames will be stacked ·
+  weakest kept: 72%“, nach Stack „Stacked 10 frames · 1024×680“ und „Value range 0–255“.
+- [ ] Werkzeugleiste bei kleinster Fenstergröße (1120 px): alles sichtbar, CPUs-Feld nicht abgeschnitten; Settings zeigt oben Preview Area,
+  Theme, Show Advanced Controls und darunter die gedimmten Einträge.
+- [ ] Eine AVI und mehrere TIFFs aus dem Explorer auf das Fenster ziehen: die Aufnahme öffnet; während Align läuft, passiert nichts.
+- [ ] Gesperrte Elemente (Show-Menü unten, Adjustments-Knöpfe ohne Karte, Keep, Clear List, Stack Again, Codec, About) sind gedimmt und
+  nicht klickbar, Tooltip „Not available yet“.
+- [ ] Ein Fehler (z. B. eine Textdatei öffnen) erscheint als „Open failed: …“.

@@ -17,12 +17,11 @@ export const nextOpen = computed(() => nextOpenStep(progress.value));
 
 /** What the result texts of the steps are made of. */
 export const resultData = computed<ResultData>(() => {
-  const rated = session.frames.map((f) => f.quality).filter((q): q is number => q !== null);
   return {
     fileName: session.fileName,
     frameCount: session.info?.frameCount ?? session.frames.length,
     alignpoints: session.alignpoints.length,
-    bestQuality: rated.length > 0 ? Math.max(...rated) : null,
+    rated: session.frames.filter((f) => f.quality !== null).length,
     kept: session.frames.filter((f) => f.checked).length,
     stackSize: session.stackSize,
     stackWidth: session.stackImage?.width ?? 0,

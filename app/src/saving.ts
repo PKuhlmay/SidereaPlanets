@@ -4,7 +4,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { reactive } from "vue";
-import { runJob } from "./jobs";
+import { failureText, runJob } from "./jobs";
 import { colourPayload, isNeutral } from "./logic/colour";
 import { directoryOf, stem } from "./logic/exporting";
 import { applyProject, buildProject, type ProjectFile } from "./logic/projectfile";
@@ -33,8 +33,6 @@ export const exportFormats = (source: ImageSource) => invoke<ExportFormatInfo[]>
 
 const folder = () => directoryOf(session.paths[0]);
 
-const message = (action: string, error: unknown) => `${action}: ${String(error)}`;
-
 /**
  * Save image: the stacked image in the Stack step, the processed one in the Wavelets and Save steps. There the file is
  * written the way the window shows it, with the values of the colour and tone cards applied; the Stack step shows the
@@ -62,7 +60,7 @@ export async function saveImage(): Promise<void> {
       advance();
     }
   } catch (e) {
-    status.result = message("Save image", e);
+    status.result = failureText("Save Image", e);
   }
 }
 
@@ -76,7 +74,7 @@ interface SequenceProgress {
   total: number;
 }
 
-type VideoKind = { job: "Save Aligned" | "Save Integrated"; command: "save_aligned" | "save_integrated"; suffix: string };
+type VideoKind = { job: "Save Aligned Video" | "Save Averaged Video"; command: "save_aligned" | "save_integrated"; suffix: string };
 
 /** The file dialog comes first, then the video is written as a job with progress, Cancel and Pause. */
 async function saveVideo({ job: name, command, suffix }: VideoKind): Promise<void> {
@@ -106,21 +104,21 @@ async function saveVideo({ job: name, command, suffix }: VideoKind): Promise<voi
       return `Saved ${fileName(saved.path)} (${saved.frames} frames)`;
     });
   } catch (e) {
-    status.result = message(name, e);
+    status.result = failureText(name, e);
   }
 }
 
-/** Save Aligned: the frames that stay after Limit, moved onto the reference frame, as an AVI. */
-export const saveAligned = () => saveVideo({ job: "Save Aligned", command: "save_aligned", suffix: "_aligned" });
+/** Save Aligned Video: the frames that stay after Keep Best Frames, moved onto the reference frame, as an AVI. */
+export const saveAligned = () => saveVideo({ job: "Save Aligned Video", command: "save_aligned", suffix: "_aligned" });
 
-/** Save Integrated: the moving average over Average of n Frames aligned frames, as an AVI. */
+/** Save Averaged Video: the moving average over Average of n frames aligned frames, as an AVI. */
 export const saveIntegrated = () =>
-  saveVideo({ job: "Save Integrated", command: "save_integrated", suffix: "_integrated" });
+  saveVideo({ job: "Save Averaged Video", command: "save_integrated", suffix: "_integrated" });
 
-/** Save project in the toolbar. */
+/** Save Project… in the toolbar. */
 export async function saveProject(): Promise<void> {
   if (session.paths.length === 0) {
-    status.result = "Save project: no recording is open";
+    status.result = "Save Project: no recording is open";
     return;
   }
   try {
@@ -131,7 +129,7 @@ export async function saveProject(): Promise<void> {
     });
     status.result = path ? `Saved ${fileName(path)}` : "Save cancelled";
   } catch (e) {
-    status.result = message("Save project", e);
+    status.result = failureText("Save Project", e);
   }
 }
 
@@ -141,18 +139,18 @@ interface LoadedProject {
   missingFiles: string[];
 }
 
-/** Open project in the toolbar: opens the recording of the project and puts its settings back. */
+/** Open Project… in the toolbar: opens the recording of the project and puts its settings back. */
 export async function openProject(): Promise<void> {
   try {
     const loaded = await invoke<LoadedProject | null>("project_open", { directory: folder() });
     if (!loaded) return;
     const { project, missingFiles } = loaded;
     if (missingFiles.length > 0) {
-      status.result = `Open project: file not found: ${missingFiles.map(fileName).join(", ")}`;
+      status.result = `Open Project: the recording was not found: ${missingFiles.map(fileName).join(", ")}`;
       return;
     }
     if (project.recording.length === 0) {
-      status.result = "Open project: the project has no recording";
+      status.result = "Open Project: the project has no recording";
       return;
     }
     await openRecording(project.recording);
@@ -162,6 +160,6 @@ export async function openProject(): Promise<void> {
     keepWaveletValuesForNextStack();
     status.result = `Opened ${fileName(loaded.path)}`;
   } catch (e) {
-    status.result = message("Open project", e);
+    status.result = failureText("Open Project", e);
   }
 }

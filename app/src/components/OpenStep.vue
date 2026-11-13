@@ -6,7 +6,7 @@ import { openRecording, recent } from "../recording";
 import { session, status } from "../state";
 import StepPanel from "./StepPanel.vue";
 
-// Step 1 Open: the loaded recording and the files opened last; a click on one opens it (like MRU in the toolbar).
+// Step 1 Open: the loaded recording and the files opened last; a click on one opens it (like Recent Recordings in the toolbar).
 const details = computed(() => {
   const info = session.info;
   if (!info) return "";
@@ -21,8 +21,8 @@ const details = computed(() => {
       <span>{{ details }}</span>
     </div>
     <div class="grp">
-      <div class="gh">Recent</div>
-      <p v-if="recent.list.length === 0" class="none">No recent files</p>
+      <div class="gh">Recent Recordings</div>
+      <p v-if="recent.list.length === 0" class="none">No recent recordings</p>
       <button
         v-for="paths in recent.list"
         :key="paths.join('|')"

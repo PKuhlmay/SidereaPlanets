@@ -19,7 +19,7 @@ pub async fn choose_video_path(
 ) -> CommandResult<Option<String>> {
     let name = suggested_name.map(|n| with_avi_extension(Path::new(&n)));
     let dialog = start_dialog(&app, name.as_deref(), directory.as_deref())
-        .set_title("Save video")
+        .set_title("Save Video")
         .add_filter("AVI video", &["avi"]);
     Ok(pick_save(dialog)?.map(|p| with_avi_extension(&p).to_string_lossy().into_owned()))
 }

@@ -2,13 +2,13 @@
 import { progress } from "../steps";
 import StepPanel from "./StepPanel.vue";
 
-// Step 7 Save: what Save image writes; the action with the menu of file types is in the foot of the panel.
+// Step 7 Save: what Save Image writes; the action with the menu of file types is in the foot of the panel.
 </script>
 
 <template>
   <StepPanel id="save">
-    <p class="note">The sharpened stack with the colour and tone settings.</p>
-    <p v-if="!progress.waveletsDone" class="note">Do All runs first with the current values.</p>
+    <p class="note">Saves the sharpened stack with your color and tone settings.</p>
+    <p v-if="!progress.waveletsDone" class="note">Your latest changes are applied to the whole image first (Do All).</p>
   </StepPanel>
 </template>
 

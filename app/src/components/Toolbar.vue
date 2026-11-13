@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { runAction } from "../actions";
 import { cpu } from "../compute";
 import { cancelJob, togglePause } from "../jobs";
-import { LUMINANCE, type ProcessingArea, type StretchFit } from "../logic/settings";
+import type { ProcessingArea } from "../logic/settings";
 import { recentLabel } from "../logic/recent";
 import { applyTheme } from "../theme";
 import { chooseFiles, openRecording, recent } from "../recording";
@@ -24,36 +23,33 @@ function onHelp(event: MouseEvent) {
 const busy = computed(() => status.busy !== null);
 
 const processingAreas: ProcessingArea[] = [2048, 1024, 512, 256, 128];
-const stretchChoices: { value: StretchFit; label: string }[] = [
-  { value: "ask", label: "Always Ask" },
-  { value: "yes", label: "Yes" },
-  { value: "no", label: "No" },
+const areaLabel = (size: number) => `${size} × ${size} px`;
+
+// The entries of the Settings menu that no step reads yet: their values are only stored, so they are locked (MAC-014). The
+// menus Flat/Dark/Reference and Tools, where nothing worked, are gone from the toolbar; their values stay in `settings.menu`.
+const lockedSettings = [
+  "Automatic Processing",
+  "Autodetect Color/BW",
+  "Luminance Setting",
+  "Stretch FIT/TIFF",
+  "Play Sounds",
+  "Swap Red/Blue Channel",
+  "Wait When Loading a Single Image",
+  "Maximize During Messages",
+  "Save to Subdir",
+  "Bias Subtract",
 ];
-
-// The value shown at the right of a menu entry that opens a submenu.
-const automaticText = computed(() => {
-  const on = settings.menu.automatic;
-  const names = [on.alignToWavelet && "Align to Wavelet", on.alignToStack && "Align to Stack", on.stackToWavelet && "Stack to Wavelet"];
-  return names.filter(Boolean).join(", ") || "Off";
-});
-const luminanceText = computed(() => {
-  const l = settings.menu.luminance;
-  return `${l.red} · ${l.green} · ${l.blue}`;
-});
-const stretchText = computed(() => stretchChoices.find((c) => c.value === settings.menu.stretchFit)?.label ?? "");
-
-function resetLuminance() {
-  Object.assign(settings.menu.luminance, LUMINANCE);
-}
 </script>
 
 <template>
   <header class="toolbar">
     <div class="zone">
-      <button type="button" class="btn ghost select" :disabled="busy" @click="chooseFiles">Select</button>
+      <button type="button" class="btn ghost select" :disabled="busy" title="Select a recording: a video or a series of images" @click="chooseFiles">
+        Select Recording…
+      </button>
 
-      <MenuButton v-slot="{ close }" label="MRU">
-        <div v-if="recent.list.length === 0" class="empty">No recent files</div>
+      <MenuButton v-slot="{ close }" label="Recent Recordings" title="Recently opened recordings">
+        <div v-if="recent.list.length === 0" class="empty">No recent recordings</div>
         <button
           v-for="paths in recent.list"
           :key="paths.join('|')"
@@ -66,62 +62,19 @@ function resetLuminance() {
         </button>
       </MenuButton>
 
-      <!-- Darkframe, flatfield and reference frame: loading is not built yet, so the entries that need a loaded file stay locked. -->
-      <MenuButton v-slot="{ close }" label="Flat/Dark/Reference">
-        <button type="button" class="mi" :disabled="!loaded" @click="close(), runAction('loadDarkframe')">Load Darkframe</button>
-        <label class="mi"><input type="checkbox" disabled />Use Darkframe</label>
-        <label class="mi"><input type="checkbox" disabled />Use Raw-Darkframe</label>
-        <div class="mi off">
-          Create Darkframe
-          <NumberField v-model="settings.menu.darkframeFactor" :decimals="2" :step="0.1" disabled label="Darkframe factor" />
-        </div>
-        <hr />
-        <button type="button" class="mi" :disabled="!loaded" @click="close(), runAction('loadFlatfield')">Load Flatfield</button>
-        <label class="mi"><input type="checkbox" disabled />Use Flatfield</label>
-        <div class="mi off">Create Flatfield</div>
-        <hr />
-        <button type="button" class="mi" :disabled="!loaded" @click="close(), runAction('loadReferenceframe')">Load Referenceframe</button>
-        <label class="mi"><input type="checkbox" disabled />Use Referenceframe</label>
-      </MenuButton>
-
-      <MenuButton v-slot="{ close }" label="Tools">
-        <button type="button" class="mi" @click="close(), runAction('macroBatch')">Show MACRO/Batch window</button>
-        <label class="mi"><input v-model="settings.menu.recordInFilename" type="checkbox" />Record Processing Information in Filename</label>
-      </MenuButton>
-
       <MenuButton label="Settings" wide>
         <div class="sw">
-          <button type="button" class="mi" aria-haspopup="menu">Automatic Processing <span class="v arrow">{{ automaticText }}</span></button>
-          <div class="menu fly">
-            <label class="mi"><input v-model="settings.menu.automatic.alignToWavelet" type="checkbox" />Align to Wavelet</label>
-            <label class="mi"><input v-model="settings.menu.automatic.alignToStack" type="checkbox" />Align to Stack</label>
-            <label class="mi"><input v-model="settings.menu.automatic.stackToWavelet" type="checkbox" />Stack to Wavelet</label>
-          </div>
-        </div>
-        <label class="mi"><input v-model="settings.menu.autodetectColour" type="checkbox" />Autodetect Colour/BW</label>
-        <div class="sw">
-          <button type="button" class="mi" aria-haspopup="menu">Processing Area <span class="v arrow">{{ settings.menu.processingArea }}</span></button>
+          <button
+            type="button"
+            class="mi"
+            aria-haspopup="menu"
+            title="Size of the square in the middle of the image that the Wavelets preview calculates. Smaller is faster."
+          >
+            Preview Area <span class="v arrow">{{ areaLabel(settings.menu.processingArea) }}</span>
+          </button>
           <div class="menu fly">
             <label v-for="size in processingAreas" :key="size" class="mi">
-              <input v-model="settings.menu.processingArea" type="radio" name="processing-area" :value="size" />{{ size }}
-            </label>
-          </div>
-        </div>
-        <div class="sw">
-          <button type="button" class="mi" aria-haspopup="menu">Luminance Setting <span class="v arrow">{{ luminanceText }}</span></button>
-          <div class="menu fly">
-            <button type="button" class="mi" @click="resetLuminance">Reset Luminance</button>
-            <hr />
-            <div class="mi">Red <NumberField v-model="settings.menu.luminance.red" :decimals="3" :step="0.001" label="Red" /></div>
-            <div class="mi">Green <NumberField v-model="settings.menu.luminance.green" :decimals="3" :step="0.001" label="Green" /></div>
-            <div class="mi">Blue <NumberField v-model="settings.menu.luminance.blue" :decimals="3" :step="0.001" label="Blue" /></div>
-          </div>
-        </div>
-        <div class="sw">
-          <button type="button" class="mi" aria-haspopup="menu">Stretch FIT/TIFF <span class="v arrow">{{ stretchText }}</span></button>
-          <div class="menu fly">
-            <label v-for="choice in stretchChoices" :key="choice.value" class="mi">
-              <input v-model="settings.menu.stretchFit" type="radio" name="stretch-fit" :value="choice.value" />{{ choice.label }}
+              <input v-model="settings.menu.processingArea" type="radio" name="processing-area" :value="size" />{{ areaLabel(size) }}
             </label>
           </div>
         </div>
@@ -133,35 +86,46 @@ function resetLuminance() {
             <label class="mi"><input type="radio" name="theme" :checked="theme.current === 'light'" @change="applyTheme('light')" />Light</label>
           </div>
         </div>
+        <label class="mi" title="Opens the Advanced section of every step">
+          <input v-model="settings.menu.advancedControls" type="checkbox" />Show Advanced Controls
+        </label>
         <hr />
-        <label class="mi"><input v-model="settings.menu.advancedControls" type="checkbox" />Show Advanced Controls</label>
-        <label class="mi"><input v-model="settings.menu.playSounds" type="checkbox" />Play Sounds</label>
-        <label class="mi"><input v-model="settings.menu.swapRedBlue" type="checkbox" />Swap Red/Blue Channel</label>
-        <label class="mi"><input v-model="settings.menu.waitSingleImage" type="checkbox" />Wait when loading a single image</label>
-        <label class="mi"><input v-model="settings.menu.maximizeMessages" type="checkbox" />Maximize during messages</label>
-        <hr />
-        <label class="mi">Save to Subdir <input v-model="settings.menu.saveToSubdir" type="text" placeholder="Subdirname" /></label>
-        <div class="mi">Bias subtract <NumberField v-model="settings.menu.biasSubtract" label="Bias subtract" /></div>
+        <div class="cap">Not available yet</div>
+        <div v-for="name in lockedSettings" :key="name" class="mi off" title="Not available yet">{{ name }}</div>
       </MenuButton>
 
       <!-- Not in the original: the project file keeps the recording and the settings of a session (docs/formats.md). -->
-      <button type="button" class="btn ghost" title="Open project" aria-label="Open project" :disabled="busy" @click="openProject">
+      <button
+        type="button"
+        class="btn ghost"
+        title="Open a project file: the recording and the settings of an earlier session"
+        :disabled="busy"
+        @click="openProject"
+      >
         <svg class="ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
           <path d="M1.5 3.5h4l1.5 1.5h7.5v7.5h-13z" />
         </svg>
-        Open
+        Open Project…
       </button>
-      <button type="button" class="btn ghost" title="Save project" aria-label="Save project" :disabled="!loaded || busy" @click="saveProject">
+      <button
+        type="button"
+        class="btn ghost"
+        title="Save the recording and the settings of this session as a project file"
+        :disabled="!loaded || busy"
+        @click="saveProject"
+      >
         <svg class="ico" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true">
           <path d="M2.5 2.5h8l3 3v8h-11zM5 2.5v3.5h5V2.5M5 13.5v-4h6v4" />
         </svg>
-        Save
+        Save Project…
       </button>
     </div>
 
     <div class="zone mid">
-      <button type="button" class="btn" :class="{ next: busy }" :disabled="!busy" @click="cancelJob">Cancel</button>
-      <button type="button" class="btn" :disabled="!busy" @click="togglePause">{{ status.busy?.paused ? "Resume" : "Pause" }}</button>
+      <button type="button" class="btn" :class="{ next: busy }" :disabled="!busy" title="Stop the calculation" @click="cancelJob">Cancel</button>
+      <button type="button" class="btn" :disabled="!busy" title="Pause the calculation; press again to resume" @click="togglePause">
+        {{ status.busy?.paused ? "Resume" : "Pause" }}
+      </button>
     </div>
 
     <div class="zone right">
@@ -171,8 +135,10 @@ function resetLuminance() {
         </svg>
         Help
       </button>
-      <button type="button" class="btn ghost" @click="runAction('about')">About</button>
-      <label class="cpus">CPUs <NumberField v-model="settings.cpus" :min="1" :max="cpu.max" :width="52" label="CPUs" /></label>
+      <button type="button" class="btn ghost" disabled title="Not available yet">About</button>
+      <label class="cpus" title="CPU cores to use for all calculations">
+        CPUs <NumberField v-model="settings.cpus" :min="1" :max="cpu.max" :width="52" label="CPU cores to use" />
+      </label>
     </div>
   </header>
 </template>
@@ -234,6 +200,7 @@ function resetLuminance() {
   cursor: default;
 }
 .mi:disabled:hover,
+.mi.off:hover,
 .mi:has(input:disabled):hover {
   background: none;
 }
@@ -245,15 +212,6 @@ function resetLuminance() {
 .mi .arrow::after {
   content: " ›";
 }
-.mi input[type="text"] {
-  width: 110px;
-  height: 24px;
-  margin-left: auto;
-  user-select: text;
-}
-.mi > :deep(.num) {
-  margin-left: auto;
-}
 hr {
   margin: 4px 0;
   border: 0;
@@ -261,6 +219,11 @@ hr {
 }
 .empty {
   padding: 8px;
+  color: var(--muted);
+}
+.cap {
+  padding: 4px 8px 2px;
+  font-size: var(--fs-s);
   color: var(--muted);
 }
 

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { autoLevels, closeFunction, requestHistogram } from "../colour";
+import { failureText } from "../jobs";
 import {
   colourPayload,
   histogramKey,
@@ -49,7 +50,7 @@ function load() {
     } catch (e) {
       if (request === latest) {
         data.value = null;
-        status.result = `Error: ${String(e)}`;
+        status.result = failureText("Histogram", e);
       }
     }
   }, 80);
@@ -102,6 +103,7 @@ function reset() {
         width="100%"
         role="img"
         aria-label="Histogram"
+        title="Drag the triangles to set the black and white point"
         @pointermove="move"
         @pointerup="dragged = null"
         @pointercancel="dragged = null"
@@ -110,10 +112,10 @@ function reset() {
         <path :d="area" class="luma" />
         <path v-for="(line, i) in lines" :key="i" :d="line.path" fill="none" :stroke="line.colour" stroke-width="1" />
         <polygon :points="triangle(tone.black)" class="marker" @pointerdown="start('black', $event)">
-          <title>Black</title>
+          <title>Black point</title>
         </polygon>
         <polygon :points="triangle(tone.white)" class="marker" @pointerdown="start('white', $event)">
-          <title>White</title>
+          <title>White point</title>
         </polygon>
       </svg>
       <div class="seg">
@@ -121,12 +123,12 @@ function reset() {
         <button type="button" :aria-pressed="tone.histogramView === 'result'" @click="tone.histogramView = 'result'">Result</button>
       </div>
       <div class="grid2">
-        <label class="col sm">Black <NumberField v-model="tone.black" :min="0" :max="tone.white - 1" label="Black point" /></label>
-        <label class="col sm">White <NumberField v-model="tone.white" :min="tone.black + 1" :max="255" label="White point" /></label>
+        <label class="col sm">Black point <NumberField v-model="tone.black" :min="0" :max="tone.white - 1" label="Black point" /></label>
+        <label class="col sm">White point <NumberField v-model="tone.white" :min="tone.black + 1" :max="255" label="White point" /></label>
       </div>
       <div class="row">
         <button type="button" class="btn" @click="autoLevels">Auto</button>
-        <label class="row clip">Clip % <NumberField v-model="tone.clip" :decimals="1" :step="0.1" :min="TONE_LIMITS.clip.min" :max="TONE_LIMITS.clip.max" :width="56" label="Clip percent" /></label>
+        <label class="row clip" title="Share of the darkest and brightest pixels that Auto may cut off.">Clip (%) <NumberField v-model="tone.clip" :decimals="1" :step="0.1" :min="TONE_LIMITS.clip.min" :max="TONE_LIMITS.clip.max" :width="56" label="Clip percent" /></label>
       </div>
     </div>
   </FloatCard>

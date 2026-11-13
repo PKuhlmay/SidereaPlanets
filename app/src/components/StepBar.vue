@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { viewSteps, type ViewStep } from "../logic/workflow";
+import { stepInfo, viewSteps, type ViewStep } from "../logic/workflow";
 import { session, status } from "../state";
 import { resultOf, states } from "../steps";
 
@@ -11,14 +11,18 @@ const busy = computed(() => status.busy !== null);
 const details = computed(() => {
   const info = session.info;
   if (!info) return "";
-  return [session.fileName, info.codec, `${info.width}×${info.height}`, `${info.frameCount} frames`].filter(Boolean).join(" · ");
+  // The codec comes last: it means least to a newcomer (MAC-014).
+  return [session.fileName, `${info.width}×${info.height}`, `${info.frameCount} frames`, info.codec].filter(Boolean).join(" · ");
 });
 
-function title(id: ViewStep, label: string): string | undefined {
+// The tooltip of a pill says what the step is, then what is missing (locked) or what it gave (done).
+function title(id: ViewStep, label: string): string {
   const state = states.value[id];
-  if (state.status === "locked") return state.hint;
-  if (state.status === "done") return `${label} · ${resultOf(id)}`;
-  return undefined;
+  const explanation = stepInfo(id).explanation;
+  if (state.status === "locked") return `${explanation}\n${state.hint}`;
+  const result = resultOf(id);
+  if (state.status === "done" && result) return `${explanation}\n${label} · ${result}`;
+  return explanation;
 }
 </script>
 

@@ -1,5 +1,5 @@
 // Load Scheme and Save Scheme report in the status bar. Loading changes the layer values, and in the Wavelets step
-// that starts a new preview, whose own message ("Calculating wavelets done") must not replace the one of Load Scheme.
+// that starts a new preview, whose own message ("Preview updated") must not replace the one of Load Scheme.
 // The preview watcher only runs inside the Tauri window, so these tests stand in for it (`__TAURI_INTERNALS__`).
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -85,7 +85,7 @@ describe("Load Scheme", () => {
     await loadScheme();
     expect(settings.wavelet.layers[0].level).toBe(100);
     expect(settings.wavelet.scheme).toBe("dyadic");
-    expect(status.result).toBe("Scheme loaded: C:/schemes/sharp.rwv");
+    expect(status.result).toBe("Scheme loaded: sharp.rwv");
   });
 
   it("still says so after the new values started a preview in the Wavelets step", async () => {
@@ -93,9 +93,9 @@ describe("Load Scheme", () => {
     await loadScheme();
     await pause();
     // The preview ran with the loaded values ...
-    expect(status.action).toMatch(/^Preview: \d+ ms$/);
+    expect(status.action).toMatch(/^Preview calculated in \d+ ms$/);
     // ... and did not replace the message.
-    expect(status.result).toBe("Scheme loaded: C:/schemes/sharp.rwv");
+    expect(status.result).toBe("Scheme loaded: sharp.rwv");
   });
 
   it("says so as well when the loaded values are the ones that were set already", async () => {
@@ -107,7 +107,7 @@ describe("Load Scheme", () => {
     status.result = "";
     await loadScheme();
     await pause();
-    expect(status.result).toBe("Scheme loaded: C:/schemes/sharp.rwv");
+    expect(status.result).toBe("Scheme loaded: sharp.rwv");
   });
 
   it("reports a file that cannot be read and keeps the values", async () => {
@@ -115,7 +115,7 @@ describe("Load Scheme", () => {
       throw new Error("not a scheme file");
     };
     await loadScheme();
-    expect(status.result).toBe("Error: Error: not a scheme file");
+    expect(status.result).toBe("Load Scheme failed: not a scheme file");
     expect(settings.wavelet.layers[0].level).toBe(10);
   });
 
@@ -129,7 +129,7 @@ describe("Load Scheme", () => {
 describe("Save Scheme", () => {
   it("says where the scheme was saved", async () => {
     await saveScheme();
-    expect(status.result).toBe("Scheme saved: C:/schemes/mine.rwv");
+    expect(status.result).toBe("Scheme saved: mine.rwv");
   });
 
   it("reports a file that cannot be written", async () => {
@@ -137,6 +137,6 @@ describe("Save Scheme", () => {
       throw new Error("disk full");
     };
     await saveScheme();
-    expect(status.result).toBe("Error: Error: disk full");
+    expect(status.result).toBe("Save Scheme failed: disk full");
   });
 });

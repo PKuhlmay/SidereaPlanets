@@ -5,12 +5,12 @@ import { atLeast } from "../logic/workflow";
 import { session } from "../state";
 import NumberField from "./NumberField.vue";
 
-// Frame bar of the Alignpoints, Align and Limit steps: status, Goto Frame, a slider over all frames and the position. Empty before a
-// recording is open.
+// Frame bar of the Alignpoints, Align and Best Frames steps: status, Go to frame, a slider over all frames and the position. Empty
+// before a recording is open.
 const count = computed(() => session.info?.frameCount ?? 0);
 const aligned = computed(() => atLeast(session.step, "aligned"));
 
-// Goto Frame counts from 1, the slider and the backend from 0.
+// Go to frame counts from 1, the slider and the backend from 0.
 const goto = computed({
   get: () => session.frame + 1,
   set: (frame: number) => void showFrame(frame - 1),
@@ -21,7 +21,7 @@ const goto = computed({
   <div class="framebar">
     <template v-if="session.info">
       <span class="state" :class="{ on: aligned }"><i />{{ aligned ? "Aligned" : "Loaded" }}</span>
-      <label class="goto">Goto Frame <NumberField v-model="goto" :min="1" :max="count" label="Goto Frame" /></label>
+      <label class="goto">Go to frame <NumberField v-model="goto" :min="1" :max="count" label="Go to frame" /></label>
       <input
         type="range"
         min="0"
@@ -30,7 +30,7 @@ const goto = computed({
         aria-label="Frame"
         @input="showFrame(Number(($event.target as HTMLInputElement).value))"
       />
-      <span class="position">Frame ({{ session.frame + 1 }}): {{ session.frame + 1 }}/{{ count }}</span>
+      <span class="position">Frame {{ session.frame + 1 }} of {{ count }}</span>
     </template>
   </div>
 </template>

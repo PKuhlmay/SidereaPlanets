@@ -20,12 +20,13 @@ import Toolbar from "./components/Toolbar.vue";
 import WaveletsStep from "./components/WaveletsStep.vue";
 import type { Rect } from "./logic/align";
 import { startColour } from "./colour";
+import { openDroppedFiles } from "./recording";
 import { pickToneImage } from "./logic/colour";
 import { imageCaption, imageKind, pickImage, windowTitle } from "./logic/workflow";
 import { session, settings, status } from "./state";
 import "./steps";
 
-// "Before" in the zoom bar of the Wavelets and Save steps: the unprocessed stack instead of the sharpened image.
+// "Before/After" in the zoom bar of the Wavelets and Save steps: the unprocessed stack instead of the sharpened image.
 const before = ref(false);
 
 const kind = computed(() => imageKind(session.view));
@@ -38,9 +39,10 @@ const image = computed(() =>
 );
 const wavelet = computed(() => kind.value === "wavelet");
 startColour();
+openDroppedFiles();
 
-// Wavelets and Save show the colour and tone cards applied to the image, or the Copy To image or the difference to it;
-// Before shows the plain stack.
+// Wavelets and Save show the colour and tone cards applied to the image, or the remembered image or the difference to it;
+// Before/After shows the plain stack.
 const shown = computed(() => {
   if (!wavelet.value || before.value) return image.value;
   return pickToneImage(session.toneView, {
@@ -50,7 +52,7 @@ const shown = computed(() => {
   });
 });
 const withFunctions = computed(() => session.view === "wavelets" && settings.wavelet.functionsOpen);
-const emptyText = computed(() => (session.step === "empty" ? "Press Select to open a recording" : "No image yet"));
+const emptyText = computed(() => (session.step === "empty" ? "Select a recording or drop a video or images here" : "No image to show yet"));
 const caption = computed(() =>
   shown.value
     ? imageCaption(session.view, session.step, before.value, {
@@ -72,7 +74,7 @@ watch(
   },
 );
 
-// A region drawn with R.o.Interest ends the drawing and shows the rectangle.
+// A region drawn with Draw Region ends the drawing and shows the rectangle.
 function onSelect(rect: Rect) {
   session.roi = rect;
   session.roiDrawing = false;

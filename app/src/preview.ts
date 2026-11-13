@@ -128,9 +128,9 @@ export async function applyPreview(search: string) {
     empty: ["", ""],
     loaded: ["", "Loaded 10 frames"],
     points: ["", "82 alignpoints set"],
-    aligned: ["Loading frame: 10", "Alignment finished."],
-    limited: ["Processing limited to 10 frames", "Stacksize: 10  Low quality: 100.00%"],
-    stacked: ["Stack size (n=10) - (1024x680)", "Stacking Range : 0-255"],
+    aligned: ["Aligning frame: 10", "Alignment finished"],
+    limited: ["Keeping 10 of 10 frames", "10 frames will be stacked · weakest kept: 100%"],
+    stacked: ["Stacked 10 frames · 1024×680", "Value range 0–255"],
   };
   [status.action, status.result] = result[step];
   status.progress = atLeast(step, "aligned") ? 1 : 0;
@@ -165,7 +165,7 @@ export async function applyPreview(search: string) {
   if (busy > 0) {
     status.busy = { name: "Align", paused: false, cancelled: false };
     status.progress = busy / 100;
-    status.action = `Loading frame: ${Math.ceil(busy / 10)}`;
+    status.action = `Aligning frame: ${Math.ceil(busy / 10)}`;
     status.result = "";
     status.timeUsed = 4;
     status.timeLeft = 6;

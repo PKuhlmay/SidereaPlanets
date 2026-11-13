@@ -1,5 +1,5 @@
 // Long calculations: progress, time, Cancel and Pause in one place. A step of a later ticket calls
-// `runJob("Align", async (job) => { ... job.progress(done, total, "Loading frame: 4") ... return "Alignment finished." })`.
+// `runJob("Align", async (job) => { ... job.progress(done, total, "Aligning frame: 4") ... return "Alignment finished" })`.
 
 import { invoke } from "@tauri-apps/api/core";
 import { timeLeft } from "./logic/workflow";
@@ -12,15 +12,21 @@ export interface JobContext {
   readonly cancelled: boolean;
 }
 
-// Align, Stack and the Wavelet tab run in different commands of the backend, each with its own flags for Cancel and
-// Pause; Save Aligned and Save Integrated share the flags of Stack. "Wavelet" is Do All and Process.
+// Align, Stack and the Wavelets step run in different commands of the backend, each with its own flags for Cancel and
+// Pause; Save Aligned Video and Save Averaged Video share the flags of Stack.
 const commands = (name: string) => {
-  if (name === "Stack" || name === "Save Aligned" || name === "Save Integrated") {
+  if (name === "Stack" || name === "Save Aligned Video" || name === "Save Averaged Video") {
     return { cancel: "cancel_stacking", pause: "pause_stacking" };
   }
-  if (name === "Wavelet") return { cancel: "cancel_wavelet", pause: "pause_wavelet" };
+  if (name === "Do All" || name === "Update Preview") return { cancel: "cancel_wavelet", pause: "pause_wavelet" };
   return { cancel: "cancel_processing", pause: "pause_processing" };
 };
+
+/** The text of an error from the backend: a rejected command gives a string, a thrown error its message. */
+export const errorText = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
+/** A failure in the status bar: what failed, then the text of the error ("Align failed: …"). */
+export const failureText = (what: string, error: unknown): string => `${what} failed: ${errorText(error)}`;
 
 let timer: number | undefined;
 let startedAt = 0;
@@ -59,7 +65,7 @@ export async function runJob(name: string, job: (context: JobContext) => Promise
     });
     status.result = busy.cancelled ? "Cancelled" : (result ?? "");
   } catch (e) {
-    status.result = busy.cancelled ? "Cancelled" : `Error: ${String(e)}`;
+    status.result = busy.cancelled ? "Cancelled" : failureText(name, e);
   } finally {
     window.clearInterval(timer);
     // The bar only runs during a calculation: it is empty again after a finished, cancelled or failed one.

@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { showItems } from "../logic/menu";
 import { imageKind } from "../logic/workflow";
 import { session, settings } from "../state";
 import MenuButton from "./MenuButton.vue";
 
-// The row at the top of the image area (docs/design.md, "Show am Bild"): what the image shows at the left; Functions »
-// (Wavelets) and the Show menu with the check boxes of the former action row at the right.
+// The row at the top of the image area (docs/design.md, "Show am Bild"): what the image shows at the left; Adjust ›
+// (Wavelets) and the Show menu with the check boxes of the former action row at the right. The check marks that change
+// nothing on screen yet are dimmed under "Not available yet" (MAC-014).
 defineProps<{ caption: string }>();
 
 const kind = computed(() => imageKind(session.view));
+const items = computed(() => showItems(kind.value));
+const available = computed(() => items.value.filter((item) => item.available));
+const locked = computed(() => items.value.filter((item) => !item.available));
+// The check marks of a kind of image live in their own settings group; the keys come from `showItems`.
+const group = computed(
+  () => (kind.value === "frame" ? settings.align : kind.value === "stack" ? settings.stack : settings.wavelet) as unknown as Record<string, boolean>,
+);
 </script>
 
 <template>
@@ -20,31 +29,21 @@ const kind = computed(() => imageKind(session.view));
       type="button"
       class="chip ctl"
       :aria-pressed="settings.wavelet.functionsOpen"
-      title="Show or hide the Functions panel"
+      title="Show or hide the panel with color, tone and other image adjustments"
       @click="settings.wavelet.functionsOpen = !settings.wavelet.functionsOpen"
     >
-      Functions »
+      Adjust ›
     </button>
-    <MenuButton v-if="session.info && session.view !== 'open'" class="show" label="Show" end>
-      <template v-if="kind === 'frame'">
-        <label class="mi"><input v-model="settings.align.showFullImage" type="checkbox" />Show Full Image</label>
-        <label class="mi"><input v-model="settings.align.showRoi" type="checkbox" :disabled="!session.roi" />Show ROI</label>
-        <label class="mi"><input v-model="settings.align.showAlignpoints" type="checkbox" />Show Alignpoints</label>
-        <label class="mi"><input v-model="settings.align.showAligndata" type="checkbox" />Show Aligndata</label>
-        <label class="mi"><input v-model="settings.align.showFramelist" type="checkbox" />Show Framelist</label>
-        <label class="mi"><input v-model="settings.align.showRegistrationgraph" type="checkbox" />Show Registrationgraph</label>
-        <label class="mi"><input v-model="settings.align.showPrefilter" type="checkbox" />Show Prefilter</label>
-      </template>
-      <template v-else-if="kind === 'stack'">
-        <label class="mi"><input v-model="settings.stack.showFullImage" type="checkbox" />Show Full Image</label>
-        <label class="mi"><input v-model="settings.stack.showAlignSections" type="checkbox" />Show AlignSections</label>
-        <label class="mi"><input v-model="settings.stack.showStackgraph" type="checkbox" />Show Stackgraph</label>
-        <label class="mi"><input v-model="settings.stack.showStacklist" type="checkbox" />Show Stacklist</label>
-      </template>
-      <template v-else>
-        <label class="mi"><input v-model="settings.wavelet.showFullImage" type="checkbox" />Show Full Image</label>
-        <label class="mi"><input v-model="settings.wavelet.showAlignpoints" type="checkbox" />Show AlignPoints</label>
-        <label class="mi"><input v-model="settings.wavelet.showProcessingArea" type="checkbox" />Show Processing Area</label>
+    <MenuButton v-if="session.info && session.view !== 'open'" class="show" label="Show" end title="What the image and the cards show">
+      <label v-for="item in available" :key="item.key" class="mi">
+        <input v-model="group[item.key]" type="checkbox" :disabled="item.key === 'showRoi' && !session.roi" />{{ item.title }}
+      </label>
+      <template v-if="locked.length > 0">
+        <hr />
+        <div class="cap">Not available yet</div>
+        <label v-for="item in locked" :key="item.key" class="mi" title="Not available yet">
+          <input type="checkbox" :checked="false" disabled />{{ item.title }}
+        </label>
       </template>
     </MenuButton>
   </div>
@@ -114,5 +113,15 @@ const kind = computed(() => imageKind(session.view));
 .mi:has(input:disabled) {
   color: var(--off);
   cursor: default;
+}
+hr {
+  margin: 4px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+.cap {
+  padding: 4px 8px 2px;
+  font-size: var(--fs-s);
+  color: var(--muted);
 }
 </style>

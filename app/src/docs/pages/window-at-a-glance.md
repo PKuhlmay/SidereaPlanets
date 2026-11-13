@@ -9,7 +9,7 @@ The window guides you through the work in seven steps; where a setting sits is d
 
 | Part | What it does |
 |---|---|
-| Toolbar | **Select Recording** opens a recording. The menus Recent Recordings, Flat/Dark/Reference, Tools and Settings sit next to it, followed by **Open Project…** and **Save Project…** for project files. **Cancel** and **Pause** are in the middle; **Help**, **About** and the number of CPU cores to use (threads for the calculations, all cores by default) on the right |
+| Toolbar | **Select Recording…** opens a recording. The menus Recent Recordings and Settings sit next to it, followed by **Open Project…** and **Save Project…** for project files. **Cancel** and **Pause** are in the middle; **Help**, **About** and the number of CPU cores to use (threads for the calculations, all cores by default) on the right |
 | Step bar | The seven steps **Open · Alignpoints · Align · Best Frames · Stack · Wavelets · Save**. At the right: file name, size, number of frames and codec |
 | Step panel (left) | Shows only the step you are on: what it does, its settings and, at the bottom, the one button that runs it |
 | Image area | The image. **Show ▾** at the top right holds the check boxes that switch things on the image on and off; in the Wavelets step **Adjust ›** sits next to it |

@@ -181,13 +181,15 @@ function endDrag() {
 
     <div v-if="size" class="zoom">
       <button type="button" aria-label="Zoom out" @click="zoom(1 / 1.25)">−</button>
-      <button type="button" title="Show at 100 %" @click="showActualSize">{{ formatZoom(view.scale) }}</button>
+      <button type="button" title="Show at 100%" @click="showActualSize">{{ formatZoom(view.scale) }}</button>
       <button type="button" aria-label="Zoom in" @click="zoom(1.25)">+</button>
       <span class="d" />
-      <button type="button" @click="fit">Fit</button>
+      <button type="button" title="Fit the image into the area" @click="fit">Fit</button>
       <template v-if="comparable">
         <span class="d" />
-        <button type="button" :aria-pressed="before" title="Show the unprocessed stack" @click="before = !before">Before</button>
+        <button type="button" :aria-pressed="before" title="Switch between the stack without any sharpening and the sharpened image" @click="before = !before">
+          Before/After
+        </button>
       </template>
     </div>
   </section>

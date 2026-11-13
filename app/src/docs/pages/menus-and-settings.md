@@ -11,34 +11,19 @@ A menu closes with Escape or a click outside. An entry with an arrow opens a sub
 
 The recordings you opened last, newest first (up to ten). A click opens the file again. When there are none yet, the menu says *No recent recordings*. The list is kept between runs.
 
-## Flat/Dark/Reference
-
-Load Darkframe, Load Flatfield and Load Referenceframe, and the entries that use them. All of it is **Not available yet**; the entries that need a loaded file are locked.
-
-## Tools
-
-*Show MACRO/Batch window* is **Not available yet**. *Record Processing Information in Filename* is a check box.
-
 ## Settings
 
 | Entry | Choices | Default |
 |---|---|---|
-| Automatic Processing | Align to Wavelet · Align to Stack · Stack to Wavelet | all off |
-| Autodetect Color/BW | check box | off |
-| Preview area | 2048 · 1024 · 512 · 256 · 128 (pixels per side) | 512 |
-| Luminance Setting | Red · Green · Blue, and Reset Luminance | 0.299 · 0.587 · 0.114 |
-| Stretch FIT/TIFF | Always Ask · Yes · No | Always Ask |
+| Preview Area | 2048 × 2048 px · 1024 × 1024 px · 512 × 512 px · 256 × 256 px · 128 × 128 px | 512 × 512 px |
 | Theme | Dark · Light | Dark |
 | Show Advanced Controls | check box: opens the *Advanced* section of every step panel when you tick it. You can close and open each section on its own afterwards; unticking leaves them as they are | off |
-| Play Sounds, Swap Red/Blue Channel, Wait when loading a single image, Maximize during messages | check boxes | off |
-| Save to Subdir | text | empty |
-| Bias subtract | number | 0 |
 
-The settings are collected here already; the steps that use them follow with the steps themselves. The check boxes that switch things on the image on and off are not in a menu of the toolbar but in **Show ▾** at the top right of the image, see [The image area](image-area). The **Preview area** is the part of the image that the wavelet preview calculates, see [Wavelet sharpening](wavelet-sharpening).
+Below them, under *Not available yet*, the menu lists dimmed entries that no step uses yet: Automatic Processing, Autodetect Color/BW, Luminance Setting, Stretch FIT/TIFF, Play Sounds, Swap Red/Blue Channel, Wait When Loading a Single Image, Maximize During Messages, Save to Subdir and Bias Subtract. The check boxes that switch things on the image on and off are not in a menu of the toolbar but in **Show ▾** at the top right of the image, see [The image area](image-area). The **Preview Area** is the part of the image that the wavelet preview calculates, see [Wavelet sharpening](wavelet-sharpening).
 
 ## Toolbar
 
-**Select Recording** opens a recording, like the button in the step *Open*. **Open Project…** and **Save Project…** next to the menus open and save a project file (see [Save and export](save-and-export)). **Open Project…** is locked while a calculation runs; **Save Project…** is also locked until a recording is open. The field **CPU cores to use** is the number of threads that all calculations use: Set Alignpoints, Align, Stack, Save Aligned Video and Save Averaged Video, the wavelet preview and Do All, the color and tone panels and saving an image. It starts at the number of logical cores of your computer and goes from 1 up to that number; a smaller or larger value is set to the nearest one. So all cores are used from the start; lower the number if the computer should stay free for other work. A change applies to the next calculation, a running one finishes with the number it started with. The value is not saved in the project file, because the number of cores belongs to the computer. **About** is **Not available yet**.
+**Select Recording…** opens a recording, like the button in the step *Open*; you can also drop a video or images onto the window. **Open Project…** and **Save Project…** next to the menus open and save a project file (see [Save and export](save-and-export)). **Open Project…** is locked while a calculation runs; **Save Project…** is also locked until a recording is open. The field **CPUs** (CPU cores to use) is the number of threads that all calculations use: Set Alignpoints, Align, Stack, Save Aligned Video and Save Averaged Video, the wavelet preview and Do All, the color and tone panels and saving an image. It starts at the number of logical cores of your computer and goes from 1 up to that number; a smaller or larger value is set to the nearest one. So all cores are used from the start; lower the number if the computer should stay free for other work. A change applies to the next calculation, a running one finishes with the number it started with. The value is not saved in the project file, because the number of cores belongs to the computer. **About** is **Not available yet**.
 
 ## On the Mac
 

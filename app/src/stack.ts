@@ -3,7 +3,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { runJob } from "./jobs";
-import { buildStackRequest } from "./logic/stack";
+import { buildStackRequest, stackMessages } from "./logic/stack";
 import { session, settings } from "./state";
 import { advance } from "./steps";
 
@@ -48,7 +48,8 @@ export async function stack(): Promise<void> {
     session.processedImage = null;
     session.step = "stacked";
     advance();
-    job.progress(1, 1, `Stack size (n=${stacked.frames}) - (${stacked.width}x${stacked.height})`);
-    return "Stacking Range : 0-255";
+    const messages = stackMessages(stacked.frames, stacked.width, stacked.height);
+    job.progress(1, 1, messages.action);
+    return messages.result;
   });
 }

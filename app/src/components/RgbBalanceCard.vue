@@ -26,11 +26,11 @@ function reset() {
     <template #actions>
       <button type="button" class="link" :disabled="mono" @click="reset">Reset</button>
     </template>
-    <fieldset class="cardbody" :disabled="mono" :title="mono ? 'Needs a colour image' : undefined">
+    <fieldset class="cardbody" :disabled="mono" :title="mono ? 'Needs a color image' : undefined">
       <div v-for="channel in channels" :key="channel.key" class="line">
         <span>{{ channel.label }}</span>
         <input v-model.number="tone[channel.key]" type="range" :min="min" :max="max" :aria-label="channel.label" />
-        <NumberField v-model="tone[channel.key]" :min="min" :max="max" :width="56" :label="`${channel.label} percent`" />
+        <span class="pct"><NumberField v-model="tone[channel.key]" :min="min" :max="max" :width="56" :label="`${channel.label} percent`" />%</span>
       </div>
     </fieldset>
   </FloatCard>
@@ -43,5 +43,12 @@ function reset() {
   gap: 8px;
   align-items: center;
   min-height: 30px;
+}
+.pct {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+  font-size: var(--fs-s);
+  color: var(--muted);
 }
 </style>

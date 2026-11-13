@@ -4,6 +4,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { watch } from "vue";
 import { handlers } from "./actions";
+import { failureText } from "./jobs";
 import {
   colourPayload,
   differencePixels,
@@ -76,7 +77,7 @@ async function refresh(): Promise<void> {
     } while (dirty);
   } catch (e) {
     session.adjustedImage = null;
-    status.result = `Error: ${String(e)}`;
+    status.result = failureText("Color and tone", e);
   } finally {
     running = false;
   }
@@ -99,7 +100,7 @@ export async function autoAlign(): Promise<void> {
     settings.wavelet.tone.shifts = found;
     status.result = "RGB Align: shifts found";
   } catch (e) {
-    status.result = `Error: ${String(e)}`;
+    status.result = failureText("RGB Align", e);
   }
 }
 
@@ -115,18 +116,18 @@ export async function autoLevels(): Promise<void> {
     tone.black = Math.round(found.black);
     tone.white = Math.round(found.white);
   } catch (e) {
-    status.result = `Error: ${String(e)}`;
+    status.result = failureText("Histogram", e);
   }
 }
 
-/** Closes a card: the Functions button comes up, the values stay. */
+/** Closes a card: the Adjustments button comes up, the values stay. */
 export function closeFunction(name: string): void {
   const open = settings.wavelet.functions;
   const at = open.indexOf(name);
   if (at >= 0) open.splice(at, 1);
 }
 
-/** A Functions button: opens or closes its card; the buttons without a card say so in the status bar. */
+/** An Adjustments button: opens or closes its card. The buttons without a card are locked; the check is a safeguard. */
 export function toggleFunction(name: string): void {
   if (!isToneCard(name)) {
     status.result = `${name}: not available yet`;
@@ -146,29 +147,29 @@ export function resetTone(): void {
 
 const copyOf = (image: ImageData): ImageData => new ImageData(new Uint8ClampedArray(image.data), image.width, image.height);
 
-// Copy To / Load to / Difference (panel "Copy To / Load to / Difference").
+// Remember / Restore / Difference (the last group of the Adjustments panel).
 function copyTo() {
   const image = currentImage();
   if (!image) {
-    status.result = "Copy To: no image yet";
+    status.result = "Remember: no image yet";
     return;
   }
   session.clipboardImage = copyOf(image);
   session.differenceImage = null;
   session.toneView = "current";
-  status.result = "Image copied";
+  status.result = "Image remembered";
 }
 
 function loadTo() {
   if (!session.clipboardImage) {
-    status.result = "Load to: nothing copied yet";
+    status.result = "Restore: nothing remembered yet";
     return;
   }
   // The copy already has the card values in it, so they go back to unchanged; applying them again would count twice.
   session.processedImage = copyOf(session.clipboardImage);
   resetTone();
   session.toneView = "current";
-  status.result = "Copied image loaded";
+  status.result = "Remembered image restored";
 }
 
 function updateDifference() {
@@ -181,7 +182,7 @@ function updateDifference() {
 
 function difference() {
   if (!session.clipboardImage) {
-    status.result = "Difference: nothing copied yet";
+    status.result = "Difference: nothing remembered yet";
     return;
   }
   if (!updateDifference()) {
@@ -192,7 +193,7 @@ function difference() {
   status.result = "Difference shown";
 }
 
-/** Connects the cards and Copy To to the window. Called once from App.vue. */
+/** Connects the cards and Remember to the window. Called once from App.vue. */
 export function startColour(): void {
   handlers.copyTo = copyTo;
   handlers.loadTo = loadTo;

@@ -6,7 +6,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { nextTick, shallowRef, watch } from "vue";
-import { runJob } from "./jobs";
+import { failureText, runJob } from "./jobs";
+import { fileName } from "./logic/recent";
 import { defaultLayer } from "./logic/settings";
 import { processingArea } from "./logic/viewport";
 import { colourMode, doAllIsCurrent, doAllKey, fromBackend, parsePreview, previewWanted, toBackend, writePreview, type BackendSettings } from "./logic/wavelet";
@@ -36,20 +37,20 @@ const area = (stack: ImageData) => {
   return { x: a.x, y: a.y, width: a.w, height: a.h };
 };
 
-/** Calculates the Processing Area with the current values and shows it in the image. */
+/** Calculates the preview area with the current values and shows it in the image. */
 async function renderPreview(cancelled?: () => boolean): Promise<string> {
   const stack = session.stackImage;
-  if (!stack) throw new Error("no stacked image");
+  if (!stack) return "No stacked image: run Stack first";
   // Time from the request to the finished drawing in the image area, shown in the status bar (docs/gui-toolkit.md).
   const started = performance.now();
   const answer = await invoke<ArrayBuffer>("wavelet_preview", { settings: toBackend(settings.wavelet), area: area(stack), mode: mode() });
-  // Process was cancelled while the area was being calculated: the old picture stays.
+  // Update Preview was cancelled while the area was being calculated: the old picture stays.
   if (cancelled?.()) return "";
   const pixels = workingPixels(stack);
   writePreview(pixels, stack.width, parsePreview(answer));
   session.processedImage = new ImageData(pixels, stack.width, stack.height);
-  status.action = `Preview: ${Math.round(performance.now() - started)} ms`;
-  return "Calculating wavelets done";
+  status.action = `Preview calculated in ${Math.round(performance.now() - started)} ms`;
+  return "Preview updated";
 }
 
 // Only one request runs at a time; while it runs, further changes are folded into one more request. The promise is
@@ -69,7 +70,7 @@ function refreshPreview(): Promise<void> {
         status.result = await renderPreview();
       } while (again);
     } catch (e) {
-      status.result = `Error: ${String(e)}`;
+      status.result = failureText("Preview", e);
     } finally {
       running = null;
     }
@@ -78,11 +79,11 @@ function refreshPreview(): Promise<void> {
 }
 
 /**
- * Process: calculates the Processing Area now. The area is small, so the backend does not stop in the middle; Cancel
- * drops the result when it arrives.
+ * Update Preview: calculates the preview area now. The area is small, so the backend does not stop in the middle;
+ * Cancel drops the result when it arrives.
  */
 export async function process(): Promise<void> {
-  await runJob("Wavelet", (job) => renderPreview(() => job.cancelled));
+  await runJob("Update Preview", (job) => renderPreview(() => job.cancelled));
 }
 
 // The stacked image and the values the last finished Do All was made for. A ref, so that the step bar can follow it
@@ -111,8 +112,8 @@ export async function runDoAll(): Promise<boolean> {
   // The values are read now: they belong to this run even if a slider moves while it works.
   const stack = session.stackImage;
   const key = doAllKey(settings.wavelet, mode());
-  await runJob("Wavelet", async (job) => {
-    job.progress(0, 1, "Do_all processing");
+  await runJob("Do All", async (job) => {
+    job.progress(0, 1, "Applying to whole image…");
     // The backend reports each finished layer.
     const unlisten = await listen<{ done: number; total: number }>("wavelet-progress", ({ payload }) =>
       job.progress(payload.done, payload.total),
@@ -139,7 +140,7 @@ export async function runDoAll(): Promise<boolean> {
 }
 
 // Load Scheme and Save Scheme. The dialog is the one place RK-009 replaces with its `pick_scheme_path` command.
-const schemeFilter = [{ name: "the reference program Wavelet scheme settings", extensions: ["rwv"] }];
+const schemeFilter = [{ name: "Wavelet scheme", extensions: ["rwv"] }];
 
 async function pickSchemePath(mode: "open" | "save"): Promise<string | null> {
   if (mode === "open") {
@@ -159,9 +160,9 @@ export async function loadScheme(): Promise<void> {
     // The new values start a preview in the Wavelets step; its message must not replace this one.
     await nextTick();
     if (running) await running;
-    status.result = `Scheme loaded: ${path}`;
+    status.result = `Scheme loaded: ${fileName(path)}`;
   } catch (e) {
-    status.result = `Error: ${String(e)}`;
+    status.result = failureText("Load Scheme", e);
   }
 }
 
@@ -170,9 +171,9 @@ export async function saveScheme(): Promise<void> {
   if (!path) return;
   try {
     await invoke("save_wavelet_scheme", { path, settings: toBackend(settings.wavelet) });
-    status.result = `Scheme saved: ${path}`;
+    status.result = `Scheme saved: ${fileName(path)}`;
   } catch (e) {
-    status.result = `Error: ${String(e)}`;
+    status.result = failureText("Save Scheme", e);
   }
 }
 
@@ -215,7 +216,7 @@ watch(
       doAllCurrent: doAllIsUpToDate(),
     });
     if (!wanted) return;
-    status.action = "layer setting changed";
+    status.action = "Updating preview…";
     void refreshPreview();
     // Automatic: once the values stop changing, apply them to the whole image as well.
     window.clearTimeout(automatic);

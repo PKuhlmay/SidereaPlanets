@@ -8,6 +8,7 @@ import {
   LAYER_COUNT,
   LAYER_RANGE,
 } from "./settings";
+import { functionHelp, isFunctionBuilt } from "./colour";
 
 // Defaults and ranges from docs/ui.md.
 describe("defaults", () => {
@@ -106,10 +107,21 @@ describe("wavelet layers", () => {
 });
 
 describe("Functions", () => {
-  it("lists the fifteen buttons in the order of the original (three columns)", () => {
-    expect(functionNames).toHaveLength(15);
-    expect(functionNames.slice(0, 3)).toEqual(["Histogram", "Gamma", "Colour Mixing"]);
-    expect(functionNames[functionNames.length - 1]).toBe("Cropping Area");
+  it("lists the fifteen buttons in the order of the original (three columns), in US English and Title Case", () => {
+    expect(functionNames).toEqual([
+      "Histogram", "Gamma", "Color Mixing",
+      "View Zoomed", "View Compare", "View Stack Size",
+      "Flip and Rotate", "RGB Align", "RGB Balance",
+      "Resize Image", "Denoise/Deringing", "Wavelet Filter",
+      "Masking", "Show Line Graph", "Cropping Area",
+    ]);
+  });
+
+  it("locks the eleven buttons without a card and explains the others in their tooltip", () => {
+    expect(functionNames.filter((name) => !isFunctionBuilt(name))).toHaveLength(11);
+    expect(functionNames.filter(isFunctionBuilt)).toEqual(["Histogram", "Gamma", "RGB Align", "RGB Balance"]);
+    expect(functionHelp("Gamma")).toBe("Brightens or darkens the midtones.");
+    expect(functionHelp("Masking")).toBe("Not available yet");
   });
 });
 

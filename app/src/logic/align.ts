@@ -92,12 +92,12 @@ export const roomForPoints = (rect: Rect, edgeDistance: number): boolean =>
   rect.width > 2 * edgeDistance && rect.height > 2 * edgeDistance;
 
 /**
- * The status bar after Limit: how many frames stay and, as "Low quality", the quality of the weakest of them in percent
- * of the best frame (`keptQualities`, the percentages of the Framelist). That meaning is a conjecture: the original shows
- * the field, but with all ten frames of the reference case it reads 100,00 % (docs/workflow.md).
+ * The status bar after Keep Best Frames: how many frames stay and the quality of the weakest of them in percent of the
+ * best frame (`keptQualities`, the percentages of the Frame List). That meaning is a conjecture (docs/workflow.md).
  */
-export function limitMessages(kept: number, keptQualities: number[]): { action: string; result: string } {
-  const action = `Processing limited to ${kept} frames`;
-  if (keptQualities.length === 0) return { action, result: `Stacksize: ${kept}` };
-  return { action, result: `Stacksize: ${kept}  Low quality: ${Math.min(...keptQualities).toFixed(2)}%` };
+export function limitMessages(kept: number, total: number, keptQualities: number[]): { action: string; result: string } {
+  const action = `Keeping ${kept} of ${total} frames`;
+  const stacked = `${kept} ${kept === 1 ? "frame" : "frames"} will be stacked`;
+  if (keptQualities.length === 0) return { action, result: stacked };
+  return { action, result: `${stacked} · weakest kept: ${Math.min(...keptQualities).toFixed(0)}%` };
 }

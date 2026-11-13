@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { qualityChart } from "../logic/qualityChart";
 import { session, settings } from "../state";
 
-// Quality of the frames in the Limit step: one bar per frame, best first, kept frames in the accent colour, the limit
+// Quality of the frames in the Best Frames step: one bar per frame, best first, kept frames in the accent colour, the limit
 // as a dashed line. Follows every change of the Limit Setup at once (docs/design.md, "4 Limit").
 const W = 248;
 const H = 76;
@@ -53,7 +53,7 @@ const line = computed(() => {
         <text :x="line.tx" :y="line.ty" :text-anchor="line.anchor" class="value">{{ chart.value }}</text>
       </template>
     </svg>
-    <div class="ends"><span>best frame</span><span>weakest</span></div>
+    <div class="ends"><span>sharpest</span><span>blurriest</span></div>
   </div>
 </template>
 

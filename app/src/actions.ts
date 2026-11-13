@@ -1,16 +1,17 @@
-// The one place where later tickets plug in the computing functions. Every button whose function does not exist
-// yet (menu entries, floating cards) reports "Not available yet" in the status bar; a ticket that builds a function
-// registers its handler here.
+// The one place where later tickets plug in the computing functions. A button whose function does not exist yet is
+// locked and says "Not available yet" in its tooltip (MAC-014); should an action without a handler run anyway, it
+// reports that in the status bar. A ticket that builds a function registers its handler here.
 //
-//   RK-005  setAlignpoints, align, limit, regionOfInterest, emptyList
+//   RK-005  setAlignpoints, align, limit, regionOfInterest
 //   RK-006  stack
 //   RK-007  process, doAll, loadScheme, saveScheme (registered below, wavelet.ts); resetWavelets is done in the panel
 //   RK-008  functions panels, copyTo, loadTo, difference
 //   RK-009  saveImage, saveAligned, saveIntegrated (saving.ts); the
 //           darkframe/flatfield/reference menu entries are still open
 //
-// Buttons of the step panels whose function does not exist (No Align, Scan Frames, Realign with Processed, the Preview
-// button of a layer) are locked and marked "Not available yet" in the panel; they have no action here.
+// Buttons whose function does not exist (No Align, Scan Frames, Realign with Processed, the Preview button of a layer,
+// Clear List, the darkframe, flatfield and reference entries, Show MACRO/Batch Window, About) are locked and marked
+// "Not available yet"; they have no action here.
 //
 // A handler normally calls runJob (jobs.ts) so that progress, Cancel and Pause work.
 
@@ -23,25 +24,19 @@ import { loadScheme, process, runDoAll, saveScheme } from "./wavelet";
 export const actionLabels = {
   setAlignpoints: "Set Alignpoints",
   align: "Align",
-  limit: "Limit",
-  regionOfInterest: "R.o.Interest",
-  emptyList: "Empty List",
+  limit: "Keep Best Frames",
+  regionOfInterest: "Draw Region",
   stack: "Stack",
-  saveImage: "Save image",
-  saveAligned: "Save Aligned",
-  saveIntegrated: "Save Integrated",
-  process: "Process",
+  saveImage: "Save Image",
+  saveAligned: "Save Aligned Video",
+  saveIntegrated: "Save Averaged Video",
+  process: "Update Preview",
   doAll: "Do All",
   loadScheme: "Load Scheme",
   saveScheme: "Save Scheme",
-  copyTo: "Copy To",
-  loadTo: "Load to",
+  copyTo: "Remember",
+  loadTo: "Restore",
   difference: "Difference",
-  loadDarkframe: "Load Darkframe",
-  loadFlatfield: "Load Flatfield",
-  loadReferenceframe: "Load Referenceframe",
-  macroBatch: "Show MACRO/Batch window",
-  about: "About",
 } as const;
 
 export type ActionId = keyof typeof actionLabels;
