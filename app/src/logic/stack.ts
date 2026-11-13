@@ -1,6 +1,7 @@
 // What the Stack button sends to the backend, collected from the window state (docs/stacking.md).
 
 import type { settings as settingsValue, session as sessionValue } from "../state";
+import { centreOfGravityThreshold } from "./align";
 import { wholeNumber } from "./numbers";
 
 /** Matches `StackSettings` of the Tauri command `stack` (app/src-tauri/src/stack_commands.rs). */
@@ -15,6 +16,8 @@ export interface StackRequest {
   normalize: boolean;
   edgeSkip: number;
   roi: { x: number; y: number; width: number; height: number } | null;
+  /** Brightness threshold of Align by center of gravity, null while it is off. */
+  centreOfGravity: number | null;
 }
 
 type Session = Pick<typeof sessionValue, "referenceFrame" | "alignpoints" | "frames" | "roi">;
@@ -33,6 +36,7 @@ export function buildStackRequest(session: Session, settings: Settings): StackRe
     normalize: settings.stack.normalize,
     edgeSkip: wholeNumber(settings.stack.edgePixels, 0),
     roi: session.roi,
+    centreOfGravity: centreOfGravityThreshold(settings.align),
   };
 }
 

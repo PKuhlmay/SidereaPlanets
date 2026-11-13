@@ -62,11 +62,20 @@ describe("the step panel Align", () => {
     expect(alignStep).toMatch(/<\/div>\s*<span class="factor">Not available yet<\/span>/);
   });
 
-  it("locks Show alignment, Align by center of gravity and Estimate rotation, each with a tooltip and a note (MAC-014)", () => {
-    for (const label of ["Show alignment", "Align by center of gravity", "Estimate rotation"]) {
+  it("locks Show alignment and Estimate rotation, each with a tooltip and a note (MAC-014)", () => {
+    for (const label of ["Show alignment", "Estimate rotation"]) {
       const pattern = new RegExp(`title="Not available yet">\\s*<label class="chk"><input type="checkbox" disabled />${label}</label>\\s*<span class="factor">Not available yet</span>`);
       expect(alignStep, label).toMatch(pattern);
     }
+  });
+
+  it("leaves Align by center of gravity and its Brightness threshold free (MAC-021)", () => {
+    const line = alignStep.split("\n").find((l) => l.includes("Align by center of gravity</label>"));
+    expect(line).toBeDefined();
+    expect(line).toContain('v-model="align.centreOfGravity"');
+    expect(line).not.toContain("disabled");
+    expect(alignStep).not.toMatch(/Not available yet[^\n]*\n[^\n]*Align by center of gravity/);
+    expect(alignStep).toMatch(/<NumberField v-model="align.brightnessThreshold" :min="0" :max="255" :disabled="!align.centreOfGravity"/);
   });
 });
 

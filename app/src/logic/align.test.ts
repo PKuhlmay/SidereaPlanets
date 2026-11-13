@@ -50,7 +50,20 @@ describe("setAlignpointsArgs", () => {
 describe("alignArgs", () => {
   it("sends box size, movement and the region", () => {
     const roi = { x: 1, y: 2, width: 30, height: 40 };
-    expect(alignArgs(align(), roi)).toEqual({ settings: { boxSize: 30, maxMovement: 5, roi } });
+    expect(alignArgs(align(), roi)).toEqual({ settings: { boxSize: 30, maxMovement: 5, roi, centreOfGravity: null } });
+  });
+
+  it("sends the Brightness threshold while Align by center of gravity is on, held to 0–255 (MAC-021)", () => {
+    const a = align();
+    expect([a.centreOfGravity, a.brightnessThreshold]).toEqual([false, 20]);
+    a.centreOfGravity = true;
+    expect(alignArgs(a, null).settings.centreOfGravity).toBe(20);
+    a.brightnessThreshold = 300;
+    expect(alignArgs(a, null).settings.centreOfGravity).toBe(255);
+    a.brightnessThreshold = -4;
+    expect(alignArgs(a, null).settings.centreOfGravity).toBe(0);
+    a.centreOfGravity = false;
+    expect(alignArgs(a, null).settings.centreOfGravity).toBeNull();
   });
 });
 

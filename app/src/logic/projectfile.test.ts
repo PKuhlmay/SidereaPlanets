@@ -57,6 +57,26 @@ describe("applyProject", () => {
   });
 });
 
+describe("Align by center of gravity in the project file (same keys as the Mac app)", () => {
+  it("writes centreOfGravity and brightnessThreshold in the section align", () => {
+    const settings = createSettings();
+    expect(buildProject([], settings).sections.align).toMatchObject({ centreOfGravity: false, brightnessThreshold: 20 });
+    settings.align.centreOfGravity = true;
+    settings.align.brightnessThreshold = 35;
+    expect(buildProject([], settings).sections.align).toMatchObject({ centreOfGravity: true, brightnessThreshold: 35 });
+  });
+
+  it("reads them back, holds the threshold to 0–255 and keeps the values a file lacks", () => {
+    const target = createSettings();
+    applyProject(target, { formatVersion: 1, recording: [], sections: { align: { centreOfGravity: true, brightnessThreshold: 999 } } });
+    expect([target.align.centreOfGravity, target.align.brightnessThreshold]).toEqual([true, 255]);
+    applyProject(target, { formatVersion: 1, recording: [], sections: { align: { brightnessThreshold: -3 } } });
+    expect([target.align.centreOfGravity, target.align.brightnessThreshold]).toEqual([true, 0]);
+    applyProject(target, { formatVersion: 1, recording: [], sections: { align: { minDistance: 40 } } });
+    expect([target.align.centreOfGravity, target.align.brightnessThreshold]).toEqual([true, 0]);
+  });
+});
+
 describe("Color Mixing and the refine cards in the project file (same keys as the Mac app)", () => {
   it("stores the mixing matrix under wavelet.tone.mix and the refine values in a section of their own", () => {
     const saved = createSettings();

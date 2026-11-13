@@ -58,7 +58,19 @@ export function setAlignpointsArgs(frame: number, align: AlignSettings, roi: Rec
 }
 
 export function alignArgs(align: AlignSettings, roi: Rect | null) {
-  return { settings: { boxSize: wholeNumber(align.boxSize, 1), maxMovement: wholeNumber(align.maxMovement, 0), roi } };
+  return {
+    settings: {
+      boxSize: wholeNumber(align.boxSize, 1),
+      maxMovement: wholeNumber(align.maxMovement, 0),
+      roi,
+      centreOfGravity: centreOfGravityThreshold(align),
+    },
+  };
+}
+
+/** The Brightness threshold of Align by center of gravity, held to 0–255; null while the option is off (MAC-021). */
+export function centreOfGravityThreshold(align: Pick<AlignSettings, "centreOfGravity" | "brightnessThreshold">): number | null {
+  return align.centreOfGravity ? Math.min(255, wholeNumber(align.brightnessThreshold, 0)) : null;
 }
 
 /** Lowest Quality (%) and Best Frames (%) take the percent field, the two count modes the number field. */

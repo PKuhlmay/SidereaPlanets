@@ -180,6 +180,9 @@ export function createSettings() {
       showAlignment: false,
       boxSize: 30,
       maxMovement: 5,
+      /** Align by center of gravity and its Brightness threshold (0–255), off by default (MAC-021). */
+      centreOfGravity: false,
+      brightnessThreshold: 20,
       limitMode: "lowestQuality" as LimitMode,
       limitPercent: 80,
       limitCount: 200,

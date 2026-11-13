@@ -97,3 +97,11 @@ Ticket, Details im Ticket unter „Umsetzung“.
   Größe (Mauszeiger passend), außen zeichnet ein neues; 1:1, 3:2 und 4:3 halten die Form; View Compare ist solange gesperrt.
 - [ ] Done, dann Save Image als TIFF: die Datei hat genau die angezeigte Größe; Remove Crop schreibt wieder das ganze Bild; ein neuer Stack
   löscht den Zuschnitt.
+
+### RK-024 Align by center of gravity (windows-v0.1.0)
+
+- [ ] Schritt Align, Advanced: Brightness threshold ist ohne das Häkchen gedimmt und nicht bedienbar (Tooltip „Turn on Align by center of
+  gravity to use it.“), mit dem Häkchen bedienbar; Werte über 255 werden 255. Show alignment und Estimate rotation bleiben gesperrt.
+- [ ] Eine Planetenaufnahme mit starker Drift: Align ohne und mit dem Häkchen vergleichen, Quality Graph und Stackergebnis ansehen.
+  Mondaufnahme mit dem Häkchen: Align fällt nicht aus, auch wenn das Ergebnis schlechter sein darf.
+- [ ] Häkchen an, Schwelle 35, Save Project, App neu starten, Projekt öffnen: Häkchen und 35 stehen wieder da.

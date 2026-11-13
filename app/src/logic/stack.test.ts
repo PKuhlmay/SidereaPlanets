@@ -33,7 +33,15 @@ describe("buildStackRequest", () => {
       normalize: false,
       edgeSkip: 0,
       roi: null,
+      centreOfGravity: null,
     });
+  });
+
+  it("lines the frames up by the centre of gravity like Align when the option is on (MAC-021)", () => {
+    const settings = createSettings();
+    settings.align.centreOfGravity = true;
+    settings.align.brightnessThreshold = 40;
+    expect(buildStackRequest(session(), settings).centreOfGravity).toBe(40);
   });
 
   it("turns typed values into numbers the backend accepts", () => {

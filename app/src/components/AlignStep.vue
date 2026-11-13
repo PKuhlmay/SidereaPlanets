@@ -3,8 +3,14 @@ import { settings } from "../state";
 import NumberField from "./NumberField.vue";
 import StepPanel from "./StepPanel.vue";
 
-// Step 3 Align: the two sizes; under Advanced the locked alignment modes and the rest of Alignment Setup.
+// Step 3 Align: the two sizes; under Advanced the locked alignment modes and the rest of Alignment Setup with Align by
+// center of gravity (MAC-021).
 const align = settings.align;
+const gravityHelp =
+  "Follows the planet by the centre of its brightness, however far it jumps between frames. For a whole planet against a dark sky; leave it off for the Moon or the Sun in close-up.";
+const thresholdHelp =
+  "Pixels up to this brightness (0–255) do not count towards the centre: the sky and its noise. Raise it if a moon or a bright edge pulls the planet off.";
+const thresholdOffHelp = "Turn on Align by center of gravity to use it.";
 </script>
 
 <template>
@@ -25,17 +31,19 @@ const align = settings.align;
           <button type="button" disabled>Scan Frames</button>
         </div>
         <span class="factor">Not available yet</span>
-        <!-- Locked: the window does not draw the alignment yet; Align by center of gravity and Estimate rotation are locked
-             as observed in the original, what unlocks them is not known (docs/ui.md) -->
+        <!-- Locked: the window does not draw the alignment yet -->
         <div class="inl" title="Not available yet">
           <label class="chk"><input type="checkbox" disabled />Show alignment</label>
           <span class="factor">Not available yet</span>
         </div>
-        <div class="inl" title="Not available yet">
-          <label class="chk"><input type="checkbox" disabled />Align by center of gravity</label>
-          <span class="factor">Not available yet</span>
+        <div class="inl" :title="gravityHelp">
+          <label class="chk"><input v-model="align.centreOfGravity" type="checkbox" />Align by center of gravity</label>
         </div>
-        <label class="row indent" title="Not available yet">Brightness threshold <NumberField :model-value="20" disabled label="Brightness threshold" /></label>
+        <label class="row indent" :title="align.centreOfGravity ? thresholdHelp : thresholdOffHelp">
+          Brightness threshold
+          <NumberField v-model="align.brightnessThreshold" :min="0" :max="255" :disabled="!align.centreOfGravity" :class="{ dim: !align.centreOfGravity }" label="Brightness threshold" />
+        </label>
+        <!-- Locked because the way it works is not known (docs/ui.md) -->
         <div class="inl" title="Not available yet">
           <label class="chk"><input type="checkbox" disabled />Estimate rotation</label>
           <span class="factor">Not available yet</span>
@@ -57,6 +65,9 @@ const align = settings.align;
 }
 .indent {
   padding-left: 20px;
+}
+.dim {
+  opacity: 0.45;
 }
 .inl {
   display: flex;

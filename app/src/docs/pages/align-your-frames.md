@@ -64,7 +64,6 @@ If the planet jumps further than about 64 pixels between frames (strong seeing, 
 - Use it for a whole planet against a dark sky. For the Moon, or the Sun in close-up where the surface fills the frame, leave it off: there is no centre to follow, and the search finds the drift from the details.
 - The centre is measured in the whole frame, also when a region is drawn: the region stays where it is, while the planet may jump out of it.
 - If no pixel is brighter than the threshold, Siderea Planets falls back to the search on the reduced picture.
-- Works in the Mac version. In the Windows version the check box is locked for now.
 
 ## Region of interest
 

@@ -64,6 +64,7 @@ function mergeArray(have: unknown[], want: unknown[]): void {
 export function applyProject(settings: Settings, project: ProjectFile): void {
   const { align, stack, wavelet, colour, refine } = project.sections;
   mergeKnown(settings.align, align);
+  settings.align.brightnessThreshold = clamp(settings.align.brightnessThreshold, { min: 0, max: 255 });
   mergeKnown(settings.stack, stack);
   // The mixing matrix is taken only as a whole: nine finite numbers, each held to the limits of a weight.
   const matrix = [...settings.wavelet.tone.mix.matrix];
