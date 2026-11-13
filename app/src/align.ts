@@ -10,6 +10,7 @@ import { handlers } from "./actions";
 import { failureText, runJob } from "./jobs";
 import {
   alignArgs,
+  bestFrame,
   limitArgs,
   limitMessages,
   qualityPercent,
@@ -21,6 +22,7 @@ import {
   type LimitedAnswer,
 } from "./logic/align";
 import { atLeast } from "./logic/workflow";
+import { showFrame } from "./recording";
 import { session, settings, status } from "./state";
 import { advance } from "./steps";
 
@@ -37,6 +39,7 @@ function showPoints(answer: AlignpointsAnswer) {
  * next open step (steps.ts).
  */
 function discardResults() {
+  session.bestFrameHint = null;
   session.frames.forEach((f) => Object.assign(f, { checked: true, quality: null, difference: null }));
   session.alignpoints.forEach((p) => Object.assign(p, { shiftX: undefined, shiftY: undefined }));
   session.stackImage = null;
@@ -145,3 +148,19 @@ handlers.setAlignpoints = setAlignpoints;
 handlers.align = align;
 handlers.limit = limit;
 handlers.regionOfInterest = regionOfInterest;
+
+/** Whether Go to Best Frame can be pressed: after Align, with a rated frame, outside a calculation. */
+export const canGoToBestFrame = (): boolean =>
+  atLeast(session.step, "aligned") && bestFrame(session.frames) !== null && status.busy === null;
+
+/**
+ * Go to Best Frame: shows the best frame (first of the ranking) in the image and the frame bar and opens the step Alignpoints, so
+ * that Set Alignpoints takes it as reference frame. Nothing is discarded; the results stay until Set Alignpoints or Align runs again.
+ */
+export function goToBestFrame(): void {
+  const best = bestFrame(session.frames);
+  if (!canGoToBestFrame() || best === null) return;
+  session.bestFrameHint = best;
+  void showFrame(best);
+  session.view = "alignpoints";
+}

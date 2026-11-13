@@ -1,6 +1,6 @@
 # RK-018 Go to Best Frame (Windows zieht nach)
 
-- Status: offen
+- Status: erledigt
 - Abhängig von: RK-016, MAC-011
 - Stufe: `windows-v0.1.0` (Nachzug zu Mac `v0.1.0`)
 
@@ -17,11 +17,22 @@ up on this one.“
 
 ## Akzeptanzkriterien
 
-- [ ] Knopf im Panel des Schritts Best Frames unter dem Qualitätsdiagramm und in der Karte Frame List unter der Knopfzeile; gesperrt
+- [x] Knopf im Panel des Schritts Best Frames unter dem Qualitätsdiagramm und in der Karte Frame List unter der Knopfzeile; gesperrt
       vor Align („Run Align first“) und während einer Berechnung
-- [ ] Klick zeigt den ersten Frame der Rangliste (höchste Qualität, bei Gleichstand kleinere Nummer) und öffnet Alignpoints; nichts
+- [x] Klick zeigt den ersten Frame der Rangliste (höchste Qualität, bei Gleichstand kleinere Nummer) und öffnet Alignpoints; nichts
       wird verworfen (Test)
-- [ ] Hinweis über dem Threshold-Regler, bis Set Alignpoints, Align oder ein neues Öffnen ihn löscht (Test)
-- [ ] Abschnitt aus `docs/parity/WINDOWS_PARITY.md` gelöscht
-- [ ] Probe von Hand als `## RK-018 Go to Best Frame (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
-- [ ] `cd app && pnpm test` und `pnpm build` grün, neue oder geänderte Tests einmal rot gesehen
+- [x] Hinweis über dem Threshold-Regler, bis Set Alignpoints, Align oder ein neues Öffnen ihn löscht (Test)
+- [x] Abschnitt aus `docs/parity/WINDOWS_PARITY.md` gelöscht
+- [x] Probe von Hand als `## RK-018 Go to Best Frame (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] `cd app && pnpm test` und `pnpm build` grün, neue oder geänderte Tests einmal rot gesehen
+
+## Umsetzung
+
+- Rangliste und bester Frame in `app/src/logic/align.ts` (`rankedFrames`, `bestFrame`, `bestFrameHint`, `goToBestFrameHelp`); die Frame List
+  sortiert jetzt mit derselben Rangliste (bei gleicher Qualität die kleinere Nummer zuerst).
+- `goToBestFrame` und `canGoToBestFrame` in `app/src/align.ts`: zeigt den Frame, öffnet Alignpoints und merkt die Nummer in
+  `session.bestFrameHint`; `discardResults` (Set Alignpoints, Align) und `startSession` (neue Aufnahme) löschen sie. Nichts sonst wird
+  verworfen.
+- Knopf im Panel Best Frames unter dem Diagramm (volle Breite, 8 px Abstand) und in der Karte Frame List als zweite Zeile (24 px, 12 px
+  Text); Hinweis im Panel Alignpoints über dem Threshold-Regler (`AlignpointsStep.vue`, Hinweis-Komponente aus `docs/design.md`).
+- Die Hilfeseiten beschrieben die Funktion schon und brauchten keine Änderung.

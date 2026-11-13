@@ -42,6 +42,6 @@ sie bisher nur die Mac-Kürzel nennen.
   `keydown`). ← und → wirken nur, solange die Frame-Leiste da ist und kein Feld, Regler, Radio oder eine Liste den Fokus hat. Alt+1 bis
   Alt+7 öffnen einen Schritt wie ein Klick auf die Pille (gesperrter Schritt und laufende Berechnung sperren); die Ziffer wird über
   `KeyboardEvent.code` erkannt (auch Ziffernblock) und nie an das Fenstermenü von Windows weitergereicht.
-- Der Tooltip jeder Pille nennt in der letzten Zeile den Kürzel („Shortcut: Alt+2“); Windows hat keine Menüleiste, die ihn zeigt.
+- Der Tooltip jeder Pille nennt in der letzten Zeile das Kürzel („Shortcut: Alt+2“); Windows hat keine Menüleiste, die ihn zeigt.
 - Hilfeseiten: `steps-alignpoints-align-limit.md` (Frame-Leiste), `window-at-a-glance.md` (Schrittleiste), `select-a-recording.md`
   (Dateiangaben).

@@ -53,7 +53,7 @@ class FakeImageData {
 vi.stubGlobal("ImageData", FakeImageData);
 vi.stubGlobal("window", { setInterval, clearInterval, setTimeout, clearTimeout });
 
-import "./align";
+import { goToBestFrame } from "./align";
 import { runAction } from "./actions";
 import { autoAlign } from "./colour";
 import { cancelJob, togglePause } from "./jobs";
@@ -180,6 +180,42 @@ describe("Dropping files onto the window", () => {
     status.busy = null;
     dropped.handler?.({ payload: { type: "drop", paths: ["C:/data/a.tif", "C:/data/b.tif"] } });
     await vi.waitFor(() => expect(calls("open_recording")[0]?.args).toEqual({ paths: ["C:/data/a.tif", "C:/data/b.tif"] }));
+  });
+});
+
+describe("Go to Best Frame (RK-018)", () => {
+  it("does nothing before Align", async () => {
+    await runAction("setAlignpoints");
+    session.view = "align";
+    goToBestFrame();
+    expect(session.view).toBe("align");
+    expect(session.bestFrameHint).toBeNull();
+  });
+
+  it("shows the best frame, opens Alignpoints, keeps every result and remembers the frame for the note", async () => {
+    await runAction("setAlignpoints");
+    await runAction("align");
+    await runAction("limit");
+    goToBestFrame();
+    // The fake backend rates frame 4 (index 3) best.
+    expect(session.frame).toBe(3);
+    expect(session.view).toBe("alignpoints");
+    expect(session.bestFrameHint).toBe(3);
+    expect(session.step).toBe("limited");
+    expect(session.frames.map((f) => f.checked)).toEqual([false, true, true, true]);
+  });
+
+  it("forgets the frame when Set Alignpoints runs again or another recording opens", async () => {
+    await runAction("setAlignpoints");
+    await runAction("align");
+    goToBestFrame();
+    await runAction("setAlignpoints");
+    expect(session.bestFrameHint).toBeNull();
+
+    await runAction("align");
+    goToBestFrame();
+    startSession(info, "SATURN.AVI");
+    expect(session.bestFrameHint).toBeNull();
   });
 });
 

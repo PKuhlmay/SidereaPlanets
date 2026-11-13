@@ -115,6 +115,7 @@ export function startSession(info: RecordingInfo, name: string) {
   session.referenceFrame = 0;
   session.alignpointTotal = 0;
   session.roi = null;
+  session.bestFrameHint = null;
   session.roiDrawing = false;
   session.frames = Array.from({ length: info.frameCount }, (_, index) => ({ index, checked: true, quality: null, difference: null }));
   settings.align.threshold = 0;

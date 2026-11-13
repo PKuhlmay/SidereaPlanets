@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { settings } from "../state";
+import { canGoToBestFrame, goToBestFrame } from "../align";
+import { goToBestFrameHelp } from "../logic/align";
+import { atLeast } from "../logic/workflow";
+import { session, settings } from "../state";
 import NumberField from "./NumberField.vue";
 import QualityChart from "./QualityChart.vue";
 import StepPanel from "./StepPanel.vue";
 
-// Step 4 Best Frames: the whole Limit Setup and the quality of the frames; nothing under Advanced.
+// Step 4 Best Frames: the whole Limit Setup, the quality of the frames and Go to Best Frame; nothing under Advanced.
 const align = settings.align;
 const countMode = computed(() => align.limitMode === "framesPerPoint" || align.limitMode === "bestCount");
 </script>
@@ -37,6 +40,15 @@ const countMode = computed(() => align.limitMode === "framesPerPoint" || align.l
       </label>
     </div>
     <QualityChart />
+    <button
+      type="button"
+      class="btn best"
+      :disabled="!canGoToBestFrame()"
+      :title="atLeast(session.step, 'aligned') ? goToBestFrameHelp : 'Run Align first'"
+      @click="goToBestFrame"
+    >
+      Go to Best Frame
+    </button>
   </StepPanel>
 </template>
 
@@ -47,5 +59,9 @@ const countMode = computed(() => align.limitMode === "framesPerPoint" || align.l
   align-items: center;
   justify-content: space-between;
   min-height: 29px;
+}
+.best {
+  width: 100%;
+  margin-top: 8px;
 }
 </style>

@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
   alignArgs,
+  bestFrame,
+  bestFrameHint,
   isRegion,
   limitArgs,
   limitMessages,
   qualityPercent,
+  rankedFrames,
   rectBetween,
   roomForPoints,
   setAlignpointsArgs,
@@ -152,5 +155,23 @@ describe("imagePosition", () => {
     const view = { scale: 2, x: 100, y: 50 };
     expect(imagePosition(view, 300, 150)).toEqual({ x: 100, y: 50 });
     expect(imagePosition(view, 0, 0)).toEqual({ x: -50, y: -25 });
+  });
+});
+
+describe("Go to Best Frame (MAC-011)", () => {
+  const frame = (index: number, quality: number | null) => ({ index, quality });
+
+  it("ranks the frames best first, equal quality by the smaller number, and keeps the order before Align", () => {
+    expect(rankedFrames([frame(0, 80), frame(1, 100), frame(2, 90), frame(3, 100)]).map((f) => f.index)).toEqual([1, 3, 2, 0]);
+    expect(rankedFrames([frame(0, null), frame(1, null)]).map((f) => f.index)).toEqual([0, 1]);
+  });
+
+  it("takes the first of the ranking as the best frame, none before Align", () => {
+    expect(bestFrame([frame(0, 80), frame(1, 100), frame(2, 100)])).toBe(1);
+    expect(bestFrame([frame(0, null), frame(1, null)])).toBeNull();
+  });
+
+  it("names the frame counted from 1 like the frame bar", () => {
+    expect(bestFrameHint(6)).toBe("Best frame: 7. Run Set Alignpoints and Align again to line all frames up on this one.");
   });
 });

@@ -83,6 +83,8 @@ export const session = reactive({
   roi: null as Rect | null,
   /** True while the next drag in the image draws the region. */
   roiDrawing: false,
+  /** The frame Go to Best Frame jumped to, named by the note in the step Alignpoints; Set Alignpoints, Align or another recording forget it. */
+  bestFrameHint: null as number | null,
 });
 
 // The status bar: five fields (docs/design.md, "Statusleiste").

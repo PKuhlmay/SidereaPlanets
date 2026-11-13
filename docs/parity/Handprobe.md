@@ -66,3 +66,9 @@ Ticket, Details im Ticket unter „Umsetzung“.
   Feld Go to frame oder ein Zahlenfeld des Panels den Fokus hat.
 - [ ] Alt+1 bis Alt+7 öffnen die Schritte wie ein Klick; ein grauer Schritt öffnet nicht, während Align läuft öffnet keiner; das
   Fenstermenü von Windows erscheint dabei nicht.
+
+### RK-018 Go to Best Frame (windows-v0.1.0)
+
+- [ ] JUPITER.AVI: vor Align ist Go to Best Frame gesperrt (Tooltip „Run Align first“). Nach Align zeigt ein Klick im Panel Best Frames
+  und in der Frame List den obersten Frame der Liste, die Frame-Leiste steht auf ihm, Alignpoints öffnet mit dem Hinweis „Best frame: N. …“.
+- [ ] Danach Keep Best Frames und Stack sind noch erledigt (nichts verworfen); erst Set Alignpoints Again löscht Hinweis und Ergebnisse.

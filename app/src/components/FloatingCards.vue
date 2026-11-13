@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { canGoToBestFrame, goToBestFrame } from "../align";
+import { goToBestFrameHelp, rankedFrames } from "../logic/align";
 import { seriesPoints } from "../logic/chart";
 import { atLeast, imageKind } from "../logic/workflow";
 import { session, settings } from "../state";
@@ -14,11 +16,8 @@ const showPoints = computed(() => kind.value === "stack" && settings.stack.showA
 
 const rated = computed(() => session.frames.some((f) => f.quality !== null));
 
-// After Align the best frame comes first.
-const listed = computed(() => {
-  const frames = [...session.frames];
-  return rated.value ? frames.sort((a, b) => (b.quality ?? -1) - (a.quality ?? -1)) : frames;
-});
+// After Align the best frame comes first (the ranking of Go to Best Frame).
+const listed = computed(() => rankedFrames(session.frames));
 
 const frameName = (index: number) => `Frame ${index + 1}`;
 const setAll = (checked: boolean) => session.frames.forEach((f) => (f.checked = checked));
@@ -35,6 +34,15 @@ const difference = computed(() => seriesPoints(listed.value.map((f) => f.differe
       <button type="button" class="btn" @click="setAll(false)">Check None</button>
       <button type="button" class="btn" disabled title="Not available yet">Clear List</button>
     </div>
+    <button
+      type="button"
+      class="btn best"
+      :disabled="!canGoToBestFrame()"
+      :title="atLeast(session.step, 'aligned') ? goToBestFrameHelp : 'Run Align first'"
+      @click="goToBestFrame"
+    >
+      Go to Best Frame
+    </button>
     <div class="list">
       <label v-for="frame in listed" :key="frame.index" class="chk">
         <input v-model="frame.checked" type="checkbox" />{{ frameName(frame.index) }}
@@ -83,6 +91,14 @@ const difference = computed(() => seriesPoints(listed.value.map((f) => f.differe
 .tools .btn {
   flex: 1;
   height: 24px;
+  padding: 0 4px;
+  font-size: var(--fs-s);
+}
+/* Go to Best Frame: a second row under the three buttons, the full width of the card */
+.best {
+  width: calc(100% - 16px);
+  height: 24px;
+  margin: 4px 8px 2px;
   padding: 0 4px;
   font-size: var(--fs-s);
 }

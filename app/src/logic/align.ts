@@ -101,3 +101,21 @@ export function limitMessages(kept: number, total: number, keptQualities: number
   if (keptQualities.length === 0) return { action, result: stacked };
   return { action, result: `${stacked} · weakest kept: ${Math.min(...keptQualities).toFixed(0)}%` };
 }
+
+/** The frames in the order of the Frame List: after Align best first, equal quality by the smaller number; before Align as they come. */
+export function rankedFrames<T extends { index: number; quality: number | null }>(frames: T[]): T[] {
+  if (!frames.some((f) => f.quality !== null)) return [...frames];
+  return [...frames].sort((a, b) => (b.quality ?? -1) - (a.quality ?? -1) || a.index - b.index);
+}
+
+/** The first frame of the ranking (0-based), null before Align. */
+export function bestFrame(frames: { index: number; quality: number | null }[]): number | null {
+  return frames.some((f) => f.quality !== null) ? (rankedFrames(frames)[0]?.index ?? null) : null;
+}
+
+/** The tooltip of Go to Best Frame. */
+export const goToBestFrameHelp = "Show the best frame and open Alignpoints, to line all frames up on it.";
+
+/** The note in the step Alignpoints after Go to Best Frame; the number counts from 1 like the frame bar. */
+export const bestFrameHint = (frame: number): string =>
+  `Best frame: ${frame + 1}. Run Set Alignpoints and Align again to line all frames up on this one.`;

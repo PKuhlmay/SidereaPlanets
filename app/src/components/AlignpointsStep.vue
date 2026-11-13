@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { runAction } from "../actions";
 import { setThreshold } from "../align";
+import { bestFrameHint } from "../logic/align";
 import { atLeast } from "../logic/workflow";
 import { session, settings, status } from "../state";
 import NumberField from "./NumberField.vue";
@@ -17,6 +18,8 @@ const canDrawRoi = computed(() => (session.step === "loaded" || session.step ===
 
 <template>
   <StepPanel id="alignpoints" :more="5">
+    <!-- After Go to Best Frame: which frame is shown, until Set Alignpoints or Align runs again -->
+    <p v-if="session.bestFrameHint !== null" class="hint">{{ bestFrameHint(session.bestFrameHint) }}</p>
     <div class="thr" title="How strong a detail must be to get an alignpoint; left keeps more points, right fewer.">
       <b>{{ hasPoints ? `Threshold · ${session.alignpoints.length} points` : "Threshold" }}</b>
       <!-- No range before Set Alignpoints: the slider stays at 0 and looks locked -->
@@ -78,6 +81,15 @@ const canDrawRoi = computed(() => (session.step === "loaded" || session.step ===
 </template>
 
 <style scoped>
+/* the note of docs/design.md, "Hinweis": --accent-soft with a 3 px strip in --accent at the left */
+.hint {
+  margin: 0 0 8px;
+  padding: 8px 10px 8px 13px;
+  font-size: var(--fs-s);
+  line-height: 17px;
+  background: linear-gradient(to right, var(--accent) 3px, var(--accent-soft) 3px);
+  border-radius: var(--r);
+}
 .thr {
   display: flex;
   flex-direction: column;
