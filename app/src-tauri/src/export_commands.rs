@@ -11,9 +11,10 @@ use planets_io::{
     project::{PROJECT_EXTENSION, Project, with_project_extension},
 };
 use planets_session::{
-    ColorSettings, FormatInfo, ImageSource, LoadedProject, Session, project_load as load_project,
-    project_save as write_project,
+    ColorSettings, CropRect, FormatInfo, ImageSource, LoadedProject, Session,
+    project_load as load_project, project_save as write_project,
 };
+use serde::Deserialize;
 use std::path::{Path, PathBuf};
 use tauri::{AppHandle, State};
 use tauri_plugin_dialog::{DialogExt, FileDialogBuilder};
@@ -24,6 +25,26 @@ pub fn export_formats(source: ImageSource) -> Vec<FormatInfo> {
     planets_session::export_formats(source)
 }
 
+/// The crop rectangle of the crop tool as the window sends it, in pixels of the stack (`CropRect` of the core has no serde).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+pub struct CropArea {
+    x: u32,
+    y: u32,
+    width: u32,
+    height: u32,
+}
+
+impl From<CropArea> for CropRect {
+    fn from(c: CropArea) -> Self {
+        CropRect {
+            x: c.x,
+            y: c.y,
+            width: c.width,
+            height: c.height,
+        }
+    }
+}
+
 /// Writes the image of `source` to `path` in `format`. The extension is corrected to match the
 /// format; the result is the path that was written.
 #[tauri::command]
@@ -32,16 +53,16 @@ pub async fn save_image(
     format: ExportFormat,
     path: String,
     adjustments: Option<ColorSettings>,
+    crop: Option<CropArea>,
     session: State<'_, Session>,
 ) -> CommandResult<String> {
-    // The crop and the geometry (Flip and Rotate, Resize Image) belong to the Mac app for now (MAC-016, MAC-017); the Windows app
-    // saves the whole image as it is.
+    // The geometry (Flip and Rotate, Resize Image) comes with RK-022; until then the picture is written as it is, cut to `crop`.
     Ok(session.save_image(
         source,
         format,
         Path::new(&path),
         adjustments.as_ref(),
-        None,
+        crop.map(Into::into),
         None,
     )?)
 }
@@ -49,6 +70,8 @@ pub async fn save_image(
 /// Opens the save dialog for `format` and writes the image there. `None` if the user cancels.
 /// `suggested_name` is the proposed file name (the reference program proposes the name of the recording) and
 /// `directory` the folder the dialog starts in (the folder of the recording).
+// A Tauri command takes its arguments by name from the window; grouping them would only move the list into a struct.
+#[allow(clippy::too_many_arguments)]
 #[tauri::command]
 pub async fn save_image_as(
     app: AppHandle,
@@ -57,6 +80,7 @@ pub async fn save_image_as(
     suggested_name: Option<String>,
     directory: Option<String>,
     adjustments: Option<ColorSettings>,
+    crop: Option<CropArea>,
     session: State<'_, Session>,
 ) -> CommandResult<Option<String>> {
     // Fail before the dialog if there is nothing to save.
@@ -71,7 +95,7 @@ pub async fn save_image_as(
             format,
             &path,
             adjustments.as_ref(),
-            None,
+            crop.map(Into::into),
             None,
         )?)),
         None => Ok(None),

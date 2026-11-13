@@ -4,6 +4,7 @@ import { reactive } from "vue";
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
+import { clearCrop } from "./cropTool";
 import { failureText } from "./jobs";
 import { pushRecent, fileName } from "./logic/recent";
 import { session, settings, status, type RecordingInfo } from "./state";
@@ -105,6 +106,7 @@ export function startSession(info: RecordingInfo, name: string) {
   session.frame = 0;
   session.frameImage = null;
   session.stackImage = null;
+  clearCrop();
   session.processedImage = null;
   session.adjustedImage = null;
   session.clipboardImage = null;

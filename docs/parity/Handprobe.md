@@ -88,3 +88,12 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] Masking: Use mask mit Show mask färbt den geschärften Teil blau; Schwelle und Feather verändern ihn; Before oder Remembered image
   zeigen das Bild ohne Maske; Karte schließen nimmt die Maske weg.
 - [ ] Save Project und wieder öffnen: Matrix und die Werte beider Karten stehen wieder da (Show mask nicht).
+
+### RK-021 View Compare und Zuschneiden (windows-v0.1.0)
+
+- [ ] Nach Do All: View Compare teilt das Bild, der Griff zieht die Linie (auch mit ← und → nach einem Klick auf den Griff); Zoomen und
+  Verschieben halten die Linie fest; Before/After beendet den Vergleich und umgekehrt.
+- [ ] Crop (Adjustments oder Crop… im Schritt Save): Rechteck auf 80 % der Mitte; Ziehen innen verschiebt, an Kante und Ecke ändert die
+  Größe (Mauszeiger passend), außen zeichnet ein neues; 1:1, 3:2 und 4:3 halten die Form; View Compare ist solange gesperrt.
+- [ ] Done, dann Save Image als TIFF: die Datei hat genau die angezeigte Größe; Remove Crop schreibt wieder das ganze Bild; ein neuer Stack
+  löscht den Zuschnitt.

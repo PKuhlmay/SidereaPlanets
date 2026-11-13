@@ -132,11 +132,11 @@ One slider and one field, default 1.00, from 0.10 to 5.00. A value above 1 brigh
 **View Compare** splits the image into two halves along a vertical **divider**. Left of it you see the stack as it was before sharpening (**Before**), right of it the image with sharpening and all cards applied (**After**). Both halves have the same zoom and position, so the same detail lines up on both sides of the line.
 
 - Press **View Compare** in the Adjustments panel to turn the split on and off. The button stays pressed while it is on.
-- Drag the grip in the middle of the divider to the left or right. The divider cannot leave the image area: a thin strip of each side always stays. Zooming and moving the image do not move the divider; with VoiceOver the divider can be adjusted like a slider.
+- Drag the grip in the middle of the divider to the left or right. The divider cannot leave the image area: a thin strip of each side always stays. Zooming and moving the image do not move the divider. The divider can also be moved like a slider: with VoiceOver on the Mac, with the left and right arrow keys after a click on the grip in Windows.
 - The labels **Before** and **After** sit in the lower corners. A label is hidden when the divider is too close to its corner.
 - It works in the Wavelets step. In the Save step the finished image is shown in full.
 - **Before/After** in the zoom bar shows one of the two images in full. Pressing it turns off **View Compare**, and pressing **View Compare** while *Before* is on shows the result again as a split. The two never run at the same time.
-- The Windows app does not have it yet. The button is stored in the project file with the other pressed Adjustments buttons; the position of the divider is not.
+- The button is stored in the project file with the other pressed Adjustments buttons; the position of the divider is not.
 
 ## Remember, Restore and Difference
 

@@ -4,6 +4,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { reactive } from "vue";
+import { saveCrop } from "./cropTool";
 import { failureText, runJob } from "./jobs";
 import { colourPayload, isNeutral } from "./logic/colour";
 import { directoryOf, stem } from "./logic/exporting";
@@ -52,6 +53,8 @@ export async function saveImage(): Promise<void> {
       suggestedName: stem(session.fileName),
       directory: folder(),
       adjustments: source === "wavelet" && !isNeutral(values) ? values : null,
+      // The crop belongs to the sharpened picture; the stack of the Stack step is always written whole.
+      crop: source === "wavelet" ? saveCrop() : null,
     });
     status.result = path ? `Saved ${fileName(path)}` : "Save cancelled";
     if (path && source === "wavelet") {

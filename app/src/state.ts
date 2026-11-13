@@ -3,6 +3,7 @@
 
 import { reactive } from "vue";
 import type { Rect } from "./logic/align";
+import type { CropFormat, CropRectangle } from "./logic/crop";
 import { createSettings } from "./logic/settings";
 import type { Step, ViewStep } from "./logic/workflow";
 import type { Theme } from "./logic/settings";
@@ -88,6 +89,15 @@ export const session = reactive({
   /** Masking, Show mask: the image area shows where the sharpening applies (`maskImage`). Only a view, never saved. */
   showMask: false,
   maskImage: null as ImageData | null,
+  /** Before/After in the zoom bar of the Wavelets and Save steps: the stack without anything applied. */
+  before: false,
+  /** View Compare: where the divider sits, as a share of the width of the image area. Not stored in the project file. */
+  compareDivider: 0.5,
+  /**
+   * The crop tool (MAC-016): the rectangle Save Image cuts out (`applied`) and, while the tool is open, the one being edited (`draft`),
+   * both in pixels of the stack. Not stored in the project file; a new stack or another recording drops it.
+   */
+  crop: { format: "free" as CropFormat, editing: false, applied: null as CropRectangle | null, draft: null as CropRectangle | null },
 });
 
 // The status bar: five fields (docs/design.md, "Statusleiste").

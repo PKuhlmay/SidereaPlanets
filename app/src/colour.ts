@@ -4,6 +4,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { watch } from "vue";
 import { handlers } from "./actions";
+import { COMPARE, CROP, toggleCompare, toggleCrop } from "./cropTool";
 import { failureText } from "./jobs";
 import {
   colourPayload,
@@ -130,6 +131,8 @@ export function closeFunction(name: string): void {
 
 /** An Adjustments button: opens or closes its card. The buttons without a card are locked; the check is a safeguard. */
 export function toggleFunction(name: string): void {
+  if (name === COMPARE) return toggleCompare();
+  if (name === CROP) return toggleCrop();
   if (!isToneCard(name)) {
     status.result = `${name}: not available yet`;
     return;

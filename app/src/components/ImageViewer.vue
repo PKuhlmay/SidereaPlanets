@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { isRegion, rectBetween, type Rect } from "../logic/align";
+import { dragged, drawn, handleAt, isFull, type CropAspect, type CropHandle, type CropRectangle } from "../logic/crop";
 import { actualSize, dragView, fitView, formatZoom, imagePixel, imagePosition, zoomAt, type Size, type View } from "../logic/viewport";
+import CompareOverlay from "./CompareOverlay.vue";
+import CropOverlay from "./CropOverlay.vue";
 
 // The image area: mouse wheel zooms around the pointer, dragging moves the image, the zoom bar at the bottom
 // gives -, the scale (a click shows 100 %), + and Fit. Overlays in the `overlay` slot are drawn in image pixels,
@@ -16,16 +19,31 @@ const props = defineProps<{
   selecting?: boolean;
   /** Another value (the step) fits the image into the area again, whatever zoom and position it had. */
   fitKey?: string;
+  /** View Compare: the stack, shown left of the divider at the same zoom and position (RK-021). */
+  beforeImage?: ImageData | null;
+  /** Where the divider sits, as a share of the width of the area. */
+  divider?: number;
+  /** The crop rectangle in image pixels: the one being edited while `cropEditing`, else the one Done kept. */
+  crop?: CropRectangle | null;
+  /** The crop tool is open: a drag moves, resizes or draws the rectangle instead of moving the image. */
+  cropEditing?: boolean;
+  /** The shape the rectangle keeps while it is dragged; null is Free. */
+  cropAspect?: CropAspect | null;
 }>();
 const before = defineModel<boolean>("before", { default: false });
 const emit = defineEmits<{
   hover: [pixel: { x: number; y: number } | null];
   /** A finished rectangle in image pixels; a drag too small to be a region is dropped. */
   select: [rect: Rect];
+  /** The divider of View Compare was dragged to a share of the width. */
+  divider: [share: number];
+  /** The crop rectangle was dragged, resized or drawn (image pixels). */
+  crop: [rect: CropRectangle];
 }>();
 
 const box = ref<HTMLElement | null>(null);
 const canvas = ref<HTMLCanvasElement | null>(null);
+const beforeCanvas = ref<HTMLCanvasElement | null>(null);
 const boxSize = ref<Size>({ w: 0, h: 0 });
 const view = ref<View>({ scale: 1, x: 0, y: 0 });
 // While true the image follows the size of the area; any zoom or drag by the user turns it off until Fit.
@@ -53,6 +71,53 @@ watch(size, (now, was) => {
   if (now && (!was || now.w !== was.w || now.h !== was.h)) fit();
 });
 watch(() => props.image, draw, { flush: "post" });
+
+function drawBefore() {
+  const image = props.beforeImage;
+  const target = beforeCanvas.value;
+  if (!image || !target) return;
+  target.width = image.width;
+  target.height = image.height;
+  target.getContext("2d")?.putImageData(image, 0, 0);
+}
+watch(() => props.beforeImage, drawBefore, { flush: "post" });
+
+// The stack shows left of the divider: its canvas is cut at the divider, in image pixels (the stage is scaled).
+const beforeClip = computed(() => {
+  if (!size.value) return "none";
+  const imageX = ((props.divider ?? 0.5) * boxSize.value.w - view.value.x) / view.value.scale;
+  return `inset(0 ${Math.max(0, size.value.w - imageX)}px 0 0)`;
+});
+
+/** How far from an edge or corner of the crop rectangle the pointer still takes hold of it, in screen pixels. */
+const GRAB_DISTANCE = 7;
+
+// The crop rectangle that can be grabbed: none while it is the whole image, so the next drag draws a new one.
+const editableCrop = computed(() => {
+  const crop = props.crop;
+  return crop && size.value && !isFull(crop, size.value.w, size.value.h) ? crop : null;
+});
+const cropCursor = ref("crosshair");
+const CURSORS: Record<CropHandle, string> = {
+  topLeft: "nwse-resize",
+  bottomRight: "nwse-resize",
+  topRight: "nesw-resize",
+  bottomLeft: "nesw-resize",
+  top: "ns-resize",
+  bottom: "ns-resize",
+  left: "ew-resize",
+  right: "ew-resize",
+  body: "move",
+};
+// The crop drag in progress: what was grabbed (null = a new rectangle), where, and the rectangle then.
+let cropDrag: { handle: CropHandle | null; start: { x: number; y: number }; rect: CropRectangle | null } | null = null;
+
+function cropHandleAt(px: number, py: number): CropHandle | null {
+  const rect = editableCrop.value;
+  if (!rect) return null;
+  const at = imagePosition(view.value, px, py);
+  return handleAt(rect, at.x, at.y, GRAB_DISTANCE / Math.max(view.value.scale, 0.01));
+}
 
 // Another step brings another layout around the image (frame bar, right panel). Measure the area after that layout
 // is in place and fit again, so that the image neither keeps the zoom of the other layout nor sits off-centre.
@@ -114,6 +179,12 @@ const draft = ref<Rect | null>(null);
 
 function onDown(event: PointerEvent) {
   if (!size.value || (event.target as HTMLElement).closest(".floats > *, .zoom, .topbar button, .topbar .menu")) return;
+  if (props.cropEditing) {
+    const { px, py } = point(event);
+    cropDrag = { handle: cropHandleAt(px, py), start: imagePosition(view.value, px, py), rect: editableCrop.value };
+    box.value?.setPointerCapture(event.pointerId);
+    return;
+  }
   if (props.selecting) {
     const { px, py } = point(event);
     corner = imagePosition(view.value, px, py);
@@ -127,6 +198,21 @@ function onDown(event: PointerEvent) {
 }
 
 function onMove(event: PointerEvent) {
+  if (props.cropEditing && size.value) {
+    const { px, py } = point(event);
+    const at = imagePosition(view.value, px, py);
+    if (cropDrag) {
+      const { handle, start, rect } = cropDrag;
+      const next =
+        handle && rect
+          ? dragged(rect, handle, at.x - start.x, at.y - start.y, size.value.w, size.value.h, props.cropAspect)
+          : drawn(start.x, start.y, at.x, at.y, size.value.w, size.value.h, props.cropAspect);
+      if (next) emit("crop", next);
+    } else {
+      const handle = cropHandleAt(px, py);
+      cropCursor.value = handle ? CURSORS[handle] : "crosshair";
+    }
+  }
   if (corner && size.value) {
     const { px, py } = point(event);
     draft.value = rectBetween(corner, imagePosition(view.value, px, py), size.value);
@@ -145,6 +231,7 @@ function onMove(event: PointerEvent) {
 }
 
 function endDrag() {
+  cropDrag = null;
   if (draft.value && isRegion(draft.value)) emit("select", draft.value);
   corner = null;
   draft.value = null;
@@ -158,6 +245,7 @@ function endDrag() {
     ref="box"
     class="viewer"
     :class="{ drag: dragging, selecting }"
+    :style="cropEditing ? { cursor: cropCursor } : undefined"
     aria-label="Image"
     @wheel.prevent="onWheel"
     @pointerdown="onDown"
@@ -168,6 +256,7 @@ function endDrag() {
   >
     <div v-if="size" class="stage" :style="stageStyle">
       <canvas ref="canvas" />
+      <canvas v-if="beforeImage" ref="beforeCanvas" :style="{ clipPath: beforeClip }" />
       <svg class="overlay" :viewBox="`0 0 ${size.w} ${size.h}`" aria-hidden="true">
         <rect x="0.5" y="0.5" :width="size.w - 1" :height="size.h - 1" class="edge" />
         <slot name="overlay" />
@@ -175,6 +264,9 @@ function endDrag() {
       </svg>
     </div>
     <p v-else class="empty">{{ empty }}</p>
+
+    <CropOverlay v-if="size && crop" :rectangle="crop" :view="view" :editing="!!cropEditing" :width="boxSize.w" :height="boxSize.h" />
+    <CompareOverlay v-if="size && beforeImage" :share="divider ?? 0.5" :width="boxSize.w" @move="emit('divider', $event)" />
 
     <slot name="top" />
     <div class="floats"><slot name="floats" /></div>

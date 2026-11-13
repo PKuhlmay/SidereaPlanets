@@ -2,6 +2,7 @@
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
+import { clearCrop } from "./cropTool";
 import { runJob } from "./jobs";
 import { buildStackRequest, stackMessages } from "./logic/stack";
 import { session, settings } from "./state";
@@ -43,6 +44,8 @@ export async function stack(): Promise<void> {
       unlisten();
     }
     session.stackImage = await fetchStackImage();
+    // A crop rectangle belongs to the stack it was set on.
+    clearCrop();
     session.stackSize = stacked.frames;
     // A new stack makes an earlier sharpened image obsolete.
     session.processedImage = null;

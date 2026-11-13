@@ -40,7 +40,7 @@ export const functionNames = [
   "View Zoomed", "View Compare", "View Stack Size",
   "Flip and Rotate", "RGB Align", "RGB Balance",
   "Resize Image", "Denoise/Deringing", "Wavelet Filter",
-  "Masking", "Show Line Graph", "Cropping Area",
+  "Masking", "Show Line Graph", "Crop",
 ] as const;
 
 export const codecs = ["DIB", "cvid", "i420", "iyuv", "mrle", "msvc", "uyvy", "yuy2", "yvu9", "yvyu"] as const;

@@ -7,6 +7,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { handlers } from "./actions";
+import { clearCrop } from "./cropTool";
 import { failureText, runJob } from "./jobs";
 import {
   alignArgs,
@@ -40,6 +41,7 @@ function showPoints(answer: AlignpointsAnswer) {
  */
 function discardResults() {
   session.bestFrameHint = null;
+  clearCrop();
   session.frames.forEach((f) => Object.assign(f, { checked: true, quality: null, difference: null }));
   session.alignpoints.forEach((p) => Object.assign(p, { shiftX: undefined, shiftY: undefined }));
   session.stackImage = null;

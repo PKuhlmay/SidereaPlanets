@@ -166,8 +166,11 @@ export function differencePixels(a: Pixels, b: Pixels): Pixels | null {
   return { width: a.width, height: a.height, data };
 }
 
+/** The Adjustments buttons that switch a view or open a tool instead of a card (RK-021). */
+const viewFunctions = ["View Compare", "Crop"];
+
 /** Whether an Adjustments button does something; the others are dimmed and locked (MAC-014). */
-export const isFunctionBuilt = (name: string): boolean => isToneCard(name);
+export const isFunctionBuilt = (name: string): boolean => isToneCard(name) || viewFunctions.includes(name);
 
 const functionHelps: Record<ToneCard, string> = {
   Histogram: "Black point, white point and brightness of the image.",
@@ -179,5 +182,10 @@ const functionHelps: Record<ToneCard, string> = {
   "RGB Balance": "Changes the share of red, green and blue.",
 };
 
+const viewHelps: Record<string, string> = {
+  "View Compare": "Splits the image: the stack on the left, the result on the right.",
+  Crop: "Cuts the picture to a rectangle when it is saved.",
+};
+
 /** The tooltip of an Adjustments button: what its card does, or that the button is locked. */
-export const functionHelp = (name: string): string => (isToneCard(name) ? functionHelps[name] : "Not available yet");
+export const functionHelp = (name: string): string => (isToneCard(name) ? functionHelps[name] : (viewHelps[name] ?? "Not available yet"));

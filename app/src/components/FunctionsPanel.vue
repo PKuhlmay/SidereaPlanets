@@ -44,7 +44,7 @@ function resetContrast() {
           :key="name"
           type="button"
           class="btn wrap"
-          :aria-pressed="wavelet.functions.includes(name)"
+          :aria-pressed="name === 'Crop' ? session.crop.editing : wavelet.functions.includes(name)"
           :disabled="!isFunctionBuilt(name)"
           :title="functionHelp(name)"
           @click="toggleFunction(name)"

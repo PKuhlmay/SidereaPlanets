@@ -55,7 +55,9 @@ vi.stubGlobal("window", { setInterval, clearInterval, setTimeout, clearTimeout }
 
 import { goToBestFrame } from "./align";
 import { runAction } from "./actions";
-import { autoAlign, refreshMaskOverlay } from "./colour";
+import { autoAlign, refreshMaskOverlay, toggleFunction } from "./colour";
+import { cancelCrop, finishCrop, removeCrop, resetCrop, setBefore, setCropDraft, startCrop } from "./cropTool";
+import { rect } from "./logic/crop";
 import { cancelJob, togglePause } from "./jobs";
 import { process } from "./wavelet";
 import { openDroppedFiles, openRecording, startSession } from "./recording";
@@ -869,6 +871,82 @@ describe("RGB Align, Auto", () => {
     settings.wavelet.tone.maxShift = 5;
     expect(calls("estimate_rgb_align")[0]?.args).toEqual({ maxShift: 3 });
     expect(settings.wavelet.tone.shifts).toEqual(shifts);
+  });
+});
+
+describe("View Compare and the crop tool (RK-021)", () => {
+  // The fake frames are 4 × 3, below the smallest crop; the tests give the stack a size that can be cropped.
+  const big = () => new FakeImageData(new Uint8ClampedArray(100 * 80 * 4), 100, 80) as unknown as ImageData;
+  async function inWavelets() {
+    await runAction("setAlignpoints");
+    await runAction("align");
+    await runAction("limit");
+    await runAction("stack");
+    session.view = "wavelets";
+    session.stackImage = big();
+  }
+
+  afterEach(() => {
+    cancelCrop();
+    removeCrop();
+    settings.wavelet.functions = [];
+    session.before = false;
+  });
+
+  it("lets View Compare and Before/After exclude each other", async () => {
+    await inWavelets();
+    session.before = true;
+    toggleFunction("View Compare");
+    expect(settings.wavelet.functions).toContain("View Compare");
+    expect(session.before).toBe(false);
+    setBefore(true);
+    expect(settings.wavelet.functions).not.toContain("View Compare");
+    expect(session.before).toBe(true);
+  });
+
+  it("opens the crop tool on the middle of the picture, turns View Compare off and keeps it off while the tool is open", async () => {
+    await inWavelets();
+    toggleFunction("View Compare");
+    toggleFunction("Crop");
+    expect(session.crop.editing).toBe(true);
+    expect(session.crop.draft).toEqual(rect(10, 8, 90, 72));
+    expect(settings.wavelet.functions).not.toContain("View Compare");
+    toggleFunction("View Compare");
+    expect(settings.wavelet.functions).not.toContain("View Compare");
+    expect(status.result).toBe("View Compare: finish or cancel the crop first");
+    // The Crop button again closes the tool like Cancel.
+    toggleFunction("Crop");
+    expect(session.crop.editing).toBe(false);
+    expect(session.crop.applied).toBeNull();
+  });
+
+  it("keeps the rectangle with Done, drops changes with Cancel and treats the whole picture as no crop", async () => {
+    await inWavelets();
+    startCrop();
+    setCropDraft(rect(10, 10, 60, 50));
+    finishCrop();
+    expect(session.crop.applied).toEqual(rect(10, 10, 60, 50));
+    startCrop();
+    expect(session.crop.draft).toEqual(rect(10, 10, 60, 50));
+    setCropDraft(rect(0, 0, 30, 30));
+    cancelCrop();
+    expect(session.crop.applied).toEqual(rect(10, 10, 60, 50));
+    startCrop();
+    resetCrop();
+    finishCrop();
+    expect(session.crop.applied).toBeNull();
+  });
+
+  it("sends the crop with Save Image of the sharpened picture and forgets it with a new stack", async () => {
+    await inWavelets();
+    startCrop();
+    setCropDraft(rect(10, 10, 60, 50));
+    finishCrop();
+    session.view = "save";
+    await runAction("saveImage");
+    expect(calls("save_image_as")[0]?.args).toMatchObject({ source: "wavelet", crop: { x: 10, y: 10, width: 50, height: 40 } });
+    await runAction("stack");
+    expect(session.crop.applied).toBeNull();
   });
 });
 

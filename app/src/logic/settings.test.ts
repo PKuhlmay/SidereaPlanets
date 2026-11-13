@@ -113,21 +113,21 @@ describe("Functions", () => {
       "View Zoomed", "View Compare", "View Stack Size",
       "Flip and Rotate", "RGB Align", "RGB Balance",
       "Resize Image", "Denoise/Deringing", "Wavelet Filter",
-      "Masking", "Show Line Graph", "Cropping Area",
+      "Masking", "Show Line Graph", "Crop",
     ]);
   });
 
-  it("locks the eight buttons without a card and explains the others in their tooltip", () => {
-    expect(functionNames.filter((name) => !isFunctionBuilt(name))).toHaveLength(8);
-    expect(functionNames.filter(isFunctionBuilt)).toEqual([
-      "Histogram",
-      "Gamma",
-      "Color Mixing",
-      "RGB Align",
-      "RGB Balance",
-      "Denoise/Deringing",
-      "Masking",
+  it("locks the six buttons without a card and explains the others in their tooltip", () => {
+    expect(functionNames.filter((name) => !isFunctionBuilt(name))).toEqual([
+      "View Zoomed",
+      "View Stack Size",
+      "Flip and Rotate",
+      "Resize Image",
+      "Wavelet Filter",
+      "Show Line Graph",
     ]);
+    expect(functionHelp("View Compare")).toBe("Splits the image: the stack on the left, the result on the right.");
+    expect(functionHelp("Crop")).toBe("Cuts the picture to a rectangle when it is saved.");
     expect(functionHelp("Gamma")).toBe("Brightens or darkens the midtones.");
     expect(functionHelp("Masking")).toBe("Limits the sharpening to the planet, so the sky stays untouched.");
     expect(functionHelp("View Zoomed")).toBe("Not available yet");

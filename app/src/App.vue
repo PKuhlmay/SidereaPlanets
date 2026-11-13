@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, watch } from "vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import AlignpointsStep from "./components/AlignpointsStep.vue";
 import AlignStep from "./components/AlignStep.vue";
@@ -20,6 +20,8 @@ import Toolbar from "./components/Toolbar.vue";
 import WaveletsStep from "./components/WaveletsStep.vue";
 import type { Rect } from "./logic/align";
 import { startColour } from "./colour";
+import { cancelCrop, clampedDivider, isComparing, setBefore, setCropDraft } from "./cropTool";
+import { formatAspect } from "./logic/crop";
 import { openDroppedFiles } from "./recording";
 import { startResourceMonitor } from "./resource";
 import { handleShortcut } from "./shortcuts";
@@ -28,8 +30,14 @@ import { imageCaption, imageKind, pickImage, windowTitle } from "./logic/workflo
 import { session, settings, status } from "./state";
 import "./steps";
 
-// "Before/After" in the zoom bar of the Wavelets and Save steps: the unprocessed stack instead of the sharpened image.
-const before = ref(false);
+// "Before/After" in the zoom bar of the Wavelets and Save steps (`session.before`): the unprocessed stack instead of the sharpened
+// image. It and View Compare exclude each other (cropTool.ts).
+const before = computed(() => session.before);
+// View Compare: the stack left of the divider; the crop tool and its rectangle (RK-021).
+const comparing = computed(() => isComparing());
+const cropShown = computed(() =>
+  session.view === "wavelets" || session.view === "save" ? (session.crop.editing ? session.crop.draft : session.crop.applied) : null,
+);
 
 const kind = computed(() => imageKind(session.view));
 const image = computed(() =>
@@ -61,8 +69,9 @@ const shown = computed(() => {
 });
 const withFunctions = computed(() => session.view === "wavelets" && settings.wavelet.functionsOpen);
 const emptyText = computed(() => (session.step === "empty" ? "Select a recording or drop a video or images here" : "No image to show yet"));
+// The caption at the top left gives way while the image is split: the labels Before and After say what is where.
 const caption = computed(() =>
-  shown.value
+  shown.value && !comparing.value
     ? imageCaption(session.view, session.step, before.value, {
         frame: session.frame,
         frameCount: session.info?.frameCount ?? 0,
@@ -76,9 +85,11 @@ const withFrameBar = computed(() => ["alignpoints", "align", "limit"].includes(s
 
 watch(
   () => session.view,
-  () => {
-    before.value = false;
+  (view) => {
+    session.before = false;
     status.position = "";
+    // The crop rectangle is edited only where the sharpened stack is shown.
+    if (view !== "wavelets" && view !== "save") cancelCrop();
   },
 );
 
@@ -130,14 +141,22 @@ watch(
         <WaveletsStep v-else-if="session.view === 'wavelets'" />
         <SaveStep v-else />
         <ImageViewer
-          v-model:before="before"
+          :before="before"
           :image="shown"
+          :before-image="comparing ? session.stackImage : null"
+          :divider="session.compareDivider"
+          :crop="cropShown"
+          :crop-editing="session.crop.editing"
+          :crop-aspect="session.crop.editing ? formatAspect(session.crop.format) : null"
           :comparable="wavelet"
           :empty="emptyText"
           :selecting="session.roiDrawing && kind === 'frame'"
           :fit-key="session.view"
+          @update:before="setBefore"
           @hover="onHover"
           @select="onSelect"
+          @divider="session.compareDivider = clampedDivider($event)"
+          @crop="setCropDraft"
         >
           <template #overlay>
             <ImageOverlays v-if="shown" :width="shown.width" :height="shown.height" />

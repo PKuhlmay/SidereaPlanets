@@ -1,6 +1,6 @@
 # RK-021 View Compare und Zuschneiden vor dem Speichern (Windows zieht nach)
 
-- Status: offen
+- Status: erledigt
 - Abhängig von: RK-016, MAC-016, MAC-019
 - Stufe: `windows-v0.1.0` (Nachzug zu Mac `v0.1.0`)
 
@@ -23,15 +23,33 @@ aus `mac/Tests/SidereaPlanetsTests/CropRectangleTests.swift` getestet. Tauri: `s
 
 ## Akzeptanzkriterien
 
-- [ ] View Compare teilt das Bild an einer ziehbaren Linie (0,02 … 0,98), Beschriftungen Before/After mit 84-px-Regel; Before/After der
+- [x] View Compare teilt das Bild an einer ziehbaren Linie (0,02 … 0,98), Beschriftungen Before/After mit 84-px-Regel; Before/After der
       Zoom-Leiste und View Compare schließen sich aus; nur im Schritt Wavelets
-- [ ] Knopf **Crop** im Panel Adjustments und Gruppe **Crop** mit **Crop…** und **Remove Crop** im Schritt Save öffnen dasselbe Werkzeug
-- [ ] Rechteck mit Abdunklung, Drittel-Raster, Fadenkreuz, acht Griffen und Größenplatte; Formate Free · 1:1 · 3:2 · 4:3, Reset, Cancel,
+- [x] Knopf **Crop** im Panel Adjustments und Gruppe **Crop** mit **Crop…** und **Remove Crop** im Schritt Save öffnen dasselbe Werkzeug
+- [x] Rechteck mit Abdunklung, Drittel-Raster, Fadenkreuz, acht Griffen und Größenplatte; Formate Free · 1:1 · 3:2 · 4:3, Reset, Cancel,
       Done; Geometrie-Tests aus den Mac-Fällen
-- [ ] Zuschnitt gilt für jedes Format von Save Image im Schritt Wavelets und Save, nach den Farb- und Tonwerten, bis zum nächsten Stack
+- [x] Zuschnitt gilt für jedes Format von Save Image im Schritt Wavelets und Save, nach den Farb- und Tonwerten, bis zum nächsten Stack
       oder einer anderen Aufnahme; nicht in der Projektdatei
-- [ ] Gesperrte Adjustments-Knöpfe nach diesem Ticket: View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Wavelet Filter, Show Line Graph
-- [ ] Punkte aus `docs/parity/WINDOWS_PARITY.md` gelöscht (View Compare, Abschnitt MAC-016; mit RK-020 auch der Punkt „Die Zahl der
+- [x] Gesperrte Adjustments-Knöpfe nach diesem Ticket: View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Wavelet Filter, Show Line Graph
+- [x] Punkte aus `docs/parity/WINDOWS_PARITY.md` gelöscht (View Compare, Abschnitt MAC-016; mit RK-020 auch der Punkt „Die Zahl der
       gesperrten Adjustments-Knöpfe“ und damit der ganze Abschnitt MAC-019)
-- [ ] Probe von Hand als `## RK-021 View Compare und Zuschneiden (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
-- [ ] `cargo test --workspace`, `clippy` ohne Warnungen, `cd app && pnpm test` und `pnpm build` grün, neue Tests einmal rot gesehen
+- [x] Probe von Hand als `## RK-021 View Compare und Zuschneiden (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] `cargo test --workspace`, `clippy` ohne Warnungen, `cd app && pnpm test` und `pnpm build` grün, neue Tests einmal rot gesehen
+
+## Umsetzung
+
+- Geometrie: `app/src/logic/crop.ts`, Port von `mac/App/Model/CropRectangle.swift` (Rundung halb weg von null wie Swift); alle Fälle aus
+  `CropRectangleTests.swift` stehen in `crop.test.ts`.
+- Zustand und Regeln: `app/src/cropTool.ts` (View Compare an/aus, Before/After schließt den Vergleich, Werkzeug öffnen auf 80 % der Mitte
+  oder dem angewendeten Rechteck, Done/Cancel/Reset/Remove Crop, Format umformen, ein Rechteck über das ganze Bild ist keins). Before/After
+  liegt dafür jetzt in `session.before`, die Lage der Trennlinie in `session.compareDivider` (nicht in der Projektdatei), das Werkzeug in
+  `session.crop`. Ein neuer Stack, Set Alignpoints/Align oder eine neue Aufnahme löschen den Zuschnitt; ein Wechsel aus Wavelets/Save
+  schließt das Werkzeug.
+- Bildbereich (`ImageViewer.vue`): das Summenbild als zweites Canvas, an der Trennlinie per `clip-path` abgeschnitten;
+  `CompareOverlay.vue` (Linie, Griff, Before/After mit der 84-px-Regel, Pfeiltasten am Griff); `CropOverlay.vue` (Abdunklung, Rand,
+  Drittel, Fadenkreuz, acht Griffe, Größenplatte) in Bildschirmpixeln; Ziehen, Griffe und Neuzeichnen mit passendem Mauszeiger.
+- Karte `CropCard.vue` (Format Free · 1:1 · 3:2 · 4:3, Size, Reset, Cancel, Done), Gruppe **Crop** mit **Crop…** und **Remove Crop** im
+  Schritt Save (`SaveStep.vue`). Der Adjustments-Knopf heißt **Crop**; gesperrt bleiben sechs Knöpfe.
+- Speichern: `save_image` und `save_image_as` nehmen `crop` (`CropArea` in `app/src-tauri/src/export_commands.rs`, wird zu `CropRect` des
+  Kerns); `saveImage` schickt den Zuschnitt nur für das geschärfte Bild.
+- Hilfeseite `color-and-tones.md`: der Hinweis, dass Windows View Compare nicht hat, ist gestrichen.
