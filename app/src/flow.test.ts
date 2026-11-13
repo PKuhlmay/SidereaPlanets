@@ -57,7 +57,10 @@ import { goToBestFrame } from "./align";
 import { runAction } from "./actions";
 import { autoAlign, refreshMaskOverlay, toggleFunction } from "./colour";
 import { cancelCrop, finishCrop, removeCrop, resetCrop, setBefore, setCropDraft, startCrop } from "./cropTool";
+import { cropImageSize } from "./cropTool";
+import { editOrientation, orientImage, resultSize } from "./geometryView";
 import { rect } from "./logic/crop";
+import { defaultGeometry, flipHorizontally, rotate } from "./logic/geometry";
 import { cancelJob, togglePause } from "./jobs";
 import { process } from "./wavelet";
 import { openDroppedFiles, openRecording, startSession } from "./recording";
@@ -950,6 +953,75 @@ describe("View Compare and the crop tool (RK-021)", () => {
     expect(calls("save_image_as")[0]?.args).toMatchObject({ source: "wavelet", crop: { x: 10, y: 10, width: 50, height: 40 } });
     await runAction("stack");
     expect(session.crop.applied).toBeNull();
+  });
+});
+
+describe("Flip and Rotate and Resize Image (RK-022)", () => {
+  const big = () => new FakeImageData(new Uint8ClampedArray(100 * 80 * 4), 100, 80) as unknown as ImageData;
+  async function inWavelets() {
+    await runAction("setAlignpoints");
+    await runAction("align");
+    await runAction("limit");
+    await runAction("stack");
+    session.view = "wavelets";
+    session.stackImage = big();
+  }
+
+  afterEach(() => {
+    cancelCrop();
+    removeCrop();
+    Object.assign(settings.geometry, defaultGeometry());
+  });
+
+  it("sets the crop in the turned picture and drops it when the picture is turned again", async () => {
+    await inWavelets();
+    editOrientation((o) => rotate(o, 90));
+    expect(cropImageSize()).toEqual({ width: 80, height: 100 });
+    startCrop();
+    expect(session.crop.draft).toEqual(rect(8, 10, 72, 90));
+    finishCrop();
+    editOrientation((o) => flipHorizontally(o));
+    expect(session.crop.applied).toBeNull();
+    expect(status.result).toBe("Crop removed: the picture was flipped or turned");
+  });
+
+  it("keeps the orientation while the crop tool is open", async () => {
+    await inWavelets();
+    startCrop();
+    editOrientation((o) => rotate(o, 90));
+    expect(settings.geometry.orientation.angle).toBe(0);
+    expect(status.result).toBe("Flip and Rotate: finish or cancel the crop first");
+  });
+
+  it("sends the geometry with Save Image and resizes from the size of the crop", async () => {
+    await inWavelets();
+    editOrientation((o) => rotate(o, 90));
+    startCrop();
+    setCropDraft(rect(10, 10, 60, 50));
+    finishCrop();
+    settings.geometry.resize.percent = 50;
+    expect(resultSize()).toEqual({ width: 25, height: 20 });
+    session.view = "save";
+    await runAction("saveImage");
+    expect(calls("save_image_as")[0]?.args).toMatchObject({
+      crop: { x: 10, y: 10, width: 50, height: 40 },
+      geometry: {
+        orientation: { flipHorizontal: false, flipVertical: false, angle: 90, cropToFit: false, method: "bicubic" },
+        resize: { target: { percent: 50 }, method: "lanczos3" },
+      },
+    });
+  });
+
+  it("asks the core for the turned picture only while an orientation applies", async () => {
+    await inWavelets();
+    backend.handlers.orient_preview = () => imageBuffer();
+    await orientImage("shown", big());
+    expect(calls("orient_preview")).toHaveLength(0);
+    expect(session.oriented.shown).toBeNull();
+    editOrientation((o) => rotate(o, 90));
+    await orientImage("shown", big());
+    expect(calls("orient_preview")).toHaveLength(1);
+    expect(session.oriented.shown).toMatchObject({ width: W, height: H });
   });
 });
 

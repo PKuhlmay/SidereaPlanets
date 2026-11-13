@@ -115,3 +115,12 @@ Ticket, Details im Ticket unter „Umsetzung“.
   spiegelt die Richtung; eine Saturn-Aufnahme zeigt zusätzlich die gestrichelte Ringkante. Häkchen aus: Overlay und Zeile verschwinden.
 - [ ] Eine SER-Datei mit Zeitstempeln: das Feld Start time fehlt, darunter steht „The file has a time for every frame.“
 - [ ] Stack mit De-rotate images an läuft durch; Save Project und wieder öffnen: Planet, Camera angle, Mirrored image und Start time stehen wieder da.
+
+### RK-022 Flip and Rotate und Resize Image (windows-v0.1.0)
+
+- [ ] Nach Do All: Horizontal, Vertical, Left 90°, Right 90° und 180° drehen das Bild im Bildbereich sofort; ein freier Winkel (z. B. 15°)
+  zeigt schwarze Ecken, Crop to fit schneidet sie weg; *Picture* nennt die neue Größe; die Alignpoint-Ringe verschwinden auf dem gedrehten Bild.
+- [ ] Ein Zuschnitt, dann Right 90°: der Zuschnitt ist weg (Statuszeile); bei offenem Crop-Werkzeug sind die Bedienelemente gesperrt.
+- [ ] Resize Image 50 % und in Pixeln mit und ohne Lock aspect ratio: *Result* und die Gruppe Size im Schritt Save stimmen, die gespeicherte
+  TIFF hat genau diese Größe und ist gedreht wie im Fenster.
+- [ ] Save Project und wieder öffnen: beide Karten stehen wieder so da.

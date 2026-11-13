@@ -6,10 +6,12 @@
 //! frontend only decides *what* to save; writing is the session's job.
 
 use crate::CommandResult;
+use crate::geometry_commands::GeometryArea;
 use planets_io::{
     export::ExportFormat,
     project::{PROJECT_EXTENSION, Project, with_project_extension},
 };
+use planets_session::Geometry;
 use planets_session::{
     ColorSettings, CropRect, FormatInfo, ImageSource, LoadedProject, Session,
     project_load as load_project, project_save as write_project,
@@ -54,16 +56,17 @@ pub async fn save_image(
     path: String,
     adjustments: Option<ColorSettings>,
     crop: Option<CropArea>,
+    geometry: Option<GeometryArea>,
     session: State<'_, Session>,
 ) -> CommandResult<String> {
-    // The geometry (Flip and Rotate, Resize Image) comes with RK-022; until then the picture is written as it is, cut to `crop`.
+    let geometry = geometry.map(Geometry::from);
     Ok(session.save_image(
         source,
         format,
         Path::new(&path),
         adjustments.as_ref(),
         crop.map(Into::into),
-        None,
+        geometry.as_ref(),
     )?)
 }
 
@@ -81,8 +84,10 @@ pub async fn save_image_as(
     directory: Option<String>,
     adjustments: Option<ColorSettings>,
     crop: Option<CropArea>,
+    geometry: Option<GeometryArea>,
     session: State<'_, Session>,
 ) -> CommandResult<Option<String>> {
+    let geometry = geometry.map(Geometry::from);
     // Fail before the dialog if there is nothing to save.
     session.require_image(source)?;
     let name = suggested_name.map(|n| format.with_extension(Path::new(&n)));
@@ -96,7 +101,7 @@ pub async fn save_image_as(
             &path,
             adjustments.as_ref(),
             crop.map(Into::into),
-            None,
+            geometry.as_ref(),
         )?)),
         None => Ok(None),
     }

@@ -2,6 +2,7 @@
 // are not stored, they are calculated again.
 
 import { applyDerotationSection, DEROTATION_KEYS, derotationSection } from "./derotation";
+import { applyGeometrySection, geometrySection } from "./geometry";
 import { IDENTITY_MIX, REFINE_LIMITS, TONE_LIMITS, type createSettings } from "./settings";
 
 type Settings = ReturnType<typeof createSettings>;
@@ -33,6 +34,7 @@ export function buildProject(recording: string[], settings: Settings): ProjectFi
       wavelet: copy(settings.wavelet),
       colour: { colour: settings.colour, lrgb: settings.lrgb },
       refine: copy(settings.refine),
+      geometry: geometrySection(settings.geometry),
       derotation: derotationSection(settings.stack),
     },
   };
@@ -68,7 +70,7 @@ function mergeArray(have: unknown[], want: unknown[]): void {
 
 /** Puts the settings of a project into the current ones. */
 export function applyProject(settings: Settings, project: ProjectFile): void {
-  const { align, stack, wavelet, colour, refine, derotation } = project.sections;
+  const { align, stack, wavelet, colour, refine, derotation, geometry } = project.sections;
   mergeKnown(settings.align, align);
   settings.align.brightnessThreshold = clamp(settings.align.brightnessThreshold, { min: 0, max: 255 });
   // Older files carry the locked `derotate: false` in `stack`; De-rotate images is read from its own section only.
@@ -79,6 +81,7 @@ export function applyProject(settings: Settings, project: ProjectFile): void {
   mergeKnown(settings.wavelet, wavelet);
   settings.wavelet.tone.mix.matrix = mixMatrix(wavelet) ?? matrix;
   mergeKnown(settings.refine, refine);
+  applyGeometrySection(geometry, settings.geometry);
   const r = settings.refine;
   r.denoise = clamp(r.denoise, REFINE_LIMITS.percent);
   r.deringing = clamp(r.deringing, REFINE_LIMITS.percent);

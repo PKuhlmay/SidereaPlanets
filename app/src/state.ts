@@ -105,6 +105,8 @@ export const session = reactive({
    * both in pixels of the stack. Not stored in the project file; a new stack or another recording drops it.
    */
   crop: { format: "free" as CropFormat, editing: false, applied: null as CropRectangle | null, draft: null as CropRectangle | null },
+  /** Flip and Rotate: the pictures of the image area turned by the core, the shown one and the left half of View Compare (RK-022). */
+  oriented: { shown: null as ImageData | null, before: null as ImageData | null },
   /** De-rotate images (RK-023): span, rotation and the disc measured in the reference frame; null while off or before Limit. */
   derotation: null as DerotationInfo | null,
 });

@@ -20,31 +20,3 @@ erledigten Punkt aus `docs/parity/MAC_PARITY.md` (Mac zieht nach) oder trägt `[
 Bis `MAC-001` fertig ist, ist die Windows-App die Vorlage: hier stehen nur Verhalten, die der Mac vorab hat, weil sie nützlich sind
 und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dialoge stehen als Abweichung in `docs/design.md`,
 „Mac-App“). Danach führt der Mac, und diese Liste füllt sich mit jeder Änderung.
-
-## Drehen und Größe (Mac: MAC-017)
-
-- [ ] Die beiden Adjustments-Schaltflächen **Flip and Rotate** und **Resize Image** öffnen je eine Karte (Aufbau, Werte und Texte in `docs/design.md`,
-      Abschnitt „Drehen und Größe (MAC-017)“; die Schaltflächen sind bisher gesperrt, „Not available yet“, und `isToneCard` kennt sie nicht); die Zahl der
-      gesperrten Knöpfe sinkt auf **vier** (View Zoomed, View Stack Size, Wavelet Filter, Show Line Graph).
-      **Flip and Rotate:** Schalter **Horizontal · Vertical**, Knöpfe **Left 90° · Right 90° · 180°**, **Angle (°)** −180 … 180 in Zehnteln (positiv im
-      Uhrzeigersinn) mit Feld und Regler, **Interpolation** Bilinear · Bicubic (Standard Bicubic), Häkchen **Crop to fit**, Zeile *Picture* mit der Größe, **Reset**.
-      Die Schalter wirken auf das Bild auf dem Bildschirm: der Kern spiegelt zuerst und dreht dann, darum kehrt jedes Spiegeln das Vorzeichen des Winkels um
-      (`OrientationValues.flipHorizontally`). **Resize Image:** Segmente **Percent · Pixels**, **Size (%)** 100 · 10 … 400, **Width (px)** / **Height (px)** 1 … 16384
-      mit **Lock aspect ratio** (an: die zuletzt getippte Seite bestimmt die andere), **Method** Lanczos3 · Bicubic · Bilinear · Nearest Neighbor (Standard Lanczos3),
-      Zeile *Result* mit der Größe der Datei, **Reset**.
-- [ ] **Reihenfolge und Wirkung:** Refine → Farb- und Tonwerte → **Flip and Rotate** → **Crop** → **Resize Image**. Das Bild im Bildbereich ist das gedrehte
-      (Schritte Wavelets und Save, auch Before und die linke Hälfte von View Compare); das Zuschneiden arbeitet in den Pixeln dieses Bildes. Resize Image zeigt
-      sich nur als Größe (Karte, Gruppe **Size** im Schritt Save), nicht im Bild. Ändert man Spiegelung, Winkel oder Crop to fit, wird ein angewendeter Zuschnitt
-      entfernt („Crop removed: the picture was flipped or turned“); bei offenem Zuschneiden sind die Bedienelemente von Flip and Rotate gesperrt. Die Marken des
-      Stacks (Alignpoints, Preview-Bereich) werden auf einem gedrehten Bild nicht gezeichnet. Gilt nur für das geschärfte Bild; das Stack-Bild des Schritts Stack
-      wird nie gedreht oder skaliert. Die Werte bleiben bei einem neuen Stack und einer anderen Aufnahme (der Zuschnitt nicht).
-- [ ] **Projektdatei:** eigener optionaler Abschnitt `geometry` (`flipHorizontal`, `flipVertical`, `angle`, `cropToFit`, `rotationMethod`, `resize`
-      {`mode`, `percent`, `width`, `height`, `lockAspect`, `driver`, `method`}); fehlt er oder ein Schlüssel, bleiben die Werte, Zahlen werden auf die Grenzen gekürzt.
-      Mac: `mac/App/Model/GeometryLogic.swift` (`geometrySection`, `applyGeometrySection`), `AppModel.projectSections`.
-- [ ] **Rechenkern schon gemeinsam auf `main`:** `planets_core::geometry` (`Orientation`, `Resize`, `ResizeTarget`, `Resampling`, `Geometry`, `Image::flipped`,
-      `turned`, `oriented`, `resized`), `Session::save_image(…, crop, geometry: Option<&Geometry>)` und `Session::orient_preview` (8-Bit-RGBA, Vorschau).
-      Die Tauri-Befehle `save_image` und `save_image_as` reichen vorerst `None` durch (`app/src-tauri/src/export_commands.rs`); Windows ergänzt dort das Argument
-      `geometry` (serde-Typen fehlen noch: `Orientation`, `Resize`, `Geometry` brauchen dann `Deserialize` mit camelCase) und den Befehl für die Vorschau.
-      Anwenderseiten (`color-and-tones.md`, `save-and-export.md`, `step-wavelets-save.md`, `image-area.md`, `glossary.md`) liegen schon gemeinsam auf `main`.
-      Mac: `mac/App/Views/Wavelets/GeometryCards.swift`, `mac/App/Model/AppModel+Geometry.swift`.
-

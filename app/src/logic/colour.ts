@@ -4,7 +4,17 @@
 import { contrastField, IDENTITY_MIX, TONE_LIMITS, type ChannelShifts, type RefineValues, type ToneSettings } from "./settings";
 
 /** The cards that exist so far; the other Functions buttons only report that they are not available yet. */
-export const toneCards = ["Histogram", "Gamma", "Color Mixing", "RGB Align", "RGB Balance", "Denoise/Deringing", "Masking"] as const;
+export const toneCards = [
+  "Histogram",
+  "Gamma",
+  "Color Mixing",
+  "RGB Align",
+  "RGB Balance",
+  "Denoise/Deringing",
+  "Masking",
+  "Flip and Rotate",
+  "Resize Image",
+] as const;
 export type ToneCard = (typeof toneCards)[number];
 export const isToneCard = (name: string): name is ToneCard => (toneCards as readonly string[]).includes(name);
 
@@ -178,6 +188,8 @@ const functionHelps: Record<ToneCard, string> = {
   "Color Mixing": "Builds each color channel from a mix of red, green and blue.",
   "Denoise/Deringing": "Smooths noise without blurring edges and softens the dark ring next to bright edges.",
   Masking: "Limits the sharpening to the planet, so the sky stays untouched.",
+  "Flip and Rotate": "Mirrors the picture or turns it, by 90° or by any angle.",
+  "Resize Image": "Makes the picture bigger or smaller when it is saved, by a percentage or to a size in pixels.",
   "RGB Align": "Shifts red, green and blue so that they lie on top of each other.",
   "RGB Balance": "Changes the share of red, green and blue.",
 };

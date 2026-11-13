@@ -4,6 +4,7 @@
 // The geometry of the rectangle is in logic/crop.ts.
 
 import { centred, clamped, cropToCore, formatAspect, full, isFull, fitted, type CropFormat, type CropRectangle } from "./logic/crop";
+import { orientedSize } from "./logic/geometry";
 import { session, settings, status } from "./state";
 
 /** The Adjustments button that switches the split view on and off, and the one that opens the crop tool. */
@@ -50,9 +51,11 @@ export function toggleCompare(): void {
   }
 }
 
-/** The size of the picture the rectangle is set in: the stack; null before there is one. */
-export const cropImageSize = (): { width: number; height: number } | null =>
-  session.stackImage ? { width: session.stackImage.width, height: session.stackImage.height } : null;
+/** The size of the picture the rectangle is set in: the stack after Flip and Rotate (RK-022); null before there is one. */
+export function cropImageSize(): { width: number; height: number } | null {
+  const stack = session.stackImage;
+  return stack ? orientedSize(stack.width, stack.height, settings.geometry.orientation) : null;
+}
 
 /** Crop is possible where the sharpened stack is shown and while nothing runs. */
 export const canCrop = (): boolean =>

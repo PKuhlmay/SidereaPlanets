@@ -1,6 +1,8 @@
 // All adjustable values with the defaults observed in the reference program (docs/ui.md). Typed values outside the usual
 // ranges are accepted as they are, as in the original; a limit is only enforced where docs/ui.md names one.
 
+import { defaultGeometry } from "./geometry";
+
 export type Intensity = "default" | "area3x3" | "lowest";
 export type LimitMode = "lowestQuality" | "bestPercent" | "framesPerPoint" | "bestCount";
 export type StackSize = "default" | "minimized" | "maximized" | "roi";
@@ -242,6 +244,8 @@ export function createSettings() {
     },
     /** Denoise/Deringing and Masking: applied to the sharpened image before all other cards; the section `refine` of the project file. */
     refine: defaultRefine(),
+    /** Flip and Rotate and Resize Image (RK-022): the last steps of Save Image; the section `geometry` of the project file. */
+    geometry: defaultGeometry(),
   };
 }
 

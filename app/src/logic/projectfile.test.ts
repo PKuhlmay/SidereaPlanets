@@ -138,6 +138,22 @@ describe("Color Mixing and the refine cards in the project file (same keys as th
   });
 });
 
+describe("Flip and Rotate and Resize Image in the project file (RK-022, section geometry like the Mac app)", () => {
+  it("writes the section geometry and reads it back, cut to the limits", () => {
+    const saved = createSettings();
+    Object.assign(saved.geometry.orientation, { flipVertical: true, angle: -12.5 });
+    saved.geometry.resize.percent = 250;
+    const project = JSON.parse(JSON.stringify(buildProject(["x.ser"], saved)));
+    expect(project.sections.geometry).toMatchObject({ flipVertical: true, angle: -12.5, resize: { percent: 250 } });
+    const target = createSettings();
+    applyProject(target, project);
+    expect(target.geometry).toEqual(saved.geometry);
+    applyProject(target, { formatVersion: 1, recording: [], sections: { geometry: { resize: { percent: 9000 } } } });
+    expect(target.geometry.resize.percent).toBe(400);
+    expect(target.geometry.orientation.angle).toBe(-12.5);
+  });
+});
+
 describe("mergeKnown", () => {
   it("ignores keys the target does not have, non-finite numbers and non-objects", () => {
     const target: Record<string, unknown> = { a: 1, nested: { b: true }, list: [{ c: 1 }, { c: 2 }] };

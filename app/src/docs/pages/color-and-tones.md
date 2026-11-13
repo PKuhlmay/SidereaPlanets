@@ -91,7 +91,7 @@ Planets are usually saved with north up, or in the orientation of a chart or of 
 
 The turned picture is the one in the image area, in the steps Wavelets and Save, and also the left side of **View Compare**. The marks that belong to the stack (alignpoints and the preview area) are not drawn on a flipped or turned picture. **Remember**, **Restore** and **Difference** work on the picture as it is before flipping and turning.
 
-Flip and Rotate is applied last: after all other cards, but before the crop. The crop rectangle is therefore set on the picture as you see it. If you flip or turn the picture after you pressed **Done** in the crop tool, the rectangle is removed (the status bar says so). While the crop tool is open, the card cannot be changed and says *Finish or cancel the crop first*. Changing only the **Interpolation** keeps the crop. The values stay for a new stack and are stored in the project file; the Windows version of Siderea Planets ignores them.
+Flip and Rotate is applied last: after all other cards, but before the crop. The crop rectangle is therefore set on the picture as you see it. If you flip or turn the picture after you pressed **Done** in the crop tool, the rectangle is removed (the status bar says so). While the crop tool is open, the card cannot be changed and says *Finish or cancel the crop first*. Changing only the **Interpolation** keeps the crop. The values stay for a new stack and are stored in the project file.
 
 ## Resize Image
 
@@ -102,7 +102,7 @@ Flip and Rotate is applied last: after all other cards, but before the crop. The
 - **Method** is how the new pixels are calculated: **Lanczos3** (the start value) keeps the most detail, **Bicubic** is a little softer, **Bilinear** softer still, and **Nearest Neighbor** copies pixels, which is for enlarging pixel by pixel. When the picture becomes smaller, the method averages the pixels it replaces, so the result does not get jagged.
 - **Result** shows the size of the file that **Save Image** writes. **Reset** brings back the original size.
 
-Resize Image is the very last thing before a file is written: **Do All** (or the preview) → color and tone cards → Flip and Rotate → Crop → Resize Image. With a crop, 50% means half of the cropped rectangle, not half of the whole picture. The values stay for a new stack and are stored in the project file; the Windows version of Siderea Planets ignores them.
+Resize Image is the very last thing before a file is written: **Do All** (or the preview) → color and tone cards → Flip and Rotate → Crop → Resize Image. With a crop, 50% means half of the cropped rectangle, not half of the whole picture. The values stay for a new stack and are stored in the project file.
 
 ## RGB Balance
 

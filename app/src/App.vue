@@ -21,6 +21,7 @@ import WaveletsStep from "./components/WaveletsStep.vue";
 import type { Rect } from "./logic/align";
 import { startColour } from "./colour";
 import { cancelCrop, clampedDivider, isComparing, setBefore, setCropDraft } from "./cropTool";
+import { orientationApplies, orientImage } from "./geometryView";
 import { formatAspect } from "./logic/crop";
 import { openDroppedFiles } from "./recording";
 import { startResourceMonitor } from "./resource";
@@ -57,7 +58,7 @@ onBeforeUnmount(() => window.removeEventListener("keydown", handleShortcut));
 
 // Wavelets and Save show the colour and tone cards applied to the image, or the remembered image or the difference to it;
 // Before/After shows the plain stack.
-const shown = computed(() => {
+const plainShown = computed(() => {
   if (!wavelet.value || before.value) return image.value;
   // Show mask (Masking card) replaces the current image; Before, the remembered image and the difference go first.
   if (session.toneView === "current" && session.maskImage) return session.maskImage;
@@ -67,6 +68,19 @@ const shown = computed(() => {
     difference: session.differenceImage,
   });
 });
+// Flip and Rotate (RK-022): the steps Wavelets and Save show the picture turned by the core; until the turned copy is there, the plain one.
+const turned = computed(() => wavelet.value && orientationApplies());
+const shown = computed(() => (turned.value ? (session.oriented.shown ?? plainShown.value) : plainShown.value));
+const compareImage = computed(() => (comparing.value ? session.stackImage : null));
+const shownBefore = computed(() => (turned.value && compareImage.value ? (session.oriented.before ?? compareImage.value) : compareImage.value));
+watch(
+  [plainShown, turned, () => JSON.stringify(settings.geometry.orientation)],
+  () => void orientImage("shown", turned.value ? plainShown.value : null),
+);
+watch(
+  [compareImage, turned, () => JSON.stringify(settings.geometry.orientation)],
+  () => void orientImage("before", turned.value ? compareImage.value : null),
+);
 const withFunctions = computed(() => session.view === "wavelets" && settings.wavelet.functionsOpen);
 const emptyText = computed(() => (session.step === "empty" ? "Select a recording or drop a video or images here" : "No image to show yet"));
 // The caption at the top left gives way while the image is split: the labels Before and After say what is where.
@@ -143,7 +157,7 @@ watch(
         <ImageViewer
           :before="before"
           :image="shown"
-          :before-image="comparing ? session.stackImage : null"
+          :before-image="shownBefore"
           :divider="session.compareDivider"
           :crop="cropShown"
           :crop-editing="session.crop.editing"

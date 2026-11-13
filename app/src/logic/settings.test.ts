@@ -117,15 +117,10 @@ describe("Functions", () => {
     ]);
   });
 
-  it("locks the six buttons without a card and explains the others in their tooltip", () => {
-    expect(functionNames.filter((name) => !isFunctionBuilt(name))).toEqual([
-      "View Zoomed",
-      "View Stack Size",
-      "Flip and Rotate",
-      "Resize Image",
-      "Wavelet Filter",
-      "Show Line Graph",
-    ]);
+  it("locks the four buttons without a card and explains the others in their tooltip", () => {
+    expect(functionNames.filter((name) => !isFunctionBuilt(name))).toEqual(["View Zoomed", "View Stack Size", "Wavelet Filter", "Show Line Graph"]);
+    expect(functionHelp("Flip and Rotate")).toBe("Mirrors the picture or turns it, by 90° or by any angle.");
+    expect(functionHelp("Resize Image")).toBe("Makes the picture bigger or smaller when it is saved, by a percentage or to a size in pixels.");
     expect(functionHelp("View Compare")).toBe("Splits the image: the stack on the left, the result on the right.");
     expect(functionHelp("Crop")).toBe("Cuts the picture to a rectangle when it is saved.");
     expect(functionHelp("Gamma")).toBe("Brightens or darkens the midtones.");

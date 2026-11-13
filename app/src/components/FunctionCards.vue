@@ -5,6 +5,8 @@ import { session, settings } from "../state";
 import ColorMixingCard from "./ColorMixingCard.vue";
 import CropCard from "./CropCard.vue";
 import DenoiseCard from "./DenoiseCard.vue";
+import FlipRotateCard from "./FlipRotateCard.vue";
+import ResizeCard from "./ResizeCard.vue";
 import GammaCard from "./GammaCard.vue";
 import MaskCard from "./MaskCard.vue";
 import HistogramCard from "./HistogramCard.vue";
@@ -25,6 +27,8 @@ const cropping = computed(() => session.crop.editing && (session.view === "wavel
     <ColorMixingCard v-else-if="name === 'Color Mixing'" />
     <DenoiseCard v-else-if="name === 'Denoise/Deringing'" />
     <MaskCard v-else-if="name === 'Masking'" />
+    <FlipRotateCard v-else-if="name === 'Flip and Rotate'" />
+    <ResizeCard v-else-if="name === 'Resize Image'" />
     <RgbAlignCard v-else-if="name === 'RGB Align'" />
     <RgbBalanceCard v-else />
   </template>

@@ -6,6 +6,7 @@
 mod align_commands;
 mod color_commands;
 mod export_commands;
+mod geometry_commands;
 mod sequence_commands;
 mod stack_commands;
 mod usage_commands;
@@ -154,6 +155,7 @@ pub fn run() {
             color_commands::color_histogram,
             color_commands::auto_histogram_points,
             color_commands::refine_mask_overlay,
+            geometry_commands::orient_preview,
             export_commands::export_formats,
             export_commands::save_image,
             export_commands::save_image_as,

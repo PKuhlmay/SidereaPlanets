@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { discOverlay } from "../logic/derotation";
+import { orientationApplies } from "../geometryView";
 import { processingArea } from "../logic/viewport";
 import { atLeast, imageKind } from "../logic/workflow";
 import { session, settings } from "../state";
@@ -11,14 +12,17 @@ const props = defineProps<{ width: number; height: number }>();
 
 const kind = computed(() => imageKind(session.view));
 const dots = computed(() => kind.value === "frame" && settings.align.showAlignpoints && atLeast(session.step, "points"));
+// The marks of the stack are not drawn on a flipped or turned picture: they would sit in the wrong place (RK-022).
+const turned = computed(() => kind.value === "wavelet" && orientationApplies());
 const rings = computed(
   () =>
+    !turned.value &&
     atLeast(session.step, "limited") &&
     ((kind.value === "stack" && settings.stack.showAlignSections) || (kind.value === "wavelet" && settings.wavelet.showAlignpoints)),
 );
 const region = computed(() => (kind.value === "frame" && settings.align.showRoi ? session.roi : null));
 const area = computed(() =>
-  kind.value === "wavelet" && settings.wavelet.showProcessingArea ? processingArea({ w: props.width, h: props.height }, settings.menu.processingArea) : null,
+  kind.value === "wavelet" && !turned.value && settings.wavelet.showProcessingArea ? processingArea({ w: props.width, h: props.height }, settings.menu.processingArea) : null,
 );
 // De-rotate images (RK-023): the disc measured in the reference frame, Saturn's ring edge and N over the north pole.
 const disc = computed(() =>

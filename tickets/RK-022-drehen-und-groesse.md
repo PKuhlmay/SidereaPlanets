@@ -1,6 +1,6 @@
 # RK-022 Flip and Rotate und Resize Image (Windows zieht nach)
 
-- Status: offen
+- Status: erledigt
 - Abhängig von: RK-021, MAC-017
 - Stufe: `windows-v0.1.0` (Nachzug zu Mac `v0.1.0`)
 
@@ -20,14 +20,33 @@ Projektregeln einen eigenen Commit mit Hinweis, weil die Mac-App dieselben Typen
 
 ## Akzeptanzkriterien
 
-- [ ] Karte Flip and Rotate (Horizontal · Vertical, Left 90° · Right 90° · 180°, Angle, Interpolation, Crop to fit, Reset); Spiegeln kehrt
+- [x] Karte Flip and Rotate (Horizontal · Vertical, Left 90° · Right 90° · 180°, Angle, Interpolation, Crop to fit, Reset); Spiegeln kehrt
       das Vorzeichen des Winkels um (Test)
-- [ ] Karte Resize Image (Percent · Pixels, Size, Width/Height mit Lock aspect ratio, Method, Result, Reset); Gruppe **Size** im Schritt Save
-- [ ] Bildbereich zeigt das gedrehte Bild (auch Before und linke Hälfte von View Compare); Marken des Stacks werden darauf nicht gezeichnet
-- [ ] Änderung an Spiegelung, Winkel oder Crop to fit entfernt einen Zuschnitt („Crop removed: the picture was flipped or turned“); bei
+- [x] Karte Resize Image (Percent · Pixels, Size, Width/Height mit Lock aspect ratio, Method, Result, Reset); Gruppe **Size** im Schritt Save
+- [x] Bildbereich zeigt das gedrehte Bild (auch Before und linke Hälfte von View Compare); Marken des Stacks werden darauf nicht gezeichnet
+- [x] Änderung an Spiegelung, Winkel oder Crop to fit entfernt einen Zuschnitt („Crop removed: the picture was flipped or turned“); bei
       offenem Zuschneiden sind die Bedienelemente von Flip and Rotate gesperrt
-- [ ] Projektdatei-Abschnitt `geometry` schreiben und lesen, fehlende Schlüssel bleiben, Zahlen auf Grenzen gekürzt (Test)
-- [ ] Gesperrt bleiben nur noch View Zoomed, View Stack Size, Wavelet Filter, Show Line Graph
-- [ ] Abschnitt aus `docs/parity/WINDOWS_PARITY.md` gelöscht
-- [ ] Probe von Hand als `## RK-022 Flip and Rotate und Resize Image (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
-- [ ] `cargo test --workspace`, `clippy` ohne Warnungen, `cd app && pnpm test` und `pnpm build` grün, neue Tests einmal rot gesehen
+- [x] Projektdatei-Abschnitt `geometry` schreiben und lesen, fehlende Schlüssel bleiben, Zahlen auf Grenzen gekürzt (Test)
+- [x] Gesperrt bleiben nur noch View Zoomed, View Stack Size, Wavelet Filter, Show Line Graph
+- [x] Abschnitt aus `docs/parity/WINDOWS_PARITY.md` gelöscht
+- [x] Probe von Hand als `## RK-022 Flip and Rotate und Resize Image (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] `cargo test --workspace`, `clippy` ohne Warnungen, `cd app && pnpm test` und `pnpm build` grün, neue Tests einmal rot gesehen
+
+## Umsetzung
+
+- **Kein Kern-Commit nötig:** Statt `Deserialize` an `Orientation`, `Resize` und `Geometry` im Kern hat die Tauri-Shell eigene
+  Übergabetypen (`app/src-tauri/src/geometry_commands.rs`: `GeometryArea`, `OrientationArea`, `ResizeArea`, camelCase), die in die Typen
+  des Kerns umgewandelt werden; der gemeinsame Kern und damit die Mac-App bleiben unberührt (wie `CropArea` aus RK-021). Dort auch der Befehl
+  `orient_preview` (rohes RGBA im Body, `width`, `height` und die Ausrichtung als JSON im Header, ruft `Session::orient_preview`);
+  `save_image` und `save_image_as` nehmen `geometry`.
+- **Werte und Größen** (`app/src/logic/geometry.ts`): Port der Regeln aus `GeometryLogic.swift` (Winkel in Zehnteln auf −180 … 180,
+  Spiegeln kehrt das Vorzeichen um, Lock aspect ratio mit zuletzt getippter Seite, Abschnitt `geometry` der Projektdatei). Die Größen
+  (`orientedSize`, `resizeSize`) folgen `Orientation::output_size` und `Resize::output_size` des Kerns, damit die Karten die Größe beim
+  Ziehen sofort zeigen; die Testwerte stammen aus den Tests in `crates/core/src/geometry.rs`.
+- **Ablauf** (`app/src/geometryView.ts`): Bildgröße nach dem Drehen (darin liegt das Zuschnitt-Rechteck, `cropTool.cropImageSize`),
+  Größe der Datei nach Zuschnitt und Resize, was Save Image schickt, `editOrientation` (gesperrt bei offenem Zuschneiden, „Crop removed:
+  the picture was flipped or turned“ bei einer Änderung von Spiegelung, Winkel oder Crop to fit) und `orientImage` für die gedrehte
+  Anzeige des gezeigten Bildes und der linken Hälfte von View Compare. Die Marken des Stacks fallen auf einem gedrehten Bild weg.
+- **Oberfläche:** Karten `FlipRotateCard.vue` und `ResizeCard.vue`, Gruppe **Size** im Schritt Save; gesperrt bleiben vier Knöpfe.
+- Hilfeseite `color-and-tones.md`: die Sätze „the Windows version … ignores them“ sind gestrichen. Damit ist `docs/parity/WINDOWS_PARITY.md`
+  für `windows-v0.1.0` leer.

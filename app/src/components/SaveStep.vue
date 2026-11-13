@@ -2,12 +2,17 @@
 import { computed } from "vue";
 import { canCrop, removeCrop, startCrop } from "../cropTool";
 import { sizeText } from "../logic/crop";
-import { session, status } from "../state";
+import { resultSize } from "../geometryView";
+import { orientationSummary, sizeLabel } from "../logic/geometry";
+import { session, settings, status } from "../state";
 import { progress } from "../steps";
 import StepPanel from "./StepPanel.vue";
 
-// Step 7 Save: what Save Image writes, and the group Crop that opens the crop tool (RK-021). The action with the menu of file types is
+// Step 7 Save: what Save Image writes, the group Crop that opens the crop tool (RK-021) and the group Size (RK-022). The action with the menu of file types is
 // in the foot of the panel.
+// The group Size: what Save Image writes after Flip and Rotate, Crop and Resize Image (RK-022).
+const result = computed(() => resultSize());
+const turned = computed(() => orientationSummary(settings.geometry.orientation));
 const summary = computed(() => (session.crop.applied ? `Only ${sizeText(session.crop.applied)} is saved.` : "The whole picture is saved."));
 </script>
 
@@ -39,6 +44,12 @@ const summary = computed(() => (session.crop.applied ? `Only ${sizeText(session.
           Remove Crop
         </button>
       </div>
+    </div>
+    <div v-if="result" class="grp">
+      <div class="gh" title="The size of the file that Save Image writes.">Size</div>
+      <p class="note">The picture is saved at {{ sizeLabel(result) }}.</p>
+      <p v-if="turned" class="note">It is {{ turned }}.</p>
+      <p class="note">Flip and Rotate and Resize Image are in the Adjustments of the step Wavelets.</p>
     </div>
   </StepPanel>
 </template>
