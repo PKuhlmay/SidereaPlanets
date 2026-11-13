@@ -44,6 +44,20 @@ describe("buildStackRequest", () => {
     expect(buildStackRequest(session(), settings).centreOfGravity).toBe(40);
   });
 
+  it("sends De-rotate images with its settings only when the check box is on (RK-023)", () => {
+    const settings = createSettings();
+    Object.assign(settings.stack, { planet: "saturn", cameraAngle: -12.5, mirrored: true, startTime: 1_700_000_000.5 });
+    expect(buildStackRequest(session(), settings)).not.toHaveProperty("derotation");
+    settings.stack.derotate = true;
+    expect(buildStackRequest(session(), settings).derotation).toEqual({
+      planet: "saturn",
+      cameraAngleDeg: -12.5,
+      mirrored: true,
+      startTimeUtc: 1_700_000_000.5,
+      useFileTimestamps: true,
+    });
+  });
+
   it("turns typed values into numbers the backend accepts", () => {
     const settings = createSettings();
     settings.stack.nearestPoints = 0;

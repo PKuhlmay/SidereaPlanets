@@ -77,6 +77,29 @@ describe("Align by center of gravity in the project file (same keys as the Mac a
   });
 });
 
+describe("De-rotate images in the project file (RK-023, same keys as the Mac app)", () => {
+  it("stores the settings in the section derotation, not in the section stack, and reads them back", () => {
+    const saved = createSettings();
+    Object.assign(saved.stack, { derotate: true, planet: "mars", cameraAngle: 33.5, mirrored: true, startTime: 1_700_000_000.25 });
+    const project = JSON.parse(JSON.stringify(buildProject(["x.ser"], saved)));
+    expect(project.sections.derotation).toEqual({ enabled: true, planet: "mars", cameraAngle: 33.5, mirrored: true, startTimeUtc: 1_700_000_000.25 });
+    for (const key of ["derotate", "planet", "cameraAngle", "mirrored", "startTime"]) expect(project.sections.stack).not.toHaveProperty(key);
+
+    const target = createSettings();
+    applyProject(target, project);
+    expect(target.stack).toMatchObject({ derotate: true, planet: "mars", cameraAngle: 33.5, mirrored: true, startTime: 1_700_000_000.25 });
+  });
+
+  it("keeps the values a project without the section, or with missing keys, does not name", () => {
+    const target = createSettings();
+    Object.assign(target.stack, { derotate: true, planet: "saturn", startTime: 1_700_000_000 });
+    applyProject(target, { formatVersion: 1, recording: [], sections: { stack: { nearestPoints: 4 } } });
+    expect(target.stack).toMatchObject({ derotate: true, planet: "saturn", startTime: 1_700_000_000, nearestPoints: 4 });
+    applyProject(target, { formatVersion: 1, recording: [], sections: { derotation: { mirrored: true } } });
+    expect(target.stack).toMatchObject({ derotate: true, planet: "saturn", mirrored: true, startTime: 1_700_000_000 });
+  });
+});
+
 describe("Color Mixing and the refine cards in the project file (same keys as the Mac app)", () => {
   it("stores the mixing matrix under wavelet.tone.mix and the refine values in a section of their own", () => {
     const saved = createSettings();

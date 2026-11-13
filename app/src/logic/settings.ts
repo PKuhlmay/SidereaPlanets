@@ -12,6 +12,7 @@ export type WaveletFilter = "default" | "gaussian";
 export type ProcessingArea = 2048 | 1024 | 512 | 256 | 128;
 export type StretchFit = "ask" | "yes" | "no";
 export type Theme = "dark" | "light";
+export type Planet = "jupiter" | "saturn" | "mars";
 
 export interface WaveletLayer {
   enabled: boolean;
@@ -203,6 +204,12 @@ export function createSettings() {
       correctGeometry: true,
       stretchHistogram: false,
       derotate: false,
+      /** De-rotate images (RK-023): the planet, the camera angle in degrees counter-clockwise (0 = north up), a mirror image,
+       *  and when the first frame was taken (seconds since 1970 UTC; used only when the file has no time per frame). */
+      planet: "jupiter" as Planet,
+      cameraAngle: 0,
+      mirrored: false,
+      startTime: null as number | null,
       edgePixels: 0,
       codec: "DIB" as string,
       compressQuality: 7500,

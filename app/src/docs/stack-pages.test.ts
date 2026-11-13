@@ -27,9 +27,12 @@ describe("documentation of the step Stack", () => {
     }
   });
 
-  it("describes De-rotate images as working in the Mac version, not as a locked option", () => {
+  it("describes De-rotate images as working in both versions, not as a locked option (RK-023)", () => {
     const html = renderBody(page.body);
-    expect(html).toMatch(/<tr>\s*<td>De-rotate images<\/td>/);
+    expect(html).toMatch(/<tr>\s*<td>De-rotate images<\/td>\s*<td>off<\/td>\s*<td>Works\./);
+    expect(page.body).not.toContain("locked for now");
+    expect(page.body).not.toContain("Mac version");
+    expect(page.body).not.toContain("the Windows version ignores it");
     expect(html).toContain("<h2");
     expect(page.body).toContain("## De-rotate images");
     for (const word of ["Planet", "Start time", "Camera angle (°)", "Mirrored image", "Too short to matter", "Span 3 min 12 s"]) {
@@ -52,7 +55,7 @@ describe("the step panel Stack", () => {
   };
 
   it("locks every option that does nothing yet and keeps it out of the settings", () => {
-    const locked = ["Smallest common area", "Largest area", "Region", "Stretch histogram after stacking", "De-rotate images", "Resampling", "Drizzling"];
+    const locked = ["Smallest common area", "Largest area", "Region", "Stretch histogram after stacking", "Resampling", "Drizzling"];
     for (const label of [...locked, "Use prefilters", "Compressed"]) {
       expect(line(label), label).toContain("disabled");
       expect(line(label), label).not.toContain("v-model");
@@ -61,11 +64,32 @@ describe("the step panel Stack", () => {
 
   it("marks each locked option as not available yet, in its tooltip and, where the row has room, in a note (MAC-014)", () => {
     const count = (text: string): number => stackStep.split(text).length - 1;
-    // Seven locked options of Stacking, three locked frame sizes, Compressed, Use prefilters, Codec and Compression quality.
-    expect(count(`title="Not available yet`)).toBe(14);
+    // Six locked options of Stacking, three locked frame sizes, Compressed, Use prefilters, Codec and Compression quality.
+    expect(count(`title="Not available yet`)).toBe(13);
     // A note in the row of every locked option except the side-by-side Use prefilters and the two locked fields.
-    expect(count(`class="factor">Not available yet</span>`)).toBe(11);
-    expect(stackStep).toContain(`title="Not available yet. Turns the frames back against the rotation of the planet."`);
+    expect(count(`class="factor">Not available yet</span>`)).toBe(10);
+    expect(stackStep).not.toContain(`title="Not available yet. Turns the frames back against the rotation of the planet."`);
+  });
+
+  it("has De-rotate images as a working check box with the settings of the Mac app (RK-023)", () => {
+    expect(line("De-rotate images")).toContain(`v-model="stack.derotate"`);
+    expect(line("De-rotate images")).not.toContain("disabled");
+    expect(line("Mirrored image")).toContain(`v-model="stack.mirrored"`);
+    for (const text of [
+      "Turns every frame back to the middle of the recording by the rotation of the planet, so that details at the edge of the disc stay sharp. Needs the date and time of the recording.",
+      ">Planet<",
+      "The planet in the recording: it decides how fast it turns and how flattened it is.",
+      "Start time",
+      "When the first frame was taken, in the time zone of this computer. The file has no time for its frames.",
+      " · taken from the file date, check it",
+      "Enter the time of the first frame",
+      "Camera angle (°)",
+      "How far the camera was turned, in degrees counter-clockwise on the screen. 0 means celestial north is up in the picture.",
+      "The picture is a mirror image, as a single mirror in the light path makes it: east is on the right when north is up.",
+      "The file has a time for every frame.",
+    ]) {
+      expect(stackStep, text).toContain(text);
+    }
   });
 
   it("leaves the options that work switchable", () => {

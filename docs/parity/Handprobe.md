@@ -105,3 +105,13 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] Eine Planetenaufnahme mit starker Drift: Align ohne und mit dem Häkchen vergleichen, Quality Graph und Stackergebnis ansehen.
   Mondaufnahme mit dem Häkchen: Align fällt nicht aus, auch wenn das Ergebnis schlechter sein darf.
 - [ ] Häkchen an, Schwelle 35, Save Project, App neu starten, Projekt öffnen: Häkchen und 35 stehen wieder da.
+
+### RK-023 De-rotate images (windows-v0.1.0)
+
+- [ ] JUPITER.AVI bis Best Frames, dann im Schritt Stack unter Advanced De-rotate images einschalten: Planet steht auf Jupiter, Start time
+  zeigt das Dateidatum mit „taken from the file date, check it“ und die UTC-Zeit darunter; nach kurzer Zeit steht die Zeile „Span … · rotation …°“
+  (bei weniger als 1° mit „Too short to matter“), das Bild springt auf das Bezugsframe.
+- [ ] Overlay: die orange Ellipse liegt auf dem Planeten, der Strich mit N zeigt nach oben; Camera angle 90 dreht N nach links, Mirrored image
+  spiegelt die Richtung; eine Saturn-Aufnahme zeigt zusätzlich die gestrichelte Ringkante. Häkchen aus: Overlay und Zeile verschwinden.
+- [ ] Eine SER-Datei mit Zeitstempeln: das Feld Start time fehlt, darunter steht „The file has a time for every frame.“
+- [ ] Stack mit De-rotate images an läuft durch; Save Project und wieder öffnen: Planet, Camera angle, Mirrored image und Start time stehen wieder da.

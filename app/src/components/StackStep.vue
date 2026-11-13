@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { runAction } from "../actions";
+import { CAMERA_ANGLE, derotationSummary, localInputValue, parseLocalInput, PLANETS, utcText } from "../logic/derotation";
 import { codecs } from "../logic/settings";
 import { atLeast } from "../logic/workflow";
 import { session, settings } from "../state";
@@ -7,10 +9,20 @@ import NumberField from "./NumberField.vue";
 import StepPanel from "./StepPanel.vue";
 
 // Step 5 Stack: the key Stacking options; the others and Create AVI under Advanced. Options the backend ignores
-// (Output size other than Default, Stretch histogram, De-rotate, Resampling, Drizzling, and in Create AVI Codec,
+// (Output size other than Default, Stretch histogram, Resampling, Drizzling, and in Create AVI Codec,
 // Compression quality, the frame sizes other than Original size, Use prefilters and Compressed) are locked and marked
 // "Not available yet"; their values stay in `settings.stack` (logic/stack.ts), where nothing reads them.
+// De-rotate images (RK-023) opens its settings below the check box; derotation.ts asks the core for the line at the bottom.
 const stack = settings.stack;
+
+const hasTimestamps = computed(() => session.info?.hasTimestamps ?? false);
+const startTimeIsGuess = computed(() => session.info?.startTimeFromFileDate ?? false);
+const summary = computed(() => (stack.derotate && session.derotation ? derotationSummary(session.derotation) : null));
+
+function onStartTime(event: Event) {
+  const value = parseLocalInput((event.target as HTMLInputElement).value);
+  if (value !== null) stack.startTime = value;
+}
 </script>
 
 <template>
@@ -46,9 +58,45 @@ const stack = settings.stack;
             <label class="chk"><input type="checkbox" :checked="false" disabled />Stretch histogram after stacking</label>
             <span class="factor">Not available yet</span>
           </div>
-          <div class="inl" title="Not available yet. Turns the frames back against the rotation of the planet.">
-            <label class="chk"><input type="checkbox" :checked="false" disabled />De-rotate images</label>
-            <span class="factor">Not available yet</span>
+          <label
+            class="chk"
+            title="Turns every frame back to the middle of the recording by the rotation of the planet, so that details at the edge of the disc stay sharp. Needs the date and time of the recording."
+          ><input v-model="stack.derotate" type="checkbox" />De-rotate images</label>
+          <div v-if="stack.derotate" class="derot">
+            <div class="label">Planet</div>
+            <div class="seg">
+              <button
+                v-for="p in PLANETS"
+                :key="p.value"
+                type="button"
+                :aria-pressed="stack.planet === p.value"
+                title="The planet in the recording: it decides how fast it turns and how flattened it is."
+                @click="stack.planet = p.value"
+              >
+                {{ p.title }}
+              </button>
+            </div>
+            <div v-if="!hasTimestamps" class="starttime">
+              <label class="row" title="When the first frame was taken, in the time zone of this computer. The file has no time for its frames.">
+                Start time
+                <input class="when" type="datetime-local" :value="localInputValue(stack.startTime)" @change="onStartTime" />
+              </label>
+              <div v-if="stack.startTime !== null" class="note">{{ utcText(stack.startTime) }}{{ startTimeIsGuess ? " · taken from the file date, check it" : "" }}</div>
+              <div v-else class="note">Enter the time of the first frame</div>
+            </div>
+            <label
+              class="row"
+              title="How far the camera was turned, in degrees counter-clockwise on the screen. 0 means celestial north is up in the picture."
+            >
+              Camera angle (°)
+              <NumberField v-model="stack.cameraAngle" :decimals="1" :min="CAMERA_ANGLE.min" :max="CAMERA_ANGLE.max" label="Camera angle" />
+            </label>
+            <label class="chk" title="The picture is a mirror image, as a single mirror in the light path makes it: east is on the right when north is up."><input v-model="stack.mirrored" type="checkbox" />Mirrored image</label>
+            <div v-if="summary" class="summary">
+              <div :class="summary.isProblem ? 'problem' : 'line'">{{ summary.text }}</div>
+              <div v-if="summary.hint" class="note">{{ summary.hint }}</div>
+            </div>
+            <div v-if="hasTimestamps" class="note">The file has a time for every frame.</div>
           </div>
         </div>
         <label class="row" title="Pixels at the edge of each frame that are left out of the stack, in pixels.">
@@ -163,5 +211,49 @@ const stack = settings.stack;
 }
 .start {
   justify-content: flex-start;
+}
+/* De-rotate images: settings below the check box, indented (docs/design.md, "Derotation (MAC-020)"). */
+.derot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-left: 18px;
+  margin: 2px 0 4px;
+}
+.starttime {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.label,
+.note {
+  font-size: var(--fs-s);
+  color: var(--muted);
+}
+.line {
+  font-size: var(--fs-s);
+  color: var(--text);
+}
+.problem {
+  font-size: var(--fs-s);
+  color: var(--accent-ink);
+}
+.summary {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.when {
+  width: 150px;
+  min-width: 0;
+  height: var(--h-field);
+  padding: 0 4px;
+  background: var(--field);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-s);
+}
+.when:focus {
+  border-color: var(--accent);
+  outline: 0;
 }
 </style>

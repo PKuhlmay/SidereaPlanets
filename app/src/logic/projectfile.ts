@@ -1,6 +1,7 @@
 // The project file (.rkproj, docs/formats.md): the recording and the settings of the steps. Results of Align and Stack
 // are not stored, they are calculated again.
 
+import { applyDerotationSection, DEROTATION_KEYS, derotationSection } from "./derotation";
 import { IDENTITY_MIX, REFINE_LIMITS, TONE_LIMITS, type createSettings } from "./settings";
 
 type Settings = ReturnType<typeof createSettings>;
@@ -16,6 +17,10 @@ const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "obj
 /** A copy that no longer shares anything with the reactive settings. */
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
+/** The Stack settings without De-rotate images, which has a section of its own (`derotation`, as in the Mac app). */
+const withoutDerotation = (stack: Record<string, unknown>): Record<string, unknown> =>
+  Object.fromEntries(Object.entries(stack).filter(([key]) => !(DEROTATION_KEYS as readonly string[]).includes(key)));
+
 export function buildProject(recording: string[], settings: Settings): ProjectFile {
   // The threshold belongs to the points of the current frame, which are not stored.
   const align = Object.fromEntries(Object.entries(settings.align).filter(([key]) => key !== "threshold"));
@@ -24,10 +29,11 @@ export function buildProject(recording: string[], settings: Settings): ProjectFi
     recording: [...recording],
     sections: {
       align: copy(align),
-      stack: copy(settings.stack),
+      stack: copy(withoutDerotation(settings.stack)),
       wavelet: copy(settings.wavelet),
       colour: { colour: settings.colour, lrgb: settings.lrgb },
       refine: copy(settings.refine),
+      derotation: derotationSection(settings.stack),
     },
   };
 }
@@ -62,10 +68,12 @@ function mergeArray(have: unknown[], want: unknown[]): void {
 
 /** Puts the settings of a project into the current ones. */
 export function applyProject(settings: Settings, project: ProjectFile): void {
-  const { align, stack, wavelet, colour, refine } = project.sections;
+  const { align, stack, wavelet, colour, refine, derotation } = project.sections;
   mergeKnown(settings.align, align);
   settings.align.brightnessThreshold = clamp(settings.align.brightnessThreshold, { min: 0, max: 255 });
-  mergeKnown(settings.stack, stack);
+  // Older files carry the locked `derotate: false` in `stack`; De-rotate images is read from its own section only.
+  if (isRecord(stack)) mergeKnown(settings.stack, withoutDerotation(stack));
+  applyDerotationSection(derotation, settings.stack);
   // The mixing matrix is taken only as a whole: nine finite numbers, each held to the limits of a weight.
   const matrix = [...settings.wavelet.tone.mix.matrix];
   mergeKnown(settings.wavelet, wavelet);

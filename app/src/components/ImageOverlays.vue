@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { discOverlay } from "../logic/derotation";
 import { processingArea } from "../logic/viewport";
 import { atLeast, imageKind } from "../logic/workflow";
 import { session, settings } from "../state";
@@ -18,6 +19,10 @@ const rings = computed(
 const region = computed(() => (kind.value === "frame" && settings.align.showRoi ? session.roi : null));
 const area = computed(() =>
   kind.value === "wavelet" && settings.wavelet.showProcessingArea ? processingArea({ w: props.width, h: props.height }, settings.menu.processingArea) : null,
+);
+// De-rotate images (RK-023): the disc measured in the reference frame, Saturn's ring edge and N over the north pole.
+const disc = computed(() =>
+  kind.value === "stack" && settings.stack.derotate && session.derotation?.disc ? discOverlay(session.derotation.disc) : null,
 );
 // The shift is only a few pixels, so the stroke shows it enlarged to stay visible.
 const stroke = (shift: number | undefined) => (shift ?? 0) * 4;
@@ -57,4 +62,19 @@ const stroke = (shift: number | undefined) => (shift ?? 0) * 4;
     stroke-dasharray="6 5"
     vector-effect="non-scaling-stroke"
   />
+  <g v-if="disc" class="disc">
+    <ellipse v-bind="disc.globe" fill="none" stroke="var(--accent)" stroke-width="1.5" vector-effect="non-scaling-stroke" />
+    <ellipse
+      v-if="disc.ring"
+      v-bind="disc.ring"
+      fill="none"
+      stroke="var(--accent)"
+      stroke-opacity="0.7"
+      stroke-width="1"
+      stroke-dasharray="5 4"
+      vector-effect="non-scaling-stroke"
+    />
+    <line v-bind="disc.axis" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" vector-effect="non-scaling-stroke" />
+    <text :x="disc.label.x" :y="disc.label.y" fill="var(--accent)" font-size="12" font-weight="600" text-anchor="middle" dominant-baseline="central">N</text>
+  </g>
 </template>

@@ -468,8 +468,9 @@ Seit MAC-014 heißt der Schritt in der App **Best Frames** (Pille, Panelkopf, Me
   umgesetzt: die Häkchen sind gesperrt (Tooltip und Hinweis „Not available yet“ rechts in der Zeile), die Zusatzfelder
   bleiben deshalb ausgeblendet (RK-006-Prüflauf: eingeschaltet wirkten sie nicht); die Gruppe Create AVI vollständig mit Save Aligned und Save Integrated (in der App: Save Aligned Video… und Save Averaged Video…; Compress Qual: Compression quality, Framerate: Frame rate (fps), die Radios unter der Überschrift Frame size).
 - Ebenso gesperrt, weil das Backend sie nicht auswertet: StackSize Minimized, Maximized und R.of Interest (in der App: Smallest common area, Largest area, Region; Default bleibt
-  wählbar) und Stretch histogram after stacking. **De-rotate images** ist in der Mac-App seit MAC-020 frei (Abschnitt „Derotation (MAC-020)“); in der Windows-App bleibt es gesperrt. Gleiche Behandlung wie Resampling: ausgegraut, Tooltip und
-  „Not available yet“ rechts in der Zeile (bei langem Namen darunter, rechtsbündig), Wert bleibt im Datenmodell. Es wirken:
+  wählbar) und Stretch histogram after stacking. Gleiche Behandlung wie Resampling: ausgegraut, Tooltip und
+  „Not available yet“ rechts in der Zeile (bei langem Namen darunter, rechtsbündig), Wert bleibt im Datenmodell. **De-rotate images** ist frei
+  (Mac seit MAC-020, Windows seit RK-023; Abschnitt „Derotation (MAC-020)“). Es wirken:
   Use Nearestby Alignpoints, Correct geometry, Normalization of frame intensity (in der App: Even out frame brightness) und Do not stack n pixels at the frameedge (in der App: Ignore edge pixels (px)).
   Seit MAC-014 sind auch Codec, Compression quality, die Frame-size-Radios außer Original size und Use prefilters gesperrt.
   Entwurf und Soll-Bilder zeigen diese Optionen noch bedienbar; sie bleiben das Ziel, bis die Funktionen gebaut sind.
@@ -736,7 +737,7 @@ Zuschnitt, der auf einem bestimmten Bild liegt) und stehen als Abschnitt `geomet
 
 ## Derotation (MAC-020)
 
-**De-rotate images** (Advanced im Schritt Stack, Mac; im Original nur als Häkchen bekannt) dreht jeden Frame vor dem Stacken auf die Mitte der
+**De-rotate images** (Advanced im Schritt Stack, Mac seit MAC-020, Windows seit RK-023; im Original nur als Häkchen bekannt) dreht jeden Frame vor dem Stacken auf die Mitte der
 Aufnahme zurück (`docs/stacking.md`, „Derotation“). Das Häkchen ist nicht mehr gesperrt, Tooltip: „Turns every frame back to the middle of the
 recording by the rotation of the planet, so that details at the edge of the disc stay sharp. Needs the date and time of the recording.“ Eingeschaltet
 erscheinen darunter, **18 px eingerückt**, in dieser Reihenfolge (alle 6 px Abstand):
@@ -763,7 +764,7 @@ zusätzlich die Außenkante des Rings gestrichelt (1 px, 70 % Deckkraft), und ei
 zoomt mit. Die Scheibe ist im Bezugsframe gemessen; sobald die Zahlen da sind, zeigt der Schritt Stack deshalb dieses Frame, nicht das zuletzt betrachtete.
 
 **Projektdatei:** optionaler Abschnitt `derotation` (`enabled`, `planet`, `cameraAngle`, `mirrored`, `startTimeUtc` in Sekunden seit 1970 UTC); fehlt er oder ein
-Schlüssel, bleiben die Werte; die Windows-App kennt ihn nicht und lässt ihn stehen. Der Abschnitt `stack` bleibt der der Windows-App.
+Schlüssel, bleiben die Werte; beide Apps schreiben und lesen ihn (Windows seit RK-023). Der Abschnitt `stack` trägt die Werte der Derotation nicht.
 
 ## Texte und Schreibweise (MAC-014)
 

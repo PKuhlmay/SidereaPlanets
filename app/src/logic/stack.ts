@@ -2,6 +2,7 @@
 
 import type { settings as settingsValue, session as sessionValue } from "../state";
 import { centreOfGravityThreshold } from "./align";
+import { derotationRequest, type DerotationRequest } from "./derotation";
 import { wholeNumber } from "./numbers";
 
 /** Matches `StackSettings` of the Tauri command `stack` (app/src-tauri/src/stack_commands.rs). */
@@ -18,6 +19,8 @@ export interface StackRequest {
   roi: { x: number; y: number; width: number; height: number } | null;
   /** Brightness threshold of Align by center of gravity, null while it is off. */
   centreOfGravity: number | null;
+  /** De-rotate images (RK-023); left out while the check box is off. */
+  derotation?: DerotationRequest;
 }
 
 type Session = Pick<typeof sessionValue, "referenceFrame" | "alignpoints" | "frames" | "roi">;
@@ -25,7 +28,9 @@ type Settings = Pick<typeof settingsValue, "align" | "stack">;
 
 /** The checked alignpoints and checked frames together with the options of the Stack tab. */
 export function buildStackRequest(session: Session, settings: Settings): StackRequest {
+  const derotation = derotationRequest(settings.stack);
   return {
+    ...(derotation ? { derotation } : {}),
     referenceFrame: session.referenceFrame,
     points: session.alignpoints.filter((p) => p.checked).map(({ x, y }) => ({ x, y })),
     frames: session.frames.filter((f) => f.checked).map((f) => f.index),

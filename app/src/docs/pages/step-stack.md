@@ -44,7 +44,7 @@ Options that do nothing yet are locked: they are dimmed, cannot be switched on, 
 | Correct geometry | on | Works. Shifts each part of the picture by its own movement; off, the whole frame moves by one value |
 | Even out frame brightness | off | Works. Brightens or dims each frame to the brightness of the reference frame before adding, useful when clouds pass by |
 | Stretch histogram after stacking | off | Not available yet. The check box is locked |
-| De-rotate images | off | Works in the Mac version (see *De-rotate images* below). In the Windows version the check box is locked for now |
+| De-rotate images | off | Works. Turns every frame back to the middle of the recording (see *De-rotate images* below) |
 | Ignore edge pixels (px) | 0 | Works. Leaves this border of every frame out of the stack |
 | Resampling | off | Not available yet. The check box is locked; the method (Bell, Bspline, Lanczos, Mitchell) and the factor belong to it |
 | Drizzling | off | Not available yet. The check box is locked; the factor belongs to it |
@@ -62,7 +62,7 @@ Settings, shown below the check box when it is on:
 | Setting | What it is |
 |---|---|
 | Planet | Jupiter, Saturn or Mars. Siderea Planets suggests the planet when its name is in the file name. It decides how fast the planet turns and how flattened it is |
-| Start time | When the first frame was taken. It is only asked for when the file has no time for each frame (most AVI videos; SER files from most capture programs do have the times and the field stays away). The field shows the time of your Mac; below it you see the same time in UTC. The suggestion is the time the file was last saved minus the length of the recording, and the line says so: check it. Only the date and the time of day to within a few minutes matter, because they decide how the axis of the planet is tilted towards the Earth |
+| Start time | When the first frame was taken. It is only asked for when the file has no time for each frame (most AVI videos; SER files from most capture programs do have the times and the field stays away). The field shows the time of your computer; below it you see the same time in UTC. The suggestion is the time the file was last saved minus the length of the recording, and the line says so: check it. Only the date and the time of day to within a few minutes matter, because they decide how the axis of the planet is tilted towards the Earth |
 | Camera angle (°) | 0 when celestial north is up in your picture (east is then on the left). If you turned the camera, enter how far, in degrees counter-clockwise on the screen |
 | Mirrored image | On when your picture is a mirror image, as a single mirror in the light path makes it: east is on the right when north is up. Wrong settings turn the planet the wrong way and make the stack worse, so check the outline (below) |
 
@@ -78,7 +78,7 @@ Good to know:
 - Clouds that drift against the surface (wind) and the shadows of the rings are not taken into account.
 - The measured planet needs to lie fully inside the picture in the reference frame. Use the sharpest frame as the reference (*Go to Best Frame*).
 - **Save Aligned Video…** and **Save Averaged Video…** do not de-rotate.
-- The settings are stored in the project file in a section of their own; the Windows version ignores it.
+- The settings are stored in the project file in a section of their own.
 
 ## Check boxes in the Show menu
 

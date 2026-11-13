@@ -4,6 +4,7 @@
 import { reactive } from "vue";
 import type { Rect } from "./logic/align";
 import type { CropFormat, CropRectangle } from "./logic/crop";
+import type { DerotationInfo } from "./logic/derotation";
 import { createSettings } from "./logic/settings";
 import type { Step, ViewStep } from "./logic/workflow";
 import type { Theme } from "./logic/settings";
@@ -20,6 +21,12 @@ export interface RecordingInfo {
   observer: string | null;
   instrument: string | null;
   telescope: string | null;
+  /** The file has a time for every frame (SER trailer): De-rotate images needs no start time. */
+  hasTimestamps: boolean;
+  /** When the recording started, seconds since 1970 UTC: from the file, else guessed from the file date. */
+  startTime: number | null;
+  /** `startTime` is a guess from the date of the file. */
+  startTimeFromFileDate: boolean;
 }
 
 export interface Alignpoint {
@@ -98,6 +105,8 @@ export const session = reactive({
    * both in pixels of the stack. Not stored in the project file; a new stack or another recording drops it.
    */
   crop: { format: "free" as CropFormat, editing: false, applied: null as CropRectangle | null, draft: null as CropRectangle | null },
+  /** De-rotate images (RK-023): span, rotation and the disc measured in the reference frame; null while off or before Limit. */
+  derotation: null as DerotationInfo | null,
 });
 
 // The status bar: five fields (docs/design.md, "Statusleiste").

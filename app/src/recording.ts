@@ -6,6 +6,7 @@ import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { clearCrop } from "./cropTool";
 import { failureText } from "./jobs";
+import { planetFromName } from "./logic/derotation";
 import { pushRecent, fileName } from "./logic/recent";
 import { session, settings, status, type RecordingInfo } from "./state";
 
@@ -120,6 +121,10 @@ export function startSession(info: RecordingInfo, name: string) {
   session.bestFrameHint = null;
   session.maskImage = null;
   session.roiDrawing = false;
+  session.derotation = null;
+  // De-rotate images: the start time of this file (or none) and the planet its name gives; the check box stays as it is.
+  settings.stack.startTime = info.startTime;
+  settings.stack.planet = planetFromName(name) ?? settings.stack.planet;
   session.frames = Array.from({ length: info.frameCount }, (_, index) => ({ index, checked: true, quality: null, difference: null }));
   settings.align.threshold = 0;
   // The original asks "process in colour?"; the clone decides from the recording (Settings > Autodetect Colour/BW).

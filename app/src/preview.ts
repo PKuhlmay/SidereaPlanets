@@ -46,6 +46,9 @@ const info: RecordingInfo = {
   observer: null,
   instrument: null,
   telescope: null,
+  hasTimestamps: false,
+  startTime: null,
+  startTimeFromFileDate: false,
 };
 
 // A banded disc on black, a little blurrier for frames of lower quality.

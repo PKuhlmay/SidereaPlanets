@@ -3,6 +3,7 @@ import App from "./App.vue";
 import HelpApp from "./HelpApp.vue";
 import "./align";
 import { initCpus } from "./compute";
+import { startDerotation } from "./derotation";
 import { HELP_QUERY } from "./helpWindow";
 import { restoreTheme } from "./theme";
 import "../../docs/design/tokens.css";
@@ -15,6 +16,8 @@ createApp(helpWindow ? HelpApp : App).mount("#app");
 
 // The CPUs field needs the number of cores from the backend.
 if (!helpWindow) void initCpus();
+// De-rotate images asks the core for span, rotation and disc whenever its settings or the kept frames change.
+if (!helpWindow) startDerotation();
 
 // Dev builds can jump into any state of the window without a recording (see preview.ts); release builds drop this.
 if (import.meta.env.DEV && !helpWindow) void import("./preview").then((m) => m.applyPreview(location.search));

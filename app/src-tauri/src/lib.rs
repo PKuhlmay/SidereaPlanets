@@ -136,6 +136,7 @@ pub fn run() {
             align_commands::pause_processing,
             align_commands::limit,
             stack_commands::stack,
+            stack_commands::derotation_info,
             stack_commands::stacked_image,
             stack_commands::cancel_stacking,
             stack_commands::pause_stacking,

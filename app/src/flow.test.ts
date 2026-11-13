@@ -79,6 +79,9 @@ const info: RecordingInfo = {
   observer: null,
   instrument: null,
   telescope: null,
+  hasTimestamps: false,
+  startTime: null,
+  startTimeFromFileDate: false,
 };
 
 /** Width, height (u32 LE), then RGBA: what read_frame, stacked_image and wavelet_do_all return. */

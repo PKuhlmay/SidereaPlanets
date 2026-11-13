@@ -35,7 +35,7 @@ import { openProject } from "./saving";
 import { session, settings } from "./state";
 import "./wavelet";
 
-const info = { format: "AVI", codec: "DIB", width: 2, height: 1, bitDepth: 8, frameCount: 1, color: "Rgb", fps: null, observer: null, instrument: null, telescope: null };
+const info = { format: "AVI", codec: "DIB", width: 2, height: 1, bitDepth: 8, frameCount: 1, color: "Rgb", fps: null, observer: null, instrument: null, telescope: null, hasTimestamps: false, startTime: null, startTimeFromFileDate: false };
 
 function frameBuffer(): ArrayBuffer {
   const buffer = new ArrayBuffer(8 + 2 * 4);

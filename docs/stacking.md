@@ -206,8 +206,8 @@ Nicht Teil der Akzeptanzkriterien und nie beobachtet; jeweils nur der Name bekan
 - *StackSize* (Minimized, Maximized, R.of Interest), *Stretch histogram after stacking*. In der App
   sind sie gesperrt und mit „Not available yet“ gekennzeichnet (Default bei StackSize bleibt wählbar und ist das, was der
   Klon tut); die Einstellungen `stackSize` und `stretchHistogram` bleiben im Datenmodell, sind aber nicht Teil
-  von `StackRequest` und das Backend kennt sie nicht. *De-rotate images* ist seit MAC-020 gebaut (nächster Abschnitt; in der
-  Windows-App noch gesperrt, `derotate` bleibt dort im Datenmodell).
+  von `StackRequest` und das Backend kennt sie nicht. *De-rotate images* ist seit MAC-020 gebaut (Abschnitt „Derotation (MAC-020)“; in der
+  Windows-App seit RK-023).
 - **Resampling** (Bell, Bspline, Lanczos, Mitchell, Faktor) und **Drizzling**, die das Ergebnis vergrößern. In der App sind
   beide Häkchen gesperrt und mit „Not available yet“ gekennzeichnet; die Einstellungen `resampling`/`drizzling` bleiben im
   Datenmodell, das Backend ignoriert sie.

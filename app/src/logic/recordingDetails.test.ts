@@ -14,6 +14,9 @@ const info = (more: Partial<RecordingInfo> = {}): RecordingInfo => ({
   observer: null,
   instrument: null,
   telescope: null,
+  hasTimestamps: false,
+  startTime: null,
+  startTimeFromFileDate: false,
   ...more,
 });
 
