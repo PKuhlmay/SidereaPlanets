@@ -57,3 +57,12 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] Gesperrte Elemente (Show-Menü unten, Adjustments-Knöpfe ohne Karte, Keep, Clear List, Stack Again, Codec, About) sind gedimmt und
   nicht klickbar, Tooltip „Not available yet“.
 - [ ] Ein Fehler (z. B. eine Textdatei öffnen) erscheint als „Open failed: …“.
+
+### RK-017 Dateiangaben und Navigation (windows-v0.1.0)
+
+- [ ] JUPITER.AVI und eine SER-Datei öffnen, dann den Schritt Open anklicken: die Liste zeigt Format, Codec, Size, Bit depth, Frames,
+  Color, Frame rate (bei SER auch Observer, Instrument, Telescope, wenn die Datei sie hat); Tooltips auf Codec und Bit depth.
+- [ ] Frame-Leiste: die Pfeile blättern und sind am ersten bzw. letzten Frame gesperrt; ← und → tun dasselbe, aber nicht, solange das
+  Feld Go to frame oder ein Zahlenfeld des Panels den Fokus hat.
+- [ ] Alt+1 bis Alt+7 öffnen die Schritte wie ein Klick; ein grauer Schritt öffnet nicht, während Align läuft öffnet keiner; das
+  Fenstermenü von Windows erscheint dabei nicht.

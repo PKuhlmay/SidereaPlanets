@@ -39,7 +39,7 @@ In these three steps **Show ▾** at the top right of the image holds: Show Full
 
 ## Frame bar
 
-At the bottom: the state (*Loaded*, after Align *Aligned*), **Go to frame**, a slider over all frames and the position, for example `Frame 5 of 10`. Moving the slider shows that frame in the image. The frame bar is there in Alignpoints, Align and Best Frames only.
+At the bottom: the state (*Loaded*, after Align *Aligned*), **Go to frame**, the arrows for the previous and the next frame, a slider over all frames and the position, for example `Frame 5 of 10`. Moving the slider shows that frame in the image. The arrows are locked at the first and the last frame. On the keyboard the left and right arrow keys do the same (on the Mac ⌘[ and ⌘]), as long as no field has the focus. The frame bar is there in Alignpoints, Align and Best Frames only.
 
 ## Frame List and Quality Graph
 

@@ -2,23 +2,26 @@
 import { computed } from "vue";
 import { directoryOf } from "../logic/exporting";
 import { recentLabel } from "../logic/recent";
+import { recordingRows, rowExplanation } from "../logic/recordingDetails";
 import { openRecording, recent } from "../recording";
 import { session, status } from "../state";
 import StepPanel from "./StepPanel.vue";
 
-// Step 1 Open: the loaded recording and the files opened last; a click on one opens it (like Recent Recordings in the toolbar).
-const details = computed(() => {
-  const info = session.info;
-  if (!info) return "";
-  return [info.codec, `${info.width}×${info.height}`, `${info.frameCount} frames`].filter(Boolean).join(" · ");
-});
+// Step 1 Open: the loaded recording with its file info and the files opened last; a click on one opens it (like Recent
+// Recordings in the toolbar).
+const rows = computed(() => (session.info ? recordingRows(session.info) : []));
 </script>
 
 <template>
   <StepPanel id="open">
     <div v-if="session.info" class="loaded">
-      <b>{{ session.fileName }}</b>
-      <span>{{ details }}</span>
+      <b :title="session.fileName">{{ session.fileName }}</b>
+      <dl class="info">
+        <template v-for="row in rows" :key="row.label">
+          <dt :title="rowExplanation(row.label)">{{ row.label }}</dt>
+          <dd>{{ row.value }}</dd>
+        </template>
+      </dl>
     </div>
     <div class="grp">
       <div class="gh">Recent Recordings</div>
@@ -43,15 +46,34 @@ const details = computed(() => {
 .loaded {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-bottom: 8px;
+  gap: 6px;
+  padding-bottom: 10px;
   font-variant-numeric: tabular-nums;
   border-bottom: 1px solid var(--line);
 }
 .loaded b {
+  overflow: hidden;
   font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.loaded span,
+/* label and value side by side, 12 px: the label muted, the value in the text colour */
+.info {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  margin: 0;
+  font-size: var(--fs-s);
+}
+.info dt {
+  color: var(--muted);
+}
+.info dd {
+  min-width: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+  user-select: text;
+}
 .none,
 .file small {
   font-size: var(--fs-s);

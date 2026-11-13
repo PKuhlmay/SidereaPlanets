@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import AlignpointsStep from "./components/AlignpointsStep.vue";
 import AlignStep from "./components/AlignStep.vue";
@@ -21,6 +21,7 @@ import WaveletsStep from "./components/WaveletsStep.vue";
 import type { Rect } from "./logic/align";
 import { startColour } from "./colour";
 import { openDroppedFiles } from "./recording";
+import { handleShortcut } from "./shortcuts";
 import { pickToneImage } from "./logic/colour";
 import { imageCaption, imageKind, pickImage, windowTitle } from "./logic/workflow";
 import { session, settings, status } from "./state";
@@ -40,6 +41,9 @@ const image = computed(() =>
 const wavelet = computed(() => kind.value === "wavelet");
 startColour();
 openDroppedFiles();
+// ← and → page through the frames, Alt+1 to Alt+7 open the steps (shortcuts.ts).
+onMounted(() => window.addEventListener("keydown", handleShortcut));
+onBeforeUnmount(() => window.removeEventListener("keydown", handleShortcut));
 
 // Wavelets and Save show the colour and tone cards applied to the image, or the remembered image or the difference to it;
 // Before/After shows the plain stack.

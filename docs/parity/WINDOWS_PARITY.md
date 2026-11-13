@@ -23,27 +23,6 @@ und keine reine Mac-Konvention (Menüleiste, ⌘-Kürzel, Gesten und native Dial
 
 ## v0.1.0 (Mac, in Arbeit)
 
-### Schritt Open: Dateiangaben (MAC-005)
-
-- [ ] Das Panel des Schritts Open zeigt unter dem Dateinamen die Zeilen Format, Codec, Size, Bit depth, Frames, Colour, Frame rate
-  und, wo die Datei sie hat, Observer, Instrument und Telescope (12 px, Beschriftung `--muted`, Wert `--text`), statt nur Codec,
-  Größe und Frame-Zahl in einer Zeile. `RecordingInfo` des Rechenkerns liefert alle Werte schon. Mac:
-  `mac/App/Model/RecordingDetails.swift`, `mac/App/Views/StepPanel.swift` (`OpenStepView`).
-
-### Frame-Leiste: vorheriger und nächster Frame (MAC-005)
-
-- [ ] In der Frame-Leiste stehen zwischen Goto Frame und Regler zwei Schaltflächen „vorheriger Frame“ und „nächster Frame“
-  (Pfeil links und rechts, ohne Rahmen, am ersten bzw. letzten Frame gesperrt; Tooltip nennt das Kürzel). Der Mac belegt sie mit ⌘[ und
-  ⌘], eine Windows-Belegung (z. B. ← und →, solange kein Feld den Fokus hat) legt das Windows-Ticket fest. Mac:
-  `mac/App/Views/FrameBar.swift`, `AppModel.showNextFrame(by:)`.
-
-### Schritte per Tastatur (MAC-010)
-
-- [ ] Die sieben Schritte der Schrittleiste lassen sich per Tastenkürzel öffnen: Schritt n (1 Open bis 7 Save) mit einem Kürzel, am Mac
-  ⌥⌘1 bis ⌥⌘7 im Menü Process > Go to Step. Wie ein Klick auf die Schrittleiste: ein gesperrter Schritt und jede laufende Berechnung
-  sperren das Kürzel. Eine Windows-Belegung (z. B. Alt+1 bis Alt+7) legt das Windows-Ticket fest. Mac:
-  `mac/App/Commands/StepMenuItems.swift`, `AppModel.show(_:)`.
-
 ### Go to best frame (MAC-011)
 
 - [ ] Neue Funktion (im Original nicht vorhanden): eine Schaltfläche **Go to best frame** setzt nach Align den besten Frame als

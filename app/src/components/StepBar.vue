@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { stepShortcut } from "../logic/keys";
 import { stepInfo, viewSteps, type ViewStep } from "../logic/workflow";
 import { session, status } from "../state";
 import { resultOf, states } from "../steps";
@@ -15,14 +16,15 @@ const details = computed(() => {
   return [session.fileName, `${info.width}×${info.height}`, `${info.frameCount} frames`, info.codec].filter(Boolean).join(" · ");
 });
 
-// The tooltip of a pill says what the step is, then what is missing (locked) or what it gave (done).
+// The tooltip of a pill says what the step is, then what is missing (locked) or what it gave (done), then its shortcut.
 function title(id: ViewStep, label: string): string {
   const state = states.value[id];
-  const explanation = stepInfo(id).explanation;
-  if (state.status === "locked") return `${explanation}\n${state.hint}`;
+  const lines = [stepInfo(id).explanation];
   const result = resultOf(id);
-  if (state.status === "done" && result) return `${explanation}\n${label} · ${result}`;
-  return explanation;
+  if (state.status === "locked") lines.push(state.hint);
+  else if (state.status === "done" && result) lines.push(`${label} · ${result}`);
+  lines.push(`Shortcut: ${stepShortcut(id)}`);
+  return lines.join("\n");
 }
 </script>
 

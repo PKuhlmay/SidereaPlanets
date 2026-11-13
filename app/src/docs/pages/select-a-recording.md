@@ -21,7 +21,7 @@ Press **Select Recording** in the step *Open* (or in the toolbar) and pick a rec
 
 1. Press **Select Recording** at the bottom of the step panel, or at the top left of the toolbar. Both do the same. The panel also lists the files you opened last under *Recent Recordings*; a click opens one of them.
 2. Choose a .ser or .avi file. The file type list in the dialog offers these two kinds of video.
-3. The recording opens and the step *Alignpoints* follows. Name, size, number of frames and codec appear at the right of the step bar, for example `1024×680 · 10 frames · DIB`.
+3. The recording opens and the step *Alignpoints* follows. Name, size, number of frames and codec appear at the right of the step bar, for example `1024×680 · 10 frames · DIB`. The step *Open* then lists the file in detail: format, codec, size, bit depth, number of frames, color and frame rate, and observer, instrument and telescope where the file has them.
 
 To open another recording later, click the step *Open* again, or press **Select Recording** in the toolbar. A new recording starts the work over. When you are done with a recording, the step *Open* offers **Select Another Recording…**.
 

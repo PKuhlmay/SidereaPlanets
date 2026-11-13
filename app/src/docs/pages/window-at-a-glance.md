@@ -62,7 +62,7 @@ After **Save Image** the Save step stays open and shows the result; instead of *
 | Number | Possible, not done yet. Click to open it |
 | Gray | Not possible yet. The tooltip says which step is missing |
 
-During a calculation no step can be clicked.
+During a calculation no step can be clicked. **Alt+1** to **Alt+7** open the steps from the keyboard, like a click on them (on the Mac ⌥⌘1 to ⌥⌘7 in the menu **Run ▸ Go to Step**); a gray step does not open.
 
 ## Going back to a step
 

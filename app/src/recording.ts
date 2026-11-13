@@ -47,6 +47,13 @@ export function setFrameReader(reader: (index: number) => Promise<ImageData>) {
 // Drops answers that arrive after a newer frame was requested.
 let latestRequest = 0;
 
+/** The frame before or after the one shown (frame bar, ← and →); stays at the first and the last frame. */
+export function showNextFrame(by: number): void {
+  const last = Math.max(0, (session.info?.frameCount ?? 0) - 1);
+  const next = Math.min(Math.max(session.frame + by, 0), last);
+  if (next !== session.frame) void showFrame(next);
+}
+
 export async function showFrame(index: number) {
   const request = ++latestRequest;
   session.frame = index;

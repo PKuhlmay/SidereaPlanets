@@ -61,6 +61,7 @@ import { process } from "./wavelet";
 import { openDroppedFiles, openRecording, startSession } from "./recording";
 import { session, settings, status, type RecordingInfo } from "./state";
 import { advancedOpen, nextOpen, states, toggleAdvanced } from "./steps";
+import { handleShortcut } from "./shortcuts";
 
 const W = 4;
 const H = 3;
@@ -179,6 +180,42 @@ describe("Dropping files onto the window", () => {
     status.busy = null;
     dropped.handler?.({ payload: { type: "drop", paths: ["C:/data/a.tif", "C:/data/b.tif"] } });
     await vi.waitFor(() => expect(calls("open_recording")[0]?.args).toEqual({ paths: ["C:/data/a.tif", "C:/data/b.tif"] }));
+  });
+});
+
+describe("Keyboard shortcuts (RK-017)", () => {
+  const press = (key: string, code = "", altKey = false) => {
+    const event = { key, code, altKey, ctrlKey: false, metaKey: false, shiftKey: false, target: null, preventDefault: vi.fn() };
+    const handled = handleShortcut(event as unknown as KeyboardEvent);
+    return { handled, prevented: event.preventDefault.mock.calls.length > 0 };
+  };
+
+  it("opens a step with Alt and its number like a click on the step bar, but not a locked one", () => {
+    session.view = "alignpoints";
+    expect(press("1", "Digit1", true)).toEqual({ handled: true, prevented: true });
+    expect(session.view).toBe("open");
+    // Align needs alignpoints first: the pill is locked and the shortcut does nothing, but is still taken.
+    expect(press("3", "Digit3", true).prevented).toBe(true);
+    expect(session.view).toBe("open");
+  });
+
+  it("opens nothing during a calculation", () => {
+    session.view = "alignpoints";
+    status.busy = { name: "Align", paused: false, cancelled: false };
+    press("1", "Digit1", true);
+    expect(session.view).toBe("alignpoints");
+  });
+
+  it("pages through the frames with the arrow keys while the frame bar is there, and stops at the ends", async () => {
+    session.view = "alignpoints";
+    session.frame = 0;
+    expect(press("ArrowLeft").handled).toBe(true);
+    expect(session.frame).toBe(0);
+    press("ArrowRight");
+    expect(session.frame).toBe(1);
+    session.view = "stack";
+    expect(press("ArrowRight").handled).toBe(false);
+    expect(session.frame).toBe(1);
   });
 });
 
