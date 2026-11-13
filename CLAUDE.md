@@ -22,7 +22,7 @@ Bezeichner und Tests treffen.
 
 Die **Windows-App** (Tauri und Vue unter `app/`) läuft den ganzen Ablauf im echten Fenster: Aufnahme laden, Alignpoints, Align,
 Limit, Stack, Wavelets mit Do All, Save image, dazu Projektdatei, Save Aligned/Integrated, Schemes, CPU-Auswahl und ein Installer
-(`pnpm tauri build`, NSIS). Stand und offene Kriterien stehen in `tickets/`. the reference program ist unter
+(`scripts/publish-windows.sh --installer`, Inno Setup wie bei Siderea). Stand und offene Kriterien stehen in `tickets/`. the reference program ist unter
 `C:\Program Files (x86)\the reference program` installiert; die Spezifikation daraus steht in `docs/` (RK-003), Referenzergebnisse
 in `re-local/reference/` (beschrieben in `docs/testdaten.md`).
 Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens, klickbarer Entwurf und Soll-Bilder in
@@ -49,7 +49,7 @@ cargo fmt --all
 cd app && pnpm install && pnpm tauri dev     # App mit Hot-Reload starten
 cd app && pnpm build                         # Frontend bauen (vue-tsc + vite)
 cd app && pnpm test                          # Frontend-Tests (vitest), z. B. Doku-Logik
-cd app && pnpm tauri build                   # Release-Installer bauen
+scripts/publish-windows.sh --installer       # Release-Bau mit Inno-Setup-Installer, ZIP und SHA256SUMS (build/windows/dist/)
 ```
 
 **Nicht** `target/debug/planets-app.exe` direkt starten: im Debug-Build erwartet die App den Vite-Server

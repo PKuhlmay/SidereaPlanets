@@ -16,6 +16,8 @@ mac/build.noindex/
 mac/*.xcodeproj/
 mac/DerivedData/
 /build/
+# Windows installers copied by scripts/publish-windows.sh --installer
+/release/
 *.xcuserstate
 
 # Mac package: built by scripts/build-ffi.sh (MAC-004) and SwiftPM

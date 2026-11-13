@@ -128,3 +128,10 @@ Ticket, Details im Ticket unter „Umsetzung“.
 ### RK-025 Version in der Statusleiste (windows-v0.1.0)
 
 - [ ] Im installierten Programm steht rechts unten `0.1.0 · <Commit> · <Datum Uhrzeit>`, der Tooltip erklärt es.
+
+### RK-026 Installer wie bei Siderea (windows-v0.1.0)
+
+- [ ] `Siderea-Planets-0.1.0-setup.exe` starten: Sprache wählen, Seite „Was ist neu“ zeigt den Changelog, Installation für den eigenen
+  Benutzer ohne Adminrechte; Startmenü-Eintrag „Siderea Planets“, Desktop-Symbol nur mit Häkchen; die App startet am Ende.
+- [ ] Noch einmal installieren, während die App läuft: Setup schließt sie und ersetzt sie; „für alle Benutzer“ fragt nach Adminrechten.
+- [ ] Deinstallation über Windows-Einstellungen > Apps entfernt das Programm, Projekte und Aufnahmen bleiben.
