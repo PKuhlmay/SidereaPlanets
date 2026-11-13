@@ -152,6 +152,7 @@ pub fn run() {
             color_commands::apply_colors,
             color_commands::color_histogram,
             color_commands::auto_histogram_points,
+            color_commands::refine_mask_overlay,
             export_commands::export_formats,
             export_commands::save_image,
             export_commands::save_image_as,

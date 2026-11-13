@@ -58,7 +58,7 @@ function load() {
 onBeforeUnmount(() => window.clearTimeout(timer));
 
 watch(
-  () => [histogramKey(colourPayload(settings.wavelet), tone.histogramView === "result"), session.processedImage, session.stackImage],
+  () => [histogramKey(colourPayload(settings.wavelet, settings.refine), tone.histogramView === "result"), session.processedImage, session.stackImage],
   load,
   { immediate: true },
 );

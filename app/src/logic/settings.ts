@@ -73,12 +73,48 @@ export interface ToneSettings {
   histogramView: "input" | "result";
   /** 1.0 = unchanged. */
   gamma: number;
+  /** Color Mixing: output channel `row` is the sum of red, green and blue times `matrix[row * 3 + column]`, in percent. */
+  mix: ColorMixValues;
 }
+
+export interface ColorMixValues {
+  matrix: number[];
+  /** Keeps the brightness of every pixel while the colors change. */
+  preserveBrightness: boolean;
+}
+
+/** The identity of Color Mixing: 100 on the diagonal leaves the image as it is. */
+export const IDENTITY_MIX = [100, 0, 0, 0, 100, 0, 0, 0, 100];
+
+/** The cards Denoise/Deringing and Masking (docs/wavelets.md), in the units of the cards. Defaults as `RefineSettings` of the core. */
+export type RefineValues = {
+  /** Denoise and Deringing in percent, 0 = off. */
+  denoise: number;
+  deringing: number;
+  /** How far from an edge Deringing looks for the dark ring, in pixels. */
+  radius: number;
+  maskOn: boolean;
+  /** Brightness of the stack (0..255) above which the image is sharpened. */
+  threshold: number;
+  /** Width of the soft edge of the mask, in pixels. */
+  feather: number;
+  invert: boolean;
+};
+
+export const REFINE_LIMITS = {
+  percent: { min: 0, max: 100 },
+  radius: { min: 1, max: 10 },
+  threshold: { min: 0, max: 255 },
+  feather: { min: 0, max: 50 },
+};
+
+export const defaultRefine = (): RefineValues => ({ denoise: 0, deringing: 0, radius: 4, maskOn: false, threshold: 20, feather: 4, invert: false });
 
 export const TONE_LIMITS = {
   shift: 20,
   maxShift: { min: 1, max: 20 },
   balance: { min: 0, max: 200 },
+  mix: { min: -200, max: 200 },
   gamma: { min: 0.1, max: 5 },
   level: { min: 0, max: 255 },
   clip: { min: 0, max: 49 },
@@ -98,6 +134,7 @@ export const defaultTone = (): ToneSettings => ({
   clip: 0.1,
   histogramView: "input",
   gamma: 1,
+  mix: { matrix: [...IDENTITY_MIX], preserveBrightness: false },
 });
 
 export const defaultLayer = (): WaveletLayer => ({ enabled: true, denoise: 0, sharpen: 0.1, level: 10 });
@@ -193,6 +230,8 @@ export function createSettings() {
       holdContrast: false,
       tone: defaultTone(),
     },
+    /** Denoise/Deringing and Masking: applied to the sharpened image before all other cards; the section `refine` of the project file. */
+    refine: defaultRefine(),
   };
 }
 

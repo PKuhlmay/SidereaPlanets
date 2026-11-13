@@ -8,6 +8,7 @@ import { failureText } from "./jobs";
 import {
   colourPayload,
   differencePixels,
+  refinePayload,
   isNeutral,
   isToneCard,
   type ColourPayload,
@@ -23,7 +24,7 @@ const baseImage = (): ImageData | null => session.processedImage ?? session.stac
 /** What the Wavelet tab shows without Before: the base with the cards applied. */
 const currentImage = (): ImageData | null => session.adjustedImage ?? baseImage();
 
-const payload = (): ColourPayload => colourPayload(settings.wavelet);
+const payload = (): ColourPayload => colourPayload(settings.wavelet, settings.refine);
 
 /** Grayscale recordings have no colour channels to align or balance. */
 export const isMono = (): boolean => session.info?.color === "Mono";
@@ -200,8 +201,38 @@ export function startColour(): void {
   handlers.difference = difference;
 
   watch([() => JSON.stringify(payload()), baseImage], () => void refresh(), { immediate: true });
+  watch([maskWanted, () => JSON.stringify(refinePayload(settings.refine)), baseImage], () => void refreshMaskOverlay());
   // The difference follows the current image while it is shown.
   watch(currentImage, () => {
     if (session.toneView === "difference" && !updateDifference()) session.toneView = "current";
   });
+}
+
+/** Show mask counts while it is on, the Masking card is open and the Wavelets step is shown. */
+const maskWanted = (): boolean =>
+  session.showMask && settings.wavelet.functions.includes("Masking") && session.view === "wavelets";
+
+// The newest request wins; an older answer that arrives late is dropped.
+let maskRequest = 0;
+
+/** Fetches the image with the tinted mask for Show mask, or drops it when Show mask does not count (only a view, never saved). */
+export async function refreshMaskOverlay(): Promise<void> {
+  const request = ++maskRequest;
+  if (!maskWanted()) {
+    session.maskImage = null;
+    return;
+  }
+  try {
+    if (!(await ensureSource())) {
+      session.maskImage = null;
+      return;
+    }
+    const buffer = await invoke<ArrayBuffer>("refine_mask_overlay", { settings: refinePayload(settings.refine) });
+    if (request === maskRequest) session.maskImage = decode(buffer);
+  } catch (e) {
+    if (request === maskRequest) {
+      session.maskImage = null;
+      status.result = failureText("Show mask", e);
+    }
+  }
 }

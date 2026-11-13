@@ -55,7 +55,7 @@ vi.stubGlobal("window", { setInterval, clearInterval, setTimeout, clearTimeout }
 
 import { goToBestFrame } from "./align";
 import { runAction } from "./actions";
-import { autoAlign } from "./colour";
+import { autoAlign, refreshMaskOverlay } from "./colour";
 import { cancelJob, togglePause } from "./jobs";
 import { process } from "./wavelet";
 import { openDroppedFiles, openRecording, startSession } from "./recording";
@@ -869,6 +869,36 @@ describe("RGB Align, Auto", () => {
     settings.wavelet.tone.maxShift = 5;
     expect(calls("estimate_rgb_align")[0]?.args).toEqual({ maxShift: 3 });
     expect(settings.wavelet.tone.shifts).toEqual(shifts);
+  });
+});
+
+describe("Masking, Show mask (RK-020)", () => {
+  it("asks the engine for the mask overlay only while Show mask is on, the card is open and Wavelets is shown", async () => {
+    backend.handlers.set_color_source = () => ({ width: W, height: H, channels: 3 });
+    backend.handlers.refine_mask_overlay = () => imageBuffer();
+    session.stackImage = new FakeImageData(new Uint8ClampedArray(W * H * 4), W, H) as unknown as ImageData;
+    // The Wavelets step needs a stack, otherwise the step bar moves the panel to the next open step.
+    session.step = "stacked";
+    session.view = "wavelets";
+    Object.assign(settings.refine, { maskOn: true, threshold: 30 });
+    session.showMask = true;
+    settings.wavelet.functions = [];
+    await refreshMaskOverlay();
+    expect(calls("refine_mask_overlay")).toHaveLength(0);
+    expect(session.maskImage).toBeNull();
+
+    settings.wavelet.functions = ["Masking"];
+    await refreshMaskOverlay();
+    expect(calls("refine_mask_overlay")[0]?.args).toEqual({
+      settings: { denoise: 0, deringing: 0, deringingRadius: 4, mask: { enabled: true, threshold: 30, feather: 4, invert: false } },
+    });
+    expect(session.maskImage).toMatchObject({ width: W, height: H });
+
+    session.showMask = false;
+    await refreshMaskOverlay();
+    expect(session.maskImage).toBeNull();
+    Object.assign(settings.refine, { maskOn: false, threshold: 20 });
+    settings.wavelet.functions = [];
   });
 });
 

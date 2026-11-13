@@ -51,6 +51,8 @@ onBeforeUnmount(() => window.removeEventListener("keydown", handleShortcut));
 // Before/After shows the plain stack.
 const shown = computed(() => {
   if (!wavelet.value || before.value) return image.value;
+  // Show mask (Masking card) replaces the current image; Before, the remembered image and the difference go first.
+  if (session.toneView === "current" && session.maskImage) return session.maskImage;
   return pickToneImage(session.toneView, {
     current: session.adjustedImage ?? image.value,
     clipboard: session.clipboardImage,

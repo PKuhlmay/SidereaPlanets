@@ -44,7 +44,7 @@ export async function saveImage(): Promise<void> {
   if (status.busy) return;
   const source: ImageSource = imageKind(session.view) === "wavelet" ? "wavelet" : "stack";
   if (source === "wavelet" && !doAllIsUpToDate() && !(await runDoAll())) return;
-  const values = colourPayload(settings.wavelet);
+  const values = colourPayload(settings.wavelet, settings.refine);
   try {
     const path = await invoke<string | null>("save_image_as", {
       source,

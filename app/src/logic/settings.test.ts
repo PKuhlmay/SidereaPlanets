@@ -117,11 +117,25 @@ describe("Functions", () => {
     ]);
   });
 
-  it("locks the eleven buttons without a card and explains the others in their tooltip", () => {
-    expect(functionNames.filter((name) => !isFunctionBuilt(name))).toHaveLength(11);
-    expect(functionNames.filter(isFunctionBuilt)).toEqual(["Histogram", "Gamma", "RGB Align", "RGB Balance"]);
+  it("locks the eight buttons without a card and explains the others in their tooltip", () => {
+    expect(functionNames.filter((name) => !isFunctionBuilt(name))).toHaveLength(8);
+    expect(functionNames.filter(isFunctionBuilt)).toEqual([
+      "Histogram",
+      "Gamma",
+      "Color Mixing",
+      "RGB Align",
+      "RGB Balance",
+      "Denoise/Deringing",
+      "Masking",
+    ]);
     expect(functionHelp("Gamma")).toBe("Brightens or darkens the midtones.");
-    expect(functionHelp("Masking")).toBe("Not available yet");
+    expect(functionHelp("Masking")).toBe("Limits the sharpening to the planet, so the sky stays untouched.");
+    expect(functionHelp("View Zoomed")).toBe("Not available yet");
+  });
+
+  it("starts Denoise/Deringing and Masking at the values of the core", () => {
+    expect(createSettings().refine).toEqual({ denoise: 0, deringing: 0, radius: 4, maskOn: false, threshold: 20, feather: 4, invert: false });
+    expect(createSettings().wavelet.tone.mix).toEqual({ matrix: [100, 0, 0, 0, 100, 0, 0, 0, 100], preserveBrightness: false });
   });
 });
 

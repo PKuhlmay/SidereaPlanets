@@ -37,3 +37,8 @@ ein.
 - [ ] Statusleiste in Wavelets und Save: Position und Wert unter dem Mauszeiger wie Windows (`app/src/components/StatusBar.vue`,
       `ImageViewer.vue`); der Mac lässt das Feld leer (`docs/design.md`, Mac-Abweichungen)
 
+## Tooltip von Show mask (Windows: RK-020, 2026-11-13)
+
+- [ ] Der Tooltip des Häkchens **Show mask** in der Karte Masking sagt am Mac „Tints the part that is sharpened red.“, die Maske ist aber
+      blau (`mask_overlay` im Kern, Hilfeseite `color-and-tones.md`). Windows schreibt „Tints the part that is sharpened blue. This only
+      changes what you see here, not the image.“ (`app/src/components/MaskCard.vue`). Mac: `mac/App/Views/Wavelets/RefineCards.swift` (`MaskCard`).

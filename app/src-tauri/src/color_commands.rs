@@ -3,6 +3,7 @@
 //! `planets_session::ColorSettings`.
 
 use crate::{CommandResult, pack};
+use planets_core::refine::RefineSettings;
 use planets_session::{
     ChannelShifts, ColorSettings, HistogramData, HistogramPoints, Session, SourceInfo,
 };
@@ -69,4 +70,14 @@ pub async fn auto_histogram_points(
     session: State<'_, Session>,
 ) -> CommandResult<HistogramPoints> {
     Ok(session.auto_histogram_points(&settings, clip)?)
+}
+
+/// *Masking*, *Show mask*: the sharpened image with the part that gets the sharpening tinted, as binary like `read_frame`. Only a
+/// view: it is not stored and does not go into *Save Image*.
+#[tauri::command]
+pub async fn refine_mask_overlay(
+    settings: RefineSettings,
+    session: State<'_, Session>,
+) -> CommandResult<Response> {
+    Ok(pack(session.refine_mask_overlay(&settings)?))
 }

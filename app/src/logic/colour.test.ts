@@ -6,17 +6,20 @@ import {
   histogramMax,
   histogramPath,
   isNeutral,
+  clampWeight,
   isToneCard,
   levelToX,
   logHeight,
   moveBlack,
+  mixPresets,
   moveWhite,
   pickToneImage,
   xToLevel,
 } from "./colour";
 import { createSettings } from "./settings";
 
-const defaults = () => colourPayload(createSettings().wavelet);
+const payloadOf = (s: ReturnType<typeof createSettings>) => colourPayload(s.wavelet, s.refine);
+const defaults = () => payloadOf(createSettings());
 
 describe("colourPayload", () => {
   it("is neutral with the defaults of the window", () => {
@@ -25,14 +28,14 @@ describe("colourPayload", () => {
 
   it("sends the Contrast field (100), not the slider position (250)", () => {
     const s = createSettings();
-    expect(colourPayload(s.wavelet).contrast).toBe(100);
+    expect(payloadOf(s).contrast).toBe(100);
     s.wavelet.contrast = 500;
-    expect(colourPayload(s.wavelet).contrast).toBe(200);
+    expect(payloadOf(s).contrast).toBe(200);
   });
 
   it("copies the shifts, so a later edit does not change a request in flight", () => {
     const s = createSettings();
-    const payload = colourPayload(s.wavelet);
+    const payload = payloadOf(s);
     s.wavelet.tone.shifts.red.x = 2;
     expect(payload.shifts.red.x).toBe(0);
   });
@@ -46,12 +49,59 @@ describe("colourPayload", () => {
       (s) => (s.wavelet.tone.gamma = 1.2),
       (s) => (s.wavelet.contrast = 300),
       (s) => (s.wavelet.brightness = -4),
+      (s) => (s.wavelet.tone.mix.matrix[1] = 20),
+      (s) => (s.refine.denoise = 10),
+      (s) => (s.refine.deringing = 5),
+      (s) => (s.refine.maskOn = true),
     ];
     for (const change of changes) {
       const s = createSettings();
       change(s);
-      expect(isNeutral(colourPayload(s.wavelet))).toBe(false);
+      expect(isNeutral(payloadOf(s))).toBe(false);
     }
+  });
+});
+
+describe("Color Mixing, Denoise/Deringing and Masking in the payload (MAC-018, MAC-019)", () => {
+  it("sends the mixing matrix and the refine values in the shape of ColorSettings", () => {
+    const s = createSettings();
+    s.wavelet.tone.mix.matrix = [0, 0, 100, 0, 100, 0, 100, 0, 0];
+    s.wavelet.tone.mix.preserveBrightness = true;
+    Object.assign(s.refine, { denoise: 30, deringing: 40, radius: 6, maskOn: true, threshold: 25, feather: 8, invert: true });
+    const p = payloadOf(s);
+    expect(p.mix).toEqual({ matrix: [0, 0, 100, 0, 100, 0, 100, 0, 0], preserveBrightness: true });
+    expect(p.refine).toEqual({ denoise: 30, deringing: 40, deringingRadius: 6, mask: { enabled: true, threshold: 25, feather: 8, invert: true } });
+    // A copy: moving a slider later does not change a request on its way.
+    s.wavelet.tone.mix.matrix[0] = 50;
+    expect(p.mix.matrix[0]).toBe(0);
+  });
+
+  it("stays neutral with the identity matrix, whatever Preserve brightness says, and with a mask that is off", () => {
+    const s = createSettings();
+    s.wavelet.tone.mix.preserveBrightness = true;
+    s.refine.threshold = 99;
+    s.refine.invert = true;
+    expect(isNeutral(payloadOf(s))).toBe(true);
+  });
+
+  it("lets the histogram before the stretch follow the mixing and the refine values", () => {
+    const a = defaults();
+    const mixed = { ...a, mix: { matrix: [100, 0, 0, 0, 100, 0, 0, 0, 50], preserveBrightness: false } };
+    expect(histogramKey(mixed, false)).not.toBe(histogramKey(a, false));
+    const refined = { ...a, refine: { ...a.refine, denoise: 20 } };
+    expect(histogramKey(refined, false)).not.toBe(histogramKey(a, false));
+  });
+
+  it("offers the presets of the Mac app and holds every weight to -200 … 200", () => {
+    expect(mixPresets.map((p) => p.name)).toEqual(["Neutral", "Swap Red and Blue", "Luminance Gray", "Red to All Channels"]);
+    expect(mixPresets[2].matrix).toEqual([30, 59, 11, 30, 59, 11, 30, 59, 11]);
+    expect(clampWeight(250)).toBe(200);
+    expect(clampWeight(-300)).toBe(-200);
+    expect(clampWeight(12.6)).toBe(13);
+  });
+
+  it("opens cards for Color Mixing, Denoise/Deringing and Masking", () => {
+    for (const name of ["Color Mixing", "Denoise/Deringing", "Masking"]) expect(isToneCard(name), name).toBe(true);
   });
 });
 
@@ -142,6 +192,6 @@ describe("toneCards", () => {
   it("name the Functions buttons that have a card", () => {
     expect(isToneCard("Histogram")).toBe(true);
     expect(isToneCard("RGB Align")).toBe(true);
-    expect(isToneCard("Masking")).toBe(false);
+    expect(isToneCard("View Zoomed")).toBe(false);
   });
 });

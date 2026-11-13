@@ -1,10 +1,10 @@
 // Pure helpers of the colour and tone cards (RK-008): the values sent to the engine, the histogram graph and the
 // Copy To views. Talking to the backend is in ../colour.ts.
 
-import { contrastField, type ChannelShifts, type ToneSettings } from "./settings";
+import { contrastField, IDENTITY_MIX, TONE_LIMITS, type ChannelShifts, type RefineValues, type ToneSettings } from "./settings";
 
 /** The cards that exist so far; the other Functions buttons only report that they are not available yet. */
-export const toneCards = ["Histogram", "Gamma", "RGB Align", "RGB Balance"] as const;
+export const toneCards = ["Histogram", "Gamma", "Color Mixing", "RGB Align", "RGB Balance", "Denoise/Deringing", "Masking"] as const;
 export type ToneCard = (typeof toneCards)[number];
 export const isToneCard = (name: string): name is ToneCard => (toneCards as readonly string[]).includes(name);
 
@@ -19,6 +19,16 @@ export interface ColourPayload {
   gamma: number;
   contrast: number;
   brightness: number;
+  mix: { matrix: number[]; preserveBrightness: boolean };
+  refine: RefinePayload;
+}
+
+/** `RefineSettings` of crates/core (camelCase JSON). */
+export interface RefinePayload {
+  denoise: number;
+  deringing: number;
+  deringingRadius: number;
+  mask: { enabled: boolean; threshold: number; feather: number; invert: boolean };
 }
 
 export interface HistogramData {
@@ -28,7 +38,7 @@ export interface HistogramData {
 }
 
 /** The values of all cards plus the Contrast/Brightness sliders of the Wavelet tab. */
-export function colourPayload(wavelet: { tone: ToneSettings; contrast: number; brightness: number }): ColourPayload {
+export function colourPayload(wavelet: { tone: ToneSettings; contrast: number; brightness: number }, refine: RefineValues): ColourPayload {
   const { tone } = wavelet;
   const { red, green, blue } = tone.shifts;
   return {
@@ -41,8 +51,36 @@ export function colourPayload(wavelet: { tone: ToneSettings; contrast: number; b
     gamma: tone.gamma,
     contrast: contrastField(wavelet.contrast),
     brightness: wavelet.brightness,
+    mix: { matrix: tone.mix.matrix.map(clampWeight), preserveBrightness: tone.mix.preserveBrightness },
+    refine: refinePayload(refine),
   };
 }
+
+/** Denoise/Deringing and Masking as `RefineSettings` of the core take them. */
+export function refinePayload(refine: RefineValues): RefinePayload {
+  return {
+    denoise: refine.denoise,
+    deringing: refine.deringing,
+    deringingRadius: refine.radius,
+    mask: { enabled: refine.maskOn, threshold: refine.threshold, feather: refine.feather, invert: refine.invert },
+  };
+}
+
+/** One weight of Color Mixing, a whole percent within -200 … 200. */
+export const clampWeight = (value: number): number =>
+  Math.min(TONE_LIMITS.mix.max, Math.max(TONE_LIMITS.mix.min, Math.round(value)));
+
+/** The ready-made matrices of the Color Mixing card; Preserve brightness stays as it is. */
+export const mixPresets: { name: string; matrix: number[] }[] = [
+  { name: "Neutral", matrix: [...IDENTITY_MIX] },
+  { name: "Swap Red and Blue", matrix: [0, 0, 100, 0, 100, 0, 100, 0, 0] },
+  // The weights of the luminance, so that all three channels show the brightness of the color image.
+  { name: "Luminance Gray", matrix: [30, 59, 11, 30, 59, 11, 30, 59, 11] },
+  // For infrared-pass and other single-filter data: the red channel drives all three outputs.
+  { name: "Red to All Channels", matrix: [100, 0, 0, 100, 0, 0, 100, 0, 0] },
+];
+
+const isIdentity = (matrix: number[]): boolean => matrix.every((w, i) => w === IDENTITY_MIX[i]);
 
 /** True when the values leave the image as it is, so the base image can be shown without a round trip. */
 export function isNeutral(v: ColourPayload): boolean {
@@ -58,7 +96,11 @@ export function isNeutral(v: ColourPayload): boolean {
     v.white === 255 &&
     v.gamma === 1 &&
     v.contrast === 100 &&
-    v.brightness === 0
+    v.brightness === 0 &&
+    isIdentity(v.mix.matrix) &&
+    v.refine.denoise <= 0 &&
+    v.refine.deringing <= 0 &&
+    !v.refine.mask.enabled
   );
 }
 
@@ -67,7 +109,7 @@ export function isNeutral(v: ColourPayload): boolean {
  * gamma, contrast and brightness, so moving those does not need a new one.
  */
 export function histogramKey(v: ColourPayload, after: boolean): string {
-  const before = { shifts: v.shifts, red: v.red, green: v.green, blue: v.blue };
+  const before = { shifts: v.shifts, mix: v.mix, red: v.red, green: v.green, blue: v.blue, refine: v.refine };
   return JSON.stringify(after ? v : before);
 }
 
@@ -130,6 +172,9 @@ export const isFunctionBuilt = (name: string): boolean => isToneCard(name);
 const functionHelps: Record<ToneCard, string> = {
   Histogram: "Black point, white point and brightness of the image.",
   Gamma: "Brightens or darkens the midtones.",
+  "Color Mixing": "Builds each color channel from a mix of red, green and blue.",
+  "Denoise/Deringing": "Smooths noise without blurring edges and softens the dark ring next to bright edges.",
+  Masking: "Limits the sharpening to the planet, so the sky stays untouched.",
   "RGB Align": "Shifts red, green and blue so that they lie on top of each other.",
   "RGB Balance": "Changes the share of red, green and blue.",
 };

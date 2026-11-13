@@ -85,6 +85,9 @@ export const session = reactive({
   roiDrawing: false,
   /** The frame Go to Best Frame jumped to, named by the note in the step Alignpoints; Set Alignpoints, Align or another recording forget it. */
   bestFrameHint: null as number | null,
+  /** Masking, Show mask: the image area shows where the sharpening applies (`maskImage`). Only a view, never saved. */
+  showMask: false,
+  maskImage: null as ImageData | null,
 });
 
 // The status bar: five fields (docs/design.md, "Statusleiste").

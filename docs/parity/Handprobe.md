@@ -79,3 +79,12 @@ Ticket, Details im Ticket unter „Umsetzung“.
   steigt die CPU auf über 90 % und wird fett und amber; der RAM-Wert passt grob zum Working Set im Task-Manager.
 - [ ] Settings > Show CPU and Memory Usage aus: das Feld verschwindet; nach einem Neustart bleibt es aus. Minimiertes Fenster: im
   Task-Manager kaum CPU-Last der App.
+
+### RK-020 Color Mixing, Denoise/Deringing und Masking (windows-v0.1.0)
+
+- [ ] Nach Do All: Color Mixing mit dem Preset *Swap Red and Blue* tauscht die Farben sofort, Reset stellt zurück; Preserve brightness
+  hält die Helligkeit; Save Image schreibt das gemischte Bild.
+- [ ] Denoise/Deringing: Denoise glättet das Rauschen ohne den Planetenrand zu verwischen; Deringing hebt den dunklen Ring am Rand.
+- [ ] Masking: Use mask mit Show mask färbt den geschärften Teil blau; Schwelle und Feather verändern ihn; Before oder Remembered image
+  zeigen das Bild ohne Maske; Karte schließen nimmt die Maske weg.
+- [ ] Save Project und wieder öffnen: Matrix und die Werte beider Karten stehen wieder da (Show mask nicht).
