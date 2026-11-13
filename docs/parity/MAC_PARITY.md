@@ -42,3 +42,10 @@ ein.
 - [ ] Der Tooltip des Häkchens **Show mask** in der Karte Masking sagt am Mac „Tints the part that is sharpened red.“, die Maske ist aber
       blau (`mask_overlay` im Kern, Hilfeseite `color-and-tones.md`). Windows schreibt „Tints the part that is sharpened blue. This only
       changes what you see here, not the image.“ (`app/src/components/MaskCard.vue`). Mac: `mac/App/Views/Wavelets/RefineCards.swift` (`MaskCard`).
+
+## Version in der Statusleiste (Windows: RK-025, 2026-11-13)
+
+- [ ] Rechts in der Statusleiste steht wie in Siderea „Version · Commit · Bauzeit“, z. B. `0.1.0 · a4e826b · 2026-11-13 13:38` (Bauzeit in
+      Ortszeit auf die Minute, Unbekanntes fällt weg), Tooltip „Version of Siderea Planets and the time this build was made.“ Windows:
+      `app/src/logic/buildInfo.ts`, `app/src/components/StatusBar.vue`. Vorlage für den Mac: Sidereas `App/Views/BuildInfo.swift`
+      (`CFBundleShortVersionString`, Änderungsdatum der ausführbaren Datei) und `StatusBar.swift`.

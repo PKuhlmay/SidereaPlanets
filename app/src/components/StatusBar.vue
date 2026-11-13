@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { cpu } from "../compute";
+import { appBuildLabel } from "../logic/buildInfo";
 import { byteText, cpuReading, isHigh } from "../logic/processUsage";
 import { formatDuration } from "../logic/workflow";
 import { resourceSettings, usage } from "../resource";
@@ -12,6 +13,8 @@ const cores = computed(() => cpu.max);
 const cpuText = computed(() => cpuReading(usage.cpuPercent, cores.value) ?? "–");
 const ramText = computed(() => (usage.memoryBytes === null ? "–" : byteText(usage.memoryBytes)));
 const high = computed(() => isHigh(usage.cpuPercent, cores.value));
+// Version, commit and build time, as in Siderea (RK-025).
+const build = appBuildLabel();
 </script>
 
 <template>
@@ -32,13 +35,14 @@ const high = computed(() => isHigh(usage.cpuPercent, cores.value));
     <div class="msg" :title="status.result">{{ status.result }}</div>
     <div>{{ status.position }}</div>
     <div>Time used {{ formatDuration(status.timeUsed) }} · Time left {{ formatDuration(status.timeLeft) }}</div>
+    <div class="build" title="Version of Siderea Planets and the time this build was made.">{{ build }}</div>
   </footer>
 </template>
 
 <style scoped>
 .statusbar {
   display: grid;
-  grid-template-columns: 210px 1fr 1fr auto auto;
+  grid-template-columns: 210px 1fr 1fr auto auto auto;
   align-items: center;
   height: 28px;
   font-size: var(--fs-s);
@@ -49,7 +53,7 @@ const high = computed(() => isHigh(usage.cpuPercent, cores.value));
 }
 /* with the readout in front: it takes what it needs, the progress keeps its width */
 .statusbar.usage {
-  grid-template-columns: auto 210px 1fr 1fr auto auto;
+  grid-template-columns: auto 210px 1fr 1fr auto auto auto;
   container-type: inline-size;
 }
 .usage-field {

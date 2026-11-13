@@ -15,7 +15,7 @@ The window guides you through the work in seven steps; where a setting sits is d
 | Image area | The image. **Show ▾** at the top right holds the check boxes that switch things on the image on and off; in the Wavelets step **Adjust ›** sits next to it |
 | Adjustments panel (right) | Wavelets step only: the Adjustments buttons, Contrast/Brightness and Remember, Restore, Difference |
 | Frame bar | Alignpoints, Align and Best Frames only: status, **Go to frame** and a slider over all frames |
-| Status bar | At the left the CPU load of the app as a share of all cores (**CPU (12)** means 12 cores) and the memory it holds, which you can hide in Settings; then progress, current action, result, position under the pointer and time |
+| Status bar | At the left the CPU load of the app as a share of all cores (**CPU (12)** means 12 cores) and the memory it holds, which you can hide in Settings; then progress, current action, result, position under the pointer and time; at the right the version, the build and when it was made, for example `0.1.0 · a4e826b · 2026-11-13 13:38` |
 
 > The window is being built step by step. Parts that do not work yet are dimmed and marked **Not available yet**; hover over them to see the note.
 

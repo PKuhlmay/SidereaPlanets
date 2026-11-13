@@ -124,3 +124,7 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] Resize Image 50 % und in Pixeln mit und ohne Lock aspect ratio: *Result* und die Gruppe Size im Schritt Save stimmen, die gespeicherte
   TIFF hat genau diese Größe und ist gedreht wie im Fenster.
 - [ ] Save Project und wieder öffnen: beide Karten stehen wieder so da.
+
+### RK-025 Version in der Statusleiste (windows-v0.1.0)
+
+- [ ] Im installierten Programm steht rechts unten `0.1.0 · <Commit> · <Datum Uhrzeit>`, der Tooltip erklärt es.
