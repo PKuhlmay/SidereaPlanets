@@ -19,8 +19,7 @@ im Bild-Sinn „unbearbeitetes Quellbild“ gemeint ist (z. B. in der Beschriftu
 Es gibt **eine App**: Tauri 2 und Vue unter `app/`. Sie läuft den ganzen Ablauf im echten Fenster: Aufnahme laden, Alignpoints, Align,
 Best Frames (Limit), Stack mit Derotation, Wavelets mit Do All und den Adjustments, Save image mit Crop, Flip and Rotate und Resize,
 dazu Projektdatei, Save Aligned/Integrated, Schemes, CPU-Auswahl. Auf dem Mac hat sie Menüleiste, Cmd-Kürzel, Dateizuordnung und
-folgt dem Erscheinungsbild des Systems (PLANETS-3); für Windows gibt es einen Installer (`scripts/publish-windows.sh --installer`,
-Inno Setup wie bei Siderea). Die frühere native SwiftUI-App (Mac-Release 0.1.0) und die Rust-Schnittstelle `crates/ffi` sind mit
+folgt dem Erscheinungsbild des Systems (PLANETS-3). Die frühere native SwiftUI-App (Mac-Release 0.1.0) und die Rust-Schnittstelle `crates/ffi` sind mit
 PLANETS-4 entfallen und stehen nur noch in der Git-Historie. Die Beschreibung von Ablauf, Oberfläche, Algorithmen und Formaten
 steht in `docs/`; eigene Referenzbilder und Aufnahmen für die Regressionstests liegen lokal in `re-local/` (nicht in Git).
 Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens in
@@ -47,8 +46,12 @@ cd app && pnpm build                         # Frontend bauen (vue-tsc + vite)
 cd app && pnpm test                          # Frontend-Tests (vitest), z. B. Doku-Logik
 cd app && pnpm check:licenses                # Lizenzen der npm-Abhängigkeiten gegen die GPL-Liste prüfen
 cd app && pnpm gen:licenses                  # app/public/third-party-licenses.html (cargo-about + npm), läuft auch vor tauri build
-scripts/publish-windows.sh --installer       # Release-Bau mit Inno-Setup-Installer, ZIP und SHA256SUMS (build/windows/dist/)
+actionlint                                   # Workflows unter .github/workflows/ prüfen (brew install actionlint)
 ```
+
+**CI** (`.github/workflows/ci.yml`): bei jedem Push und Pull Request Format, Clippy, Tests und ein Tauri-Smoke-Build auf macOS, Windows
+und Linux, dazu `cargo deny` und `pnpm check:licenses` auf Linux. `gen:licenses` braucht `cargo-about` (lokal: `cargo install cargo-about
+--locked --features cli`; die Workflows installieren es selbst).
 
 **Nicht** `target/debug/planets-app.exe` direkt starten: im Debug-Build erwartet die App den Vite-Server
 (`localhost:1420`) und zeigt sonst „Seite nicht gefunden“. Immer `pnpm tauri dev` benutzen.
@@ -100,8 +103,8 @@ nachgezogen werden müsste, und keine Paritätslisten.
   `app/src-tauri/src/menu.rs` und in `app/src/logic/platform.ts`; was der Rechenkern kann, gilt überall gleich.
 - Bündel-Kennung (`identifier`): `de.kuhlmay.siderea.planets`, dieselbe wie beim Mac-Release 0.1.0 (Signatur und Notarisierung hängen
   daran). Signieren und Notarisieren für macOS: `docs/release.md`.
-- Tags: `v<version>` für den früheren Mac-Release, `windows-v<version>` für Windows; `/siderea-release` wird mit PLANETS-12
-  neu geschrieben. Pushen nur nach Philipps OK.
+- Release: `/siderea-release <version>` bereitet ihn vor (Version, Changelog, Prüfungen, Commit, Tag `v<version>` für alle Plattformen);
+  der Tag lässt `release.yml` bauen, signieren und als Entwurf veröffentlichen (`docs/release.md`). Pushen nur nach Philipps OK.
 - Tickets liegen jetzt in **Jira**, Projekt **PLANETS** auf treupo.atlassian.net (Cloud-ID und Zugang siehe globale Anweisungen);
   Commits `[TYPE] PLANETS-N - Message in English`.
 - Worktrees: **nicht unter Windows** (Speicher, langsames Löschen), am Mac erlaubt.
@@ -114,7 +117,9 @@ crates/io/   Leser und Schreiber für Aufnahmen und Ergebnisse (SER, AVI, Bildse
 crates/session/ Sitzungslogik (`Session`): offene Aufnahme, Ergebnisse je Schritt, Verwerfen, Thread-Pool der CPU-Auswahl, Abbrechen und
              Pausieren, Fortschritt über den Trait `ProgressSink` — GUI-frei; die Tauri-Shell ist eine dünne Hülle
 app/         Die App (Tauri): `app/src` = Vue-Frontend (hier entsteht das Design), `app/src-tauri` = Rust-Shell mit Commands
-scripts/   Skripte, z. B. `deploy-debug.sh` für den Deploy-Hook (`.githooks/post-commit`), `publish-windows.sh`, `make-icons.sh`
+scripts/   Skripte, z. B. `deploy-debug.sh` für den Deploy-Hook (`.githooks/post-commit`), `changelog-section.sh` (Release-Notes), `make-icons.sh`
+.github/workflows/ `ci.yml` (Prüfungen), `release.yml` (Tag `v*` baut die Releases), `pages.yml` (Projektseite)
+site/      Projektseite (Landing und Anwenderdoku, gerendert aus `app/src/docs/pages/`), über `pages.yml` auf GitHub Pages
 tickets/   Alte Aufgaben als Markdown-Dateien (SP-NNN-kurzer-titel.md); neue Tickets in Jira (PLANETS)
 docs/      Technische Beschreibung (Ablauf, Oberfläche, Algorithmen, Formate, Design), dazu `docs/release.md`
            (Signieren und Notarisieren für macOS)

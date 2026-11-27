@@ -158,6 +158,13 @@ jobs:
         working-directory: app
         run: pnpm install --frozen-lockfile
 
+      # beforeBuildCommand of tauri.conf.json runs `pnpm gen:licenses`, which needs cargo-about (PLANETS-7). The action installs the
+      # prebuilt binary on all three systems in seconds; the version is pinned like the actions.
+      - name: Install cargo-about
+        uses: taiki-e/install-action@073e1fd0bc889c9aee68dbaaa927cde1b5653a83 # v2.90.11
+        with:
+          tool: cargo-about@0.9.3
+
       # Without these secrets Tauri would quietly build an unsigned bundle, so stop before the long build.
       - name: Check the signing secrets
         env:

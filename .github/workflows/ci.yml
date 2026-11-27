@@ -65,6 +65,13 @@ jobs:
           cache: pnpm
           cache-dependency-path: app/pnpm-lock.yaml
 
+      # beforeBuildCommand of tauri.conf.json runs `pnpm gen:licenses`, which needs cargo-about (PLANETS-7). The action installs the
+      # prebuilt binary on all three systems in seconds; the version is pinned like the actions.
+      - name: Install cargo-about
+        uses: taiki-e/install-action@073e1fd0bc889c9aee68dbaaa927cde1b5653a83 # v2.90.11
+        with:
+          tool: cargo-about@0.9.3
+
       - name: Format
         run: cargo fmt --all --check
 
@@ -88,13 +95,14 @@ jobs:
         run: pnpm test
 
       # Debug build without bundle: proves that the Tauri shell links and the frontend embeds, without the cost of LTO or signing.
+      # beforeBuildCommand generates the third-party notice (cargo-about), so a broken licence set fails here too.
       - name: Tauri build (smoke test)
         working-directory: app
         run: pnpm tauri build --debug --no-bundle
 
-      # Licence and advisory checks run once, on Linux, and only when PLANETS-7 has added deny.toml and the script.
+      # Licence and advisory checks run once, on Linux (PLANETS-7): Rust via deny.toml, npm via app/scripts/licenses.mjs.
       - name: Cargo deny
-        if: runner.os == 'Linux' && hashFiles('deny.toml') != ''
+        if: runner.os == 'Linux'
         uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
         with:
           command: check
@@ -102,4 +110,4 @@ jobs:
       - name: Check licences of the frontend packages
         if: runner.os == 'Linux'
         working-directory: app
-        run: pnpm run --if-present check:licenses
+        run: pnpm check:licenses

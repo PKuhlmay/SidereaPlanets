@@ -1,4 +1,4 @@
-# Changelog — Siderea Planets for Windows
+# Changelog — Siderea Planets
 
 ## Unreleased
 
