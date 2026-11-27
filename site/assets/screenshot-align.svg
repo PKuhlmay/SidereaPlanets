@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" role="img" aria-label="Placeholder for a screenshot">
+<rect width="1440" height="900" fill="#141518"/>
+<rect x="12" y="12" width="1416" height="876" rx="10" fill="none" stroke="#40434b" stroke-width="2" stroke-dasharray="14 10"/>
+<g font-family="system-ui,sans-serif" text-anchor="middle" fill="#e7e8eb">
+<text x="720" y="400" font-size="44" font-weight="600" fill="#f2a93b">SCREENSHOT PLACEHOLDER</text>
+<text x="720" y="460" font-size="30">screenshot-align.png, 1440 x 900</text>
+<text x="720" y="510" font-size="26" fill="#9b9fa9">Align step, planet with alignpoints, frame list card</text>
+</g></svg>
