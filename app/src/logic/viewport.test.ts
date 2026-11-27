@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { actualSize, dragView, fitView, formatZoom, imagePixel, MAX_SCALE, MIN_SCALE, processingArea, zoomAt } from "./viewport";
+import { actualSize, dragView, fitView, formatZoom, imagePixel, MAX_SCALE, MIN_SCALE, processingArea, wheelIntent, zoomAt } from "./viewport";
 
 const image = { w: 1024, h: 680 };
 
@@ -87,5 +87,38 @@ describe("dragView", () => {
   it("is null while the pointer stays where the drag started, so a click does not unfit the image", () => {
     const view = { scale: 0.73, x: 40, y: 50 };
     expect(dragView(view, { x: 260, y: 150 }, { x: 300, y: 200 })).toBeNull();
+  });
+});
+
+describe("wheelIntent", () => {
+  const wheel = (more: Partial<Parameters<typeof wheelIntent>[0]> = {}) => ({
+    deltaX: 0,
+    deltaY: 0,
+    deltaMode: 0,
+    ctrlKey: false,
+    metaKey: false,
+    altKey: false,
+    ...more,
+  });
+
+  it("zooms in steps with the wheel on Windows and Linux, as before", () => {
+    expect(wheelIntent(wheel({ deltaY: -100 }), false)).toEqual({ kind: "zoom", factor: 1.15 });
+    expect(wheelIntent(wheel({ deltaY: 100 }), false)).toEqual({ kind: "zoom", factor: 1 / 1.15 });
+  });
+
+  it("moves the image with scrolling on the Mac, so that the trackpad does not zoom by accident", () => {
+    expect(wheelIntent(wheel({ deltaX: 4, deltaY: -10 }), true)).toEqual({ kind: "pan", dx: -4, dy: 10 });
+    // A mouse wheel reports lines.
+    expect(wheelIntent(wheel({ deltaY: 3, deltaMode: 1 }), true)).toEqual({ kind: "pan", dx: 0, dy: -48 });
+  });
+
+  it("zooms smoothly with Option or Cmd and scrolling on the Mac, and with the pinch of engines that send it as Ctrl and wheel", () => {
+    for (const modifier of ["altKey", "metaKey", "ctrlKey"] as const) {
+      const up = wheelIntent(wheel({ deltaY: -10, [modifier]: true }), true);
+      const down = wheelIntent(wheel({ deltaY: 10, [modifier]: true }), true);
+      expect(up).toMatchObject({ kind: "zoom" });
+      expect(up.kind === "zoom" && up.factor).toBeGreaterThan(1);
+      expect(down.kind === "zoom" && down.factor).toBeLessThan(1);
+    }
   });
 });

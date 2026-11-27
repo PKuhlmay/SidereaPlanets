@@ -20,7 +20,7 @@ Align, Stack and Do All can take a while. While one of them runs, the window sho
 
 ## Cancel and Pause
 
-**Cancel** turns amber while a step runs and stops it; the status bar then says *Cancelled*. **Pause** pauses the step and reads **Resume** until you press it again; the time used does not count while it is paused. Outside a step both buttons are locked.
+**Cancel** turns amber while a step runs and stops it (**⌘.**, Windows and Linux **Ctrl+.**); the status bar then says *Cancelled*. **Pause** pauses the step and reads **Resume** until you press it again; the time used does not count while it is paused. Outside a step both buttons are locked.
 
 ## Messages
 

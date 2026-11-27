@@ -5,7 +5,7 @@ order: 2
 ---
 # Select a recording
 
-Press **Select Recording** in the step *Open* (or in the toolbar) and pick a recording. You can also drop a video or a series of images onto the window. Siderea Planets reads it frame by frame, so even long videos with thousands of frames do not have to fit into memory.
+Press **Select Recording** in the step *Open* (or in the toolbar) and pick a recording. You can also drop a video or a series of images onto the window, or press **⌘O** (Windows and Linux: **Ctrl+O**). Siderea Planets reads it frame by frame, so even long videos with thousands of frames do not have to fit into memory.
 
 ## Supported files
 

@@ -105,3 +105,6 @@ function mixMatrix(wavelet: unknown): number[] | null {
   if (!matrix.every((w): w is number => typeof w === "number" && Number.isFinite(w))) return null;
   return matrix.map((w) => clamp(w, TONE_LIMITS.mix));
 }
+
+/** Whether a path is a project file (`.sidereaplanets`), as opposed to a recording. */
+export const isProjectFile = (path: string): boolean => /\.sidereaplanets$/i.test(path);

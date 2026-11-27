@@ -42,6 +42,15 @@ vi.mock("@tauri-apps/api/webview", () => ({
   }),
 }));
 
+// The shortcuts depend on the platform; a test says which one it is (Node would answer with the one of the computer it runs on).
+const platform = vi.hoisted(() => ({ mac: false }));
+vi.mock("./logic/platform", async (original) => ({
+  ...(await original<typeof import("./logic/platform")>()),
+  get isMac() {
+    return platform.mac;
+  },
+}));
+
 // The tests run in node: the few browser objects the code touches are replaced.
 class FakeImageData {
   constructor(
@@ -63,7 +72,10 @@ import { rect } from "./logic/crop";
 import { defaultGeometry, flipHorizontally, rotate } from "./logic/geometry";
 import { cancelJob, togglePause } from "./jobs";
 import { process } from "./wavelet";
-import { openDroppedFiles, openRecording, startSession } from "./recording";
+import { openDroppedFiles, openPaths } from "./openFromOutside";
+import { openRecording, startSession } from "./recording";
+import { runMenuAction } from "./nativeBridge";
+import { open as openDialog } from "@tauri-apps/plugin-dialog";
 import { session, settings, status, type RecordingInfo } from "./state";
 import { advancedOpen, nextOpen, states, toggleAdvanced } from "./steps";
 import { handleShortcut } from "./shortcuts";
@@ -191,6 +203,74 @@ describe("Dropping files onto the window", () => {
   });
 });
 
+describe("Files from Finder and the project file (PLANETS-3)", () => {
+  const project = {
+    path: "/Users/a/JUPITER.sidereaplanets",
+    project: { formatVersion: 1, recording: ["/Users/a/JUPITER.SER"], sections: {} },
+    missingFiles: [],
+  };
+
+  it("opens a project file like Open Project…: its recording, then its settings", async () => {
+    backend.handlers.project_load = () => project;
+    await openPaths(["/Users/a/JUPITER.sidereaplanets"]);
+    expect(calls("project_load")[0]?.args).toEqual({ path: "/Users/a/JUPITER.sidereaplanets" });
+    expect(calls("open_recording")[0]?.args).toEqual({ paths: ["/Users/a/JUPITER.SER"] });
+    expect(status.result).toBe("Opened JUPITER.sidereaplanets");
+  });
+
+  it("opens anything else as a recording, and nothing during a calculation", async () => {
+    await openPaths(["/Users/a/SATURN.SER"]);
+    expect(calls("open_recording")[0]?.args).toEqual({ paths: ["/Users/a/SATURN.SER"] });
+    status.busy = { name: "Align", paused: false, cancelled: false };
+    await openPaths(["/Users/a/MARS.SER"]);
+    expect(calls("open_recording")).toHaveLength(1);
+    expect(status.result).toBe("Open: wait until the calculation has finished");
+  });
+
+  it("says so when the project file cannot be read", async () => {
+    backend.handlers.project_load = () => {
+      throw new Error("not a project");
+    };
+    await openPaths(["/Users/a/broken.sidereaplanets"]);
+    expect(status.result).toBe("Open Project failed: not a project");
+  });
+});
+
+describe("The native menu bar of the Mac (PLANETS-3)", () => {
+  it("opens a recording of Open Recent, and a step of Go to Step like the step bar", async () => {
+    await openRecording(["/Users/a/JUPITER.SER"]);
+    expect(calls("open_recording")).toHaveLength(1);
+    await runMenuAction("recent:0");
+    expect(calls("open_recording")).toHaveLength(2);
+    await runMenuAction("recent:99");
+    expect(calls("open_recording")).toHaveLength(2);
+
+    session.view = "alignpoints";
+    await runMenuAction("step:open");
+    expect(session.view).toBe("open");
+    await runMenuAction("step:align");
+    expect(session.view).toBe("open");
+  });
+
+  it("runs the commands of the File and Run menus, and none that is dimmed", async () => {
+    vi.mocked(openDialog).mockResolvedValueOnce(["/Users/a/MARS.SER"]);
+    await runMenuAction("selectRecording");
+    expect(calls("open_recording")[0]?.args).toEqual({ paths: ["/Users/a/MARS.SER"] });
+
+    // No stack yet: Save Image is dimmed and does nothing.
+    await runMenuAction("saveImage");
+    expect(calls("save_image_as")).toHaveLength(0);
+
+    status.busy = { name: "Align", paused: false, cancelled: false };
+    await runMenuAction("togglePause");
+    expect(status.busy?.paused).toBe(true);
+    await runMenuAction("selectRecording");
+    expect(openDialog).toHaveBeenCalledTimes(1);
+    await runMenuAction("cancel");
+    expect(status.busy?.cancelled).toBe(true);
+  });
+});
+
 describe("Go to Best Frame (SP-018)", () => {
   it("does nothing before Align", async () => {
     await runAction("setAlignpoints");
@@ -228,25 +308,50 @@ describe("Go to Best Frame (SP-018)", () => {
 });
 
 describe("Keyboard shortcuts (SP-017)", () => {
-  const press = (key: string, code = "", altKey = false) => {
-    const event = { key, code, altKey, ctrlKey: false, metaKey: false, shiftKey: false, target: null, preventDefault: vi.fn() };
+  const press = (key: string, code = "", more: Partial<Pick<KeyboardEvent, "altKey" | "ctrlKey" | "metaKey" | "shiftKey">> = {}) => {
+    const event = { key, code, altKey: false, ctrlKey: false, metaKey: false, shiftKey: false, target: null, preventDefault: vi.fn(), ...more };
     const handled = handleShortcut(event as unknown as KeyboardEvent);
     return { handled, prevented: event.preventDefault.mock.calls.length > 0 };
   };
 
+  beforeEach(() => {
+    platform.mac = false;
+  });
+
   it("opens a step with Alt and its number like a click on the step bar, but not a locked one", () => {
     session.view = "alignpoints";
-    expect(press("1", "Digit1", true)).toEqual({ handled: true, prevented: true });
+    expect(press("1", "Digit1", { altKey: true })).toEqual({ handled: true, prevented: true });
     expect(session.view).toBe("open");
     // Align needs alignpoints first: the pill is locked and the shortcut does nothing, but is still taken.
-    expect(press("3", "Digit3", true).prevented).toBe(true);
+    expect(press("3", "Digit3", { altKey: true }).prevented).toBe(true);
     expect(session.view).toBe("open");
+  });
+
+  it("opens a step with Option and Cmd on the Mac, and not with Option alone", () => {
+    platform.mac = true;
+    session.view = "alignpoints";
+    expect(press("1", "Digit1", { altKey: true }).handled).toBe(false);
+    expect(session.view).toBe("alignpoints");
+    expect(press("¡", "Digit1", { altKey: true, metaKey: true })).toEqual({ handled: true, prevented: true });
+    expect(session.view).toBe("open");
+  });
+
+  it("selects a recording with Ctrl+O on Windows and Cmd+O on the Mac, not the other way round", async () => {
+    vi.mocked(openDialog).mockResolvedValue(["/Users/a/MARS.SER"]);
+    expect(press("o", "KeyO", { metaKey: true }).handled).toBe(false);
+    expect(press("o", "KeyO", { ctrlKey: true })).toEqual({ handled: true, prevented: true });
+    await vi.waitFor(() => expect(calls("open_recording")).toHaveLength(1));
+
+    platform.mac = true;
+    expect(press("o", "KeyO", { ctrlKey: true }).handled).toBe(false);
+    expect(press("o", "KeyO", { metaKey: true }).handled).toBe(true);
+    await vi.waitFor(() => expect(calls("open_recording")).toHaveLength(2));
   });
 
   it("opens nothing during a calculation", () => {
     session.view = "alignpoints";
     status.busy = { name: "Align", paused: false, cancelled: false };
-    press("1", "Digit1", true);
+    press("1", "Digit1", { altKey: true });
     expect(session.view).toBe("alignpoints");
   });
 
@@ -260,6 +365,14 @@ describe("Keyboard shortcuts (SP-017)", () => {
     session.view = "stack";
     expect(press("ArrowRight").handled).toBe(false);
     expect(session.frame).toBe(1);
+  });
+
+  it("pages through the frames with Cmd and the bracket keys on the Mac", () => {
+    platform.mac = true;
+    session.view = "alignpoints";
+    session.frame = 1;
+    expect(press("[", "BracketLeft", { metaKey: true }).handled).toBe(true);
+    expect(session.frame).toBe(0);
   });
 });
 

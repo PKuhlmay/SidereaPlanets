@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref, watch } from "vue";
+import { ui } from "../appCommands";
 import { cpu } from "../compute";
 import { cancelJob, togglePause } from "../jobs";
 import type { ProcessingArea } from "../logic/settings";
+import { chord, isMac } from "../logic/platform";
 import { recentLabel } from "../logic/recent";
 import { applyTheme } from "../theme";
 import { chooseFiles, openRecording, recent } from "../recording";
@@ -22,6 +24,13 @@ function onHelp(event: MouseEvent) {
   void openHelp();
 }
 const busy = computed(() => status.busy !== null);
+
+// Cmd+, (Settings… in the Mac menu bar) and Ctrl+, open the Settings menu.
+const settingsMenu = ref<InstanceType<typeof MenuButton> | null>(null);
+watch(
+  () => ui.settingsRequest,
+  () => settingsMenu.value?.show(),
+);
 
 const processingAreas: ProcessingArea[] = [2048, 1024, 512, 256, 128];
 const areaLabel = (size: number) => `${size} × ${size} px`;
@@ -45,7 +54,7 @@ const lockedSettings = [
 <template>
   <header class="toolbar">
     <div class="zone">
-      <button type="button" class="btn ghost select" :disabled="busy" title="Select a recording: a video or a series of images" @click="chooseFiles">
+      <button type="button" class="btn ghost select" :disabled="busy" :title="`Select a recording: a video or a series of images (${chord('O', isMac)})`" @click="chooseFiles">
         Select Recording…
       </button>
 
@@ -63,7 +72,7 @@ const lockedSettings = [
         </button>
       </MenuButton>
 
-      <MenuButton label="Settings" wide>
+      <MenuButton ref="settingsMenu" label="Settings" wide :title="`Settings (${chord(',', isMac)})`">
         <div class="sw">
           <button
             type="button"
@@ -79,8 +88,8 @@ const lockedSettings = [
             </label>
           </div>
         </div>
-        <!-- Takes the place of "Set Skin" in the original: the light theme is part of the design (docs/design.md). -->
-        <div class="sw">
+        <!-- Takes the place of "Set Skin" in the original: the light theme is part of the design (docs/design.md). The Mac follows macOS instead. -->
+        <div v-if="!isMac" class="sw">
           <button type="button" class="mi" aria-haspopup="menu">Theme <span class="v arrow">{{ theme.current === "dark" ? "Dark" : "Light" }}</span></button>
           <div class="menu fly">
             <label class="mi"><input type="radio" name="theme" :checked="theme.current === 'dark'" @change="applyTheme('dark')" />Dark</label>
@@ -126,7 +135,7 @@ const lockedSettings = [
     </div>
 
     <div class="zone mid">
-      <button type="button" class="btn" :class="{ next: busy }" :disabled="!busy" title="Stop the calculation" @click="cancelJob">Cancel</button>
+      <button type="button" class="btn" :class="{ next: busy }" :disabled="!busy" :title="`Stop the calculation (${chord('.', isMac)})`" @click="cancelJob">Cancel</button>
       <button type="button" class="btn" :disabled="!busy" title="Pause the calculation; press again to resume" @click="togglePause">
         {{ status.busy?.paused ? "Resume" : "Pause" }}
       </button>

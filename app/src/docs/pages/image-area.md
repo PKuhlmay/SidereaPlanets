@@ -26,10 +26,10 @@ In the Wavelets step **Adjust ›** sits to the left of **Show ▾**. It hides a
 
 | Action | How |
 |---|---|
-| Zoom | Mouse wheel, or **−** and **+** in the zoom bar. The wheel zooms around the pointer |
-| Move | Drag the image |
-| Fit | **Fit** in the zoom bar shows the whole image |
-| 100% | Click the scale in the zoom bar. It shows the zoom in percent of the image pixels |
+| Zoom | Mouse wheel, or **−** and **+** in the zoom bar. The wheel zooms around the pointer. On the Mac: pinch on the trackpad, or hold **⌥** or **⌘** and scroll, to zoom around the fingers or the pointer; **⌘+** and **⌘-** in the menu **View** (Windows and Linux: **Ctrl+plus** and **Ctrl+minus**) zoom around the middle. A mouse wheel without a key does not zoom on the Mac |
+| Move | Drag the image. On the Mac scrolling with two fingers moves it as well |
+| Fit | **Fit** in the zoom bar shows the whole image (**⌘0**, Windows and Linux **Ctrl+0**) |
+| 100% | Click the scale in the zoom bar (**⌘1**, Windows and Linux **Ctrl+1**). It shows the zoom in percent of the image pixels |
 
 A recording starts fitted and follows the size of the window until you zoom or move (a click on the image without dragging does not count). Each time you go to another step the image is fitted again, because the space around it changes from step to step. Beyond 200% single pixels are shown as squares.
 

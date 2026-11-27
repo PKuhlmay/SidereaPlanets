@@ -144,27 +144,40 @@ interface LoadedProject {
   missingFiles: string[];
 }
 
-/** Open Project… in the toolbar: opens the recording of the project and puts its settings back. */
+/** Open Project… in the toolbar: asks for a project file and opens it. */
 export async function openProject(): Promise<void> {
   try {
     const loaded = await invoke<LoadedProject | null>("project_open", { directory: folder() });
-    if (!loaded) return;
-    const { project, missingFiles } = loaded;
-    if (missingFiles.length > 0) {
-      status.result = `Open Project: the recording was not found: ${missingFiles.map(fileName).join(", ")}`;
-      return;
-    }
-    if (project.recording.length === 0) {
-      status.result = "Open Project: the project has no recording";
-      return;
-    }
-    await openRecording(project.recording);
-    // openRecording reports its own error; the settings only apply if the recording is the one that is open now.
-    if (session.paths.join("|") !== project.recording.join("|")) return;
-    applyProject(settings, project);
-    keepWaveletValuesForNextStack();
-    status.result = `Opened ${fileName(loaded.path)}`;
+    if (loaded) await useProject(loaded);
   } catch (e) {
     status.result = failureText("Open Project", e);
   }
+}
+
+/** Opens the project file at `path` (double click in Finder, dropped onto the window). */
+export async function openProjectFile(path: string): Promise<void> {
+  try {
+    await useProject(await invoke<LoadedProject>("project_load", { path }));
+  } catch (e) {
+    status.result = failureText("Open Project", e);
+  }
+}
+
+/** Opens the recording of a project and puts its settings back. */
+async function useProject(loaded: LoadedProject): Promise<void> {
+  const { project, missingFiles } = loaded;
+  if (missingFiles.length > 0) {
+    status.result = `Open Project: the recording was not found: ${missingFiles.map(fileName).join(", ")}`;
+    return;
+  }
+  if (project.recording.length === 0) {
+    status.result = "Open Project: the project has no recording";
+    return;
+  }
+  await openRecording(project.recording);
+  // openRecording reports its own error; the settings only apply if the recording is the one that is open now.
+  if (session.paths.join("|") !== project.recording.join("|")) return;
+  applyProject(settings, project);
+  keepWaveletValuesForNextStack();
+  status.result = `Opened ${fileName(loaded.path)}`;
 }

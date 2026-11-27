@@ -5,7 +5,7 @@ order: 8
 ---
 # Save and export
 
-Press **Save Image** to write a result to a file. It is the button of the step *Save* (the sharpened image). For the stacked image, click the step *Stack* in the step bar once the stack is done: **Save Image** then sits under the result. The file dialog is the one of your operating system.
+Press **Save Image** to write a result to a file. It is the button of the step *Save* (the sharpened image). For the stacked image, click the step *Stack* in the step bar once the stack is done: **Save Image** then sits under the result. The file dialog is the one of your operating system. **⌘S** (Windows and Linux: **Ctrl+S**) does the same without the list: it saves in the file type you chose last, TIFF 16-bit at the start.
 
 In the step *Save* the file looks like the image in the window: the values of RGB Align, Color Mixing, RGB Balance, Histogram, Gamma and Contrast/Brightness are applied to the sharpened image before it is written, at full precision (not from the 8 bit picture on screen). With all of them at their start values the sharpened image is written unchanged. The step *Stack* saves the stack without these values. The sharpened image is the result of **Do All**. You do not have to run it before you save: see below.
 
@@ -59,7 +59,7 @@ After **Done** the image shows the rectangle with a dimmed outside, and the Save
 
 ## Saving a project
 
-A project remembers your session: the recording and the settings of the steps (alignpoint settings, stacking options, wavelet layers, color). Save it with **Save Project…** in the toolbar and open it again later with **Open Project…**. Both buttons sit to the right of the menus; **Save Project…** is locked until a recording is open, and both are locked while a calculation runs. Project files end in `.sidereaplanets`.
+A project remembers your session: the recording and the settings of the steps (alignpoint settings, stacking options, wavelet layers, color). Save it with **Save Project…** in the toolbar and open it again later with **Open Project…**. Both buttons sit to the right of the menus; **Save Project…** is locked until a recording is open, and both are locked while a calculation runs. Project files end in `.sidereaplanets`. On the Mac a double-click on a project file in Finder opens it, and so does dropping it onto the window.
 
 When you open a project and a recording file has been moved or deleted, Siderea Planets tells you which file is missing. The images themselves are not stored in the project; Align and Stack run again on the recording. The Wavelets step stays locked until Stack has run, so the layer values of the project are kept for that first stacked image, even when **Keep layer values for a new stack** is off; you see them again as soon as the Wavelets step opens. A second stacked image puts the layers back to their start values as usual.
 

@@ -65,3 +65,28 @@ export function processingArea(image: Size, side: number): { x: number; y: numbe
   const h = Math.min(side, image.h);
   return { x: Math.round((image.w - w) / 2), y: Math.round((image.h - h) / 2), w, h };
 }
+
+export interface WheelInput {
+  deltaX: number;
+  deltaY: number;
+  /** 0 pixels (trackpad), 1 lines (mouse wheel), 2 pages. */
+  deltaMode: number;
+  ctrlKey: boolean;
+  metaKey: boolean;
+  altKey: boolean;
+}
+
+export type WheelIntent = { kind: "zoom"; factor: number } | { kind: "pan"; dx: number; dy: number };
+
+/**
+ * What a wheel event does to the view. Windows and Linux: the wheel zooms in steps. Mac: scrolling moves the image (two fingers
+ * on the trackpad), Option or Cmd and scrolling zoom smoothly around the pointer, and so does a pinch where the engine sends it
+ * as Ctrl and wheel; the mouse wheel on its own does not zoom there (docs/design.md, Mac-App).
+ */
+export function wheelIntent(event: WheelInput, mac: boolean): WheelIntent {
+  if (!mac) return { kind: "zoom", factor: event.deltaY < 0 ? 1.15 : 1 / 1.15 };
+  if (event.ctrlKey || event.metaKey || event.altKey) return { kind: "zoom", factor: Math.exp(-event.deltaY * 0.01) };
+  const unit = event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? 400 : 1;
+  // `0 - x` rather than `-x`: no negative zero for a scroll in one direction only.
+  return { kind: "pan", dx: 0 - event.deltaX * unit, dy: 0 - event.deltaY * unit };
+}

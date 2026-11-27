@@ -7,6 +7,7 @@ mod align_commands;
 mod color_commands;
 mod export_commands;
 mod geometry_commands;
+mod menu;
 mod sequence_commands;
 mod stack_commands;
 mod usage_commands;
@@ -17,6 +18,7 @@ use planets_session::{
 };
 use serde::{Serialize, Serializer};
 use std::path::PathBuf;
+use std::sync::Mutex;
 use tauri::{AppHandle, Emitter, State, ipc::Response};
 
 /// The error of a command: the text the window shows. It reaches the frontend as a plain string.
@@ -118,10 +120,51 @@ fn set_cpus(count: u32, session: State<'_, Session>) -> CommandResult<usize> {
     Ok(session.set_cpus(count)?)
 }
 
+/// Files the system asked the app to open (double click or "Open with" in Finder) that the window has not taken yet. The
+/// window may not exist when the request comes (the app was started by it), so it asks for them with
+/// [`take_opened_files`] once it listens, and again whenever the `files-opened` event says there are new ones.
+#[derive(Default)]
+struct OpenedFiles(Mutex<Vec<String>>);
+
+/// The files waiting to be opened, oldest first; the list is empty afterwards.
+#[tauri::command]
+fn take_opened_files(opened: State<'_, OpenedFiles>) -> Vec<String> {
+    opened
+        .0
+        .lock()
+        .map(|mut files| std::mem::take(&mut *files))
+        .unwrap_or_default()
+}
+
+/// Remembers the files of an open request and tells the window.
+#[cfg(target_os = "macos")]
+fn queue_opened_files(app: &AppHandle, urls: &[tauri::Url]) {
+    let paths: Vec<String> = urls
+        .iter()
+        .filter_map(|url| url.to_file_path().ok())
+        .map(|path| path.to_string_lossy().into_owned())
+        .collect();
+    if paths.is_empty() {
+        return;
+    }
+    if let Ok(mut files) = tauri::Manager::state::<OpenedFiles>(app).0.lock() {
+        files.extend(paths);
+    }
+    let _ = app.emit("files-opened", ());
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .setup(|app| {
+            // The Mac has a menu bar; Windows and Linux keep the window without one.
+            if cfg!(target_os = "macos") {
+                menu::install(app)?;
+            }
+            Ok(())
+        })
+        .manage(OpenedFiles::default())
         .manage(Session::new().expect("cannot start the calculation threads"))
         .manage(usage_commands::UsageState::default())
         .invoke_handler(tauri::generate_handler![
@@ -129,6 +172,8 @@ pub fn run() {
             read_frame,
             cpu_count,
             set_cpus,
+            take_opened_files,
+            menu::update_menu,
             usage_commands::process_usage,
             align_commands::set_alignpoints,
             align_commands::set_alignpoint_threshold,
@@ -167,6 +212,14 @@ pub fn run() {
             sequence_commands::save_aligned,
             sequence_commands::save_integrated,
         ])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .build(tauri::generate_context!())
+        .expect("error while building tauri application");
+    app.run(|handle, event| {
+        #[cfg(target_os = "macos")]
+        if let tauri::RunEvent::Opened { urls } = &event {
+            queue_opened_files(handle, urls);
+        }
+        #[cfg(not(target_os = "macos"))]
+        let _ = (handle, event);
+    });
 }

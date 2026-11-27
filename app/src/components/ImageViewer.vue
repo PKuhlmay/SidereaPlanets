@@ -2,11 +2,14 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { isRegion, rectBetween, type Rect } from "../logic/align";
 import { dragged, drawn, handleAt, isFull, type CropAspect, type CropHandle, type CropRectangle } from "../logic/crop";
-import { actualSize, dragView, fitView, formatZoom, imagePixel, imagePosition, zoomAt, type Size, type View } from "../logic/viewport";
+import { isMac } from "../logic/platform";
+import { actualSize, dragView, fitView, formatZoom, imagePixel, imagePosition, wheelIntent, zoomAt, type Size, type View } from "../logic/viewport";
+import { viewerControl } from "../viewerControl";
 import CompareOverlay from "./CompareOverlay.vue";
 import CropOverlay from "./CropOverlay.vue";
 
-// The image area: mouse wheel zooms around the pointer, dragging moves the image, the zoom bar at the bottom
+// The image area: mouse wheel zooms around the pointer (on the Mac scrolling moves the image, Option or Cmd and scrolling or the
+// pinch of the trackpad zoom), dragging moves the image, the zoom bar at the bottom
 // gives -, the scale (a click shows 100 %), + and Fit. Overlays in the `overlay` slot are drawn in image pixels,
 // so they zoom with the image.
 const props = defineProps<{
@@ -139,9 +142,17 @@ onMounted(() => {
     if (fitted.value) fit();
   });
   if (box.value) observer.observe(box.value);
+  for (const name of pinchEvents) box.value?.addEventListener(name, onPinch);
+  viewerControl.zoom = zoom;
+  viewerControl.fit = fit;
+  viewerControl.actualSize = showActualSize;
   draw();
 });
-onBeforeUnmount(() => observer?.disconnect());
+onBeforeUnmount(() => {
+  observer?.disconnect();
+  for (const name of pinchEvents) box.value?.removeEventListener(name, onPinch);
+  viewerControl.zoom = viewerControl.fit = viewerControl.actualSize = null;
+});
 
 const stageStyle = computed(() => ({
   width: `${size.value?.w ?? 0}px`,
@@ -168,8 +179,34 @@ function showActualSize() {
 }
 
 function onWheel(event: WheelEvent) {
-  zoom(event.deltaY < 0 ? 1.15 : 1 / 1.15, point(event));
+  if (!size.value) return;
+  const intent = wheelIntent(event, isMac);
+  if (intent.kind === "zoom") {
+    zoom(intent.factor, point(event));
+  } else {
+    view.value = { ...view.value, x: view.value.x + intent.dx, y: view.value.y + intent.dy };
+    fitted.value = false;
+  }
 }
+
+// The pinch of the trackpad reaches the web view of the Mac as gesture events (Safari's own, not in lib.dom): `scale` is the
+// factor since the start of the pinch, so every change zooms by the step since the one before, around the fingers.
+interface PinchEvent extends Event {
+  scale: number;
+  clientX: number;
+  clientY: number;
+}
+let pinchScale = 1;
+function onPinch(event: Event) {
+  event.preventDefault();
+  const pinch = event as PinchEvent;
+  if (event.type === "gesturestart") pinchScale = 1;
+  else {
+    zoom(pinch.scale / pinchScale, point(pinch));
+    pinchScale = pinch.scale;
+  }
+}
+const pinchEvents = ["gesturestart", "gesturechange", "gestureend"];
 
 let drag: { x: number; y: number } | null = null;
 const dragging = ref(false);

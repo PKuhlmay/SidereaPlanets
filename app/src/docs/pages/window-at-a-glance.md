@@ -62,7 +62,7 @@ After **Save Image** the Save step stays open and shows the result; instead of *
 | Number | Possible, not done yet. Click to open it |
 | Gray | Not possible yet. The tooltip says which step is missing |
 
-During a calculation no step can be clicked. **Alt+1** to **Alt+7** open the steps from the keyboard, like a click on them (on the Mac ⌥⌘1 to ⌥⌘7 in the menu **Run ▸ Go to Step**); a gray step does not open.
+During a calculation no step can be clicked. **Alt+1** to **Alt+7** (on the Mac **⌥⌘1** to **⌥⌘7**, also in the menu **Run ▸ Go to Step**) open the steps from the keyboard, like a click on them; a gray step does not open. All shortcuts are listed in [Menus and settings](menus-and-settings).
 
 ## Going back to a step
 
@@ -74,7 +74,7 @@ Wavelets counts as done as long as the result of **Do All** matches the current 
 
 ## Help
 
-**Help** in the toolbar opens this documentation in a window of its own, in front of the main window. Your work stays where it is, so you can keep the help open beside it. Press Escape in the help window, or close it, when you are done. On the Mac the menu bar has it: **Help ▸ Siderea Planets Help** (⌘?); see [Menus and settings](menus-and-settings).
+**Help** in the toolbar opens this documentation in a window of its own, in front of the main window. Your work stays where it is, so you can keep the help open beside it. Press Escape in the help window, or close it, when you are done. On the Mac the menu bar has it as well: **Help ▸ Siderea Planets Help** (⌘?); see [Menus and settings](menus-and-settings).
 
 ## Title of the window
 
@@ -82,6 +82,6 @@ The title shows the name of the file. While a step is running it shows the step 
 
 ## Light and dark
 
-The window is dark by default, so it does not tint how you judge the colors of an image. Choose **Settings ▸ Theme ▸ Light** for the light theme. The area around the image stays dark in both themes. The choice is remembered.
+The window is dark by default, so it does not tint how you judge the colors of an image. Choose **Settings ▸ Theme ▸ Light** for the light theme. The area around the image stays dark in both themes. The choice is remembered. On the Mac the window follows the appearance of macOS instead (System Settings ▸ Appearance), and there is no *Theme* entry.
 
 More on the parts: [The image area](image-area), [Menus and settings](menus-and-settings), [Progress, Cancel and Pause](progress-cancel-pause).

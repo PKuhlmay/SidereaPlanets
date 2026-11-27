@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { stepShortcut } from "../logic/keys";
+import { isMac } from "../logic/platform";
 import { stepInfo, viewSteps, type ViewStep } from "../logic/workflow";
 import { session, status } from "../state";
 import { resultOf, states } from "../steps";
@@ -23,7 +24,7 @@ function title(id: ViewStep, label: string): string {
   const result = resultOf(id);
   if (state.status === "locked") lines.push(state.hint);
   else if (state.status === "done" && result) lines.push(`${label} · ${result}`);
-  lines.push(`Shortcut: ${stepShortcut(id)}`);
+  lines.push(`Shortcut: ${stepShortcut(id, isMac)}`);
   return lines.join("\n");
 }
 </script>

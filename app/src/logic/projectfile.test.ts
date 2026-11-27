@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { applyProject, buildProject, mergeKnown } from "./projectfile";
+import { applyProject, buildProject, isProjectFile, mergeKnown } from "./projectfile";
 import { createSettings } from "./settings";
 
 describe("buildProject", () => {
@@ -162,5 +162,14 @@ describe("mergeKnown", () => {
     mergeKnown(target, "text");
     mergeKnown(target, null);
     expect(target.a).toBe(1);
+  });
+});
+
+describe("isProjectFile", () => {
+  it("knows a project file by its extension, whatever the case", () => {
+    expect(isProjectFile("/Users/a/JUPITER.sidereaplanets")).toBe(true);
+    expect(isProjectFile("C:\\data\\Saturn.SidereaPlanets")).toBe(true);
+    expect(isProjectFile("/Users/a/JUPITER.ser")).toBe(false);
+    expect(isProjectFile("/Users/a/sidereaplanets")).toBe(false);
   });
 });

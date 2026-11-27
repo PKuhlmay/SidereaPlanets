@@ -23,7 +23,8 @@ import { startColour } from "./colour";
 import { cancelCrop, clampedDivider, isComparing, setBefore, setCropDraft } from "./cropTool";
 import { orientationApplies, orientImage } from "./geometryView";
 import { formatAspect } from "./logic/crop";
-import { openDroppedFiles } from "./recording";
+import { startNativeBridge } from "./nativeBridge";
+import { openDroppedFiles } from "./openFromOutside";
 import { startResourceMonitor } from "./resource";
 import { handleShortcut } from "./shortcuts";
 import { pickToneImage } from "./logic/colour";
@@ -51,8 +52,9 @@ const image = computed(() =>
 const wavelet = computed(() => kind.value === "wavelet");
 startColour();
 openDroppedFiles();
+void startNativeBridge();
 startResourceMonitor();
-// ← and → page through the frames, Alt+1 to Alt+7 open the steps (shortcuts.ts).
+// ← and → page through the frames, Alt+1 to Alt+7 (Mac: ⌥⌘1 to ⌥⌘7) open the steps, Cmd or Ctrl and a key run commands (shortcuts.ts).
 onMounted(() => window.addEventListener("keydown", handleShortcut));
 onBeforeUnmount(() => window.removeEventListener("keydown", handleShortcut));
 

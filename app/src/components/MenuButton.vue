@@ -23,6 +23,8 @@ const open = ref(false);
 const root = ref<HTMLElement | null>(null);
 
 const close = () => (open.value = false);
+// The menu can also be opened from outside (Cmd+, opens Settings).
+defineExpose({ show: () => (open.value = true) });
 
 function onDocumentPointer(event: PointerEvent) {
   if (open.value && root.value && !root.value.contains(event.target as Node)) close();
