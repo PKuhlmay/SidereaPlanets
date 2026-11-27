@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Rebuilds the app icon files of both apps from the Icon Composer layers in docs/design/icon (MAC-012).
+# Rebuilds the app icon files of the app from the Icon Composer layers in docs/design/icon (MAC-012).
 #
 #   scripts/make-icons.sh            everything below
 #   scripts/make-icons.sh --check    only render the master PNG into the build folder (no changes in the repo)
@@ -11,7 +11,6 @@
 #   3. runs `pnpm tauri icon` on the master and writes the Windows set (icon.ico, icon.icns, PNGs, Square*Logo) to
 #      app/src-tauri/icons/; the 16, 24 and 32 px sizes come from the simplified src/AppIcon-small.svg (readable when tiny).
 #
-# The Mac app takes both .icon folders straight from mac/project.yml (Debug wears AppIconDev), no step needed there.
 # Needs rsvg-convert (brew install librsvg), python3 and pnpm; step 3 runs `pnpm install --frozen-lockfile` in app/ when needed.
 # Edit the SVG layers (or the .icon in Icon Composer), run this script, commit the changed files. Runs with the bash 3.2 of macOS.
 set -euo pipefail

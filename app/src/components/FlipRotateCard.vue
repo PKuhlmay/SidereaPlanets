@@ -17,7 +17,7 @@ import { session, settings } from "../state";
 import FloatCard from "./FloatCard.vue";
 import NumberField from "./NumberField.vue";
 
-// Flip and Rotate card (SP-022, after the Mac's GeometryCards.swift): mirrors the picture, turns it by 90° or by any angle, and chooses
+// Flip and Rotate card (SP-022, after the earlier SwiftUI app): mirrors the picture, turns it by 90° or by any angle, and chooses
 // how the pixels in between are calculated. The image area shows the result; while the crop tool is open nothing here can change.
 const o = settings.geometry.orientation;
 const canEdit = computed(() => !session.crop.editing);

@@ -6,8 +6,8 @@ Bedienelementen ausgelesen und mit Screenshots abgeglichen. Screenshots und Steu
 
 **Namen in Siderea Planets (MAC-014).** Dieses Dokument beschreibt die Oberfläche des Referenzprogramms mit dessen Begriffen. Wo die App
 einen Bedienbegriff anders nennt, steht er in der Spalte „Name in Siderea Planets“ neben dem Begriff des Referenzprogramms, der unverändert
-bleibt; Listen nennen den App-Namen in „(in der App: …)“. Die App-Namen folgen MAC-014 und der Zuordnung in
-`docs/parity/WINDOWS_PARITY.md` (Abschnitt „Verständliche Texte für Einsteiger“). Regeln dort: kein Name des Referenzprogramms und kein „das
+bleibt; Listen nennen den App-Namen in „(in der App: …)“. Die App-Namen folgen MAC-014 und den Regeln in
+`docs/design.md` (Abschnitt „Texte und Schreibweise“). Regeln dort: kein Name des Referenzprogramms und kein „das
 Original“ in sichtbaren Texten der App, US-Englisch, Title Case für Schaltflächen, Menüs und Gruppenüberschriften, Sentence case
 für Beschriftungen, Häkchen und Tooltips, Einheiten am Feld. Ein „—“ in der Spalte heißt: Name unverändert.
 

@@ -239,8 +239,7 @@ Beschränkt das Schärfen auf einen Bereich, meist die Scheibe:
 ### Einbindung
 
 - Werte: `RefineSettings` (Kern, serde mit `default`) im Feld `refine` von `ColorSettings` (Sitzung, `#[serde(default)]`: die Tauri-Befehle der
-  Windows-App senden es nicht und lassen das Bild unverändert). Mac: `RefineSettings` und `MaskSettings` der FFI, Swift `RefineValues`
-  (`mac/App/Model/RefineLogic.swift`).
+  Windows-App senden es nicht und lassen das Bild unverändert). Die frühere SwiftUI-App las dieselben Werte über die FFI-Schicht.
 - Projektdatei: eigener, optionaler Abschnitt `refine` neben `align`, `stack`, `wavelet` und `colour` (`denoise`, `deringing`, `radius`,
   `maskOn`, `threshold`, `feather`, `invert`; Show mask wird nicht gespeichert). Die Abschnitte `wavelet` und `colour` bleiben im Layout der
   Windows-App; sie kennt den neuen Abschnitt nicht und ignoriert ihn, und ein Projekt ohne ihn lässt die Werte der Karten, wie sie sind.

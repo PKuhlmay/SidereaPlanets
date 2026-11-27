@@ -1,5 +1,5 @@
 //! The errors of the session. The texts are the ones the window shows, so they must not change
-//! without the frontend (`app/src`) and the Mac app agreeing.
+//! without the frontend (`app/src`) agreeing.
 
 use std::{
     fmt::Display,

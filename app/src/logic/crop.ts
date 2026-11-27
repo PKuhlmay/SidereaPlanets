@@ -1,4 +1,4 @@
-// The geometry of the crop rectangle (MAC-016), a port of mac/App/Model/CropRectangle.swift (which comes from Siderea): GUI-free and
+// The geometry of the crop rectangle (MAC-016), a port of the earlier SwiftUI app (which took it from Siderea): GUI-free and
 // in whole image pixels, top-left origin. `minX`/`minY` are the first kept column and row, `maxX`/`maxY` the first one past the
 // rectangle. Nothing here is ever outside the image or smaller than `MINIMUM_SIZE`. Rounding is half away from zero like Swift's.
 

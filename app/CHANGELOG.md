@@ -4,12 +4,14 @@
 
 ### English
 
+- The app has a new internal identifier (de.kuhlmay.siderea.planets). Once after this update the list of recent recordings, the theme and the panels you had opened start over; your recordings, project files and results are not affected.
 - Mac: the app has a menu bar (File, Edit, View, Run, Window, Help) and uses Cmd instead of Ctrl for its shortcuts: Cmd+O select a recording, Cmd+S save the image, Cmd+. cancel, Cmd+, settings, Option+Cmd+1 to 7 open a step. The window follows the light or dark appearance of macOS, a double-click on a project file in Finder opens it, and a pinch on the trackpad zooms the image.
 - Windows and Linux: Ctrl+O, Ctrl+S, Ctrl+. and Ctrl+, do the same; Ctrl+plus, Ctrl+minus, Ctrl+0 and Ctrl+1 zoom the image; Alt+1 to Alt+7 still open the steps.
 - Project files now end in .sidereaplanets. To open a project saved with an earlier build, rename its file to this ending.
 
 ### Deutsch
 
+- Die App hat eine neue interne Kennung (de.kuhlmay.siderea.planets). Einmalig nach diesem Update beginnen die Liste der zuletzt geöffneten Aufnahmen, das Thema und die geöffneten Panels von vorn; Aufnahmen, Projektdateien und Ergebnisse sind nicht betroffen.
 - Mac: Die App hat eine Menüleiste (Ablage, Bearbeiten, Darstellung, Run, Fenster, Hilfe) und nutzt Cmd statt Ctrl: Cmd+O Aufnahme wählen, Cmd+S Bild speichern, Cmd+. abbrechen, Cmd+, Einstellungen, Option+Cmd+1 bis 7 öffnen einen Schritt. Das Fenster folgt dem hellen oder dunklen Erscheinungsbild von macOS, ein Doppelklick auf eine Projektdatei im Finder öffnet sie, und ein Pinch auf dem Trackpad zoomt das Bild.
 - Windows und Linux: Strg+O, Strg+S, Strg+. und Strg+, tun dasselbe; Strg+Plus, Strg+Minus, Strg+0 und Strg+1 zoomen das Bild; Alt+1 bis Alt+7 öffnen weiter die Schritte.
 - Projektdateien enden jetzt auf .sidereaplanets. Ein mit einem früheren Stand gespeichertes Projekt öffnet sich, nachdem die Datei auf diese Endung umbenannt wurde.

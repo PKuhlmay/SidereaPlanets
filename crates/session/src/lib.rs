@@ -2,7 +2,7 @@
 //! Alignpoints, Align, Limit, Stack, Wavelets, Save, `docs/workflow.md`).
 //!
 //! A user interface owns one [`Session`] and calls its methods. The Tauri shell of the Windows app
-//! (`app/src-tauri`) and the interface to the Mac app (`crates/ffi`) are thin layers over it: they
+//! (`app/src-tauri`) is a thin layer over it: it
 //! translate arguments, show images and map [`ProgressSink`] to what their toolkit uses.
 //!
 //! - Inputs and results are plain types; where the window exchanges them as JSON they carry the

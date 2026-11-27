@@ -1,4 +1,4 @@
-// The pure parts of the cards Flip and Rotate and Resize Image (SP-022, after mac/App/Model/GeometryLogic.swift): the values with their
+// The pure parts of the cards Flip and Rotate and Resize Image (SP-022, after the earlier SwiftUI app): the values with their
 // defaults and limits, the sizes they give, what Save Image sends and the section `geometry` of the project file. The picture itself is
 // made in the Rust core (crates/core/src/geometry.rs; order: refine, colors, flip and rotate, crop, resize). `orientedSize` and
 // `resizeSize` follow `Orientation::output_size` and `Resize::output_size` there, with the values of its tests in geometry.test.ts, so

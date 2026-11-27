@@ -1,5 +1,0 @@
-# Names of the generated Swift module and of the C module its XCFramework exposes (mac/Packages/SidereaPlanetsKit).
-[bindings.swift]
-module_name = "SidereaPlanetsBindings"
-ffi_module_name = "SidereaPlanetsFFI"
-ffi_module_filename = "SidereaPlanetsFFI"

@@ -1,8 +1,8 @@
 # Design der Oberfläche
 
-Verbindliche Vorgabe für alles, was im Klon sichtbar ist. Umgesetzt wird sie im Frontend unter `app/src` (SP-010) und in der
-Mac-App unter `mac/App` (MAC-005, SwiftUI; ihre bewussten Abweichungen stehen in [Mac-App](#mac-app-bewusste-abweichungen));
-jedes Ticket, das Bedienelemente anfasst, hält sich daran.
+Verbindliche Vorgabe für alles, was im Klon sichtbar ist. Umgesetzt wird sie im Frontend unter `app/src` (SP-010), das auf
+macOS, Windows und Linux dasselbe Fenster zeigt; jedes Ticket, das Bedienelemente anfasst, hält sich daran. Die frühere
+SwiftUI-App (`mac/`, bis PLANETS-4) steht nur noch in der Git-Historie; wo hier „Mac“ oder MAC-Nummern stehen, ist sie gemeint.
 
 Die Arbeitsteilung der Dokumente:
 
@@ -19,13 +19,12 @@ Bei Widersprüchen gewinnt für Begriffe und Werte `docs/ui.md`, für Aussehen u
 | Datei | Inhalt |
 |---|---|
 | `docs/design/tokens.css` | Farben, Schrift, Maße. Einzige Quelle für diese Werte, wird ins Frontend übernommen |
-| `mac/App/Design/Tokens.swift` | Dieselben Werte als Swift-Farben und -Maße für die Mac-App, je Wert mit hellem und dunklem Zweig. Ein Wert ändert sich zuerst in `tokens.css`, dann hier |
 | `docs/design/oberflaeche-entwurf.html` | Klickbarer Entwurf aller sieben Schritte, im Browser öffnen |
 | `docs/design/screenshots/` | Soll-Bilder der Zustände bei 1440×900, erzeugt aus dem Entwurf |
 | `docs/design/siderea-planets.figcraft` | Die sieben Schritte (Open, Alignpoints, Align, Limit, Stack, Wavelets, Save) als FigCraft-Datei, je dunkel und hell, dazu Limit mit geöffnetem Menü Show, Stack im erledigten Zustand und das Help-Fenster: 20 Frames, 18 davon 1440×900, die zwei Help-Fenster 1000×720. Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
 | `docs/design/vorschlag-gefuehrter-ablauf.html` | Überholt: die drei Vorschläge, aus denen die Schrittleiste (SP-014) gewählt wurde |
 | `docs/design/figcraft-build.mjs` | Baut die FigCraft-Datei neu und liest die Farben dabei aus `tokens.css`. Aufruf: `node docs/design/figcraft-build.mjs` |
-| `docs/design/icon/` | App-Icon beider Apps: Icon-Composer-Dokumente `AppIcon.icon` und `AppIconDev.icon`, 1024-px-Master `AppIcon-1024.png`, Quellen in `src/` (siehe [App-Icon](#app-icon)) |
+| `docs/design/icon/` | App-Icon: Icon-Composer-Dokumente `AppIcon.icon` und `AppIconDev.icon`, 1024-px-Master `AppIcon-1024.png`, Quellen in `src/` (siehe [App-Icon](#app-icon)) |
 
 Alle Frames, auch die zwei Help-Fenster (SP-012, siehe [Doku](#doku)), entstehen aus dem Skript. Ein Lauf schreibt die
 Datei neu und verliert nichts; Änderungen gehören deshalb ins Skript, nicht von Hand in die Datei.
@@ -334,11 +333,9 @@ Sechs Felder, durch Linien getrennt, Schrift 12 px in `--muted`, Meldungen in `-
    (gedreht und gespiegelt, wie es zu sehen ist), leer außerhalb des Bilds und in den anderen Schritten
 5. „Time used … · Time left …“
 6. wie in Siderea Version · Commit · Bauzeit, z. B. `0.1.0 · a4e826b · 2026-11-13 13:38` (Ortszeit auf die Minute, Unbekanntes fällt
-   weg), Tooltip „Version of Siderea Planets and the time this build was made.“ Am Mac kommt der Commit aus `SP_BUILD_COMMIT`, das
-   `scripts/deploy-mac.sh` und `scripts/build-mac-release.sh` setzen (ein Bau aus Xcode zeigt ihn nicht), die Bauzeit ist das
-   Änderungsdatum der ausführbaren Datei
+   weg), Tooltip „Version of Siderea Planets and the time this build was made.“ Commit und Bauzeit setzt `app/vite.config.ts` beim Bau des Frontends
 
-Die Meldungstexte waren die des Originals (`docs/workflow.md`); seit MAC-014 gelten die Texte aus `docs/parity/WINDOWS_PARITY.md`.
+Die Meldungstexte waren die des Originals (`docs/workflow.md`); seit MAC-014 gelten die Texte der App (`app/src`, Namen je Element in `docs/ui.md`).
 
 Ganz links, vor dem Fortschrittsbalken, steht die **Auslastung** der App (wie in Siderea): „CPU (12)“ mit der Last als Anteil aller
 12 Kerne („ 50 %“, ab 90 % `--accent` und fett) und „RAM“ mit dem belegten Speicher („1.5 GB“), Werte in `--text`, Beschriftung
@@ -776,9 +773,8 @@ Schlüssel, bleiben die Werte; beide Apps schreiben und lesen ihn (Windows seit 
 
 ## Texte und Schreibweise (MAC-014)
 
-Die Oberfläche soll für Einsteiger verständlich sein (Philipp, 2026-11-12). Die Zuordnung alt → neu aller Namen, die Tooltips und die
-gesperrten Elemente stehen in `docs/parity/WINDOWS_PARITY.md` (Abschnitt „Verständliche Texte für Einsteiger“), die Namen je Element
-in der Spalte „Name in Siderea Planets“ in `docs/ui.md`. Dieses Dokument nennt die Regeln:
+Die Oberfläche soll für Einsteiger verständlich sein (Philipp, 2026-11-12). Die Namen je Element stehen in der Spalte
+„Name in Siderea Planets“ in `docs/ui.md`, die Tooltips und gesperrten Elemente im Frontend (`app/src`). Dieses Dokument nennt die Regeln:
 
 - **Schreibweise nach HIG.** *Title Case* für Schaltflächen, Menüeinträge und Gruppen- oder Kartenüberschriften („Set Alignpoints“,
   „Save Project…“, „Alignpoints Used for Stacking“); *Sentence case* für Feldbeschriftungen, Häkchen, Radios, Hinweise und Tooltips
@@ -798,7 +794,7 @@ in der Spalte „Name in Siderea Planets“ in `docs/ui.md`. Dieses Dokument nen
 - **US-Englisch** überall (Color, Center, gray).
 - **Tooltips auf Fachbegriffen:** Schritte, Aktionsknöpfe und Felder mit Fachwort (Alignpoints, Threshold, Limit, Wavelets, Layer,
   Denoise, Do All, Correct geometry, …) erklären sich in einem Satz; Etabliertes bleibt im Namen, die Erklärung kommt in den Tooltip.
-  Die Texte stehen in Tabelle 2 der Zuordnung in `docs/parity/WINDOWS_PARITY.md`.
+  Die Texte stehen im Frontend (`app/src/components`).
 - **Hilfeseiten** (`app/src/docs/pages/`) nutzen dieselben Namen und haben die Seite *Glossary* für die Fachwörter.
 
 ## Bewusste Abweichungen vom Original
@@ -823,41 +819,11 @@ in der Spalte „Name in Siderea Planets“ in `docs/ui.md`. Dieses Dokument nen
 | CPUs: Standard 1 | Standard = Zahl der logischen Kerne, Bereich 1 bis dahin; die Zahl wirkt auf alle Berechnungen (eigener Thread-Pool im Backend) und wird nicht in der Projektdatei gespeichert | SP-010; Philipp (2026-11-12): die Auswahl soll wirklich wirken und der Rechner standardmäßig ausgelastet sein; die Kernzahl gehört zum Rechner, nicht zum Projekt |
 | » klappt das Functions-Panel | „Functions »“ oben im Bildbereich (in der App seit MAC-014: „Adjust ›“) | Beschriftung sagt, was geklappt wird |
 
-## Mac-App: bewusste Abweichungen
-
-Die Mac-App (`mac/App`, SwiftUI) übernimmt Tokens, Fensteraufbau, Schrittleiste, Panels, Bildbereich, Frame- und Statusleiste dieses
-Dokuments. Bedienelemente und Eingaben folgen dort, wo es eine Mac-Konvention gibt, dieser statt dem Entwurf:
-
-| Entwurf (Windows) | Mac-App | Grund |
-|---|---|---|
-| Werkzeugleiste als eigene Leiste, 44 px, Fenstertitel nur der des Systems | Native Werkzeugleiste im Fenster (Select Recording, Recent Recordings, in der Mitte Cancel und Pause); Titel `Siderea Planets — ‹Datei›` in der Titelleiste | Mac-Fensteraufbau; Open und Save (Projekt) stehen links neben Cancel und Pause, Help und CPUs kommen mit MAC-010 |
-| Select und MRU nur in der Werkzeugleiste | zusätzlich **⌘O** „Select Recording…“ (bis MAC-014 „Open…“) und **Datei > Open Recent** (mit „Clear Menu“) | Menüleiste und ⌘-Kürzel (Mac-Konvention) |
-| Dateidialog des Betriebssystems | `NSOpenPanel`, Mehrfachauswahl; die Dateien einer Bildserie gehen nach Namen sortiert an den Kern | nativ |
-| Mausrad zoomt, Ziehen verschiebt | Pinch auf dem Trackpad zoomt um die Finger, **⌥ oder ⌘ + Scrollen** zoomt um den Zeiger, einfaches Scrollen und Ziehen verschieben, Zwei-Finger-Doppeltipp schaltet zwischen Fit und 100 % | Mac-Gesten; ein Mausrad ohne Taste zoomt nicht |
-| Zoom-Leiste − · Prozent · + · Fit | gleich, dazu **⌘+ ⌘- ⌘0** (Fit) und **⌘1** (100 %) im Menü View (auf einem deutschen Mac „Darstellung“) | Mac-Kürzel |
-| Frame-Leiste: Goto Frame und Regler | zusätzlich Schaltflächen zum vorigen und nächsten Frame sowie **⌘[** und **⌘]** | schnelles Blättern ohne Regler |
-| Cancel und Pause nur als Schaltflächen der Werkzeugleiste | zusätzlich Menü **Run** (bis MAC-014 „Process“) mit **Cancel (⌘.)** und **Pause/Resume**; Cancel ist in der Werkzeugleiste gefüllt (`--accent`), solange Align, Stack, Process, Do All oder Create AVI läuft; beide wirken nur auf diese Läufe (Set Alignpoints und Limit sind in einem Augenblick fertig) | Mac-Kürzel ⌘. für „abbrechen“ |
-| Show ▾ mit Häkchen als eigenes Menü, Radiobuttons und Zahlenfelder mit eigenen Pfeiltasten | natives Menü (Häkchen links), Radiobuttons als eigene Zeilen in `--accent`, Zahlenfeld mit nativem `Stepper`; der Threshold-Regler färbt die Spur links vom Griff in `--accent` | Mac-Steuerelemente; ein `Slider` ohne Einfärbung gibt es in SwiftUI nicht |
-| Thema in Settings > Theme umschaltbar | folgt der Darstellung von macOS (hell und dunkel), kein Theme-Eintrag | Systemeinstellung gilt |
-| Felder, Regler, Stepper, Menüs der Oberfläche | Systemschrift (SF) in 13 und 12 pt, native Steuerelemente (`Stepper`, `Slider`, `TextField`) mit Akzent `--accent`; eigene Gestaltung nur dort, wo dieses Dokument sie festlegt (Pillen, Schaltflächen, Zoom-Leiste, Statusleiste) | Mac-Steuerelemente, Fokus und Bedienungshilfen kommen vom System |
-| – | Eine Datei aus dem Finder auf das Fenster ziehen öffnet sie | Mac-Konvention |
-| Save image nur als Schaltfläche mit Menü der Dateitypen; Open und Save (Projekt) nur in der Werkzeugleiste | zusätzlich im Menü File: **Save Image… (⌘S)** im zuletzt gewählten Dateityp (Start: TIFF 16 bit; bietet der Schritt ihn nicht an, TIFF), **Save Project…** und **Open Project…**; Speichern-Dialog `NSSavePanel` mit dem gewählten Typ, Öffnen-Dialog `NSOpenPanel` für `.sidereaplanets`; Save Aligned Video… und Save Averaged Video… (Original: Save Aligned und Save Integrated) laufen wie Stack mit Fortschritt, Cancel (⌘.) und Pause | Mac-Konvention ⌘S und native Dateidialoge |
-| Help in der Werkzeugleiste, Doku-Ansicht mit Seitenliste und Suche | Menü **Help > Siderea Planets Help (⌘?)** öffnet dasselbe Help-Fenster (1000 × 720 pt, mindestens 640 × 400, zentriert, `Window`-Szene: ein zweiter Aufruf holt es nach vorn, Escape oder Schließen beendet es). Die Seiten sind dieselben Markdown-Dateien (`app/src/docs/pages/`, beim Bau ins Bündel kopiert); die Ansicht ist eine `WKWebView` mit dem Stil aus „Doku“, die Seitenliste mit Suchfeld ist SwiftUI. Keine Schaltfläche Help in der Werkzeugleiste | Mac-Menü; die Doku bleibt gemeinsam |
-| About in der Werkzeugleiste (im Original nicht vorhanden, in Windows noch „Not available yet“) | **About Siderea Planets** im App-Menü (Standard-Infofenster mit Version aus `MARKETING_VERSION`) | Mac-Konvention |
-| CPUs-Feld in der Werkzeugleiste, Settings als Menü der Werkzeugleiste | **Siderea Planets > Settings… (⌘,)**: Fenster mit dem Feld CPUs (Zahlenfeld mit `Stepper`, 1 bis zu den logischen Kernen, Standard alle, nicht gespeichert; die Änderung gilt für die nächste Berechnung). Dazu der Abschnitt Wavelets mit **Preview area** (Original: Processing Area; 2048 bis 128, Standard 512, „512 × 512 px“) und **Load Scheme… / Save Scheme…** (`.rwv`, dasselbe Dateiformat wie Windows; die Schaltflächen im Advanced des Schritts Wavelets tun dasselbe). Die übrigen Einträge des Windows-Menüs Settings (Automatic Processing, Luminance, Stretch FIT/TIFF, …) kommen mit dem Schritt, der sie braucht; Theme entfällt (macOS-Darstellung) | Mac-Konvention |
-| Regler der Ebenen, Contrast/Brightness, Gamma und RGB Balance: Spur ohne Einfärbung, Zahlenfelder mit eigenen Pfeiltasten | native `Slider` mit `Stepper`; die Spur links vom Griff ist in `--accent` gefärbt (wie beim Threshold), die Felder haben 2, 3, 1 oder 0 Nachkommastellen wie im Entwurf, der Punkt ist immer der Dezimaltrenner | Mac-Steuerelemente |
-| Vollbild gibt es nicht | **View > Enter Full Screen (⌃⌘F)** und die grüne Fenstertaste | Mac-Konvention |
-| Schritte nur über die Schrittleiste | zusätzlich **Run > Go to Step** (bis MAC-014 „Process > Go to Step“) mit **⌥⌘1** bis **⌥⌘7** (gesperrte Schritte und eine laufende Berechnung sperren den Eintrag wie die Schrittleiste) | Tastaturbedienung; ⌘1 ist Actual Size |
-
-Die Dateiangaben im Schritt Open zeigen auf dem Mac zusätzlich zu Dateiname, Codec, Größe und Frame-Zahl auch Format, Bittiefe,
-Farbe, Bildrate und (wo die Datei sie hat) Beobachter, Instrument und Teleskop; Windows zieht das nach
-(`docs/parity/WINDOWS_PARITY.md`).
-
 ## App-Icon
 
 Das Icon gehört zur Familie mit Siderea (gleicher Hintergrund, gleiche drei gestapelten Rahmen mit Orange-Kontur) und zeigt
 das Thema des Programms: ein Planet im vorderen Rahmen, **links unscharf, rechts scharf mit Bändern**, dazwischen eine dünne helle
-Trennlinie, dahinter ein oranger Schein. Mac und Windows tragen dasselbe Bild.
+Trennlinie, dahinter ein oranger Schein. Alle Plattformen tragen dasselbe Bild.
 
 | Ebene (`docs/design/icon/AppIcon.icon/Assets`) | Inhalt |
 |---|---|
@@ -868,15 +834,12 @@ Trennlinie, dahinter ein oranger Schein. Mac und Windows tragen dasselbe Bild.
 | `planet-sharp.svg` | rechte Planetenhälfte mit Bändern und die Trennlinie |
 
 Alle SVG-Ebenen liegen auf dem 824-Einheiten-Raster des Mac-Icons (`transform="scale(1.242718) translate(-100 -100)"`).
-`AppIconDev.icon` ist dieselbe Ebenenfolge mit einem orangen **DEV-Abzeichen**: Der Debug-Build der Mac-App trägt es
-(`ASSETCATALOG_COMPILER_APPICON_NAME[config=Debug]` in `mac/project.yml`), damit er im Dock nicht mit der installierten App
-verwechselt wird. Die Windows-App hat kein Abzeichen.
+`AppIconDev.icon` ist dieselbe Ebenenfolge mit einem orangen **DEV-Abzeichen**; die Tauri-App benutzt es nicht, es bleibt als Vorlage.
 
 **Neu erzeugen** nach einer Änderung an den Ebenen: `scripts/make-icons.sh`. Es rechnet das PNG der Unschärfe, gleicht
 `AppIconDev.icon` an, setzt `AppIcon-1024.png` zusammen (Quadrat mit abgerundeten Ecken, 40 px Rand) und schreibt über
 `pnpm tauri icon` den Windows-Satz nach `app/src-tauri/icons/`. Die Größen 16, 24 und 32 px der `icon.ico` (und `32x32.png`)
 kommen aus der vereinfachten `src/AppIcon-small.svg`: nur der vordere Rahmen, dicker Rand, größerer Planet, kräftigere Trennlinie.
-Die Mac-App braucht keinen Schritt, `xcodegen` und `xcodebuild` bauen die `.icon`-Ordner selbst.
 
 ## Was im Entwurf nur Platzhalter ist
 

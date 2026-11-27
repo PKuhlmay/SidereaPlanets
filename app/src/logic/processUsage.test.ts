@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { byteText, cpuPercent, cpuReading, isHigh, isMeasuring } from "./processUsage";
 
-// The rules of the Mac app (mac/Tests/SidereaPlanetsTests/ProcessUsageTests.swift), so that both status bars read the same.
+// The rules of the earlier SwiftUI app, which took them from Siderea, so that the readout looks the same across the suite.
 const sample = (cpuSeconds: number, uptime: number) => ({ cpuSeconds, memoryBytes: 0, uptime });
 
 describe("cpuPercent: CPU load between two readings", () => {

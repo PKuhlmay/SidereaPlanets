@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { centreCrossArm, thirdsLines, type CropRectangle } from "../logic/crop";
 import type { View } from "../logic/viewport";
 
-// The crop rectangle over the image (SP-021, after the Mac's CropOverlay.swift and Siderea): everything outside is dimmed, a light border
+// The crop rectangle over the image (SP-021, after the earlier SwiftUI app and Siderea): everything outside is dimmed, a light border
 // over a dark one, a rule-of-thirds grid, a small cross at the centre, eight square grips and a "width × height" plate. The rectangle Done
 // kept shows only the dimmed outside, the border and the plate. Drawn in screen pixels from the view, so every line stays thin; never in
 // the way of the pointer (ImageViewer drags it). The image area is dark in both themes, so the colors are fixed white over black.
