@@ -3,7 +3,7 @@
 //! Supported: `BITPIX` 8, 16, 32, -32 and -64, `BZERO`/`BSCALE`, `NAXIS = 2` (mono) and
 //! `NAXIS = 3` with three planes (RGB). Extensions, compression and other layouts are rejected.
 //!
-//! Normalisation to `0.0..=1.0` (assumption, not verified against the reference program):
+//! Normalisation to `0.0..=1.0` (design choice):
 //! - Integer data: the physical value (`BZERO + BSCALE * raw`) is divided by the maximum of the
 //!   unsigned type of that width (255, 65535, 4294967295). The usual unsigned 16-bit convention
 //!   (`BITPIX = 16`, `BZERO = 32768`) therefore maps to the full range. Negative values are

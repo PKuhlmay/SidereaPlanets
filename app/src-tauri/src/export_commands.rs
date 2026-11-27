@@ -21,7 +21,7 @@ use std::path::{Path, PathBuf};
 use tauri::{AppHandle, State};
 use tauri_plugin_dialog::{DialogExt, FileDialogBuilder};
 
-/// The file types offered by *Save image* in the given tab, in the order of the reference program.
+/// The file types offered by *Save image* in the given tab, in the order of the save dialog's file type list.
 #[tauri::command]
 pub fn export_formats(source: ImageSource) -> Vec<FormatInfo> {
     planets_session::export_formats(source)
@@ -71,7 +71,7 @@ pub async fn save_image(
 }
 
 /// Opens the save dialog for `format` and writes the image there. `None` if the user cancels.
-/// `suggested_name` is the proposed file name (the reference program proposes the name of the recording) and
+/// `suggested_name` is the proposed file name (by default the name of the recording) and
 /// `directory` the folder the dialog starts in (the folder of the recording).
 // A Tauri command takes its arguments by name from the window; grouping them would only move the list into a struct.
 #[allow(clippy::too_many_arguments)]

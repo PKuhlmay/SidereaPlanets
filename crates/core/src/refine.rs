@@ -1,7 +1,7 @@
 //! Denoise/Deringing and Masking: the three finishing steps behind the *Adjustments* buttons of the Wavelet tab that work on the
 //! sharpened image and the unsharpened stack it came from (`docs/wavelets.md`, "Denoise/Deringing and Masking").
 //!
-//! The original has no such panels in the version we studied, so the algorithms are our own design. All of them take samples
+//! The algorithms are our own design. All of them take samples
 //! normalised to `0.0..=1.0`, never change the size of the image and return it unchanged (bit for bit) when their strength is zero.
 
 use crate::Image;
@@ -155,7 +155,7 @@ const EDGE_FULL: f32 = 0.30;
 ///
 /// For a sample `s` with the lowest `lo` and highest `hi` reference value in the square window of `radius` around it and the edge
 /// weight `w` = smoothstep of `hi - lo` between [`EDGE_NONE`] and [`EDGE_FULL`]: `s' = s + amount * w * max(0, lo - s)`.
-/// Samples are only ever raised, and only those below the original minimum.
+/// Samples are only ever raised, and only those below the minimum of the unsharpened stack.
 pub fn deringing(sharpened: &Image, reference: &Image, amount: f32, radius: u32) -> Image {
     let mut out = sharpened.clone();
     if amount <= 0.0 || !same_shape(sharpened, reference) {
@@ -240,12 +240,12 @@ const DENOISE_SIGMA_SPACE: f32 = 1.2;
 /// count as the same surface. The larger the strength, the more difference is counted as noise.
 const DENOISE_SIGMA_RANGE: (f32, f32) = (0.01, 0.15);
 
-/// Smooths noise without blurring edges: a bilateral filter over a 5 x 5 window, mixed with the original by `strength` (0..1).
+/// Smooths noise without blurring edges: a bilateral filter over a 5 x 5 window, mixed with the input by `strength` (0..1).
 ///
 /// Every neighbour counts with the weight `exp(-d^2 / 2 sigma_s^2) * exp(-e^2 / 2 sigma_r^2)`: `d` is its distance in pixels and `e`
 /// the root of the mean squared difference of all its channels to the centre sample, so a neighbour across a limb or a colour edge gets
 /// no weight and the edge stays. `sigma_r` grows from 0.01 to 0.15 with the strength. The result is the weighted mean, mixed
-/// with the original sample by `strength`.
+/// with the input sample by `strength`.
 pub fn denoise(image: &Image, strength: f32) -> Image {
     let strength = if strength.is_finite() {
         strength.clamp(0.0, 1.0)
@@ -562,7 +562,7 @@ mod tests {
     // --- Deringing ------------------------------------------------------------------------------
 
     #[test]
-    fn deringing_never_leaves_a_sample_below_the_local_minimum_of_the_original() {
+    fn deringing_never_leaves_a_sample_below_the_local_minimum_of_the_unsharpened_stack() {
         let reference = columns(5, limb);
         let sharpened = columns(5, ringing);
         let out = deringing(&sharpened, &reference, 1.0, 3);
@@ -572,7 +572,7 @@ mod tests {
                 let floor = local_min(&reference, x, y, 3);
                 assert!(
                     out.data[i] >= floor.min(sharpened.data[i]),
-                    "({x},{y}): {} below the original minimum {floor}",
+                    "({x},{y}): {} below the unsharpened minimum {floor}",
                     out.data[i]
                 );
                 assert!(out.data[i] >= sharpened.data[i], "({x},{y}) got darker");

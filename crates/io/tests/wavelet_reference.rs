@@ -1,6 +1,6 @@
-//! Compares wavelet sharpening with the results the reference program gave for reference case R1 (`docs/testdaten.md`,
+//! Regression test of wavelet sharpening against stored reference results for reference case R1 (Jupiter test recording,
 //! `docs/wavelets.md`). The reference files live in `re-local/` and are not in the repository; without
-//! them the tests are skipped. Input is the original's stacked image, so the stacking does not count.
+//! them the tests are skipped. Input is the stored reference stack, so the stacking does not count.
 
 use planets_core::{
     Image,
@@ -10,10 +10,10 @@ use std::path::PathBuf;
 
 /// Smallest PSNR (16-bit peak) the ticket asks for, `docs/wavelets.md`.
 const THRESHOLD_DB: f64 = 45.0;
-/// Layer 1 = 10.0 against the original. The stack itself is 55.6 dB away from the original's neutral result and
+/// Layer 1 = 10.0 against the reference. The stack itself is 55.6 dB away from the reference neutral result and
 /// 52.8 dB from the Layer 1 = 10 result, so only a value clearly above that shows that the sharpening is right.
 const STRICT_THRESHOLD_DB: f64 = 65.0;
-/// Neutral settings against the original. The tone curve is a fit to exactly this image, so the value is high; it
+/// Neutral settings against the reference. The tone curve is a fit to exactly this image, so the value is high; it
 /// guards the curve, not the sharpening.
 const NEUTRAL_THRESHOLD_DB: f64 = 85.0;
 
@@ -23,7 +23,7 @@ fn reference_dir() -> Option<PathBuf> {
     Some(common::re_local().join("reference")).filter(|p| p.join("jupiter-stack.tif").exists())
 }
 
-/// 16-bit RGB samples as written by the original.
+/// 16-bit RGB samples of a stored reference TIFF.
 fn read_tiff(path: PathBuf) -> (u32, u32, Vec<u16>) {
     let rgb = image::open(path).unwrap().into_rgb16();
     (rgb.width(), rgb.height(), rgb.into_raw())
@@ -83,7 +83,7 @@ fn reference() -> Option<Reference> {
 }
 
 #[test]
-fn default_settings_match_the_original() {
+fn default_settings_match_the_stored_reference() {
     let Some(r) = reference() else { return };
     let result = to_u16(&do_all(
         &r.stack,
@@ -91,20 +91,20 @@ fn default_settings_match_the_original() {
         ColourMode::Colour,
     ));
     let db = psnr(&result, &r.neutral);
-    eprintln!("default settings against the original: {db:.2} dB");
+    eprintln!("default settings against the reference: {db:.2} dB");
     assert!(db >= THRESHOLD_DB, "{db:.2} dB");
     assert!(db >= NEUTRAL_THRESHOLD_DB, "{db:.2} dB");
 }
 
 #[test]
-fn layer_one_at_ten_matches_the_original() {
+fn layer_one_at_ten_matches_the_stored_reference() {
     let Some(r) = reference() else { return };
     let result = to_u16(&do_all(&r.stack, &r.layer1_settings, ColourMode::Colour));
 
     let db = psnr(&result, &r.layer1);
     let unsharpened = psnr(&r.stack_u16, &r.layer1);
     eprintln!(
-        "Layer 1 = 10.0 against the original: {db:.2} dB (the unsharpened stack: {unsharpened:.2} dB)"
+        "Layer 1 = 10.0 against the reference: {db:.2} dB (the unsharpened stack: {unsharpened:.2} dB)"
     );
     assert!(db >= THRESHOLD_DB, "{db:.2} dB");
     assert!(db > unsharpened, "the result must be closer than the stack");

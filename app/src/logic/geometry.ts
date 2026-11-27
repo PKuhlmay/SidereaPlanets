@@ -17,7 +17,7 @@ export interface OrientationValues {
   flipVertical: boolean;
   /** Clockwise in degrees, -180 … 180 in tenths. Multiples of 90 turn exactly, anything between is resampled. */
   angle: number;
-  /** Cuts a freely turned picture to the largest part of the original shape without black corners. */
+  /** Cuts a freely turned picture to the largest part of the same shape without black corners. */
   cropToFit: boolean;
   method: RotationMethod;
 }

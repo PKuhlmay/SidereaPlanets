@@ -35,8 +35,8 @@ watch(
 const processingAreas: ProcessingArea[] = [2048, 1024, 512, 256, 128];
 const areaLabel = (size: number) => `${size} × ${size} px`;
 
-// The entries of the Settings menu that no step reads yet: their values are only stored, so they are locked (MAC-014). The
-// menus Flat/Dark/Reference and Tools, where nothing worked, are gone from the toolbar; their values stay in `settings.menu`.
+// The entries of the Settings menu that no step reads yet: their values are only stored, so they are locked. Menus
+// without any working entry are not shown in the toolbar; their values stay in `settings.menu`.
 const lockedSettings = [
   "Automatic Processing",
   "Autodetect Color/BW",
@@ -88,7 +88,7 @@ const lockedSettings = [
             </label>
           </div>
         </div>
-        <!-- Takes the place of "Set Skin" in the original: the light theme is part of the design (docs/design.md). The Mac follows macOS instead. -->
+        <!-- The theme switch: the light theme is part of the design (docs/design.md). The Mac follows macOS instead. -->
         <div v-if="!isMac" class="sw">
           <button type="button" class="mi" aria-haspopup="menu">Theme <span class="v arrow">{{ theme.current === "dark" ? "Dark" : "Light" }}</span></button>
           <div class="menu fly">
@@ -107,7 +107,7 @@ const lockedSettings = [
         <div v-for="name in lockedSettings" :key="name" class="mi off" title="Not available yet">{{ name }}</div>
       </MenuButton>
 
-      <!-- Not in the original: the project file keeps the recording and the settings of a session (docs/formats.md). -->
+      <!-- The project file keeps the recording and the settings of a session (docs/formats.md). -->
       <button
         type="button"
         class="btn ghost"

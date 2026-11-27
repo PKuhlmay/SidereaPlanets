@@ -44,8 +44,8 @@ vi.mock("@tauri-apps/api/webview", () => ({
 
 // The shortcuts depend on the platform; a test says which one it is (Node would answer with the one of the computer it runs on).
 const platform = vi.hoisted(() => ({ mac: false }));
-vi.mock("./logic/platform", async (original) => ({
-  ...(await original<typeof import("./logic/platform")>()),
+vi.mock("./logic/platform", async (importActual) => ({
+  ...(await importActual<typeof import("./logic/platform")>()),
   get isMac() {
     return platform.mac;
   },

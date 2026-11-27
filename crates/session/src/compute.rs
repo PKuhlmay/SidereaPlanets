@@ -62,7 +62,7 @@ impl ComputeState {
 }
 
 impl Default for ComputeState {
-    /// All logical cores; the original starts with 1 (a deliberate difference, `docs/ui.md`).
+    /// All logical cores by default (`docs/ui.md`).
     fn default() -> Self {
         // Only fails when the system cannot start threads at all, and then nothing works anyway.
         Self::with_threads(logical_cores()).expect("cannot start the calculation threads")

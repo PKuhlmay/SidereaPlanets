@@ -19,7 +19,7 @@ const align = () => createSettings().align;
 const image = { w: 1024, h: 680 };
 
 describe("setAlignpointsArgs", () => {
-  it("sends the point parameters with the defaults of the reference program, the frame and no region", () => {
+  it("sends the point parameters with the default values, the frame and no region", () => {
     expect(setAlignpointsArgs(3, align(), null)).toEqual({
       frame: 3,
       settings: {

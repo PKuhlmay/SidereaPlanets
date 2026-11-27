@@ -10,7 +10,7 @@ import StepPanel from "./StepPanel.vue";
 
 // Step 5 Stack: the key Stacking options; the others and Create AVI under Advanced. Options the backend ignores
 // (Output size other than Default, Stretch histogram, Resampling, Drizzling, and in Create AVI Codec,
-// Compression quality, the frame sizes other than Original size, Use prefilters and Compressed) are locked and marked
+// Compression quality, the frame sizes other than Source size, Use prefilters and Compressed) are locked and marked
 // "Not available yet"; their values stay in `settings.stack` (logic/stack.ts), where nothing reads them.
 // De-rotate images (SP-023) opens its settings below the check box; derotation.ts asks the core for the line at the bottom.
 const stack = settings.stack;
@@ -138,9 +138,9 @@ function onStartTime(event: Event) {
           Save Aligned Video…
         </button>
         <div class="sub">Frame size</div>
-        <!-- Only the original size is written (docs/formats.md, "Create AVI"), so it is always the one that is on. -->
+        <!-- Only the size of the source frames is written (docs/formats.md, "Create AVI"), so it is always the one that is on. -->
         <div class="col">
-          <label class="chk"><input type="radio" name="alignedsize" value="original" checked />Original size</label>
+          <label class="chk"><input type="radio" name="alignedsize" value="source" checked />Source size</label>
           <div class="inl" title="Not available yet">
             <label class="chk"><input type="radio" name="alignedsize" value="minimum" disabled />Smallest common area</label>
             <span class="factor">Not available yet</span>

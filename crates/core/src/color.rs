@@ -2,8 +2,7 @@
 //! recombination of a processed luminance with the colour (*LRGB*). [`adjust`] chains these with
 //! the tone adjustments of [`crate::tone`].
 //!
-//! The panels of the original were not observed (`docs/offene-fragen.md`), so the algorithms are
-//! our own. Images with fewer than three channels pass through the colour steps unchanged.
+//! The algorithms are our own design. Images with fewer than three channels pass through the colour steps unchanged.
 
 use crate::{
     Image,
@@ -351,7 +350,7 @@ pub struct Adjustments {
     pub levels: Levels,
     /// 1.0 = unchanged.
     pub gamma: f32,
-    /// Factor, 1.0 = unchanged (the original shows 100).
+    /// Factor, 1.0 = unchanged (shown as 100 in the panel).
     pub contrast: f32,
     /// Share of the full range, 0.0 = unchanged.
     pub brightness: f32,
@@ -386,8 +385,7 @@ impl Adjustments {
 }
 
 /// Applies all adjustments in a fixed order: RGB align, colour mixing, RGB balance, histogram stretch, gamma,
-/// contrast/brightness. The order is our choice; the original applies each panel to the current
-/// image when it is used. Steps at their default are skipped, so the default [`Adjustments`]
+/// contrast/brightness. The order is our choice. Steps at their default are skipped, so the default [`Adjustments`]
 /// return the image unchanged.
 pub fn adjust(image: &Image, adjustments: &Adjustments) -> Image {
     let mut out = image.clone();

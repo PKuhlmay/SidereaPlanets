@@ -2,8 +2,8 @@
 import { ref, watch } from "vue";
 import { clampNumber, formatNumber, parseNumber, stepNumber } from "../logic/numbers";
 
-// Number field with arrow keys (docs/design.md, "Zahlenfeld"). Min and max only apply where the original has a
-// known limit; typed values are otherwise accepted as they are.
+// Number field with arrow keys (docs/design.md, "Zahlenfeld"). Min and max only apply where a
+// limit is defined; typed values are otherwise accepted as they are.
 const props = withDefaults(
   defineProps<{
     modelValue: number;

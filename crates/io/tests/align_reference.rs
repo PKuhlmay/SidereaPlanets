@@ -1,4 +1,4 @@
-//! Compares alignment with the results the reference program gave for reference case R1 (`docs/testdaten.md`).
+//! Regression test of alignment against stored reference results for reference case R1 (Jupiter test recording).
 //! The recordings live in `re-local/` and are not in the repository; without them the test is skipped.
 
 use planets_core::align::{
@@ -14,7 +14,7 @@ fn jupiter() -> Option<Recording> {
 }
 
 #[test]
-fn jupiter_with_default_settings_matches_the_original_where_comparable() {
+fn jupiter_with_default_settings_matches_the_stored_reference_results() {
     let Some(mut rec) = jupiter() else {
         eprintln!("JUPITER.AVI not found in re-local/, skipped");
         return;
@@ -22,17 +22,17 @@ fn jupiter_with_default_settings_matches_the_original_where_comparable() {
     let count = rec.info().frame_count;
     let first = rec.read_frame(0).unwrap();
 
-    // Set Alignpoints: the original finds 91 and keeps 82 after its default threshold.
+    // Set Alignpoints: the reference results hold 91 candidates and 82 points after the default threshold.
     let candidates = find_alignpoints(&first, &PointParams::default());
     assert!(
         (82..=100).contains(&candidates.len()),
-        "{} candidates, the original finds 91",
+        "{} candidates, the reference has 91",
         candidates.len()
     );
     let points = apply_threshold(&candidates, default_threshold(candidates.len()));
     assert!(
         (74..=90).contains(&points.len()),
-        "{} alignpoints, the original has 82",
+        "{} alignpoints, the reference has 82",
         points.len()
     );
 
@@ -51,16 +51,15 @@ fn jupiter_with_default_settings_matches_the_original_where_comparable() {
         10
     );
 
-    // The original orders the frames 1, 4, 3, 2, 10, 9, 8, 5, 6, 7. Ours differs in the middle (see
-    // docs/testdaten.md); what both agree on is the best and the two worst frames.
+    // The reference order of the frames is 1, 4, 3, 2, 10, 9, 8, 5, 6, 7. Ours differs in the middle;
+    // what both agree on is the best and the two worst frames.
     let order: Vec<usize> = rank_by_quality(&results).iter().map(|i| i + 1).collect();
     eprintln!("quality order {order:?}");
     assert_eq!(order[0], 1);
     assert_eq!(&order[8..], &[6, 7]);
-    // Rank correlation with the original's order, 0.79 when measured; the criterion "the three best
-    // frames are the same" is not met (docs/testdaten.md).
-    let original = [1usize, 4, 3, 2, 10, 9, 8, 5, 6, 7];
-    let rho = spearman(&order, &original);
+    // Rank correlation with the reference order, 0.79 when measured; the three best frames are not the same.
+    let reference_order = [1usize, 4, 3, 2, 10, 9, 8, 5, 6, 7];
+    let rho = spearman(&order, &reference_order);
     assert!(rho > 0.7, "Spearman correlation {rho}");
 
     // Frames/Apoint keeps a subset of the frames, ordered like the ranking.

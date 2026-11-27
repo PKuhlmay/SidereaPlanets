@@ -1,7 +1,7 @@
 //! Writers for result images (*Save image* in the Stack and Wavelet tabs, `docs/formats.md`).
 //!
-//! The format is chosen explicitly, not derived from the file name, like the file type filter of
-//! the reference program decides there. [`save_image`] fixes the extension of the path to match the format.
+//! The format is chosen explicitly, not derived from the file name: the file type filter of the
+//! save dialog decides. [`save_image`] fixes the extension of the path to match the format.
 //! Files are written under a temporary name and renamed at the end, so a failed save never
 //! leaves a broken file in place of a good one.
 
@@ -16,7 +16,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-/// JPEG quality (1 to 100). The reference program does not say what it uses; this is a visually lossless choice.
+/// JPEG quality (1 to 100). A visually lossless choice.
 const JPEG_QUALITY: u8 = 95;
 
 #[derive(Debug, thiserror::Error)]
@@ -50,7 +50,7 @@ pub enum ExportFormat {
 }
 
 impl ExportFormat {
-    /// Formats offered after stacking, in the order of the file type list of the reference program.
+    /// Formats offered after stacking, in the order of the file type list of the save dialog.
     pub const STACK: &'static [ExportFormat] = &[
         Self::Bmp,
         Self::Jpeg,
@@ -231,7 +231,7 @@ fn to_u8(v: f32) -> u8 {
     (v.clamp(0.0, 1.0) * 255.0).round() as u8
 }
 
-/// Full range: 1.0 becomes 65535. (The reference program scales its 8 bit result by 256, see `docs/formats.md`.)
+/// Full range: 1.0 becomes 65535 (`docs/formats.md`).
 fn to_u16(v: f32) -> u16 {
     (v.clamp(0.0, 1.0) * 65535.0).round() as u16
 }

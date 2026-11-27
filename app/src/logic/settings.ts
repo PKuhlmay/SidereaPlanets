@@ -1,5 +1,5 @@
-// All adjustable values with the defaults observed in the reference program (docs/ui.md). Typed values outside the usual
-// ranges are accepted as they are, as in the original; a limit is only enforced where docs/ui.md names one.
+// All adjustable values with their defaults (docs/ui.md). Typed values outside the usual
+// ranges are accepted as they are; a limit is only enforced where docs/ui.md names one.
 
 import { defaultGeometry } from "./geometry";
 
@@ -7,7 +7,7 @@ export type Intensity = "default" | "area3x3" | "lowest";
 export type LimitMode = "lowestQuality" | "bestPercent" | "framesPerPoint" | "bestCount";
 export type StackSize = "default" | "minimized" | "maximized" | "roi";
 export type ResampleMethod = "bell" | "bspline" | "lanczos" | "mitchell";
-export type AlignedSize = "original" | "minimum" | "maximum" | "roi";
+export type AlignedSize = "source" | "minimum" | "maximum" | "roi";
 export type IntegratedMethod = "moving" | "compressed";
 export type WaveletScheme = "dyadic" | "linear";
 export type WaveletFilter = "default" | "gaussian";
@@ -29,8 +29,7 @@ export const LAYER_RANGE = { min: -50, max: 1000 };
 export const LUMINANCE = { red: 0.299, green: 0.587, blue: 0.114 };
 
 // Contrast/Brightness: the sliders start at 250 and 0 while the fields show 100 and 0. The ratio 2.5 follows
-// from that one pair of values only; whether the original maps linearly (or at all like this) was never checked,
-// so it stays an assumption (docs/offene-fragen.md, question 23). The engine works on the field value.
+// from that one pair of values and is a design decision (a linear mapping). The engine works on the field value.
 export const CONTRAST_RATIO = 2.5;
 export const CONTRAST_RANGE = { min: 1, max: 1000 };
 export const BRIGHTNESS_RANGE = { min: -512, max: 512 };
@@ -162,7 +161,7 @@ export function createSettings() {
       automatic: { alignToWavelet: false, alignToStack: false, stackToWavelet: false },
       luminance: { ...LUMINANCE },
     },
-    // Colour and LRGB appear in the header of every tab in the original; they belong together, so one value serves all.
+    // Colour and LRGB appear in the header of every tab; they belong together, so one value serves all.
     colour: true,
     lrgb: false,
     align: {
@@ -216,7 +215,7 @@ export function createSettings() {
       codec: "DIB" as string,
       compressQuality: 7500,
       framerate: 25,
-      alignedSize: "original" as AlignedSize,
+      alignedSize: "source" as AlignedSize,
       sortOnQuality: false,
       usePrefilters: false,
       integratedMethod: "moving" as IntegratedMethod,

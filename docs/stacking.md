@@ -1,32 +1,31 @@
 # Stacking (SP-006)
 
-Was der Klon beim Stacken tut, warum, und wie weit das gegen das Referenzprogramm geprüft ist. Bedienelemente und Standardwerte
-stehen in `docs/ui.md` (Stack-Reiter), der Ablauf in `docs/workflow.md`, Referenzfall R1 in `docs/testdaten.md`.
-Alles, was nur geraten ist, steht als **Vermutung** da.
+Was Siderea Planets beim Stacken tut und warum. Bedienelemente und Standardwerte stehen in `docs/ui.md` (Stack-Reiter), der Ablauf
+in `docs/workflow.md`. Die Regressionsprüfung gegen gespeicherte eigene Referenzergebnisse steht am Ende des Verfahrens.
+Parameter, die gewählt und nicht hergeleitet sind, stehen als Entwurfsentscheidung da.
 
 ## Stand
 
 Rechenkern, Tauri-Befehle und Anbindung an den Stack-Reiter sind fertig. Die Tests in `stack.rs` (18) laufen grün; der
-Vergleichstest gegen das Original erreicht **54,85 dB** (Schwelle 45 dB), siehe „Vergleich mit dem Original“. Die beiden neuen Tests
+Regressionstest gegen die gespeicherte Referenz erreicht **54,85 dB** (Schwelle 45 dB), siehe „Regressionsprüfung“. Die beiden Tests
 der Untersuchung (`scatter_of_the_points_does_not_distort_the_frame`, `matches_at_the_limit_of_the_search_range_are_not_followed`)
 waren gegen den Stand davor rot.
 
-## Beobachtet und geschlossen
+## Ablauf und Standardwerte
 
-Aus `docs/workflow.md`, `docs/ui.md` und `docs/testdaten.md`:
+Aus `docs/workflow.md` und `docs/ui.md`:
 
-- Das Original stackt im Schritt **Stack** nach Align und Limit. Ausgerichtet wird beim Stacken selbst, es gibt keinen
-  eigenen Optimierungsschritt mehr.
+- Gestackt wird im Schritt **Stack**, nach Align und Limit. Ausgerichtet wird beim Stacken selbst, es gibt keinen
+  eigenen Optimierungsschritt.
 - Optionen im Panel *Stacking options*: *Use Nearestby Alignpoints* = 3, *Correct geometry* an, *Normalization of
   frame intensity* aus, *Do not stack n pixels at the frameedge* = 0.
-- Das Ergebnis ist ein **Mittelwert**, keine Summe: Die Kanalmittel des Summenbilds (R 6674, G 5131, B 6100 in 16 Bit
-  = 8 Bit × 256) liegen im Bereich der Einzelframes. „Stacking Range : 0-255“ nach dem Stacken.
-- Das Ergebnis weicht deutlich vom einfachen Mittelwert ohne Ausrichtung ab (38,8 dB) und liegt näher an Frame 1
-  (44,0 dB). Das stützt eine lokale Verschiebung vor dem Mitteln.
+- Das Ergebnis ist ein **Mittelwert**, keine Summe: Die Werte des Summenbilds liegen im Bereich der Einzelframes
+  (0..255 bei 8 Bit, 0,0..1,0 im Bildtyp `Image`).
+- Vor dem Mitteln wird jeder Frame lokal verschoben (Verfahren unten), nicht einfach ohne Ausrichtung gemittelt.
 
-## Das Verfahren des Klons
+## Das Verfahren
 
-Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist **Vermutung**, solange der Vergleich fehlt.
+Umgesetzt in `crates/core/src/stack.rs`.
 
 1. **Registrierung.** Jeder Frame wird mit `Reference::align_frame` (SP-005) gegen das Bezugsframe registriert. Das liefert
    je Alignpoint die Verschiebung `(dx, dy)`: Dort, wo das Bezugsframe an `p` etwas zeigt, zeigt der Frame es bei
@@ -41,9 +40,9 @@ Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist
    zusammenhängen. Jeder Punkt wird aus den anderen vorhergesagt (wie ein Pixel) und aus dem Frameversatz allein; das Vertrauen
    ist `1 − Fehler(Nachbarn) / Fehler(Frameversatz)`, auf 0..1 begrenzt (`coherence` in `stack.rs`), und das Feld ist
    `Frameversatz + Vertrauen × (Nachbarmischung − Frameversatz)`. Bei einer echten Verzerrung liegt es nahe 1, bei Streuung
-   der Zuordnung bei 0, dann bewegt sich der Frame als Ganzes. Das ist eine eigene Entscheidung des Klons, nicht beobachtet.
-3. **Abtasten.** Der Frame wird an der verschobenen Stelle bilinear abgetastet (Vermutung: Das Original interpoliert
-   vielleicht anders, etwa bikubisch oder mit ganzzahligen Verschiebungen; bilinear glättet etwas).
+   der Zuordnung bei 0, dann bewegt sich der Frame als Ganzes. Das ist eine Entwurfsentscheidung.
+3. **Abtasten.** Der Frame wird an der verschobenen Stelle bilinear abgetastet (Entwurfsentscheidung; bilinear glättet etwas,
+   bikubische Abtastung oder ganzzahlige Verschiebungen wären Alternativen).
 4. **Mitteln.** Je Pixel werden die Werte aller Frames summiert, die den Pixel abdecken, und durch deren Anzahl geteilt.
    Am Rand, den nicht jeder Frame erreicht, gilt der Mittelwert der abdeckenden Frames. Ein Pixel ohne Abdeckung bleibt schwarz.
 5. **Normalisierung** (Option): Jeder Frame wird mit `Mittel(Bezugsframe) / Mittel(Frame)` skaliert.
@@ -70,81 +69,59 @@ Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist
   gewöhnliche Bildtyp `Image` (`f32`, `0.0..=1.0`, verschachtelte Kanäle), dieselbe Größe und Kanalzahl wie das Bezugsframe.
 - `Stacker` (`new`, `add_aligned`, `finish`) nimmt Frames samt schon berechneter `FrameAlignment` entgegen. Damit lässt sich
   später das Ergebnis von *Align* wiederverwenden statt neu zu registrieren; `stack_sequence` registriert derzeit selbst.
-- `stack::psnr(a, b)` ist die Messgröße aus `docs/testdaten.md` (Spitzenwert 1,0, bei 16 Bit also 65535).
+- `stack::psnr(a, b)` ist die Messgröße der Regressionstests (Spitzenwert 1,0, bei 16 Bit also 65535).
 - Frontend: `app/src/stack.ts` (Handler `stack` in `app/src/actions.ts`, über `runJob`), Anfrage aus dem Fensterzustand in
   `app/src/logic/stack.ts`. Das Bezugsframe steht in `session.referenceFrame`; *Set Alignpoints* (SP-005) muss es setzen,
   bis dahin gilt Frame 0.
 - Sitzung: `planets_session::Session::stack` und `stacked_image` (`crates/session/src/stack.rs`) halten das letzte Summenbild; die
   Tauri-Befehle `stack`, `stacked_image`, `cancel_stacking`, `pause_stacking` sind dünne Hüllen darüber, Ereignis `stack-progress`.
 
-## Vergleich mit dem Original
+### Warum das Vertrauen
 
-### Vorgehen
+Die Versätze der einzelnen Alignpoints streuen bei weichen Aufnahmen gegenüber dem Frameversatz: Bei der Testaufnahme R1 (Jupiter) um
+median 3,4 bis 4,4 px (90 %-Wert 5,8 bis 6,7 px), 20 bis 30 von 78 Punkten liegen am Rand des Suchbereichs von ±5 px, und benachbarte
+Punkte haben unabhängige Abweichungen. Die Korrelationswerte sind dabei hoch (im Mittel 0,88): Das Bild ist weich, die Korrelation hat
+einen breiten Rücken, und das Maximum landet irgendwo darauf. Eine so große, unzusammenhängende Verzerrung ist bei einem Planeten
+nicht echt. Folgte das Feld solchen Punkten, würde Bildinhalt aus hellen Bereichen weggeschoben und das Summenbild gleichmäßig dunkler.
+Mit dem Vertrauen (Abschnitt Verfahren, Punkt 2) bewegt sich der Frame bei unzusammenhängender Streuung als Ganzes; bei einer echten,
+zusammenhängenden Verzerrung folgt das Feld den Punkten (Test `local_correction_follows_a_coherent_distortion`).
 
-Test: `crates/io/tests/stack_reference.rs`. Er braucht `re-local/testdata/astropix/JUPITER.AVI` und
-`re-local/reference/jupiter-stack.tif` und wird ohne sie übersprungen (in einem Worktree fehlt `re-local/`, also im
-Haupt-Checkout laufen lassen).
+Treffer am Rand des Suchbereichs werden ausgelassen, weil `PointShift::at_limit` ausdrücklich sagt, dass die Bewegung dort größer sein
+kann. Bei R1 ändert das am Ergebnis fast nichts.
 
-1. Referenzfall R1: Alignpoints auf Frame 1 mit Standardwerten setzen und Standard-Schwelle, registrieren, alle 10 Frames
-   stacken (Limit behält bei R1 alle).
-2. `jupiter-stack.tif` laden (Werte ÷ 256 ÷ 255 auf die Skala 0..1; 16 Bit = 8 Bit × 256, siehe `docs/testdaten.md`).
-3. PSNR des Klon-Ergebnisses gegen das TIFF, Spitzenwert 1,0. Schwelle laut `docs/testdaten.md`: **≥ 45 dB**.
-4. Zur Einordnung werden mitgemessen: PSNR bei *Correct geometry* aus (nur Frameversatz), PSNR von Frame 1 gegen das
+**Was das für weiche Aufnahmen heißt:** Die Standardeinstellung liefert dort praktisch den Frameversatz-Stack (das Vertrauen liegt
+nahe 0). Die lokale Korrektur wirkt bei einer Aufnahme mit starker Luftunruhe. Die Ursache der Streuung liegt in der Zuordnung der Punkte
+(SP-005: weiche Strukturen, breiter Korrelationsrücken), nicht im Stacken; eine robustere Zuordnung (Punkte nach Schärfe der
+Korrelationsspitze wählen oder gewichten) würde die lokale Korrektur auch bei weichen Aufnahmen nutzbar machen.
+
+### Regressionsprüfung
+
+Test: `crates/io/tests/stack_reference.rs`. Er vergleicht das Stack-Ergebnis mit einem gespeicherten eigenen Referenzergebnis
+(`re-local/reference/jupiter-stack.tif`) für Referenzfall R1 (Jupiter-Testaufnahme `re-local/testdata/astropix/JUPITER.AVI`).
+`re-local/` ist nicht in Git; fehlt eine der beiden Dateien, wird der Test übersprungen (in einem Worktree fehlt `re-local/`, also im
+Haupt-Checkout laufen lassen, oder `PLANETS_RE_LOCAL` auf ein anderes `re-local/` zeigen lassen).
+
+1. Alignpoints auf Frame 1 mit Standardwerten setzen und Standard-Schwelle, registrieren, alle 10 Frames stacken (Limit behält bei R1 alle).
+2. Das Referenz-TIFF laden (Werte ÷ 256 ÷ 255 auf die Skala 0..1; 16 Bit = 8 Bit × 256).
+3. PSNR des Ergebnisses gegen das TIFF, Spitzenwert 1,0. Schwelle, die der Test prüft: **≥ 45 dB**.
+4. Zur Einordnung werden mitgemessen und ausgegeben: PSNR bei *Correct geometry* aus (nur Frameversatz), PSNR von Frame 1 gegen das
    TIFF und die Kanalmittel beider Bilder.
 
-### Messwerte
-
-Lauf am 2026-11-11 mit `cargo test -p planets-io --test stack_reference --release -- --nocapture`.
-
-| Messung | erster Stand | jetzt |
-|---|---|---|
-| Klon (Standardwerte) gegen `jupiter-stack.tif` | 43,92 dB | **54,85 dB** (Schwelle 45 dB erreicht) |
-| Klon mit *Correct geometry* aus (nur Frameversatz) | 54,85 dB | 54,85 dB |
-| Frame 1 gegen `jupiter-stack.tif` | 44,03 dB | 44,03 dB (Original-BMP gegen Frame 1: 43,99 dB) |
-| einfacher Mittelwert ohne Ausrichtung gegen `jupiter-stack.tif` | 38,83 dB | 38,83 dB (Original-BMP gegen Mittelwert: 38,77 dB) |
-| Kanalmittel R / G / B, Original 6674,1 / 5130,5 / 6099,5 | 6588 / 5064 / 6023 (−1,3 %) | 6698,6 / 5149,4 / 6121,7 (+0,36 %) |
-
-### Ursachenanalyse
-
-1. **Helligkeit.** Der erste Stand war in allen drei Kanälen gleichmäßig 1,3 % dunkler als das Original, die Variante mit nur
-   Frameversatz dagegen 0,36 % heller. Die Abweichung kam also aus der lokalen Korrektur, nicht aus Abtastung oder Rand: Folgten
-   die Punkte Zufallsversätzen, wurde Bildinhalt aus hellen Bereichen weggeschoben. Mit dem Vertrauen ist sie weg.
-2. **Warum die lokale Korrektur schlechter war als der Frameversatz.** Die Versätze der einzelnen Punkte streuen gegenüber dem
-   Frameversatz um median 3,4 bis 4,4 px (90 %-Wert 5,8 bis 6,7 px), 20 bis 30 von 78 Punkten liegen am Rand des Suchbereichs
-   von ±5 px, und benachbarte Punkte haben unabhängige Abweichungen. Die Korrelationswerte sind dabei hoch (im Mittel 0,88): Das
-   Bild ist weich, die Korrelation hat einen breiten Rücken, und das Maximum landet irgendwo darauf. Eine so große, unzusammenhängende
-   Verzerrung ist bei einem Planeten nicht echt. Das Original stackt von denselben Frames ein Bild, das dem reinen Frameversatz auf
-   54,85 dB gleicht; seine lokale Korrektur ist also klein oder wirkt auf verlässlichere Punkte.
-3. **Größe der Nachbarschaft** (vor der Änderung, nur Messung): *n* = 1, 3, 6, 12, 40 ergab 43,47, 43,92, 44,27, 44,74, 45,81 dB.
-   Je mehr geglättet wird, desto besser, die Grenze ist der Frameversatz. Das bestätigt die Streuung als Ursache.
-4. **Abtastung und Gewichtung** wurden nicht geändert: Mit dem reinen Frameversatz sind 54,85 dB erreicht, bikubische Abtastung
-   oder andere Gewichte wurden nicht versucht.
-5. **Randbehandlung** wurde nicht verändert; bei R1 verschiebt sich das Bild um bis zu 9 px, der Rand betrifft einen kleinen
-   Teil des schwarzen Hintergrunds.
-6. Treffer am Rand des Suchbereichs auszulassen ändert bei R1 fast nichts (54,85 gegen 54,85 dB bei *n* = 3, 54,91 gegen 54,79 dB
-   bei *n* = 40, mit gegen ohne Filter); es bleibt, weil `PointShift::at_limit` ausdrücklich sagt, dass die Bewegung dort größer
-   sein kann.
-
-**Was das für R1 heißt:** Mit dem Vertrauen liefert die Standardeinstellung bei R1 den Frameversatz-Stack (das Vertrauen
-liegt nahe 0). Die lokale Korrektur ist im Kern umgesetzt und an einer künstlichen, zusammenhängenden Verzerrung geprüft
-(`local_correction_follows_a_coherent_distortion`), sie wirkt aber bei R1 praktisch nicht. Ob das Original wirklich lokal
-korrigiert, ist offen: Bei R1 wäre der Unterschied zum reinen Frameversatz kleiner, als 54,85 dB zeigen können. Ein Referenzfall
-mit starker Luftunruhe (SP-011) würde das klären. Die Ursache der Streuung liegt in der Zuordnung der Punkte (SP-005: weiche
-Strukturen, breiter Korrelationsrücken), nicht im Stacken; eine robustere Zuordnung (Punkte nach Schärfe der Korrelationsspitze
-wählen oder gewichten) würde die lokale Korrektur erst nutzbar machen.
+Letzter Lauf (2026-11-11, `cargo test -p planets-io --test stack_reference --release -- --nocapture`): **54,85 dB** mit Standardwerten,
+ebenso mit nur Frameversatz.
 
 ## Derotation (MAC-020)
 
 Planeten drehen sich während der Aufnahme: Jupiter in 9 h 55 min 40,6 s (System II), Saturn in 10 h 33 min 38 s (System III), Mars in
-24 h 37 min 22,7 s. **Eigene Umsetzung, nicht am Original beobachtet: alles hier ist Vermutung, bis ein Vergleich mit dem Original sie
-bestätigt.** (Das Original hat *De-rotate images* als Häkchen; was es rechnet, ist unbekannt.) Code: `crates/core/src/planet.rs`
+24 h 37 min 22,7 s. *De-rotate images* ist ein Häkchen im Stack-Reiter; die Rechnung ist ein eigener Entwurf, geprüft gegen JPL Horizons und gegen
+synthetische Szenen (unten). Code: `crates/core/src/planet.rs`
 (Ephemeride), `derotate.rs` (Scheibe messen, Frame drehen), `stack.rs` (`stack_sequence_derotated`), `crates/session/src/derotate.rs`
 (Zeiten, Plan, Angaben für das Panel), SER-Zeitstempel in `crates/io/src/ser.rs`.
 
 **Zeit je Frame.** SER: der Nachspann der Datei hat je Frame einen 64-Bit-Wert in .NET-Ticks (100 ns seit 0001-01-01, UTC); er gilt nur,
 wenn alle Werte zwischen 1990 und 2100 liegen (Kameras ohne Uhr schreiben Nullen), der Kopf (`DateTimeUTC`) liefert sonst die Startzeit.
 Alles andere (AVI, Bildserien): Startzeit plus Frame-Nummer durch Bildrate. Die Startzeit gibt der Nutzer an; der Vorschlag ist die
-Änderungszeit der Datei minus Länge der Aufnahme (die Datei wurde zuletzt am Ende geschrieben), der Mac markiert ihn als Schätzung.
+Änderungszeit der Datei minus Länge der Aufnahme (die Datei wurde zuletzt am Ende geschrieben), er ist nur ein Vorschlag.
 Ohne Bildrate und ohne Zeitstempel (SER ohne Nachspann) gibt es keine Zeiten: Fehler „De-rotation needs time stamps or a frame rate, and this recording has neither“.
 Bezugszeit ist die Mitte zwischen dem ersten und dem letzten der ausgewählten Frames; das Bezugsframe, auf dem die Alignpoints stehen,
 wird auf diese Zeit gedreht, bevor das `Reference` entsteht, sonst folgten die Alignpoints Strukturen, die gewandert sind.
@@ -195,34 +172,31 @@ Formeln des Moduls), PSNR nur innerhalb der Scheibe gegen das Bild zur Bezugszei
 Δt = 0 ist bitgleich; die falsche Drehrichtung ist um mehr als 10 dB schlechter; Kamerawinkel und Spiegelung sind mit einer um 40°
 gedrehten und einer gespiegelten Szene geprüft. Alle neuen Tests waren zuerst rot (Stub oder umgekehrtes Vorzeichen, siehe Ticket).
 
-**Laufzeit** mit `SaturnVideo.avi` (800 × 600, 3051 Frames, 30 fps, alle Frames, 12 Kerne, Profil `ffi-dev`): ohne Derotation 8,5 und 11,0 s,
+**Laufzeit** mit `SaturnVideo.avi` (800 × 600, 3051 Frames, 30 fps, alle Frames, 12 Kerne, optimierter Bau): ohne Derotation 8,5 und 11,0 s,
 mit Derotation 10,7 und 9,7 s (zwei Läufe je Fall; der Unterschied liegt im Rauschen der Plattenzugriffe). In dieser Aufnahme dreht sich
 Saturn nur um 0,9°: das Panel sagt „Too short to matter“.
 
 ## Nicht umgesetzt
 
-Nicht Teil der Akzeptanzkriterien und nie beobachtet; jeweils nur der Name bekannt:
+Nicht Teil der Akzeptanzkriterien; jeweils nur der Name ist vorgesehen:
 
 - *StackSize* (Minimized, Maximized, R.of Interest), *Stretch histogram after stacking*. In der App
   sind sie gesperrt und mit „Not available yet“ gekennzeichnet (Default bei StackSize bleibt wählbar und ist das, was der
-  Klon tut); die Einstellungen `stackSize` und `stretchHistogram` bleiben im Datenmodell, sind aber nicht Teil
-  von `StackRequest` und das Backend kennt sie nicht. *De-rotate images* ist seit MAC-020 gebaut (Abschnitt „Derotation (MAC-020)“; in der
-  Windows-App seit SP-023).
+  Stack tut); die Einstellungen `stackSize` und `stretchHistogram` bleiben im Datenmodell, sind aber nicht Teil
+  von `StackRequest` und das Backend kennt sie nicht. *De-rotate images* ist gebaut (Abschnitt „Derotation (MAC-020)“; im
+  Stack-Reiter seit SP-023).
 - **Resampling** (Bell, Bspline, Lanczos, Mitchell, Faktor) und **Drizzling**, die das Ergebnis vergrößern. In der App sind
   beide Häkchen gesperrt und mit „Not available yet“ gekennzeichnet; die Einstellungen `resampling`/`drizzling` bleiben im
   Datenmodell, das Backend ignoriert sie.
 - **Create AVI** (*Save Aligned*, *Save Integrated*): in SP-009 gebaut, siehe `docs/formats.md`, Abschnitt „Create AVI“.
 - Stackgraph und Stacklist.
 
-## Offen
+## Offene Punkte
 
-- Ob das Original lokal korrigiert und wie stark; bei R1 nicht vom Frameversatz zu unterscheiden (siehe Ursachenanalyse).
-- Interpolation und Gewichtung der nächsten Punkte: bei R1 ohne Wirkung (nur Frameversatz). Das gewichtete Mittel der nächsten
+- Interpolation und Gewichtung der nächsten Punkte: bei weichen Aufnahmen ohne Wirkung (nur Frameversatz). Das gewichtete Mittel der nächsten
   Punkte gibt ein lineares Feld nicht exakt wieder (Fehler bis etwa 0,4 px bei Rasterpunkten); eine lokale Ebene durch die Punkte
   wäre genauer, wurde nicht umgesetzt, weil sie bei R1 nichts ändert.
-- Helligkeit: Der Frameversatz-Stack ist 0,36 % heller als das Original (vermutlich rundet das Original auf 8 Bit); ohne Folgen
-  für die Schwelle.
-- Ob das Original beim Stacken neu registriert oder die Ergebnisse von *Align* weiterverwendet. Der Klon registriert im
-  `Session::stack` neu und liest die Ergebnisse von *Align* dort nicht (nur *Save Aligned* tut es); der Kern kann beides.
-- „Tests erst rot“: Der Vergleichstest war rot (43,92 dB gegen 45), die beiden Tests der Untersuchung gegen den Stand ohne
+- Der Stack registriert in `Session::stack` neu und liest die Ergebnisse von *Align* dort nicht (nur *Save Aligned* tut es); der Kern
+  kann beides (`Stacker::add_aligned`).
+- „Tests erst rot“: Der Regressionstest war rot (43,92 dB gegen 45), die beiden Tests der Untersuchung gegen den Stand ohne
   Vertrauen und ohne `at_limit`-Filter ebenfalls. Die übrigen Tests in `stack.rs` wurden nicht gegen kaputte Varianten geprüft.

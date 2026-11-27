@@ -93,10 +93,10 @@ Under **Advanced** in the Stack step. It saves the aligned frames as a video, fo
 | Codec | DIB (locked: the video is always uncompressed) |
 | Compression quality | 7500 (locked, no effect) |
 | Frame rate (fps) | 25 |
-| Frame size (aligned video) | Original size. Smallest common area, Largest area and Region are locked: **Not available yet** |
+| Frame size (aligned video) | Source size. Smallest common area, Largest area and Region are locked: **Not available yet** |
 | Sort by quality | off |
 | Use prefilters | off (locked: **Not available yet**) |
 | Method (averaged video) | Moving average |
 | Average of … frames | 5 |
 
-**Save Aligned Video…** writes the frames that stay after Best Frames as a video, **Save Averaged Video…** a moving average over several of them. Both are described on the page [Save and export](save-and-export). They need the Align step to be done. *Original size* here means the size of the source frames.
+**Save Aligned Video…** writes the frames that stay after Best Frames as a video, **Save Averaged Video…** a moving average over several of them. Both are described on the page [Save and export](save-and-export). They need the Align step to be done. *Source size* here means the size of the source frames.

@@ -86,7 +86,7 @@ Planets are usually saved with north up, or in the orientation of a chart or of 
 - **Rotate** has **Left 90°**, **Right 90°** and **180°**. Each press turns the picture by that much.
 - **Angle (°)** turns the picture by any angle from −180° to 180° in steps of 0.1°. A positive angle turns clockwise, a negative one counterclockwise. The buttons above change this field: Right 90° adds 90°. Turns by 0°, 90°, 180° and 270° only move pixels and lose nothing; any other angle makes new pixels between the old ones.
 - **Interpolation** is how those new pixels are calculated. **Bicubic** (the start value) keeps the most detail; **Bilinear** is smoother and cannot add a faint halo next to a bright edge.
-- A picture turned by a free angle gets a bigger canvas, so nothing is cut off, and the corners are black. **Crop to fit** cuts the picture to the largest rectangle of the original shape that has no black corners; it has no effect on turns by 90°, 180° or 270°.
+- A picture turned by a free angle gets a bigger canvas, so nothing is cut off, and the corners are black. **Crop to fit** cuts the picture to the largest rectangle of the same shape that has no black corners; it has no effect on turns by 90°, 180° or 270°.
 - **Picture** shows the size of the picture after flipping and turning. **Reset** puts the card back to no flip and no turn.
 
 The turned picture is the one in the image area, in the steps Wavelets and Save, and also the left side of **View Compare**. The marks that belong to the stack (alignpoints and the preview area) are not drawn on a flipped or turned picture. **Remember**, **Restore** and **Difference** work on the picture as it is before flipping and turning.
@@ -100,7 +100,7 @@ Flip and Rotate is applied last: after all other cards, but before the crop. The
 - **Percent** scales both sides by the same share, from 10% to 400%. 100% changes nothing.
 - **Pixels** scales to a **Width (px)** and a **Height (px)**. With **Lock aspect ratio** (the start value) you type one side and the other follows, so the picture keeps its shape; the fields show both. Without the lock both sides are yours, and the picture is stretched or squeezed. A side is at least 1 and at most 16384 pixels.
 - **Method** is how the new pixels are calculated: **Lanczos3** (the start value) keeps the most detail, **Bicubic** is a little softer, **Bilinear** softer still, and **Nearest Neighbor** copies pixels, which is for enlarging pixel by pixel. When the picture becomes smaller, the method averages the pixels it replaces, so the result does not get jagged.
-- **Result** shows the size of the file that **Save Image** writes. **Reset** brings back the original size.
+- **Result** shows the size of the file that **Save Image** writes. **Reset** brings back the full size.
 
 Resize Image is the very last thing before a file is written: **Do All** (or the preview) → color and tone cards → Flip and Rotate → Crop → Resize Image. With a crop, 50% means half of the cropped rectangle, not half of the whole picture. The values stay for a new stack and are stored in the project file.
 

@@ -17,7 +17,7 @@ describe("parseNumber", () => {
     expect(parseNumber(".5")).toBe(0.5);
   });
 
-  it("accepts values outside the usual range, as the original does", () => {
+  it("accepts values outside the usual range", () => {
     expect(parseNumber("99")).toBe(99);
   });
 

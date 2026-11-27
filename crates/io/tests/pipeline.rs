@@ -1,7 +1,7 @@
 //! The whole chain the window runs on JUPITER.AVI, step by step as the Tauri commands call it
 //! (`app/src-tauri/src/`): Set Alignpoints -> Align -> Limit -> Stack -> Wavelet (Process and Do All) ->
-//! Save image and read the file again. Every step is checked for a plausible result, not for a match with the
-//! original (that is what the `*_reference.rs` tests do). The recording lives in `re-local/` (not in Git);
+//! Save image and read the file again. Every step is checked for a plausible result, not for a match with
+//! stored reference results (that is what the `*_reference.rs` tests do). The recording lives in `re-local/` (not in Git);
 //! without it the test is skipped.
 
 use planets_core::{
@@ -241,7 +241,7 @@ fn jupiter_runs_through_the_whole_chain() {
     );
     assert!(matches!(stopped, Err(StackError::Cancelled)));
 
-    // Wavelet, Do All with the defaults: only the tone curve of the original acts, the image stays close.
+    // Wavelet, Do All with the defaults: only the output tone curve acts, the image stays close.
     let neutral = do_all(&stack, &wavelet_settings(1.0), ColourMode::Colour);
     assert!(
         psnr(&neutral, &stack).unwrap() > 40.0,

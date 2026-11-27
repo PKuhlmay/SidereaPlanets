@@ -144,7 +144,7 @@ pub fn save_wavelet_scheme(path: &Path, settings: &WaveletSettings) -> Result<()
 pub fn load_wavelet_scheme(path: &Path) -> Result<WaveletSettings, SessionError> {
     let failed =
         |e: &dyn std::fmt::Display| SessionError::Failed(format!("{}: {e}", path.display()));
-    // The original writes ANSI text; the file only holds ASCII, so a lossy conversion is enough.
+    // Scheme files are ANSI text; the file only holds ASCII, so a lossy conversion is enough.
     let bytes = fs::read(path).map_err(|e| failed(&e))?;
     scheme::from_rwv(&String::from_utf8_lossy(&bytes)).map_err(|e| failed(&e))
 }

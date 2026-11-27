@@ -185,7 +185,7 @@ pub struct Limited {
     pub frames: Vec<u32>,
     /// For every point in use, how far it sits from where the movement of the whole frame puts it, on
     /// average over the frames that stay: the green strokes in the image. `None` if it was never found.
-    /// Which shift the original draws is unobserved; this is the local distortion, a few pixels.
+    /// This is the local distortion, a few pixels.
     pub point_shifts: Vec<Option<[f32; 2]>>,
 }
 

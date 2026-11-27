@@ -178,7 +178,6 @@ export async function saveScheme(): Promise<void> {
 }
 
 // Hold Wavelet Setting keeps the values when a new stacked image arrives; without it they start over.
-// (The original's behaviour is a guess, see docs/offene-fragen.md.)
 // Open project is the exception: the Wavelets step stays locked until Stack, so the values from the project file
 // would be gone before anyone saw them. They are kept for the first stacked image after it, Hold or not.
 let keepForNextStack = false;

@@ -1,6 +1,6 @@
 //! The whole flow of the window on JUPITER.AVI, from Select to Save image, through the session only.
 //! The recording lives in `re-local/` (not in Git); without it the test is skipped. Every step is checked
-//! for a plausible result, not for a match with the original (that is what the `*_reference.rs`
+//! for a plausible result, not for a match with stored reference results (that is what the `*_reference.rs`
 //! tests of `crates/io` do).
 
 use planets_core::{

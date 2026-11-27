@@ -47,7 +47,7 @@ describe("defaults", () => {
       codec: "DIB",
       compressQuality: 7500,
       framerate: 25,
-      alignedSize: "original",
+      alignedSize: "source",
       sortOnQuality: false,
       usePrefilters: false,
       integratedMethod: "moving",
@@ -94,7 +94,7 @@ describe("defaults", () => {
 });
 
 describe("wavelet layers", () => {
-  it("have the slider range of the original", () => {
+  it("have the slider range from -50 to 1000", () => {
     expect(LAYER_RANGE).toEqual({ min: -50, max: 1000 });
   });
 
@@ -107,7 +107,7 @@ describe("wavelet layers", () => {
 });
 
 describe("Functions", () => {
-  it("lists the fifteen buttons in the order of the original (three columns), in US English and Title Case", () => {
+  it("lists the fifteen buttons in the fixed order (three columns), in US English and Title Case", () => {
     expect(functionNames).toEqual([
       "Histogram", "Gamma", "Color Mixing",
       "View Zoomed", "View Compare", "View Stack Size",

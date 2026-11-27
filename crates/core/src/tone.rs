@@ -1,9 +1,8 @@
 //! Tone adjustments behind the *Functions* panel of the Wavelet tab: histogram, histogram stretch,
 //! gamma and contrast/brightness.
 //!
-//! The panels of the original were not observed (`docs/offene-fragen.md`), so the formulas are
-//! our own. Samples are normalised to `0.0..=1.0`; every adjustment that changes values clamps
-//! the result to that range, like the integer image of the original would.
+//! The formulas are our own design. Samples are normalised to `0.0..=1.0`; every adjustment that changes values clamps
+//! the result to that range.
 
 use crate::Image;
 use rayon::prelude::*;

@@ -1,4 +1,4 @@
-//! What happens to the result of the layers before it is shown or saved: the tone curve of the original
+//! What happens to the result of the layers before it is shown or saved: the output tone curve
 //! and the treatment of colour (the *Colour* and *LRGB* checkboxes). *Do All* and the live preview both
 //! finish through here, so they give the same pixels (`docs/wavelets.md`).
 
@@ -19,17 +19,17 @@ pub enum ColourMode {
     Gray,
 }
 
-/// Linear part of the tone curve of the original.
+/// Linear part of the output tone curve.
 const CURVE_LINEAR: f32 = 0.988_231;
-/// Cubic part of the tone curve of the original.
+/// Cubic part of the output tone curve.
 const CURVE_CUBIC: f32 = 0.015_595;
 
-/// The tone curve the original applies to its result, even with every slider at 1.0: `0.98823 * x + 0.015595 * x^3`
+/// The tone curve applied to the result, even with every slider at 1.0: `0.98823 * x + 0.015595 * x^3`
 /// on samples in `0.0..=1.0`, the same for all channels. It darkens the midtones by about one percent.
 ///
-/// Fitted to the 1455 distinct sample values of the reference case R1 (`docs/wavelets.md`): within 3 of 65535
+/// Fitted to the 1455 distinct sample values of reference case R1 (Jupiter test recording, `docs/wavelets.md`): within 3 of 65535
 /// for all of them. Only the range up to 0.61 occurs there; above it the curve is an extension, and so is
-/// the clamp at 0 and 1 (the original works on integers).
+/// the clamp at 0 and 1.
 pub fn output_curve(v: f32) -> f32 {
     let x = v.clamp(0.0, 1.0);
     (x * (CURVE_LINEAR + CURVE_CUBIC * x * x)).min(1.0)
@@ -73,7 +73,7 @@ pub fn uses_luma(source: &Image, mode: ColourMode) -> bool {
 mod tests {
     use super::*;
 
-    /// Input and output sample of the original with neutral settings (`jupiter-stack.tif` against
+    /// Input and output sample with neutral settings on reference case R1 (`jupiter-stack.tif` against
     /// `jupiter-wavelet-default.tif`, 16 bit), picked over the range the stack covers (`docs/wavelets.md`).
     const MEASURED: [(u16, u16); 11] = [
         (0, 0),
@@ -90,13 +90,13 @@ mod tests {
     ];
 
     #[test]
-    fn the_curve_follows_what_the_original_does() {
+    fn the_curve_follows_the_reference_samples() {
         for (x, y) in MEASURED {
             let got = output_curve(f32::from(x) / 65535.0) * 65535.0;
-            // The fit stays within 3 of 65535 over all 1455 values that occur in the reference.
+            // The fit stays within 3 of 65535 over all 1455 values that occur in reference case R1.
             assert!(
                 (got - f32::from(y)).abs() <= 3.0,
-                "{x} gives {got}, the original {y}"
+                "{x} gives {got}, the reference sample is {y}"
             );
         }
     }

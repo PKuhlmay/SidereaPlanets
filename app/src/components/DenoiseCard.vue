@@ -33,7 +33,7 @@ function reset() {
         title="Deringing (%)"
         label="Deringing percent"
         v-bind="REFINE_LIMITS.percent"
-        help="How much of the dark ring next to bright edges is lifted back to the level of the original stack."
+        help="How much of the dark ring next to bright edges is lifted back to the level of the stack."
       />
       <RefineSlider
         v-model="refine.radius"

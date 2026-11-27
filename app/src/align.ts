@@ -1,8 +1,7 @@
 // The Alignpoints, Align and Limit steps: Set Alignpoints, Align and Limit call the backend commands (app/src-tauri/src/align_commands.rs)
 // and write their results into `session`. Imported once by main.ts, which registers the handlers.
 //
-// Not available yet, because the reference program was never observed doing them (docs/offene-fragen.md, question 21):
-// No Align, Scan Frames and Empty List have no handler; the status bar says so.
+// Not available yet: No Align, Scan Frames and Empty List have no handler; the status bar says so.
 
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";

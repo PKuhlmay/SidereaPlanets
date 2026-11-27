@@ -169,7 +169,7 @@ impl Previewer {
     }
 
     /// The image in the region with the settings applied, as *Do All* ([`super::do_all`]) shows it: with the
-    /// tone curve of the original and the colour treatment of `mode`. The region is cut to the image; the
+    /// output tone curve and the colour treatment of `mode`. The region is cut to the image; the
     /// returned [`Preview::region`] says what was rendered.
     ///
     /// The area around the region is processed too, as far as the layers reach, so that the result is
@@ -371,7 +371,7 @@ mod tests {
         let mut previewer = Previewer::new(img.clone());
         let preview = previewer.render(&WaveletSettings::default(), ColourMode::Colour, region);
         assert_eq!(preview.region, region);
-        // The original darkens the image even when nothing is sharpened ...
+        // The output tone curve darkens the image even when nothing is sharpened ...
         assert_ne!(preview.rgba, previewer.before(region).rgba);
         // ... and the preview shows exactly that.
         let mut toned = (*img).clone();

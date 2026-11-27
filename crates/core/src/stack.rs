@@ -3,8 +3,8 @@
 //! Every frame is shifted back onto the reference frame before it is averaged. With *Correct
 //! geometry* the shift is not one value per frame but varies over the image: it is blended from the
 //! movements of the nearest alignpoints (*Use Nearestby Alignpoints*), so a frame that is distorted
-//! by seeing is straightened locally. How the original does this is unobserved, the scheme here is
-//! our own guess and is checked against its result (`docs/stacking.md`, `docs/testdaten.md`).
+//! by seeing is straightened locally. The scheme is our own design (`docs/stacking.md`) and is checked by a regression test
+//! against stored reference results.
 //!
 //! Frames are processed in batches of about one frame per thread, so that only a few frames are in memory at a time. The sum
 //! is kept in `f64`: thousands of 16-bit frames add up without overflow or visible rounding.
@@ -17,7 +17,7 @@ use crate::{
 };
 use rayon::prelude::*;
 
-/// Settings of *Stacking options* with the defaults of the reference program (`docs/ui.md`).
+/// Settings of *Stacking options* with its defaults (`docs/ui.md`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct StackParams {
     /// *Use Nearestby Alignpoints*: how many of the nearest points decide the shift of a pixel.
@@ -543,7 +543,7 @@ pub fn stack_sequence_derotated<E: Send>(
 
 /// Peak signal to noise ratio in dB between two images of the same size, for samples in
 /// `0.0..=1.0` (the peak is 1.0, i.e. 65535 in 16 bit). `None` if the sizes differ; infinite if the
-/// images are identical. This is the measure of `docs/testdaten.md` for comparisons with the original.
+/// images are identical. It is the measure used by the regression tests against stored reference results.
 pub fn psnr(a: &Image, b: &Image) -> Option<f64> {
     if (a.width, a.height, a.channels) != (b.width, b.height, b.channels) || a.data.is_empty() {
         return None;

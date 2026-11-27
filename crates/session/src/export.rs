@@ -83,7 +83,7 @@ pub struct FormatInfo {
     pub extension: &'static str,
 }
 
-/// The file types offered by *Save image* in the given tab, in the order of the reference program.
+/// The file types offered by *Save image* in the given tab, in the order of the save dialog's file type list.
 pub fn export_formats(source: ImageSource) -> Vec<FormatInfo> {
     let formats = match source {
         ImageSource::Stack => ExportFormat::STACK,

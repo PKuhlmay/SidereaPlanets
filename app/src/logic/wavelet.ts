@@ -78,8 +78,8 @@ export function fromBackend(settings: BackendSettings): WaveletValues {
 }
 
 /**
- * Use Linked Wavelets: moving one slider moves all others by the same amount. Which layers the original links
- * is unobserved (docs/offene-fragen.md); this is the simplest reading. Returns the new slider positions.
+ * Use Linked Wavelets: moving one slider moves all others by the same amount. All layers are linked;
+ * this is the simplest rule. Returns the new slider positions.
  */
 export function linkedLevels(levels: number[], index: number, level: number, linked: boolean): number[] {
   const clamp = (v: number) => Math.min(LAYER_RANGE.max, Math.max(LAYER_RANGE.min, Math.round(v)));

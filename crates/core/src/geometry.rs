@@ -25,7 +25,7 @@ pub struct Orientation {
     pub flip_vertical: bool,
     /// Clockwise, in degrees. Multiples of 90 turn exactly; anything between is resampled with `method`.
     pub angle: f32,
-    /// A free angle leaves black corners; with this the result is cut to the largest rectangle of the original shape inside the turned
+    /// A free angle leaves black corners; with this the result is cut to the largest rectangle of the source shape inside the turned
     /// image, so there are none. Has no effect on turns by a multiple of 90.
     pub crop_to_fit: bool,
     pub method: Resampling,
@@ -102,7 +102,7 @@ fn free_size(width: u32, height: u32, degrees: f32, crop_to_fit: bool) -> (u32, 
     let (s, c) = (f64::from(sin.abs()), f64::from(cos.abs()));
     let (w, h) = (f64::from(width), f64::from(height));
     let (out_w, out_h) = if crop_to_fit {
-        // The largest copy of the original shape (a * w x a * h) whose corners stay inside the turned image.
+        // The largest copy of the source shape (a * w x a * h) whose corners stay inside the turned image.
         let a = (w / (w * c + h * s)).min(h / (w * s + h * c)).min(1.0);
         (
             (w * a - 0.01).floor().max(1.0),
@@ -210,7 +210,7 @@ impl Image {
         }
         Image {
             data,
-            ..self.clone_shape()
+            ..self.empty_like()
         }
     }
 
@@ -322,7 +322,7 @@ impl Image {
     }
 
     /// A copy of the size and channels without the samples.
-    fn clone_shape(&self) -> Image {
+    fn empty_like(&self) -> Image {
         Image {
             width: self.width,
             height: self.height,
@@ -1016,7 +1016,7 @@ mod tests {
             orientation: turn(90.0),
             resize: None,
         };
-        // The turned image is 2 wide: a rectangle that starts at x = 3 is outside it, though it lies inside the original.
+        // The turned image is 2 wide: a rectangle that starts at x = 3 is outside it, though it lies inside the source image.
         let crop = CropRect {
             x: 3,
             y: 0,

@@ -1,9 +1,9 @@
-//! Wavelet sharpening, the core of the reference program (`docs/wavelets.md`, `docs/workflow.md` section 4).
+//! Wavelet sharpening, the core of Siderea Planets (`docs/wavelets.md`, `docs/workflow.md` section 4).
 //!
 //! The image is split into six detail layers and a remainder. Layer `n` is the difference between the
 //! image smoothed `n - 1` times and `n` times, so a layer holds the structures of one scale. Each layer
 //! gets a gain (slider), optional denoising and sharpening, and everything is added up again. With
-//! all gains at 1.0 the sum is the original image.
+//! all gains at 1.0 the sum is the input image.
 //!
 //! Two ways to get there:
 //! - [`process`] for *Do All*: streams through the layers and only needs three buffers.
@@ -226,7 +226,7 @@ fn process_until(
     finished.then_some(result)
 }
 
-/// *Do All*: sharpens the whole image the way the window shows it, with the tone curve of the original and the
+/// *Do All*: sharpens the whole image the way the window shows it, with the output tone curve ([`output_curve`]) and the
 /// colour treatment of `mode` ([`ColourMode`]). The result is clamped to `0.0..=1.0`. The live preview
 /// gives the same pixels for its area ([`Previewer::render`]).
 pub fn do_all(image: &Image, settings: &WaveletSettings, mode: ColourMode) -> Image {
@@ -470,7 +470,7 @@ mod tests {
     }
 
     #[test]
-    fn do_all_with_default_settings_is_the_tone_curve_of_the_original() {
+    fn do_all_with_default_settings_is_the_output_tone_curve() {
         let img = test_image(40, 30, 3);
         let out = do_all(&img, &WaveletSettings::default(), ColourMode::Colour);
         assert_ne!(out, img);

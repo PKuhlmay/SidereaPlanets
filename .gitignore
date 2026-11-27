@@ -2,7 +2,7 @@
 .idea/
 .vscode/
 *.log
-# Reverse-engineering material stays local (original binaries, sample data, captures)
+# Local-only material stays out of Git (sample recordings, reference images, captures, internal notes)
 /re-local/
 
 node_modules/

@@ -1,4 +1,4 @@
-// Names for the save dialogs: the reference program proposes the name of the recording and opens in its folder.
+// Names for the save dialogs: the dialogs propose the name of the recording and open in its folder.
 
 /** "JUPITER.AVI" -> "JUPITER"; a name without extension stays as it is. */
 export function stem(fileName: string): string {

@@ -1,20 +1,18 @@
 # Siderea Planets
 
-Prototyp: Planeten-/Mond-Stacking und Wavelet-Schärfung für die Astrofotografie in **Rust**, nach dem Vorbild eines älteren
-Windows-Programms (Delphi, kostenlos, seit 2011 nicht mehr gepflegt), hier und in `docs/` das **Referenzprogramm** genannt.
-Ziel ist ein möglichst genauer Nachbau in **Bedienung und Ergebnis** — gleicher Workflow, gleiche Begriffe,
-vergleichbare Resultate. Es ist zunächst nur ein Prototyp, um zu prüfen, ob das Vorhaben überhaupt aufgeht.
+Planeten- und Mond-Stacking mit Wavelet-Schärfung für die Astrofotografie in **Rust**: Aufnahme laden, Alignpoints setzen,
+ausrichten, die besten Frames wählen, stacken, schärfen und speichern. Ein eigenes Programm mit eigenem Rechenkern, eigener
+Oberfläche und eigenem Design; es ist zunächst ein Prototyp, der prüft, ob das Vorhaben trägt.
 
 **Name:** Die App heißt **Siderea Planets** (macOS, Windows, Linux), passend zur Suite mit Siderea. Einen abweichenden internen Namen
 gibt es nicht: Repo und Ordner `SidereaPlanets`, Rust-Crates `planets-*`, Projektdateien `.sidereaplanets`,
 Tickets `PLANETS-N` (früher `SP-NNN`, `MAC-NNN`).
 
-**Der Name des Referenzprogramms steht nirgends im Repo** (Philipp, 2026-11-27): weder in sichtbaren Texten noch in Code,
-Kommentaren, Bezeichnern, Tests, `docs/`, Tickets oder Commit-Messages. Wo es gemeint ist, heißt es „das Referenzprogramm“
-(englisch „the reference program“). In Texten, die Nutzer sehen (Oberfläche und Tooltips, Dateidialoge, `.rwv` heißt
-„Wavelet scheme“, Statusmeldungen, Datei- und Projektköpfe, About, Anwenderseiten unter `app/src/docs/pages/`, Changelogs), wird
-es auch nicht umschrieben erwähnt, auch nicht als „das Original“: Siderea Planets ist ein eigenes Programm. Vergleiche gehören in
-die interne Doku (`docs/`, z. B. `docs/offene-fragen.md`).
+**Ein bestimmter Programmname steht nirgends im Repo** (Philipp, 2026-11-27): weder in sichtbaren Texten noch in Code,
+Kommentaren, Bezeichnern, Tests, `docs/`, Changelogs oder Commit-Messages, und er wird auch nicht umschrieben. Die Sperrliste
+(ein Begriff oder regulärer Ausdruck je Zeile) liegt lokal in `re-local/forbidden-terms.txt`. Vor jedem Commit, der Texte
+berührt, prüfen: `git grep -n -i -E -f re-local/forbidden-terms.txt -- . ':!tickets'` — Treffer sind nur erlaubt, wenn das englische Wort
+im Bild-Sinn „unbearbeitetes Quellbild“ gemeint ist (z. B. in der Beschriftung einer Größenoption).
 
 ## Status
 
@@ -23,10 +21,10 @@ Best Frames (Limit), Stack mit Derotation, Wavelets mit Do All und den Adjustmen
 dazu Projektdatei, Save Aligned/Integrated, Schemes, CPU-Auswahl. Auf dem Mac hat sie Menüleiste, Cmd-Kürzel, Dateizuordnung und
 folgt dem Erscheinungsbild des Systems (PLANETS-3); für Windows gibt es einen Installer (`scripts/publish-windows.sh --installer`,
 Inno Setup wie bei Siderea). Die frühere native SwiftUI-App (Mac-Release 0.1.0) und die Rust-Schnittstelle `crates/ffi` sind mit
-PLANETS-4 entfallen und stehen nur noch in der Git-Historie. Das Referenzprogramm ist auf dem Windows-Rechner installiert; die
-Spezifikation daraus steht in `docs/` (SP-003), Referenzergebnisse in `re-local/reference/` (beschrieben in `docs/testdaten.md`).
+PLANETS-4 entfallen und stehen nur noch in der Git-Historie. Die Beschreibung von Ablauf, Oberfläche, Algorithmen und Formaten
+steht in `docs/`; eigene Referenzbilder und Aufnahmen für die Regressionstests liegen lokal in `re-local/` (nicht in Git).
 Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens, klickbarer Entwurf und Soll-Bilder in
-`docs/design/`) und für jede Arbeit an der Oberfläche verbindlich — **modern**, nicht der Delphi-Look.
+`docs/design/`) und für jede Arbeit an der Oberfläche verbindlich — **modern** und eigenständig.
 
 ## Tech Stack
 
@@ -34,7 +32,7 @@ Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens, klickbare
 - App-Shell: **Tauri 2** (Rust-Kern + Web-UI), Frontend **Vue 3 + TypeScript + Vite** (`pnpm`)
 - Plattformen: **macOS, Windows und Linux** mit derselben Tauri-App `app/`. Der Rechenkern (`crates/`) bleibt plattformunabhängig:
   nichts Plattformspezifisches im Code, er muss auf allen dreien bauen und testen
-- Bildverarbeitung: eigene Implementierung der Algorithmen, keine Delphi-Quellen
+- Bildverarbeitung: eigene Implementierung der Algorithmen, keine fremden Quellen
 - Entscheidung und Begründung: `docs/gui-toolkit.md`
 
 ## Dev-Commands
@@ -62,7 +60,7 @@ der Git-Hook `.githooks/post-commit` (Skript `scripts/deploy-debug.sh`) von selb
 auf). Schlägt der Bau fehl, wird nicht deployt. Protokolle: `deploy-debug.log` und `tauri-dev.log` im Repo-Stamm, beide
 nicht in Git. „Deploy“ heißt nur lokal starten, kein Release-Build und kein Veröffentlichen.
 
-- Aktivieren, einmal je Klon: `git config core.hooksPath .githooks`
+- Aktivieren, einmal je Checkout: `git config core.hooksPath .githooks`
 - Nur der Haupt-Checkout auf `main` löst aus; Worktrees und andere Branches nicht. Der Squash-Merge eines Worktrees
   deployt also genau einmal, mit dem Ticket-Commit.
 - Testläufe waren vorübergehend aus (Philipp, 2026-11-10) und laufen seit dem Abschluss der Tickets am 2026-11-12 wieder, von Hand
@@ -80,7 +78,7 @@ nicht in Git. „Deploy“ heißt nur lokal starten, kein Release-Build und kein
 Zu jeder Funktion gehört Anwenderdoku, die **in der App über die UI erreichbar** ist (eigener Bereich/Hilfe-Ansicht, im
 Design aus `docs/design.md`, gleiche Tokens und Komponenten). Sie wird mit der Funktion zusammen geschrieben und **in jedem
 Commit mitgepflegt, wo die Änderung sie betrifft** (neue Funktion, geändertes Verhalten, neue Begriffe/Formate).
-Die Doku beschreibt Bedienung und Ergebnis, nicht die Reverse-Engineering-Notizen — die bleiben in `docs/`.
+Die Doku beschreibt Bedienung und Ergebnis, nicht die technische Beschreibung der Algorithmen — die bleibt in `docs/`.
 Die Seiten liegen als Markdown in `app/src/docs/pages/` (Kopf mit `title`, `group`, `order`), die Ansicht ist `app/src/docs/DocsView.vue`; Help in der Werkzeugleiste öffnet sie. Eine neue Seite ist nur eine neue Datei.
 
 ## Eine App für drei Plattformen
@@ -109,9 +107,9 @@ crates/session/ Sitzungslogik (`Session`): offene Aufnahme, Ergebnisse je Schrit
 app/         Die App (Tauri): `app/src` = Vue-Frontend (hier entsteht das Design), `app/src-tauri` = Rust-Shell mit Commands
 scripts/   Skripte, z. B. `deploy-debug.sh` für den Deploy-Hook (`.githooks/post-commit`), `publish-windows.sh`, `make-icons.sh`
 tickets/   Alte Aufgaben als Markdown-Dateien (SP-NNN-kurzer-titel.md); neue Tickets in Jira (PLANETS)
-docs/      Spezifikation, die beim Reverse Engineering entsteht (Workflow, UI, Algorithmen, Formate), dazu `docs/release.md`
+docs/      Technische Beschreibung (Ablauf, Oberfläche, Algorithmen, Formate, Design), dazu `docs/release.md`
            (Signieren und Notarisieren für macOS)
-re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, Mitschnitte
+re-local/  Lokal, nicht in Git: Beispielaufnahmen, eigene Referenzbilder, Screenshots, interne Notizen
 .claude/   Hooks, Skills und Einstellungen aus `npx github:PKuhlmay/claude-kit install` (nicht von Hand ändern). Projekteigen und nicht aus
            dem Kit: der Skill `siderea-release` unter `.claude/skills/`
 ```
@@ -126,19 +124,18 @@ re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, M
 - Status-Änderung direkt in der Datei und im selben Commit wie die Umsetzung.
 - Commits: `[TYPE] SP-NNN - Message in English` (Types wie in den globalen Regeln).
 
-## Reverse Engineering
+## Eigene Implementierung
 
-- Quelle ist das **beobachtbare Verhalten** des installierten Originals: Oberfläche, Ein-/Ausgaben,
-  Dateiformate, Vergleich von Ergebnisbildern. Erkenntnisse landen als Beschreibung in `docs/`.
-- Binaries, Ressourcen, Icons und Texte des Originals werden **nicht** ins Repo übernommen oder kopiert
-  (`re-local/` ist gitignored). Der Nachbau bekommt eigene Implementierung und eigene Assets.
-- Algorithmen, die nur geraten sind, in `docs/` als **Vermutung** markieren, bis ein Vergleich mit dem
-  Original sie bestätigt.
+- Algorithmen, Oberfläche, Texte, Icons und Assets sind eigene Arbeit. Fremde Binaries, Ressourcen, Icons oder Texte kommen nicht ins
+  Repo; Aufnahmen und Referenzdaten für Tests liegen in `re-local/` (gitignored).
+- Was in `docs/` steht, beschreibt, was Siderea Planets tut und warum. Offene Annahmen stehen dort als Entwurfsentscheidung, nicht
+  als Vergleich mit anderer Software.
 
 ## Konventionen
 
-- Bildverarbeitung prüfen wir **gegen das Original**: gleiche Eingabe, Ergebnis vergleichen
-  (Differenzbild, PSNR). Referenzfälle liegen in `docs/` beschrieben, Daten in `re-local/`.
+- Bildverarbeitung sichern Regressionstests gegen **eigene Referenzbilder**: gleiche Eingabe, Ergebnis vergleichen
+  (Differenzbild, PSNR mit festem Schwellenwert). Die Daten liegen in `re-local/` (nicht in Git, die Tests überspringen sich ohne sie);
+  die Schwellen stehen im Test und in `docs/`.
 - Rechenkern (Stacking, Wavelets) ist GUI-frei in eigenen Crates und per Unit-Test prüfbar.
 - Performance zählt: Videos mit tausenden Frames, deshalb Streaming statt alles im RAM, Parallelität via `rayon`.
 - `clippy` ohne Warnungen, `cargo fmt`; kein `unsafe` ohne Begründung im Kommentar.

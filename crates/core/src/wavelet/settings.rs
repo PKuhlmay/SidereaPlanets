@@ -2,7 +2,7 @@
 
 use serde::{Deserialize, Serialize};
 
-/// Number of wavelet layers of the original.
+/// Number of wavelet layers.
 pub const LAYERS: usize = 6;
 
 /// Reference value of *Sharpen*: with it a layer acts exactly as its slider says (`docs/wavelets.md`).
@@ -23,7 +23,7 @@ pub enum Scheme {
 #[serde(rename_all = "camelCase")]
 pub enum Filter {
     Default,
-    /// Default of the original.
+    /// Gaussian smoothing, the default.
     Gaussian,
 }
 
@@ -107,7 +107,7 @@ impl Structure {
 }
 
 /// Everything the left panel *Wavelets* holds. Serialises as the JSON the UI sends and receives;
-/// the `.rwv` file of the original is handled in [`super::scheme`].
+/// the `.rwv` scheme file is handled in [`super::scheme`].
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct WaveletSettings {
@@ -149,8 +149,7 @@ impl WaveletSettings {
             .map_or(0, |i| i + 1)
     }
 
-    /// Brings every value into the range the clone supports (the original accepts anything typed,
-    /// see `docs/offene-fragen.md`, question 1): gain `-5..=100`, *Denoise* and *Sharpen* `0..=100`,
+    /// Brings every value into the range the program supports: gain `-5..=100`, *Denoise* and *Sharpen* `0..=100`,
     /// *Initial Layer* `1..=64`, *Step Increment* `0..=64`, no NaN.
     pub fn clamped(mut self) -> Self {
         let (lo, hi) = LayerSettings::GAIN_RANGE;
@@ -182,7 +181,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn defaults_follow_the_original() {
+    fn defaults_are_the_documented_ones() {
         let s = WaveletSettings::default();
         assert_eq!(s.structure.scheme, Scheme::Linear);
         assert_eq!(s.structure.filter, Filter::Gaussian);

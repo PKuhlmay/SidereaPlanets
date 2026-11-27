@@ -1,5 +1,5 @@
 #!/bin/sh
 # Deploys the Tauri debug app after each commit on main (Windows and macOS alike), see scripts/deploy-debug.sh.
-# Enable once per clone: git config core.hooksPath .githooks
+# Enable once per checkout: git config core.hooksPath .githooks
 root="$(git rev-parse --show-toplevel)"
 bash "$root/scripts/deploy-debug.sh" || true

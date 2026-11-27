@@ -1,4 +1,4 @@
-//! GUI-free image processing for the clone of the reference program.
+//! GUI-free image processing for Siderea Planets: alignment, stacking, wavelets and colour.
 
 pub mod align;
 mod batch;

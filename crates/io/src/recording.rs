@@ -192,7 +192,7 @@ mod tests {
 
     #[test]
     fn extension_is_matched_case_insensitively() {
-        // The original tools write upper-case names such as JUPITER.AVI; the file does not exist,
+        // Capture tools often write upper-case names such as JUPITER.AVI; the file does not exist,
         // so the error must come from opening it, not from format detection.
         let err = Recording::open(Path::new("does-not-exist.AVI"))
             .err()

@@ -1,208 +1,205 @@
-# Oberfläche des Referenzprogramms
+# Bedienelemente und Werte
 
-Beobachtet am Referenzprogramm, Version 6.1.0.0, unter Windows 11 (Skin „Office 2007 Silver“). Die Werte wurden aus den laufenden
-Bedienelementen ausgelesen und mit Screenshots abgeglichen. Screenshots und Steuerelement-Listen liegen nur lokal in
-`re-local/screenshots/`. Der Klon übernimmt **Aufbau und Begriffe**, nicht den Look (SP-010).
+Die Bedienelemente von Siderea Planets mit ihren Namen, Standardwerten und Bereichen, so wie die App sie zeigt (`app/src/components/`,
+Standardwerte in `app/src/logic/settings.ts`). Aufbau und Aussehen legt `docs/design.md` fest, die Abfolge der Schritte
+`docs/workflow.md`.
 
-**Namen in Siderea Planets (MAC-014).** Dieses Dokument beschreibt die Oberfläche des Referenzprogramms mit dessen Begriffen. Wo die App
-einen Bedienbegriff anders nennt, steht er in der Spalte „Name in Siderea Planets“ neben dem Begriff des Referenzprogramms, der unverändert
-bleibt; Listen nennen den App-Namen in „(in der App: …)“. Die App-Namen folgen MAC-014 und den Regeln in
-`docs/design.md` (Abschnitt „Texte und Schreibweise“). Regeln dort: kein Name des Referenzprogramms und kein „das
-Original“ in sichtbaren Texten der App, US-Englisch, Title Case für Schaltflächen, Menüs und Gruppenüberschriften, Sentence case
-für Beschriftungen, Häkchen und Tooltips, Einheiten am Feld. Ein „—“ in der Spalte heißt: Name unverändert.
+Namen und Schreibweise folgen den Regeln in `docs/design.md` (Abschnitt „Texte und Schreibweise“): US-Englisch, Title Case für
+Schaltflächen, Menüs und Gruppenüberschriften, Sentence case für Beschriftungen, Häkchen und Tooltips, Einheiten am Feld.
 
-Legende: *Standard* = Wert direkt nach der Installation. „Bereich“ steht nur da, wo er beobachtet wurde.
-Zahlenfelder (Spin-Felder) übernehmen beim Tippen auch Werte außerhalb sinnvoller Grenzen (z. B. Denoise −5 oder 99)
-ohne zu korrigieren. Ihre Grenzen gelten deshalb als unbekannt, siehe `docs/offene-fragen.md`.
+Legende: *Standard* = Wert nach dem Start. Zahlenfelder übernehmen getippte Werte auch außerhalb sinnvoller Grenzen, ohne zu
+korrigieren; ein Bereich gilt nur, wo er hier genannt ist. Elemente ohne Funktion sind gesperrt (auf 45 % gedimmt), ihr Tooltip
+beginnt mit „Not available yet“; sie stehen unten in der jeweiligen Liste.
 
 ## Hauptfenster
 
-| Bereich | Inhalt | Name in Siderea Planets |
-|---|---|---|
-| Titelleiste | „‹Programmname› V6“, nach dem Laden „‹Programmname› processing AVI: ‹Pfad›(‹Codec› vids) (‹B›x‹H›)“ | „Siderea Planets“, mit Aufnahme „Siderea Planets · ‹Dateiname›“, während eines Schritts „Siderea Planets · Align 40%“ |
-| Werkzeugleiste | **Select** · **MRU ▾** · **Flat/Dark/Reference ▾** · **Tools ▾** · **Settings ▾** · **Cancel** · **Pause** · **About** · **CPUs:** [Zahl, Standard 1; im Klon Standard = Zahl der logischen Kerne, Bereich 1 bis dahin, siehe Abweichungen in `design.md`] | **Select Recording** · **Recent Recordings ▾** · **Flat/Dark/Reference ▾** · **Tools ▾** · **Settings ▾** · **Open Project…** · **Save Project…** · **Cancel** · **Pause** · **Help** · **About** · **CPU cores to use** |
-| Reiterleiste | **Align** · **Stack** · **Wavelet**, rechts daneben „File Version: 6.1.0.0“, Datum und „Memory Used/Free/Total: …Mb“ | Schrittleiste statt Reiter: **Open · Alignpoints · Align · Best Frames · Stack · Wavelets · Save**, rechts „1024×680 · 10 frames · DIB“ |
-| Bildbereich | Vorschau mit Scrollbalken. Je nach Reiter liegen Punkte oder Rahmen darüber | Bildbereich mit **Show ▾** und im Wavelets-Schritt **Adjust ›**; leer: „Select a recording or drop a video or images here“ / „No image to show yet“ |
-| Statusleiste | Fortschrittsbalken in %, aktuelle Aktion („Loading frame: 10“), Ergebnis („Alignment finished.“), „Time used / Time left“ | „Aligning frame: 42“, „Alignment finished“ (ohne Punkt), „Time used / Time left“ |
-| Taskleiste | Fortschritt im Fenstertitel der Anwendung, z. B. „R 6:Align 100%“ | Fenstertitel „Siderea Planets · Align 40%“ |
+| Bereich | Inhalt |
+|---|---|
+| Titelleiste | „Siderea Planets“, mit Aufnahme „Siderea Planets — ‹Dateiname›“, während eines Schritts „Siderea Planets · Align 40%“ |
+| Werkzeugleiste | **Select Recording…** · **Recent Recordings ▾** · **Settings ▾** · **Open Project…** · **Save Project…** · **Cancel** · **Pause** (nach dem Anhalten **Resume**) · **Help** · **About** (gesperrt) · **CPUs** (Zahl der Kerne für alle Berechnungen) |
+| Schrittleiste | **Open · Alignpoints · Align · Best Frames · Stack · Wavelets · Save**, rechts „1024×680 · 10 frames · DIB“ (Größe, Frame-Zahl, Codec) |
+| Schrittpanel (links) | Kopf „Step n of 7“, Name und ein Satz des offenen Schritts; die wichtigen Einstellungen; **Advanced** (n more settings) mit dem Rest; die Aktion am Fuß |
+| Bildbereich | Vorschau mit Zoom, Ziehen und Mausrad; oben links eine Kapsel („Frame 5 of 10“, „Stack of 8 frames“, „Sharpened stack“), oben rechts **Show ▾** und im Schritt Wavelets **Adjust ›**; leer: „Select a recording or drop a video or images here“ / „No image to show yet“ |
+| Frame-Leiste | Statuspunkt „Loaded“ / „Aligned“ · **Go to frame** · Vor- und Zurück-Pfeile (← →) · Regler über alle Frames · „Frame 5 of 10“ |
+| Statusleiste | optional „CPU (12)“ und „RAM“ · Fortschrittsbalken in % · aktuelle Aktion („Aligning frame: 42“) · Ergebnis („Alignment finished“) · Position und Pixelwerte · „Time used / Time left“ · Version des Builds |
+
+**CPUs**: Standard ist die Zahl der logischen Kerne, Bereich 1 bis dahin. Die Zahl wirkt auf alle Berechnungen (eigener Thread-Pool im
+Rechenkern) und steht nicht in der Projektdatei.
 
 ## Menüs
 
-**MRU**: zuletzt geöffnete Dateien (im Test leer). In der App: **Recent Recordings** (leer: „No recent recordings“).
-
-**Flat/Dark/Reference**
-
-| Eintrag | Zustand vor dem Laden | Anmerkung |
-|---|---|---|
-| Load Darkframe | aktiv | |
-| Use Darkframe | gesperrt | |
-| Use Raw-Darkframe | gesperrt | |
-| Create Darkframe | gesperrt | darunter Zahlenfeld, Standard 1,00 |
-| Load Flatfield | aktiv | |
-| Use Flatfield | gesperrt | |
-| Create Flatfield | gesperrt | |
-| Load Referenceframe | aktiv | |
-| Use Referenceframe | gesperrt | |
-
-**Tools**: Show MACRO/Batch window · Record Processing Information in Filename
+**Recent Recordings**: zuletzt geöffnete Aufnahmen; leer „No recent recordings“.
 
 **Settings**
 
-| Eintrag | Art | Standard / Auswahl | Name in Siderea Planets |
-|---|---|---|---|
-| Automatic Processing ▸ | Untermenü | Align to Wavelet · Align to Stack · Stack to Wavelet (alle aus) | — |
-| Autodetect Colour/BW | Häkchen | aus | Autodetect Color/BW |
-| Processing Area | Auswahl | 2048 · 1024 · **512** · 256 · 128 | **Preview area** (Werte in Pixel je Seite, Mac „512 × 512 px“) |
-| Luminance Setting ▸ | Untermenü | Reset Luminance; Red **0,299**, Green **0,587**, Blue **0,114** | — |
-| Stretch FIT/TIFF | Auswahl | **Always Ask** · Yes · No | — |
-| Show Advanced Controls | Häkchen | aus | — |
-| Play Sounds | Häkchen | aus | — |
-| Swap Red/Blue Channel | Häkchen | aus | — |
-| Wait when loading a single image | Häkchen | aus | — |
-| Maximize during messages | Häkchen | aus | — |
-| Check for ‹Programmname› Update | Häkchen | aus (im Klon weglassen) | fehlt |
-| Layouts ▸ / Set Skin ▸ | Untermenü | Fensterlayout und Skin (im Klon weglassen) | fehlt; **Theme** (Dark · Light, Mac: folgt macOS) ersetzt Set Skin |
-| Save to Subdir | Textfeld | „Subdirname“ | — |
-| Bias sutract | Zahlenfeld | 0 (Schreibfehler im Original, im Klon „Bias subtract“) | — |
-
-## Align-Reiter
-
-**Kopfzeile**
-
-- Schaltflächen: **Set Alignpoints** · **Align** · **Limit** (in der App: Schritt **Best Frames**, Schaltfläche **Keep Best Frames**, erledigt „Keep Best Frames Again“). Jeweils nur der nächste mögliche Schritt ist aktiv.
-- Häkchen: Colour · LRGB · Show Full Image · Show ROI · Show Alignpoints · Show Aligndata · Show Framelist ·
-  Show Registrationgraph · Show Prefilter
-  (in der App im Menü **Show ▾**: Show Full Image · Show Region · Show Alignpoints · Show Align Data · Show Frame List ·
-  Show Quality Graph · Show Prefilter; Show Full Image, Show Align Data und Show Prefilter sind gesperrt, **Not available yet**;
-  Colour und LRGB heißen **Color** und **Sharpen brightness only** und liegen im Wavelets-Schritt)
-
-**Panel „Alignment“ (links)**
-
-| Gruppe | Element | Art | Standard | Beobachtet | Name in Siderea Planets |
-|---|---|---|---|---|---|
-| Set Alignpoint parameters | Minimum distance between | Zahl | 30 | | Min. distance between points (px) |
-| | Min distance from edge | Zahl | 20 | | Min. distance from image edge (px) |
-| Intensity_selection | Default · 3x3 area · Lowest pixelvalue | Auswahl | Default | | Gruppe **Point Placement**; **Brightness measure**: Default · 3×3 area · Lowest pixel value |
-| | Lo | Zahl | 30 | | **Min. brightness (0–255)** (eigene Zeile) |
-| | Hi | Zahl | 230 | | **Max. brightness (0–255)** (eigene Zeile) |
-| | Threshold (weakest … strongest) | Regler | | vor dem Laden 0..0; nach Set Alignpoints 0..91, Position 9 | **Threshold**: more points … fewer points; danach „Threshold · 82 points“ |
-| | Number of Alignpoints | Zahl | 0 | gesperrt; zeigt nach dem Setzen 82 | Number of alignpoints |
-| | Keep Alignpoints inside ScanFrame | Häkchen | aus | gesperrt | Keep points inside the scan frame (gesperrt) |
-| Alignment setup | Show Alignment | Häkchen | aus | | Show Alignment (gesperrt) |
-| | No Align · R.o.Interest · Scan Frames | Schaltflächen | | No Align und R.o.Interest nach dem Laden aktiv, Scan Frames nach Align | **No Align · Scan Frames** (gesperrt, unter Advanced, Beschriftung „Alignment mode“); R.o.Interest heißt **Draw Region** (Schritt Alignpoints) |
-| | Alignmentbox size | Zahl | 30 | | **Box size per point (px)** |
-| | Max Alignpoint movement | Zahl | 5 | | **Max. point shift (px)** |
-| | Align by Centre of gravity | Häkchen | aus | gesperrt | Align by center of gravity (Mac: frei seit MAC-021, eigene Umsetzung; Windows gesperrt) |
-| | Lum. Threshold | Zahl | 0 | gesperrt | Brightness threshold, 0–255, Standard **20** (Mac: frei seit MAC-021, nur mit dem Häkchen aktiv; Windows gesperrt) |
-| | Estimate Rotation | Häkchen | aus | gesperrt | Estimate rotation (gesperrt) |
-| Limit Setup | Lowest Quality (%) · Best Frames (%) · Frames/Apoint · Best Frames | Auswahl | Lowest Quality (%) | | **At least % of the best quality** · **Best % of frames** · Best frames per point · **Best number of frames**; Standard At least % of the best quality; Gruppe im Schritt **Best Frames** (Original: Limit Setup) |
-| | Prozentwert | Zahl | 80 | | — |
-| | Anzahl | Zahl | 200 | gesperrt bei Prozent-Modi | — |
-
-**Fußzeile**: Regler über alle Frames (bei 10 Frames: 0..9) · *Goto Frame* (Zahl, Standard 1) · „Frame (n): n/N“.
-In der App: **Go to frame** und „Frame 5 of 10“.
-Links ein Farbfeld: hellgrün nach dem Laden, dunkelgrün nach Align. Die Bedeutung ist nicht geklärt.
-
-**Schwebende Panels**
-- *Framelist*: Check all · Check none · Empty List; Liste „Frame00001“ … mit Häkchen, nach Align nach Qualität sortiert.
-  In der App: **Frame List** mit **Check All · Check None · Clear List** (gesperrt) und „Frame 1“ …
-- *RegiStrationgraph*: Liniendiagramm über die Frames, Linien „Quality“ und „Difference“. In der App: **Quality Graph**.
-
-## Stack-Reiter
-
-**Kopfzeile**
-
-- Schaltflächen: **Stack** · **Save image** (in der App: **Save Image**)
-- Häkchen: Colour · LRGB · Show Full Image · Show AlignSections · Show Stackgraph · Show Stacklist ·
-  **Resampling** (eingeschaltet erscheinen Methode Bell · Bspline · **Lanczos** · Mitchell und Faktor **2,0**) ·
-  **Drizzling** (eingeschaltet erscheint Faktor **0,5**; laut Tooltip wird das Ergebnis doppelt so groß)
-- *Show AlignSections* öffnet die Liste *Alignmentpoints* („Point 1“ … mit Häkchen).
-  In der App: Menü **Show ▾** mit Show Full Image · **Show Alignpoints** (öffnet die Karte **Alignpoints Used for Stacking**,
-  „Alignpoint 1“ …) · Show Stack Graph · Show Stack List; Full Image, Stack Graph und Stack List sind gesperrt.
-
-**Panel „Stacking options“**
-
-| Element | Art | Standard | Name in Siderea Planets |
-|---|---|---|---|
-| StackSize: Default · Minimized · Maximized · R.of Interest | Auswahl | Default | **Output size**: Default · Smallest common area · Largest area · Region (nur Default wirkt) |
-| Use Nearestby Alignpoints | Zahl | 3 | **Use nearest points** |
-| Normalization of frame intensity | Häkchen | aus | **Even out frame brightness** |
-| Correct geometry | Häkchen | **an** | — |
-| Stretch histogram after stacking | Häkchen | aus | — |
-| De-rotate images | Häkchen | aus | — |
-| Do not stack ‹n› pixels at the frameedge | Zahl | 0 | **Ignore edge pixels (px)** |
-
-**Panel „Create AVI“**
-
-| Element | Art | Standard | Name in Siderea Planets |
-|---|---|---|---|
-| Codec | Auswahl | DIB (dazu die auf dem System installierten Video-for-Windows-Codecs; im Test cvid, i420, iyuv, mrle, msvc, uyvy, yuy2, yvu9, yvyu) | Codec (gesperrt) |
-| Compress Qual | Zahl | 7500 | **Compression quality** (gesperrt) |
-| Framerate | Zahl | 25 | **Frame rate (fps)** |
-| Create aligned Sequence: **Save Aligned** | Schaltfläche | | Aligned video: **Save Aligned Video…** |
-| Image size: Original image size · Minimum area · Maximum area · Region of Interest | Auswahl | Original image size | Überschrift **Frame size**: **Original size** · Smallest common area · Largest area · Region (nur Original size wirkt, die anderen gesperrt) |
-| Sort On Quality | Häkchen | aus | Sort by quality |
-| Use Prefilters | Häkchen | aus | Use prefilters (gesperrt) |
-| Create integrated sequence: **Save Integrated** | Schaltfläche | | Averaged video: **Save Averaged Video…** |
-| Method: Moving average · Compressed | Auswahl | Moving average (Compressed gesperrt) | Method: Moving average · Compressed (gesperrt) |
-| Average of ‹n› Frames | Zahl | 5 | Average of [n] frames |
-
-## Wavelet-Reiter
-
-**Kopfzeile**
-
-- Schaltflächen: **Process** · **Do All** · **Save image** · **Realign_with Processed** · **Stack Again**
-  (gesperrt) · **»** (klappt das rechte Funktionsfenster ein und aus)
-  (in der App: **Update Preview** · **Do All** · **Save Image** · Realign with Processed · Stack Again, beide gesperrt · **Adjust ›**)
-- Häkchen: Show Full Image · Show AlignPoints · Show Processing Area
-  (in der App: Show Full Image (gesperrt) · Show Alignpoints · **Show Preview Area**)
-
-**Panel „Wavelets“ (links)**, Kopf mit **Reset Wavelets**. In der App heißt die Gruppe unter Advanced **Wavelet Settings**.
-
-| Element | Art | Standard | Beobachtet | Name in Siderea Planets |
-|---|---|---|---|---|
-| Automatic | Häkchen | aus | | **Run Do All automatically** |
-| Hold Wavelet Setting | Häkchen | aus | | **Keep layer values for a new stack** |
-| Waveletscheme: Dyadic (2^n) · Linear | Auswahl | **Linear** | | **Layer spacing**: Dyadic (2^n) · Linear |
-| Initial Layer | Zahl | 1 | | **First layer size** |
-| Step Increment | Zahl | 0 | | **Size step** |
-| Wavelet filter: Default · Gaussian | Auswahl | **Gaussian** | | — |
-| Use Linked Wavelets | Häkchen | aus | | **Move all sliders together** |
-| Ebene 1 … 6: Häkchen „n : 1“ | Häkchen | an | Beschriftung zeigt _vermutlich_ Ebene und Skalierung | — |
-| Ebene n: **Denoise** | Zahl, 2 Nachkommastellen | 0,00 | im Schema als ×100 gespeichert | — |
-| Ebene n: **Sharpen** | Zahl, 3 Nachkommastellen | 0,100 | im Schema als ×100 gespeichert | — |
-| Ebene n: **Preview** | Schaltfläche | „1.0“ | zeigt den Reglerwert ÷ 10 | Preview (gesperrt, Auge-Symbol); der Sliderwert steht als Text rechts neben dem Regler |
-| Ebene n: Regler | Regler | Position 10 (= 1.0) | Bereich −50 … 1000, also −5.0 … 100.0; Pfeiltaste ändert um 1 | — |
-| Available schemes | Auswahl | leer | | **Saved Schemes** (gesperrt) |
-| **Load Scheme** · **Save Scheme** | Schaltflächen | | Dateiformat in `docs/formats.md` | **Load Scheme… · Save Scheme…** |
-
-Die Statusleiste zeigt beim Zeigen ins Bild die Position und Kanalwerte, z. B.
-„X=200 Y=201 Stack=9 PT=18 RGB=raw(1 1 1) user(1 1 1)“.
-
-**Panel „Functions“ (rechts)** (in der App: **Adjustments**; die Schaltflächen heißen Color Mixing · Denoise/Deringing · View Stack Size ·
-Show Line Graph, nur Histogram, Gamma, RGB Align und RGB Balance sind aktiv, die elf übrigen gesperrt), Schaltflächen in einem 3er-Raster:
-Histogram · Gamma · Colour Mixing · View Zoomed · View Compare · View Stacksize · Flip and Rotate · RGB Align ·
-RGB Balance · Resize Image · Denoise/Deringing · Wavelet Filter · Masking · Show Linegraph · Cropping Area.
-Jede Schaltfläche öffnet ein eigenes Panel. Die Panelnamen stehen in `docs/formats.md`, Abschnitt Layout.
-Die Panels wurden noch nicht einzeln erfasst, siehe `docs/offene-fragen.md`.
-
-**Panel „Contrast/Brightness“**, Kopf mit Hold · Reset (in der App: **Keep**, gesperrt, · Reset)
-
-| Element | Art | Standard | Beobachtet | Name in Siderea Planets |
-|---|---|---|---|---|
-| oberer Regler | Regler | Position 250 | Bereich 1 … 1000; Zuordnung zu Contrast unklar | — |
-| unterer Regler | Regler | Position 0 | Bereich −512 … 512 | — |
-| Contrast | Zahl | 100 | | **Contrast**: Beschriftung und Feld über dem Regler |
-| Brightness | Zahl | 0 | | **Brightness**: Beschriftung und Feld über dem Regler |
-
-**Panel „Copy To / Load to / Difference“**: Toggle *Current Image* · *Clipboard Image* (gesperrt, bis etwas
-kopiert wurde). In der App: **Remember · Restore · Difference** und „Show:“ *Current image* · *Remembered image*; die Karten
-tragen die Felder **Black point · White point · Clip (%)** (Histogram), **X (px) · Y (px) · Max shift (px)** (RGB Align) und
-Prozentfelder mit „%“ (RGB Balance).
-
-## Rückfragen und Meldungen
-
-| Situation | Meldung (sinngemäß) | Antworten |
+| Eintrag | Art | Standard / Auswahl |
 |---|---|---|
-| Farbvideo geladen | Bild ist offenbar farbig, in Farbe verarbeiten? | Yes · No, dazu „nicht mehr fragen, automatisch erkennen“ |
-| Fehler beim Laden (siehe offene Fragen) | Access violation … | OK |
+| Preview Area | Auswahl | 2048 · 1024 · **512** · 256 · 128 (Pixel je Seite, angezeigt als „512 × 512 px“): Größe des Quadrats in der Bildmitte, das die Wavelet-Vorschau rechnet |
+| Theme | Auswahl | **Dark** · Light (auf dem Mac folgt die App dem System, der Eintrag fehlt dort) |
+| Show Advanced Controls | Häkchen | aus; öffnet den Abschnitt Advanced in jedem Schritt |
+| Show CPU and Memory Usage | Häkchen | an; blendet „CPU“ und „RAM“ in der Statusleiste ein |
+
+Gesperrt unter „Not available yet“: Automatic Processing · Autodetect Color/BW · Luminance Setting · Stretch FIT/TIFF · Play Sounds ·
+Swap Red/Blue Channel · Wait When Loading a Single Image · Maximize During Messages · Save to Subdir · Bias Subtract. Ihre Werte
+stehen in `settings.menu` und werden nirgends gelesen. Für die Helligkeit eines Farbpixels gelten im Rechenkern die Gewichte Rot **0,299**,
+Grün **0,587**, Blau **0,114** (`planets_core::LUMINANCE`).
+
+**Show ▾** (am Bild, je nach Schritt)
+
+| Schritt | Einträge |
+|---|---|
+| Alignpoints, Align, Best Frames | Show Region · Show Alignpoints · Show Frame List · Show Quality Graph |
+| Stack | Show Alignpoints (öffnet die Karte **Alignpoints Used for Stacking**) |
+| Wavelets, Save | Show Alignpoints · Show Preview Area |
+
+Gesperrt: Show Full Image · Show Align Data · Show Prefilter (alle Schritte), Show Stack Graph · Show Stack List (Stack). Show Region ist
+nur mit gezeichneter Region wählbar.
+
+**Karten über dem Bild**: **Frame List** (Check All · Check None · Clear List gesperrt · Go to Best Frame; Liste „Frame 1“ … mit Häkchen und
+Qualität, nach Align nach Qualität sortiert), **Quality Graph** (Liniendiagramm Quality und Difference je Frame),
+**Alignpoints Used for Stacking** („Alignpoint 1“ … mit Häkchen).
+
+## Schritt Open
+
+Der Schritt zeigt nach dem Laden die Datei mit Codec, Größe und Frame-Zahl, davor nichts. Aktion: **Select Recording…**; erledigt
+**Select Another Recording…**.
+
+## Schritt Alignpoints
+
+Aktion **Set Alignpoints** (erledigt „Set Alignpoints Again“).
+
+| Gruppe | Element | Art | Standard | Anmerkung |
+|---|---|---|---|---|
+| wichtig | Threshold | Regler | 0 | Enden „more points“ · „fewer points“; vor dem Setzen ohne Bereich (gesperrt), danach 0 bis zur Zahl aller Kandidaten, Beschriftung „Threshold · 82 points“ |
+| | Min. distance between points (px) | Zahl | 30 | |
+| | Min. distance from image edge (px) | Zahl | 20 | |
+| | Draw Region | Umschalter | | zeichnet eine Region im Bild; nochmals gedrückt wird sie entfernt |
+| Advanced: Point Placement | Brightness measure | Auswahl | Default | Default (Mittelpixel) · 3×3 area (Mittel) · Lowest pixel value (dunkelster Pixel der 3×3-Umgebung) |
+| | Min. brightness (0–255) | Zahl | 30 | |
+| | Max. brightness (0–255) | Zahl | 230 | |
+| | Number of alignpoints | Zahl | 0 | nur Anzeige |
+| | Keep points inside the scan frame | Häkchen | aus | gesperrt |
+
+## Schritt Align
+
+Aktion **Align** (erledigt „Align Again“).
+
+| Gruppe | Element | Art | Standard | Anmerkung |
+|---|---|---|---|---|
+| wichtig | Box size per point (px) | Zahl | 30 | |
+| | Max. point shift (px) | Zahl | 5 | |
+| Advanced: Alignment Setup | Alignment mode: No Align · Scan Frames | Segmente | | gesperrt |
+| | Show alignment | Häkchen | aus | gesperrt |
+| | Align by center of gravity | Häkchen | aus | folgt dem Planeten über den Schwerpunkt seiner Helligkeit |
+| | Brightness threshold | Zahl 0–255 | 20 | nur mit dem Häkchen aktiv; Pixel bis zu dieser Helligkeit zählen für den Schwerpunkt nicht |
+| | Estimate rotation | Häkchen | aus | gesperrt |
+
+## Schritt Best Frames
+
+Aktion **Keep Best Frames** (erledigt „Keep Best Frames Again“; gesperrt „Run Align first“).
+
+| Element | Art | Standard | Anmerkung |
+|---|---|---|---|
+| At least % of the best quality | Auswahl und Zahl | **gewählt**, 80 | behält jedes Frame, dessen Qualität mindestens diesen Anteil des besten erreicht |
+| Best % of frames | Auswahl | | behält diesen Anteil aller Frames (das Prozentfeld der ersten Zeile gilt) |
+| Best frames per point | Auswahl und Zahl | Zahl 200 | jeder Punkt nimmt seine eigenen schärfsten Frames |
+| Best number of frames | Auswahl | | behält genau so viele Frames (das Zahlenfeld der dritten Zeile gilt) |
+
+Darunter das **Qualitätsdiagramm** (ein Balken je Frame, bestes links; behaltene Frames in der Akzentfarbe, die Grenze gestrichelt) und
+**Go to Best Frame** (bis Align gelaufen ist gesperrt).
+
+## Schritt Stack
+
+Aktion **Stack** (erledigt „Stack Again“).
+
+| Gruppe | Element | Art | Standard | Anmerkung |
+|---|---|---|---|---|
+| wichtig | Output size | Auswahl | Default | Default · Smallest common area · Largest area · Region; nur Default wirkt, die übrigen sind gesperrt |
+| | Use nearest points | Zahl | 3 | |
+| | Correct geometry | Häkchen | **an** | |
+| Advanced: Stacking Options | Even out frame brightness | Häkchen | aus | gleicht die Helligkeit der Frames vor dem Stacken an |
+| | Stretch histogram after stacking | Häkchen | aus | gesperrt |
+| | De-rotate images | Häkchen | aus | öffnet Planet (Jupiter · Saturn · Mars), Start time, Camera angle (°), Mirrored image (`docs/stacking.md`) |
+| | Ignore edge pixels (px) | Zahl | 0 | |
+| | Resampling · Drizzling | Häkchen | aus | gesperrt |
+| Advanced: Create AVI | Codec | Auswahl | DIB | gesperrt, das Video ist immer unkomprimiert |
+| | Compression quality | Zahl | 7500 | gesperrt |
+| | Frame rate (fps) | Zahl | 25 | |
+| | **Save Aligned Video…** | Schaltfläche | | speichert die behaltenen Frames, ausgerichtet |
+| | Frame size | Auswahl | **Source size** | Source size · Smallest common area · Largest area · Region; nur Source size (Größe des Bezugsframes) wirkt |
+| | Sort by quality | Häkchen | aus | beste Frames zuerst |
+| | Use prefilters | Häkchen | aus | gesperrt |
+| | **Save Averaged Video…** | Schaltfläche | | gleitender Mittelwert über mehrere ausgerichtete Frames |
+| | Method | Auswahl | Moving average | Moving average · Compressed (gesperrt) |
+| | Average of [n] frames | Zahl | 5 | |
+
+## Schritt Wavelets
+
+Aktion **Do All** (Anwenden auf das ganze Bild), links daneben **Update Preview**.
+
+| Gruppe | Element | Art | Standard | Anmerkung |
+|---|---|---|---|---|
+| wichtig | Color | Häkchen | an | verarbeitet die Kanäle in Farbe; gesperrt bei Mono |
+| | Sharpen brightness only | Häkchen | aus | schärft nur die Helligkeit und behält die Farben; gesperrt bei Mono |
+| Wavelets (6 Ebenen), Kopf mit **Reset Wavelets** | Häkchen mit Ebenennummer | Häkchen | an | schaltet die Ebene ein und aus |
+| | Denoise | Zahl, 2 Nachkommastellen | 0,00 | im Schema als ×100 gespeichert |
+| | Sharpen | Zahl, 3 Nachkommastellen | 0,100 | im Schema als ×100 gespeichert |
+| | Preview | Schaltfläche (Auge) | | gesperrt |
+| | Regler der Ebene | Regler | 10 (= 1.0) | Bereich −50 … 1000, also −5.0 … 100.0; der Wert steht als Text rechts daneben (Regler-Position ÷ 10) |
+| Advanced: Wavelet Settings | Run Do All automatically | Häkchen | aus | wendet Do All eine halbe Sekunde nach jeder Änderung an |
+| | Keep layer values for a new stack | Häkchen | aus | |
+| | Layer spacing | Segmente | **Linear** | Dyadic (2^n) · Linear |
+| | First layer size | Zahl | 1 | |
+| | Size step | Zahl | 0 | |
+| | Wavelet filter | Segmente | **Gaussian** | Default · Gaussian |
+| | Move all sliders together | Häkchen | aus | |
+| Advanced: Saved Schemes | Saved Schemes | Auswahl | leer | gesperrt |
+| | **Load Scheme…** · **Save Scheme…** | Schaltflächen | | Dateiformat `.rwv` in `docs/formats.md` |
+| Advanced | Realign with Processed · Stack Again | Schaltflächen | | gesperrt |
+
+Die Statusleiste zeigt beim Zeigen ins Bild die Position und die Kanalwerte.
+
+**Adjustments (rechts)**, Schaltflächen im Raster aus drei Spalten: Histogram · Gamma · Color Mixing · View Zoomed · View Compare · View
+Stack Size · Flip and Rotate · RGB Align · RGB Balance · Resize Image · Denoise/Deringing · Wavelet Filter · Masking · Show Line Graph ·
+Crop. Aktiv sind Histogram, Gamma, Color Mixing, View Compare, Flip and Rotate, RGB Align, RGB Balance, Resize Image,
+Denoise/Deringing, Masking und Crop; View Zoomed, View Stack Size, Wavelet Filter und Show Line Graph sind gesperrt. Jede aktive
+Schaltfläche öffnet eine Karte über dem Bild (View Compare ist eine Ansicht Vorher/Nachher, keine Karte).
+
+**Contrast/Brightness**, Kopf mit **Keep** (gesperrt) und **Reset**
+
+| Element | Art | Standard | Bereich | Anmerkung |
+|---|---|---|---|---|
+| Contrast | Zahl und Regler | 100 (Regler 250) | Regler 1 … 1000 | Feld = Regler ÷ 2,5 (Entwurfsentscheidung); der Rechenkern arbeitet mit dem Feldwert |
+| Brightness | Zahl und Regler | 0 | −512 … 512 | |
+
+**Remember · Restore · Difference** merken das aktuelle Bild, bringen es zurück und zeigen die verstärkte Differenz (Faktor 4); „Show:“
+**Current image** · **Remembered image**.
+
+## Karten hinter den Adjustments
+
+| Karte | Felder | Standard | Bereich |
+|---|---|---|---|
+| Histogram | Input · Result (Ansicht), **Black point**, **White point**, **Auto**, **Clip (%)** | 0, 255, Clip 0,1 | Black point 0 … White point −1, White point Black point +1 … 255, Clip 0 … 49 |
+| Gamma | Regler und Zahl **Gamma** | 1,00 | 0,1 … 5 |
+| Color Mixing | Preset (Neutral · Swap Red and Blue · Luminance Gray · Red to All Channels), neun Gewichte in %, **Preserve brightness** | Neutral (100 auf der Diagonalen), aus | −200 … 200 % |
+| RGB Align | **X (px)** und **Y (px)** je Kanal, **Max shift**, **Auto** (verschiebt Rot und Blau auf Grün) | 0, Max shift 5 | Verschiebung ±20 px, Max shift 1 … 20 |
+| RGB Balance | Rot, Grün, Blau in % | 100 | 0 … 200 |
+| Denoise/Deringing | **Denoise (%)**, **Deringing (%)**, **Radius (px)** | 0, 0, 4 | Prozent 0 … 100, Radius 1 … 10 |
+| Masking | **Use mask**, **Threshold**, **Feather (px)**, **Invert**, **Show mask** | aus, 20, 4, aus, aus | Threshold 0 … 255, Feather 0 … 50 |
+| Flip and Rotate | Flip: Horizontal · Vertical; Rotate: Left 90° · Right 90° · 180°; **Angle (°)**; Interpolation (Bilinear · Bicubic) | keine Änderung | Angle −180 … 180 |
+| Resize Image | Percent · Pixels; **Size (%)** oder **Width (px)** und **Height (px)**; Methode (Lanczos3 · Bicubic · Bilinear · Nearest Neighbor) | Percent, 100 % | Prozent 10 … 400, Seite 1 … 16384 px |
+| Crop | Format Free · 1:1 · 3:2 · 4:3, **Cancel**, **Done** | Free | |
+
+Die Karten wirken auf das Bild, das **Save Image** schreibt (`docs/formats.md`), Denoise/Deringing und Masking zuerst
+(`docs/wavelets.md`).
+
+## Schritt Save
+
+Aktion **Save Image** mit dem Menü der Dateitypen („TIFF (16 bit) · .tif…“); der Text darüber nennt, was gespeichert wird („Saves the
+sharpened stack with your color and tone settings.“). Die Gruppe **Crop** zeigt den Zuschnitt (**Crop…**, **Remove Crop**), die Gruppe
+**Size** die Größe der Datei nach Drehen und Skalieren.
+
+## Meldungen
+
+Statustexte beginnen mit einem Großbuchstaben, haben keinen Punkt am Ende und bestehen aus einem kurzen Satz („Alignment finished“);
+Fehler lauten „‹Schritt› failed: ‹Grund›“.

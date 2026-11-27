@@ -1,4 +1,4 @@
-//! Compares the stack with the result the reference program gave for reference case R1 (`docs/testdaten.md`,
+//! Regression test of the stack against the stored reference result for reference case R1 (Jupiter test recording,
 //! `docs/stacking.md`). The recording and the reference image live in `re-local/` and are not in the
 //! repository; without them the test is skipped.
 
@@ -19,7 +19,7 @@ fn re_local(path: &str) -> PathBuf {
     common::re_local().join(path)
 }
 
-/// The 16 bit TIFF of the original. Its samples are the 8 bit values times 256 (`docs/testdaten.md`),
+/// The stored 16 bit reference TIFF. Its samples are 8 bit values times 256,
 /// so dividing by 256 * 255 puts them on the scale of our images, where 1.0 is 255 in 8 bit.
 fn load_reference(path: &PathBuf) -> Image {
     let tiff = image::open(path).unwrap().to_rgb16();
@@ -44,7 +44,7 @@ fn channel_means(img: &Image) -> [f64; 3] {
 }
 
 #[test]
-fn jupiter_stack_is_close_to_the_stack_of_the_original() {
+fn jupiter_stack_is_close_to_the_stored_reference_stack() {
     let video = re_local("testdata/astropix/JUPITER.AVI");
     let tiff = re_local("reference/jupiter-stack.tif");
     if !video.exists() || !tiff.exists() {
@@ -54,7 +54,7 @@ fn jupiter_stack_is_close_to_the_stack_of_the_original() {
     let mut rec = Recording::open(&video).unwrap();
     let count = rec.info().frame_count;
     let first = rec.read_frame(0).unwrap();
-    let original = load_reference(&tiff);
+    let stored = load_reference(&tiff);
 
     // Set Alignpoints and Align as in R1; Limit keeps all ten frames.
     let candidates = find_alignpoints(&first, &PointParams::default());
@@ -81,23 +81,23 @@ fn jupiter_stack_is_close_to_the_stack_of_the_original() {
     assert_eq!(local.frames, 10);
 
     // Figures for `docs/stacking.md`.
-    let db = |img: &Image| psnr(img, &original).unwrap();
+    let db = |img: &Image| psnr(img, &stored).unwrap();
     eprintln!(
-        "local correction against the original: {:.2} dB",
+        "local correction against the reference: {:.2} dB",
         db(&local.image)
     );
     eprintln!(
-        "frame shift only against the original: {:.2} dB",
+        "frame shift only against the reference: {:.2} dB",
         db(&global.image)
     );
-    eprintln!("frame 1 against the original: {:.2} dB", db(&first));
+    eprintln!("frame 1 against the reference: {:.2} dB", db(&first));
     eprintln!("channel means ours {:?}", channel_means(&local.image));
-    eprintln!("channel means original {:?}", channel_means(&original));
+    eprintln!("channel means reference {:?}", channel_means(&stored));
 
-    // The threshold of SP-006 (`docs/testdaten.md`).
+    // The threshold of SP-006.
     assert!(
         db(&local.image) >= 45.0,
-        "{:.2} dB against the original, the threshold is 45 dB",
+        "{:.2} dB against the reference, the threshold is 45 dB",
         db(&local.image)
     );
 }

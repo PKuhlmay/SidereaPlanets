@@ -1,7 +1,6 @@
 //! Alignment points, registration of frames against a reference and quality rating.
 //!
-//! The behaviour of the reference program is only known from the outside (`docs/offene-fragen.md`); the
-//! algorithms here are our own and are checked against the original's results (`docs/testdaten.md`).
+//! The algorithms here are our own and are checked by regression tests against stored reference results.
 
 use crate::{
     Image,
@@ -45,7 +44,7 @@ impl Roi {
     }
 }
 
-/// Settings of *Set Alignpoints* with the defaults of the reference program (`docs/ui.md`).
+/// Settings of *Set Alignpoints* with its defaults (`docs/ui.md`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct PointParams {
     /// *Minimum distance between* two points, in pixels. The boxes of two points must not reach into
@@ -93,13 +92,12 @@ pub struct AlignPoint {
 /// Candidate positions are scanned on this pixel grid, which is plenty for points 30 px apart.
 const SCAN_STEP: usize = 2;
 
-/// Finds all points that satisfy the spacing rules, strongest first. The *Threshold* slider of the
-/// original then drops the weakest ones, see [`apply_threshold`].
+/// Finds all points that satisfy the spacing rules, strongest first. The *Threshold* slider
+/// then drops the weakest ones, see [`apply_threshold`].
 ///
 /// Two points are at least `min_distance + max_movement` apart in both directions at once (square
-/// boxes, no overlap of the search ranges). That is a conjecture: the original's INI holds an
-/// internal block size of 35 = 30 + 5, and with this spacing the clone finds 87 points on the
-/// reference case where the original finds 91 (`docs/testdaten.md`).
+/// boxes, no overlap of the search ranges). This is a design choice: with the default settings
+/// (30 + 5 = 35 pixels) it finds 87 points on reference case R1 (Jupiter test recording).
 pub fn find_alignpoints(frame: &Image, params: &PointParams) -> Vec<AlignPoint> {
     let luma = frame.to_luma();
     let (w, h) = (luma.width as usize, luma.height as usize);
@@ -179,8 +177,7 @@ fn neighbours(data: &[f32], w: usize, h: usize, x: usize, y: usize) -> impl Iter
     })
 }
 
-/// Share of the points the *Threshold* slider drops after *Set Alignpoints*. The original reports
-/// 91 points and puts the slider at 9, which is about a tenth. One observation, unconfirmed.
+/// Share of the points the *Threshold* slider drops after *Set Alignpoints*: about a tenth (a design choice).
 const DEFAULT_DROP_SHARE: f32 = 0.10;
 
 /// The *Threshold* slider position after *Set Alignpoints*, see [`DEFAULT_DROP_SHARE`].
@@ -251,7 +248,7 @@ impl StructureSums {
     }
 }
 
-/// Settings of *Align* with the defaults of the reference program (`docs/ui.md`).
+/// Settings of *Align* with its defaults (`docs/ui.md`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct AlignParams {
     /// *Alignmentbox size*: edge of the square that is matched around each point.
@@ -259,8 +256,7 @@ pub struct AlignParams {
     /// *Max Alignpoint movement*: how far a point may move against the reference, in pixels.
     pub max_movement: u32,
     /// *Align by center of gravity* with its *Brightness threshold* on a 0..=255 scale; `None` is off. The drift of a frame then
-    /// comes from the brightness centroid instead of the coarse correlation search, with no limit on its size. Our own design,
-    /// never observed in the original (`docs/offene-fragen.md`, question 21).
+    /// comes from the brightness centroid instead of the coarse correlation search, with no limit on its size. Our own design.
     pub centre_of_gravity: Option<f32>,
 }
 
@@ -653,9 +649,8 @@ impl Reference {
     ///
     /// The quality of a point is the mean gradient magnitude (central differences) inside its box at
     /// the position where it was found, relative to the mean brightness of the frame so that
-    /// exposure does not matter. Compared with the order of the original on the reference case this
-    /// is closer than the squared gradient used before (Spearman 0.79 against 0.54), but still not
-    /// the same measure (`docs/offene-fragen.md`, question 17).
+    /// exposure does not matter. On reference case R1 the resulting frame order correlates with the stored
+    /// reference order at Spearman 0.79; the squared gradient used before gave 0.54.
     fn rate_points(&self, luma: &Image, matches: &mut [Option<PointShift>]) -> f32 {
         let (w, h) = (luma.width as isize, luma.height as isize);
         let half = (self.params.box_size / 2) as isize;
@@ -716,8 +711,7 @@ pub enum LimitMode {
     BestCount(usize),
     /// *Frames/Apoint*: every point keeps its own best frames, this many. The frames that stay are
     /// all frames that at least one point keeps; see [`best_frames_per_point`] for who keeps which.
-    /// Conjecture from the name and from the count field being enabled for this mode only together
-    /// with *Best Frames*, not observed in the original.
+    /// Design choice: the count field is enabled for this mode only together with *Best Frames*.
     FramesPerPoint(usize),
 }
 

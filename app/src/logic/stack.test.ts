@@ -82,7 +82,7 @@ describe("buildSequenceRequest", () => {
     expect(request.averageFrames).toBe(1);
   });
 
-  it("uses the defaults of the reference program: 25 frames per second, an average of 5", () => {
+  it("uses the defaults: 25 frames per second, an average of 5", () => {
     const request = buildSequenceRequest(session(), createSettings());
     expect(request).toMatchObject({ framerate: 25, sortOnQuality: false, averageFrames: 5 });
   });

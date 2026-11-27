@@ -9,7 +9,7 @@ import { planetFromName } from "./logic/derotation";
 import { pushRecent, fileName } from "./logic/recent";
 import { session, settings, status, type RecordingInfo } from "./state";
 
-// Same filters and order as the "Open file(s)" dialog of the reference program (docs/formats.md).
+// Filters and order of the "Open file(s)" dialog (docs/formats.md).
 const fileFilters = [
   { name: "Video (*.avi *.ser)", extensions: ["avi", "ser"] },
   { name: "Still frames (*.bmp *.jpg *.tif *.png)", extensions: ["bmp", "jpg", "jpeg", "tif", "tiff", "png"] },
@@ -126,7 +126,7 @@ export function startSession(info: RecordingInfo, name: string) {
   settings.stack.planet = planetFromName(name) ?? settings.stack.planet;
   session.frames = Array.from({ length: info.frameCount }, (_, index) => ({ index, checked: true, quality: null, difference: null }));
   settings.align.threshold = 0;
-  // The original asks "process in colour?"; the clone decides from the recording (Settings > Autodetect Colour/BW).
+  // No "process in colour?" question: the recording decides (Settings > Autodetect Colour/BW).
   settings.colour = info.color !== "Mono";
   status.progress = 0;
   status.action = "";

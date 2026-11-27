@@ -162,7 +162,7 @@ export interface Pixels {
   data: Uint8ClampedArray<ArrayBuffer>;
 }
 
-/** How much the difference is amplified, so that small changes show. Our choice, the original was not observed. */
+/** How much the difference is amplified, so that small changes show. A design decision. */
 export const DIFFERENCE_GAIN = 4;
 
 /** |a - b| per colour channel times DIFFERENCE_GAIN, opaque; null if the sizes differ. */

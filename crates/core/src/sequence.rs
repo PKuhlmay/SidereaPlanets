@@ -3,8 +3,7 @@
 //!
 //! [`aligned_frames`] moves the chosen frames onto the reference one after the other and hands each to
 //! the caller, so thousands of frames never have to fit in memory. [`MovingAverage`] turns that stream
-//! into the integrated sequence. What the original does for *Save Integrated* is unobserved; the
-//! definition here is our own guess (`docs/offene-fragen.md`).
+//! into the integrated sequence. The definition of *Save Integrated* used here is our own design.
 
 use crate::{
     Image,

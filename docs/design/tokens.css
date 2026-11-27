@@ -17,7 +17,7 @@
   --muted:#9b9fa9;       /* sub headings, meta info, status bar */
   --off:#5f636d;         /* disabled controls and locked steps */
 
-  /* accent: amber, taken from the orange buttons of the original. The only accent colour. */
+  /* accent: amber, the only accent colour */
   --accent:#f2a93b;      /* next step, primary button, checked controls, slider thumb, progress */
   --accent-h:#f7b955;    /* hover of accent fills */
   --on-accent:#1d1300;   /* text on accent fills */
@@ -38,7 +38,7 @@
   --canvas-chrome:rgba(24,25,29,.86); /* zoom bar on top of the image */
   --canvas-line:#40434b;
   --on-canvas:#e7e8eb;
-  --ap-point:#ff4d4d;    /* alignpoints after Set Alignpoints (red dots, as in the original) */
+  --ap-point:#ff4d4d;    /* alignpoints after Set Alignpoints (red dots) */
   --ap-ring:#ffd84a;     /* alignpoints after Limit (yellow rings) */
   --ap-shift:#57e389;    /* shift marker inside a ring (green line) */
 

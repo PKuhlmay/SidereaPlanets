@@ -1,12 +1,11 @@
 # Release
 
-Eingabe für das CI-Release-Ticket PLANETS-12. Der Abschnitt zu macOS hält fest, was die frühere SwiftUI-App (Mac-Release 0.1.0,
-Tag `v0.1.0`) zum Signieren und Notarisieren schon erprobt hat; die Skripte dazu (`package-mac.sh`, `build-mac-release.sh`) sind mit
-PLANETS-4 entfallen und stehen in der Git-Historie. Windows: `scripts/publish-windows.sh --installer` (Inno Setup), siehe `CLAUDE.md`.
+Eingabe für das CI-Release-Ticket PLANETS-12. Der Abschnitt zu macOS beschreibt, wie die Tauri-App signiert, notarisiert und als
+Installer ausgeliefert wird. Windows: `scripts/publish-windows.sh --installer` (Inno Setup), siehe `CLAUDE.md`.
 
 ## macOS: Signieren und Notarisieren
 
-Was beim Release 0.1.0 funktioniert hat. Es war ein PKG-Installer wie bei Siderea, ein Bündel für Intel und Apple Silicon.
+Ausgeliefert wird ein PKG-Installer wie bei Siderea, mit einem Bündel für Intel und Apple Silicon.
 
 **Kennungen**
 
@@ -33,8 +32,8 @@ Apple-ID-Kennwort). Beide Zertifikate liegen im Anmelde-Schlüsselbund. Im CI ko
    `rust-toolchain.toml` führt sie bisher nicht auf.
 3. **App signieren:** `codesign --force --deep --options runtime --timestamp --sign "Developer ID Application: …" <App>`, dann
    `codesign --verify --deep --strict`. Hardened Runtime (`--options runtime`) und Zeitstempel sind für die Notarisierung Pflicht. Die
-   SwiftUI-App kam ohne Entitlements und ohne Sandbox aus (Download außerhalb des App Stores); für die Tauri-App ist zu prüfen, ob die
-   WebView unter Hardened Runtime Entitlements braucht (Tauri bringt die nötigen mit, wenn es selbst signiert).
+   App wird ohne Sandbox ausgeliefert (Download außerhalb des App Stores); zu prüfen ist, ob die WebView unter Hardened Runtime
+   Entitlements braucht (Tauri bringt die nötigen mit, wenn es selbst signiert).
 4. **App notarisieren:** `ditto -c -k --keepParent <App> app.zip`, dann
    `xcrun notarytool submit app.zip --keychain-profile siderea-notary --wait`. **`notarytool` endet auch bei einer Ablehnung mit Exit 0,**
    deshalb die Ausgabe auf `status: Accepted` prüfen. Danach `xcrun stapler staple <App>`.
@@ -58,5 +57,5 @@ Apple-ID-Kennwort). Beide Zertifikate liegen im Anmelde-Schlüsselbund. Im CI ko
 - Die Version im Bündel (`CFBundleShortVersionString`) muss zum Tag passen; vor dem Notarisieren vergleichen.
 - Zwei Notarisierungen (App, PKG) dauern zusammen mit dem Bau rund 10 Minuten.
 - Ein ad hoc signiertes Bündel (`codesign --sign -`) läuft nur auf dem eigenen Mac; auf anderen blockiert Gatekeeper es.
-- Die Bundle-ID bleibt `de.kuhlmay.siderea.planets`: Das Zertifikat, der Installer und die Dateizuordnung der veröffentlichten
-  Mac-Version 0.1.0 tragen sie, und ein Wechsel würde Einstellungen (WebView-Speicher unter dieser Kennung) zurücksetzen.
+- Die Bundle-ID bleibt `de.kuhlmay.siderea.planets`: Installer und Dateizuordnung tragen sie, und ein Wechsel würde
+  Einstellungen (WebView-Speicher unter dieser Kennung) zurücksetzen.

@@ -76,4 +76,4 @@ In the Stack step, under **Advanced**, the group **Create AVI** has two buttons,
 | Save Aligned Video… | Every frame that stays, moved onto the reference frame the way Stack does it (*Correct geometry*, *Even out frame brightness* and *Use nearest points* count). Parts a frame does not cover are black. *Sort by quality* puts the best frame first. |
 | Save Averaged Video… | A moving average: each video frame is the mean of *Average of n frames* aligned frames that follow each other, and the window moves on by one frame. From N frames you get N − n + 1 video frames; with fewer than n frames, one frame with their mean. |
 
-The speed of the video is *Frame rate (fps)* (default 25). **Not available yet:** *Frame size* other than *Original size* (the size of the source frames), *Use prefilters* and the method *Compressed*.
+The speed of the video is *Frame rate (fps)* (default 25). **Not available yet:** *Frame size* other than *Source size* (the size of the source frames), *Use prefilters* and the method *Compressed*.

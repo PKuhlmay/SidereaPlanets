@@ -1,6 +1,6 @@
-//! Reading and writing wavelet schemes in the `.rwv` format of the reference program (`docs/formats.md`).
+//! Reading and writing wavelet schemes in the `.rwv` format (`docs/formats.md`).
 //!
-//! The clone keeps the original format so that existing schemes stay usable. It is a plain INI file.
+//! The format is a plain INI file, kept stable so that saved schemes stay usable.
 //! Sections and keys are case-insensitive, missing keys keep their default, unknown ones are ignored.
 
 use super::settings::{Filter, LAYERS, Scheme, WaveletSettings};
@@ -22,7 +22,7 @@ impl fmt::Display for SchemeError {
 
 impl std::error::Error for SchemeError {}
 
-/// Writes settings as a `.rwv` file (CRLF line ends, like the original).
+/// Writes settings as a `.rwv` file (CRLF line ends).
 pub fn to_rwv(settings: &WaveletSettings) -> String {
     let s = &settings.structure;
     let mut out = String::new();
@@ -133,7 +133,7 @@ pub fn from_rwv(text: &str) -> Result<WaveletSettings, SchemeError> {
 mod tests {
     use super::*;
 
-    /// `jupiter-l1-10.rwv` of the reference case R1 (`docs/testdaten.md`).
+    /// `jupiter-l1-10.rwv` of reference case R1 (Jupiter test recording).
     const L1_10: &str = "[scheme]\r\nitemindex=1\r\ninitial=1\r\nstep=0\r\n\r\n[method]\r\nitemindex=1\r\n\r\n\
         [checkbox]\r\nlayer1=1\r\nlayer2=1\r\nlayer3=1\r\nlayer4=1\r\nlayer5=1\r\nlayer6=1\r\n\r\n\
         [slider]\r\nlayer1=100\r\nlayer2=10\r\nlayer3=10\r\nlayer4=10\r\nlayer5=10\r\nlayer6=10\r\n\r\n\
@@ -141,7 +141,7 @@ mod tests {
         [Blur]\r\nlayer1=0\r\nlayer2=0\r\nlayer3=0\r\nlayer4=0\r\nlayer5=0\r\nlayer6=0\r\n\r\n";
 
     #[test]
-    fn reads_the_scheme_of_the_original() {
+    fn reads_the_reference_scheme() {
         let s = from_rwv(L1_10).unwrap();
         assert_eq!(s.layers[0].gain, 10.0);
         assert!(s.layers[1..].iter().all(|l| l.gain == 1.0));
@@ -151,7 +151,7 @@ mod tests {
     }
 
     #[test]
-    fn writes_the_same_file_as_the_original() {
+    fn writes_the_reference_scheme_file() {
         let mut s = WaveletSettings::default();
         s.layers[0].gain = 10.0;
         assert_eq!(to_rwv(&s), L1_10);

@@ -1,7 +1,7 @@
 //! De-rotation: a planet turns while a video is recorded (Jupiter by 36 degrees an hour), so the details towards the edge of the disc
 //! smear in a long stack. Every frame is turned back to one reference time before it is stacked (MAC-020).
 //!
-//! Own design, unobserved in the original; `docs/stacking.md` marks it as a guess until a comparison confirms it.
+//! Own design; `docs/stacking.md` describes the model and its limits.
 //!
 //! - **Disc.** The position and size of the disc are measured in the reference frame: Otsu threshold, largest connected blob, its
 //!   holes filled, then the boundary is fitted with the ellipse the planet must show (axis ratio and orientation come from the

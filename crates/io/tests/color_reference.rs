@@ -1,10 +1,8 @@
-//! Runs the colour and tone functions on the colour reference of the reference program (`docs/testdaten.md`,
-//! case R1). The files live in `re-local/` and are not in the repository; without them the tests
-//! are skipped.
+//! Runs the colour and tone functions on the colour stack of reference case R1 (Jupiter test recording). The files
+//! live in `re-local/` and are not in the repository; without them the tests are skipped.
 //!
-//! This does **not** compare against results of the original: the *Functions* panels were never run
-//! in the reference program, so there is no reference for RGB align, balance, gamma or histogram. What the tests
-//! do is check the functions on real colour data, where a synthetic scene cannot.
+//! There are no stored reference results for RGB align, balance, gamma or histogram. What the tests do is check the
+//! functions on real colour data, where a synthetic scene cannot.
 
 use planets_core::{
     Image,
@@ -14,7 +12,7 @@ use planets_core::{
 use planets_io::images::ImageSequenceReader;
 mod common;
 
-/// The 16-bit stack of Jupiter that the reference program saved after *Stack*.
+/// The stored 16-bit stack of Jupiter (reference case R1).
 fn jupiter_stack() -> Option<Image> {
     let path = common::re_local().join("reference/jupiter-stack.tif");
     path.exists().then(|| {
@@ -45,13 +43,13 @@ fn binned(image: &Image) -> Image {
 }
 
 #[test]
-fn reference_stack_has_the_values_the_original_reported() {
+fn reference_stack_has_the_stored_channel_means() {
     let Some(stack) = jupiter_stack() else {
         eprintln!("jupiter-stack.tif not found in re-local/, skipped");
         return;
     };
     assert_eq!((stack.width, stack.height, stack.channels), (1024, 680, 3));
-    // Channel means of the 16-bit file from docs/testdaten.md: 6674,1 / 5130,5 / 6099,5.
+    // Channel means of the stored 16-bit file: 6674.1 / 5130.5 / 6099.5.
     let pixels = (stack.width * stack.height) as f64;
     for (c, expected) in [6674.1, 5130.5, 6099.5].into_iter().enumerate() {
         let mean = stack
