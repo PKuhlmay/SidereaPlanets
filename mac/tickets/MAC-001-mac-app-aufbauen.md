@@ -36,7 +36,7 @@ Gerüst
       Fensterlauf der Windows-App ist unverändert (Auswertung: Commit `[TASK] SP-… - …` getrennt vom Mac-Teil)
 - [x] `crates/ffi` mit Swift-Bindings und XCFramework; ein Test in Swift ruft den Rechenkern auf und prüft ein Ergebnis aus
       `docs/testdaten.md` (z. B. Stack gegen die Referenz mit PSNR-Schwelle)
-- [ ] `mac/project.yml`, `mac/README.md` Abschnitt „Bauen und veröffentlichen“ ausgefüllt (xcodegen, `xcodebuild`, Bündel,
+- [x] `mac/project.yml`, `mac/README.md` Abschnitt „Bauen und veröffentlichen“ ausgefüllt (xcodegen, `xcodebuild`, Bündel,
       Signierung und Notarisierung), `/siderea-release mac <version>` läuft durch
 
 Oberfläche (nach `docs/design.md`, Soll-Bilder `docs/design/screenshots/`, dunkel und hell, Tokens aus `docs/design/tokens.css`)
@@ -128,3 +128,5 @@ mit diesem Stand, das Ticket bleibt offen. Es fehlen:
 - Fensterlauf der Windows-App nach dem Umzug nach `crates/session` (Handprobe Windows, MAC-003), nur am Windows-PC.
 - PSNR-Vergleich gegen das Referenzprogramm: `re-local/reference/` liegt nur auf dem Windows-PC.
 - Danach `docs/parity/MAC_PARITY.md` auf „Mac gleich Windows“.
+
+`v0.1.0` ist am 2026-11-27 veröffentlicht (Commit `e92e0c1`), auf Philipps Wunsch ad hoc signiert und nicht notarisiert.
