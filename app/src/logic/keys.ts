@@ -8,7 +8,12 @@
 import type { CommandId } from "./commands";
 import { viewSteps, type ViewStep } from "./workflow";
 
-export type KeyCommand = { kind: "frame"; by: -1 | 1 } | { kind: "step"; step: ViewStep } | { kind: "action"; action: CommandId };
+export type KeyCommand =
+  | { kind: "frame"; by: -1 | 1 }
+  | { kind: "step"; step: ViewStep }
+  | { kind: "action"; action: CommandId }
+  /** A key that would reload the web view (release builds only): taken and dropped. */
+  | { kind: "block" };
 
 export interface KeyPress {
   key: string;
@@ -22,12 +27,22 @@ export interface KeyPress {
   inField: boolean;
   /** The window runs on a Mac. */
   mac: boolean;
+  /** A release build: the keys that reload the web view are blocked; a dev build keeps them. */
+  release?: boolean;
+}
+
+/** The keys that reload the web view and would throw away the open recording and every result: F5 and primary+R (with or without Shift). */
+function isReloadKey(press: KeyPress, primary: boolean): boolean {
+  if (press.altKey) return false;
+  if (press.key === "F5") return !press.mac;
+  return primary && (press.code === "KeyR" || press.key.toLowerCase() === "r");
 }
 
 /** What a key press does, or null when it is not a shortcut. */
 export function keyCommand(press: KeyPress): KeyCommand | null {
   const primary = press.mac ? press.metaKey : press.ctrlKey;
   const foreign = press.mac ? press.ctrlKey : press.metaKey;
+  if (press.release && isReloadKey(press, primary) && !foreign) return { kind: "block" };
   if (foreign) return null;
 
   if (!primary && !press.altKey && !press.shiftKey && !press.inField) {

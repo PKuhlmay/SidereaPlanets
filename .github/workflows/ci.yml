@@ -107,6 +107,20 @@ jobs:
         with:
           command: check
 
+      # PLANETS-26: release builds have no web inspector. Tauri's `devtools` feature would add it to them (debug builds have it anyway),
+      # so neither Cargo.toml nor any other crate of the tree may turn it on.
+      - name: Check that the webview has no devtools in release builds
+        if: runner.os == 'Linux'
+        run: |
+          if sed 's/#.*//' app/src-tauri/Cargo.toml | grep -n devtools; then
+            echo "::error file=app/src-tauri/Cargo.toml::The tauri dependency must not enable the devtools feature."
+            exit 1
+          fi
+          if cargo tree -p planets-app -e features -i tauri | grep 'tauri feature "devtools"'; then
+            echo "::error::A dependency enables the devtools feature of tauri."
+            exit 1
+          fi
+
       - name: Check licences of the frontend packages
         if: runner.os == 'Linux'
         working-directory: app

@@ -88,3 +88,40 @@ describe("stepShortcut", () => {
     expect(stepShortcut("align", true)).toBe("⌥⌘3");
   });
 });
+
+describe("keys that reload the web view (PLANETS-26)", () => {
+  it("blocks F5, Ctrl+R and Ctrl+Shift+R in a release build on Windows and Linux", () => {
+    expect(key("F5", { release: true, code: "F5" })).toEqual({ kind: "block" });
+    expect(key("r", { release: true, ctrlKey: true, code: "KeyR" })).toEqual({ kind: "block" });
+    expect(key("R", { release: true, ctrlKey: true, shiftKey: true, code: "KeyR" })).toEqual({ kind: "block" });
+  });
+
+  it("blocks Cmd+R and Cmd+Shift+R in a release build on the Mac, not Ctrl+R", () => {
+    expect(mac("r", { release: true, metaKey: true, code: "KeyR" })).toEqual({ kind: "block" });
+    expect(mac("R", { release: true, metaKey: true, shiftKey: true, code: "KeyR" })).toEqual({ kind: "block" });
+    expect(mac("r", { release: true, ctrlKey: true, code: "KeyR" })).toBeNull();
+  });
+
+  it("blocks them also while a field has the focus", () => {
+    expect(key("r", { release: true, ctrlKey: true, inField: true, code: "KeyR" })).toEqual({ kind: "block" });
+  });
+
+  it("keeps every one of them in a dev build, which reloads on Vite changes and by hand", () => {
+    expect(key("F5", { code: "F5" })).toBeNull();
+    expect(key("r", { ctrlKey: true, code: "KeyR" })).toBeNull();
+    expect(mac("r", { metaKey: true, code: "KeyR" })).toBeNull();
+  });
+
+  it("leaves other keys alone, also with the same modifiers", () => {
+    expect(key("t", { release: true, ctrlKey: true, code: "KeyT" })).toBeNull();
+    expect(key("F6", { release: true, code: "F6" })).toBeNull();
+    expect(key("r", { release: true, code: "KeyR" })).toBeNull();
+    expect(key("r", { release: true, ctrlKey: true, altKey: true, code: "KeyR" })).toBeNull();
+    expect(mac("F5", { release: true, code: "F5" })).toBeNull();
+  });
+
+  it("does not change what the existing shortcuts do in a release build", () => {
+    expect(key("o", { release: true, ctrlKey: true })).toEqual({ kind: "action", action: "selectRecording" });
+    expect(key("ArrowLeft", { release: true })).toEqual({ kind: "frame", by: -1 });
+  });
+});
