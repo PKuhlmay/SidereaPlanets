@@ -218,7 +218,9 @@ jobs:
           APPLE_API_KEY: ${{ runner.os == 'macOS' && secrets.APPLE_API_KEY || '' }}
         with:
           projectPath: app
-          args: ${{ matrix.args }}
+          # tauri.release.conf.json switches on createUpdaterArtifacts (the .sig files and the updater bundles); ci.yml does not use it.
+          # The path is relative to projectPath (app), where the Tauri CLI runs.
+          args: ${{ matrix.args }} --config src-tauri/tauri.release.conf.json
           releaseId: ${{ needs.create-release.outputs.release_id }}
           tagName: ${{ github.ref_name }}
           releaseName: Siderea Planets ${{ needs.create-release.outputs.version }}
@@ -277,21 +279,23 @@ jobs:
           ls -l assets
 
       - name: Check that every platform delivered
+        env:
+          VERSION: ${{ needs.create-release.outputs.version }}
         run: |
           missing=""
-          for pattern in '*.dmg' '*-setup.exe' '*portable.zip' '*.AppImage' '*.deb'; do
+          for pattern in '*.dmg' '*-setup.exe' '*portable.zip' '*.AppImage' '*.deb' '*.app.tar.gz' '*.app.tar.gz.sig' '*-setup.exe.sig' '*.AppImage.sig'; do
             compgen -G "assets/$pattern" > /dev/null || missing="$missing $pattern"
           done
-          if grep -q createUpdaterArtifacts app/src-tauri/tauri.conf.json; then
-            compgen -G "assets/*.app.tar.gz" > /dev/null || missing="$missing *.app.tar.gz"
-            # Three jobs write latest.json one after the other; a lost update shows here as a missing platform.
-            if [ -f assets/latest.json ]; then
-              for platform in darwin-aarch64 darwin-x86_64 windows-x86_64 linux-x86_64; do
-                jq -e --arg p "$platform" '.platforms | has($p)' assets/latest.json > /dev/null || missing="$missing latest.json:$platform"
-              done
-            else
-              missing="$missing latest.json"
-            fi
+          # Three jobs write latest.json one after the other; a lost update shows here as a missing platform. The universal macOS
+          # build fills darwin-aarch64 and darwin-x86_64 with the same bundle (tauri-action).
+          if [ -f assets/latest.json ]; then
+            for platform in darwin-aarch64 darwin-x86_64 windows-x86_64 linux-x86_64; do
+              jq -e --arg p "$platform" '.platforms[$p] | (.url // "") != "" and (.signature // "") != ""' assets/latest.json > /dev/null \
+                || missing="$missing latest.json:$platform"
+            done
+            jq -e --arg v "$VERSION" '.version == $v' assets/latest.json > /dev/null || missing="$missing latest.json:version"
+          else
+            missing="$missing latest.json"
           fi
           if [ -n "$missing" ]; then
             echo "::error::The draft is incomplete, missing:$missing. Re-run the failed or all build jobs; the draft is reused."

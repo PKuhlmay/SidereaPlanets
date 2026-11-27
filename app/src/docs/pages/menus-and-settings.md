@@ -19,6 +19,8 @@ The recordings you opened last, newest first (up to ten). A click opens the file
 | Theme | Dark · Light (not on the Mac, which follows macOS) | Dark |
 | Show Advanced Controls | check box: opens the *Advanced* section of every step panel when you tick it. You can close and open each section on its own afterwards; unticking leaves them as they are | off |
 | Show CPU and Memory Usage | check box: the CPU load of the app as a share of all cores and the memory it holds, at the left end of the status bar. It is measured once a second while the window is visible; unticked, the field goes and nothing is measured | on |
+| Check for updates automatically | check box: look for a new version when the app starts, at most once a day, see [Updates](updates) | on |
+| Check for Updates… | (Windows and Linux; on the Mac it is in the menu *Siderea Planets*) looks for a new version at once | |
 
 Below them, under *Not available yet*, the menu lists dimmed entries that no step uses yet: Automatic Processing, Autodetect Color/BW, Luminance Setting, Stretch FIT/TIFF, Play Sounds, Swap Red/Blue Channel, Wait When Loading a Single Image, Maximize During Messages, Save to Subdir and Bias Subtract. The check boxes that switch things on the image on and off are not in a menu of the toolbar but in **Show ▾** at the top right of the image, see [The image area](image-area). The **Preview Area** is the part of the image that the wavelet preview calculates, see [Wavelet sharpening](wavelet-sharpening).
 
@@ -30,7 +32,7 @@ Below them, under *Not available yet*, the menu lists dimmed entries that no ste
 
 The Mac has a menu bar as well as the toolbar; every item does what the same button of the window does and is dimmed when the button is locked.
 
-- **Siderea Planets ▸ About Siderea Planets** opens the same About dialog as the toolbar (version, license, source code). **Settings… (⌘,)** opens the *Settings* menu of the toolbar. The theme follows the appearance of macOS, light or dark, also while the app runs, so there is no *Theme* entry. The field **CPUs** stays in the toolbar.
+- **Siderea Planets ▸ About Siderea Planets** opens the same About dialog as the toolbar (version, license, source code). **Check for Updates…** looks for a new version, see [Updates](updates). **Settings… (⌘,)** opens the *Settings* menu of the toolbar. The theme follows the appearance of macOS, light or dark, also while the app runs, so there is no *Theme* entry. The field **CPUs** stays in the toolbar.
 - **File** has **Select Recording… (⌘O)**, **Open Recent** (the list of *Recent Recordings*), **Open Project…**, **Save Image… (⌘S)** and **Save Project…**. **Save Image…** writes the stacked or sharpened image in the file type chosen last (TIFF 16-bit at the start), without asking for the type again; it is dimmed until the stack exists.
 - **Edit** has Undo, Redo, Cut, Copy, Paste and Select All for the number and text fields.
 - **View** has **Zoom In (⌘+)**, **Zoom Out (⌘-)**, **Zoom to Fit (⌘0)** and **Actual Size (⌘1)** for the image, and full screen.

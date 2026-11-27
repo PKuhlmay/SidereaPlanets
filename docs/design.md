@@ -293,6 +293,29 @@ Die Karten sind nicht verschiebbar.
 - Quality Graph: Liniendiagramm, Quality in `--accent`, Difference in `--info`, Legende darunter. Vor Align steht
   ein Hinweis statt leerer Achsen.
 
+### Update-Dialog
+
+`app/src/components/UpdateDialog.vue` (PLANETS-13), modal wie der About-Dialog: Hintergrund `rgba(0,0,0,.5)` über dem ganzen Fenster
+(z-Index 100), Karte 480 px breit auf `--panel` mit Umriss `--line-strong`, Radius `--r-l` und Schatten, Innenabstand 16 px, Abstand
+der Zeilen 8 px. Er erscheint, wenn die Suche beim Start oder Check for Updates… eine neuere Version findet.
+
+- Kopf: „Siderea Planets ‹Version› is available“ (15 px, Gewicht 600), darunter „You have version ‹aktuelle›.“ in `--muted`.
+- „What’s new“ (Überschrift 12 px, `--muted`) und darunter die Release-Notes als reiner Text in einem Feld (`--field`, Umriss `--line`,
+  höchstens 220 px hoch, scrollt, per Tab erreichbar). Sie kommen von der Release-Seite und werden nie als HTML gedeutet. Ohne Notes
+  steht dort „This release has no notes.“ in `--muted`.
+- Fuß, rechtsbündig: **Skip This Version** (Textschaltfläche, ganz links), **Later** (Standard) und **Install and Restart**
+  (Hauptschaltfläche in `--accent`, beim Öffnen fokussiert; ist sie gesperrt, bekommt Later den Fokus). Escape heißt Later; Tab bleibt
+  im Dialog.
+- Zustände: *Gesperrt* während einer Berechnung (Tooltip „A calculation is running. …“) und wenn sich die Installation nicht selbst
+  aktualisieren kann (.deb): dann steht zusätzlich ein Hinweis im Stil der Hinweiszeile (`--accent-soft`, 3 px Streifen links) mit
+  der Adresse der Release-Seite. *Installiert gerade*: alle drei Schaltflächen gesperrt, darüber „Downloading… ‹n›%“ mit 6-px-Balken
+  in `--accent` auf `--raised`, bei unbekannter Größe „Downloading…“; läuft noch eine Berechnung, „Waiting for the calculation to finish…“
+  ohne Balken. *Fehler*: derselbe Hinweis mit dem Text, die Schaltflächen sind wieder frei.
+- Reihenfolge der Dialoge: Ist About offen, erscheint der Update-Dialog erst nach dessen Schließen. Solange einer von beiden offen ist,
+  erreichen weder Tastenkürzel noch Menüleiste das Fenster dahinter; die Neu-Laden-Tasten bleiben im Release-Build trotzdem abgefangen.
+- Der Check hat zwei Einstiege: Check for Updates… in der Menüleiste (Mac, Menü Siderea Planets) bzw. im Menü Settings (Windows, Linux)
+  und das Häkchen „Check for updates automatically“ im Menü Settings.
+
 ### Bildbereich
 
 Hintergrund `--canvas`, das Bild mittig mit 12 px Rand eingepasst, ein kaum sichtbarer Umriss zeigt die Bildgrenze.
@@ -783,4 +806,4 @@ dieses Dokument im selben Commit.
 ## Zustände in der App ansehen (Dev-Build)
 
 Im Dev-Build (`pnpm tauri dev` oder `pnpm exec vite`) springt `app/src/preview.ts` mit URL-Parametern in einen Zustand, mit erzeugten Daten statt einer Aufnahme: `step`, `view`, `theme=light`, `busy`, `show`
-(framelist, graph, resampling, drizzling, procarea, alignpoints, nosections), `layers`, `functions`. Im Release-Build fehlt das Modul.
+(framelist, graph, resampling, drizzling, procarea, alignpoints, nosections), `layers`, `functions`, `update` (notes, nonotes, deb, error: der Update-Dialog mit erfundenen Release-Notes, auch ohne Schritt). Im Release-Build fehlt das Modul.

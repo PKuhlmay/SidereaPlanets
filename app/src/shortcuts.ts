@@ -8,7 +8,8 @@ import { suppressContextMenu } from "./logic/contextMenu";
 import { keyCommand, type KeyPress } from "./logic/keys";
 import { isMac } from "./logic/platform";
 import { showNextFrame } from "./recording";
-import { about, session } from "./state";
+import { session } from "./state";
+import { dialogOpen } from "./updater";
 
 /** The steps that show the frame bar (App.vue). */
 const FRAME_STEPS = ["alignpoints", "align", "limit"];
@@ -40,8 +41,8 @@ function keyPress(event: KeyboardEvent): KeyPress {
 /** Handles a key press of the main window; returns whether it was a shortcut. */
 export function handleShortcut(event: KeyboardEvent): boolean {
   const command = keyCommand(keyPress(event));
-  // The About dialog sits on top of the window: the keys do not reach what is behind it, but a reload would still wipe it.
-  if (about.open && command?.kind !== "block") return false;
+  // The About and update dialogs sit on top of the window: the keys do not reach what is behind them, but a reload would still wipe them.
+  if (dialogOpen() && command?.kind !== "block") return false;
   if (!command) return false;
   // A blocked key does nothing but fall through to preventDefault below.
   if (command.kind === "frame") {

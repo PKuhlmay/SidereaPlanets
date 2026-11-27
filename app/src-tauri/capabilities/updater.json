@@ -1,0 +1,17 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "updater",
+  "description": "Check for a new version, download and install it, and relaunch (main window only)",
+  "windows": [
+    "main"
+  ],
+  "platforms": [
+    "macOS",
+    "windows",
+    "linux"
+  ],
+  "permissions": [
+    "updater:default",
+    "process:allow-restart"
+  ]
+}

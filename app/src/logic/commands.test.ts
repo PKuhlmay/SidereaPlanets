@@ -17,6 +17,7 @@ describe("parseMenuId", () => {
     expect(parseMenuId("togglePause")).toEqual({ kind: "command", id: "togglePause" });
     // "About Siderea Planets" opens the About dialog of the window, not the default macOS about panel.
     expect(parseMenuId("about")).toEqual({ kind: "command", id: "about" });
+    expect(parseMenuId("checkForUpdates")).toEqual({ kind: "command", id: "checkForUpdates" });
     expect(parseMenuId("step:wavelets")).toEqual({ kind: "step", step: "wavelets" });
     expect(parseMenuId("recent:2")).toEqual({ kind: "recent", index: 2 });
   });
@@ -43,6 +44,12 @@ describe("commandEnabled", () => {
     expect(commandEnabled("cancel", idle)).toBe(false);
     expect(commandEnabled("cancel", { ...idle, busy: true })).toBe(true);
     expect(commandEnabled("togglePause", { ...idle, busy: true })).toBe(true);
+  });
+
+  it("allows Check for Updates only while nothing runs, so its answer does not replace the result of a calculation", () => {
+    expect(commandEnabled("checkForUpdates", idle)).toBe(true);
+    expect(commandEnabled("checkForUpdates", { ...idle, busy: true })).toBe(false);
+    expect(menuUpdate({ ...idle, busy: true }).enabled["checkForUpdates"]).toBe(false);
   });
 
   it("needs an image for the zoom and always allows Settings and Help", () => {

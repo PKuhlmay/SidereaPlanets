@@ -57,13 +57,19 @@ gh secret set APPLE_API_ISSUER                   # Issuer-ID
 gh secret set APPLE_API_KEY_CONTENT < AuthKey_XXXXXXXXXX.p8
 ```
 
-**Updater-Schlüssel.** Einmal erzeugen, der öffentliche Teil steht in `tauri.conf.json` (PLANETS-13):
+**Updater-Schlüssel (PLANETS-13).** Einmal erzeugen; `tauri.conf.json` trägt bis dahin einen Platzhalter, und ohne echten öffentlichen
+Schlüssel lehnt jede gebaute App jedes Update ab:
 
 ```bash
-cd app && pnpm tauri signer generate -w ~/.tauri/siderea-planets.key
+cd app && pnpm tauri signer generate -w ~/.tauri/siderea-planets.key    # fragt nach einem Kennwort
 gh secret set TAURI_SIGNING_PRIVATE_KEY < ~/.tauri/siderea-planets.key
 gh secret set TAURI_SIGNING_PRIVATE_KEY_PASSWORD
 ```
+
+1. Den Inhalt von `~/.tauri/siderea-planets.key.pub` in `app/src-tauri/tauri.conf.json` bei `plugins.updater.pubkey` eintragen (ersetzt
+   den Platzhalter) und committen. Der öffentliche Schlüssel ist nicht geheim.
+2. Den Inhalt der Schlüsseldatei (ohne `.pub`) als Secret `TAURI_SIGNING_PRIVATE_KEY` und das Kennwort als
+   `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` setzen (die beiden `gh secret set` oben).
 
 **Den privaten Updater-Schlüssel sichern.** Geht er verloren, kann keine installierte App mehr ein Update annehmen; Nutzer müssten von
 Hand neu installieren.
@@ -86,10 +92,15 @@ Hand neu installieren.
    `SHA256SUMS.txt` vorhanden. Das `.dmg` auf einem Mac laden und öffnen: Gatekeeper darf nicht warnen
    (`spctl -a -vv -t exec "/Applications/Siderea Planets.app"` nennt „Notarized Developer ID“), die Version in der Statusleiste muss
    stimmen. Den Installer unter Windows und das AppImage unter Linux zumindest starten.
-7. **Veröffentlichen:** „Publish release“. Erst jetzt sehen Nutzer den Release und der Updater `latest.json`.
+7. **Veröffentlichen:** „Publish release“. Erst jetzt sehen Nutzer den Release und der Updater `latest.json`: Der Updater fragt
+   `releases/latest/download/latest.json` ab, und ein Entwurf ist für diese Adresse unsichtbar.
 
 Probelauf mit einer Vorabversion: dasselbe mit `1.0.0-rc.1`; der Release wird dann als Vorabversion markiert. Nach dem Test den
 Entwurf und den Tag löschen (`gh release delete v1.0.0-rc.1 --cleanup-tag`).
+
+**Updater testen.** GitHub zählt eine Vorabversion nie als „latest“, `releases/latest/download/latest.json` findet sie also nicht.
+Für den Test den rc-Release nach dem Veröffentlichen von Hand zum neuesten machen (Releases, „Edit“, „Set as the latest release“, oder
+`gh release edit v1.0.0-rc.1 --latest`). Dann eine ältere Version der App installieren und „Check for Updates…“ wählen.
 
 **Der Lauf ist rot.** Die Jobs sind unabhängig; „Re-run failed jobs“ wiederholt nur die roten und nutzt denselben Entwurf (Dateien mit
 gleichem Namen werden ersetzt). Meldet der Job „Checksums and completeness“ eine fehlende Plattform in `latest.json`, haben sich zwei
@@ -113,8 +124,13 @@ Entwurf löschen, `git push origin :refs/tags/v<version>`, lokal `git tag -d v<v
   das, kommt eine `Entitlements.plist` unter `app/src-tauri/` und `bundle.macOS.entitlements` in die Konfiguration.
 - **Windows:** `tauri.windows.conf.json` beschränkt die Bündel auf `nsis`; die ZIP-Datei baut der Workflow aus `target/release/planets-app.exe`.
 - **Linux:** `--bundles appimage,deb` (kein `.rpm`).
-- **Updater:** `TAURI_SIGNING_PRIVATE_KEY` signiert die Updater-Dateien, `tauri-action` lädt `latest.json` hoch. Die Einstellungen in
-  `tauri.conf.json` (`bundle.createUpdaterArtifacts`, `plugins.updater`) gehören zu PLANETS-13.
+- **Updater:** `TAURI_SIGNING_PRIVATE_KEY` signiert die Updater-Dateien (`.sig`), `tauri-action` lädt `latest.json` hoch
+  (`uploadUpdaterJson`). `bundle.createUpdaterArtifacts` steht **nur** in `app/src-tauri/tauri.release.conf.json`; der Release-Lauf
+  gibt sie mit `--config src-tauri/tauri.release.conf.json` an `tauri build` (Pfad relativ zu `app`, wo die CLI läuft). Lokale und
+  CI-Builds (`ci.yml`) brauchen deshalb den privaten Schlüssel nicht. `plugins.updater` (Endpunkt und `pubkey`) steht in
+  `tauri.conf.json`. Der Job „Checksums and completeness“ prüft `latest.json`: Version, und für `darwin-aarch64`, `darwin-x86_64`
+  (beide vom Universal-Bau), `windows-x86_64` und `linux-x86_64` je eine URL und eine Signatur. Das `.deb` aktualisiert sich nicht
+  selbst, das AppImage schon.
 - **Kosten:** In einem privaten Repository zählen macOS-Minuten zehnfach gegen das Kontingent; in einem öffentlichen sind die
   Runner kostenlos.
 

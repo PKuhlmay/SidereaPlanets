@@ -6,6 +6,7 @@
 //   ?theme=light  ?busy=40  ?show=framelist,graph,resampling,drizzling,procarea,alignpoints,nosections
 //   ?layers=32,22,14,10,10,10  ?functions=Histogram,Gamma  (cards open in the Wavelets step; their values come from
 //   the engine, so the cards need the app, not the plain browser)
+//   ?update=notes|nonotes|deb|error  (the dialog of a new version, also without any step)
 
 import { setFrameReader, showFrame, startSession } from "./recording";
 import { LAYER_COUNT } from "./logic/settings";
@@ -13,6 +14,7 @@ import { atLeast, viewSteps, type Step, type ViewStep } from "./logic/workflow";
 import { applyTheme } from "./theme";
 import { session, settings, status, type Alignpoint, type RecordingInfo } from "./state";
 import { advance, advancedOpen } from "./steps";
+import { updates } from "./updater";
 import { markDoAllCurrent } from "./wavelet";
 
 const W = 1024;
@@ -95,15 +97,35 @@ function makePoints(): Alignpoint[] {
   return points.slice(0, 91);
 }
 
+/** The dialog of a new version (PLANETS-13) with made-up release notes: `notes`, `nonotes`, `deb` (cannot update itself), `error`. */
+function previewUpdate(kind: string): void {
+  const notes = [
+    "Siderea Planets 0.2.0",
+    "",
+    "- Check for Updates… in the app menu and Settings.",
+    "- Better quality estimate for frames with a very small planet.",
+    "- Fixed a crash when saving a project to a folder without write access.",
+    "",
+    "Known issues",
+    "- Resize Image does not remember its last value.",
+    "- Drizzle is still locked.",
+    "- The Linux .deb does not update itself.",
+  ].join("\n");
+  updates.state.update = { version: "0.2.0", notes: kind === "nonotes" ? "" : notes, canInstall: kind !== "deb" };
+  if (kind === "error") updates.state.error = "Could not install the update: the download was interrupted";
+}
+
 export async function applyPreview(search: string) {
   const params = new URLSearchParams(search);
   const view = viewSteps.find((s) => s.id === params.get("view"))?.id ?? null;
   const named = STEPS.find((s) => s === params.get("step"));
+  if (params.get("theme") === "light") applyTheme("light");
+  const update = params.get("update");
+  if (update) previewUpdate(update);
   if (!named && !view) return;
   const state: PreviewStep = named ?? (view ? NEEDS[view] : "loaded");
   const step: Step = state === "processed" || state === "saved" ? "stacked" : state;
 
-  if (params.get("theme") === "light") applyTheme("light");
   if (params.get("advanced") === "1") viewSteps.forEach((s) => (advancedOpen[s.id] = true));
   if (step === "empty") return;
   setFrameReader(drawPlanet);

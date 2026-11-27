@@ -12,6 +12,7 @@ export type CommandId =
   | "cancel"
   | "togglePause"
   | "settings"
+  | "checkForUpdates"
   | "help"
   | "about"
   | "zoomIn"
@@ -27,6 +28,7 @@ const commandIds: readonly string[] = [
   "cancel",
   "togglePause",
   "settings",
+  "checkForUpdates",
   "help",
   "about",
   "zoomIn",
@@ -69,6 +71,7 @@ export function commandEnabled(id: CommandId, state: CommandState): boolean {
   switch (id) {
     case "selectRecording":
     case "openProject":
+    case "checkForUpdates":
       return !state.busy;
     case "saveImage":
       return state.stacked && !state.busy;

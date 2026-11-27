@@ -18,6 +18,7 @@ import StackStep from "./components/StackStep.vue";
 import StatusBar from "./components/StatusBar.vue";
 import StepBar from "./components/StepBar.vue";
 import Toolbar from "./components/Toolbar.vue";
+import UpdateDialog from "./components/UpdateDialog.vue";
 import WaveletsStep from "./components/WaveletsStep.vue";
 import type { Rect } from "./logic/align";
 import { startColour } from "./colour";
@@ -27,6 +28,7 @@ import { formatAspect } from "./logic/crop";
 import { startNativeBridge } from "./nativeBridge";
 import { openDroppedFiles } from "./openFromOutside";
 import { startResourceMonitor } from "./resource";
+import { startUpdateCheck } from "./updater";
 import { handleShortcut } from "./shortcuts";
 import { pickToneImage } from "./logic/colour";
 import { imageCaption, imageKind, pickImage, windowTitle } from "./logic/workflow";
@@ -55,6 +57,7 @@ startColour();
 openDroppedFiles();
 void startNativeBridge();
 startResourceMonitor();
+startUpdateCheck();
 // ← and → page through the frames, Alt+1 to Alt+7 (Mac: ⌥⌘1 to ⌥⌘7) open the steps, Cmd or Ctrl and a key run commands (shortcuts.ts).
 onMounted(() => window.addEventListener("keydown", handleShortcut));
 onBeforeUnmount(() => window.removeEventListener("keydown", handleShortcut));
@@ -192,6 +195,7 @@ watch(
       <StatusBar />
     </div>
     <AboutDialog />
+    <UpdateDialog />
   </div>
 </template>
 

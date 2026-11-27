@@ -10,6 +10,7 @@ mod geometry_commands;
 mod menu;
 mod sequence_commands;
 mod stack_commands;
+mod update_commands;
 mod usage_commands;
 mod wavelet_commands;
 
@@ -155,10 +156,16 @@ fn queue_opened_files(app: &AppHandle, urls: &[tauri::Url]) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let app = tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         // Opens the source code link of About in the browser.
-        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_opener::init());
+    // The updater checks GitHub Releases and installs the new version; the process plugin relaunches the app after it (PLANETS-13).
+    #[cfg(desktop)]
+    let builder = builder
+        .plugin(tauri_plugin_updater::Builder::new().build())
+        .plugin(tauri_plugin_process::init());
+    let app = builder
         .setup(|app| {
             // The Mac has a menu bar; Windows and Linux keep the window without one.
             if cfg!(target_os = "macos") {
@@ -176,6 +183,7 @@ pub fn run() {
             set_cpus,
             take_opened_files,
             menu::update_menu,
+            update_commands::update_install_supported,
             usage_commands::process_usage,
             align_commands::set_alignpoints,
             align_commands::set_alignpoint_threshold,

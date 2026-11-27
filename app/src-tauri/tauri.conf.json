@@ -39,5 +39,11 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
+  },
+  "plugins": {
+    "updater": {
+      "endpoints": ["https://github.com/PKuhlmay/SidereaPlanets/releases/latest/download/latest.json"],
+      "pubkey": "PLACEHOLDER-REPLACE-WITH-THE-CONTENT-OF-siderea-planets.key.pub"
+    }
   }
 }

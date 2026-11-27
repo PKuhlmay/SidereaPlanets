@@ -49,6 +49,7 @@ pub fn install(app: &App) -> tauri::Result<()> {
     let app_menu = SubmenuBuilder::new(handle, "Siderea Planets")
         // Opens the About dialog of the window (license, source code, third-party licenses), not the macOS about panel.
         .item(&item("about", "About Siderea Planets", None)?)
+        .item(&item("checkForUpdates", "Check for Updates…", None)?)
         .separator()
         .item(&item("settings", "Settings…", Some("Cmd+,"))?)
         .separator()

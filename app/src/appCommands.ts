@@ -10,6 +10,7 @@ import { chooseFiles, recent } from "./recording";
 import { openProject, saveImage, saveProject } from "./saving";
 import { about, session, status } from "./state";
 import { states } from "./steps";
+import { checkForUpdates } from "./updater";
 import { viewerControl } from "./viewerControl";
 
 /** `settingsRequest` counts the requests for the Settings menu of the toolbar (Cmd+, and Siderea Planets ▸ Settings…). */
@@ -49,6 +50,8 @@ export async function runCommand(id: CommandId): Promise<void> {
     case "settings":
       ui.settingsRequest++;
       return;
+    case "checkForUpdates":
+      return checkForUpdates();
     case "help":
       return openHelp();
     case "about":

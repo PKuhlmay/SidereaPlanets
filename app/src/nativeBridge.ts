@@ -9,14 +9,15 @@ import { menuUpdate, parseMenuId } from "./logic/commands";
 import { isMac } from "./logic/platform";
 import { openPaths } from "./openFromOutside";
 import { openRecording, recent } from "./recording";
-import { about, status } from "./state";
+import { status } from "./state";
+import { dialogOpen } from "./updater";
 
 const inTauri = (): boolean => "__TAURI_INTERNALS__" in window;
 
 /** What a click on a menu item does, from the id the menu sent. */
 export async function runMenuAction(id: string): Promise<void> {
-  // The About dialog sits on top of the window: the menu does not reach what is behind it.
-  if (about.open) return;
+  // The About and update dialogs sit on top of the window: the menu does not reach what is behind them.
+  if (dialogOpen()) return;
   const target = parseMenuId(id);
   if (!target) return;
   if (target.kind === "command") await runCommand(target.id);

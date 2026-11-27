@@ -12,6 +12,7 @@ import { about, session, settings, status, theme } from "../state";
 import { openHelp } from "../helpWindow";
 import { resourceSettings } from "../resource";
 import { openProject, saveProject } from "../saving";
+import { checkForUpdates, updates } from "../updater";
 import MenuButton from "./MenuButton.vue";
 import NumberField from "./NumberField.vue";
 
@@ -72,7 +73,7 @@ const lockedSettings = [
         </button>
       </MenuButton>
 
-      <MenuButton ref="settingsMenu" label="Settings" wide :title="`Settings (${chord(',', isMac)})`">
+      <MenuButton ref="settingsMenu" v-slot="{ close }" label="Settings" wide :title="`Settings (${chord(',', isMac)})`">
         <div class="sw">
           <button
             type="button"
@@ -102,6 +103,20 @@ const lockedSettings = [
         <label class="mi" title="CPU load of this app as a share of all cores and the memory it holds, at the left end of the status bar">
           <input v-model="resourceSettings.shown" type="checkbox" />Show CPU and Memory Usage
         </label>
+        <label class="mi" title="Look for a new version when the app starts, at most once a day">
+          <input type="checkbox" :checked="updates.state.auto" @change="updates.setAuto(($event.target as HTMLInputElement).checked)" />Check for updates automatically
+        </label>
+        <!-- The Mac has this item in the menu bar, under Siderea Planets. -->
+        <button
+          v-if="!isMac"
+          type="button"
+          class="mi"
+          :disabled="busy || updates.state.checking"
+          title="Look for a new version now"
+          @click="close(), checkForUpdates()"
+        >
+          Check for Updates…
+        </button>
         <hr />
         <div class="cap">Not available yet</div>
         <div v-for="name in lockedSettings" :key="name" class="mi off" title="Not available yet">{{ name }}</div>
