@@ -8,9 +8,11 @@ import { listen } from "@tauri-apps/api/event";
 import { nextTick, shallowRef, watch } from "vue";
 import { failureText, runJob } from "./jobs";
 import { fileName } from "./logic/recent";
+import { changes } from "./logic/dirty";
 import { defaultLayer } from "./logic/settings";
 import { processingArea } from "./logic/viewport";
 import { colourMode, doAllIsCurrent, doAllKey, fromBackend, parsePreview, previewWanted, toBackend, writePreview, type BackendSettings } from "./logic/wavelet";
+import { recordPreview } from "./previewTiming";
 import { session, settings, status } from "./state";
 
 // The design preview of dev builds runs in a plain browser; there is no backend to ask.
@@ -44,11 +46,15 @@ async function renderPreview(cancelled?: () => boolean): Promise<string> {
   // Time from the request to the finished drawing in the image area, shown in the status bar (docs/gui-toolkit.md).
   const started = performance.now();
   const answer = await invoke<ArrayBuffer>("wavelet_preview", { settings: toBackend(settings.wavelet), area: area(stack), mode: mode() });
+  const arrived = performance.now();
   // Update Preview was cancelled while the area was being calculated: the old picture stays.
   if (cancelled?.()) return "";
   const pixels = workingPixels(stack);
-  writePreview(pixels, stack.width, parsePreview(answer));
+  const preview = parsePreview(answer);
+  writePreview(pixels, stack.width, preview);
+  changes.mark(pixels.buffer, { x: preview.x, y: preview.y, width: preview.width, height: preview.height });
   session.processedImage = new ImageData(pixels, stack.width, stack.height);
+  recordPreview(arrived - started, performance.now() - arrived);
   status.action = `Preview calculated in ${Math.round(performance.now() - started)} ms`;
   return "Preview updated";
 }
@@ -77,6 +83,9 @@ function refreshPreview(): Promise<void> {
   })();
   return running;
 }
+
+/** Resolves when no preview is running or waiting (the measurement in previewBench.ts waits for it). */
+export const previewIdle = (): Promise<void> => running ?? Promise.resolve();
 
 /**
  * Update Preview: calculates the preview area now. The area is small, so the backend does not stop in the middle;

@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { isRegion, rectBetween, type Rect } from "../logic/align";
+import { changes, drawRegion, type Drawn } from "../logic/dirty";
 import { dragged, drawn, handleAt, isFull, type CropAspect, type CropHandle, type CropRectangle } from "../logic/crop";
 import { isMac } from "../logic/platform";
 import { actualSize, dragView, fitView, formatZoom, imagePixel, imagePosition, wheelIntent, zoomAt, type Size, type View } from "../logic/viewport";
+import { recordDraw } from "../previewTiming";
 import { viewerControl } from "../viewerControl";
 import CompareOverlay from "./CompareOverlay.vue";
 import CropOverlay from "./CropOverlay.vue";
@@ -60,13 +62,26 @@ function fit() {
   fitted.value = true;
 }
 
+// What the canvas shows now. A preview writes into the pixels of the image already on it and says which rectangle it changed
+// (logic/dirty.ts); then only that rectangle is put on the canvas, and the canvas is not cleared and sized again.
+let onCanvas: Drawn | null = null;
+
 function draw() {
   const image = props.image;
   const target = canvas.value;
   if (!image || !target) return;
-  target.width = image.width;
-  target.height = image.height;
-  target.getContext("2d")?.putImageData(image, 0, 0);
+  const started = performance.now();
+  const now: Drawn = { surface: target, buffer: image.data.buffer, width: image.width, height: image.height };
+  const part = drawRegion(onCanvas, now, changes.take(now.buffer));
+  if (!onCanvas || onCanvas.surface !== target || onCanvas.width !== image.width || onCanvas.height !== image.height) {
+    target.width = image.width;
+    target.height = image.height;
+  }
+  const context = target.getContext("2d");
+  if (part) context?.putImageData(image, 0, 0, part.x, part.y, part.width, part.height);
+  else context?.putImageData(image, 0, 0);
+  onCanvas = now;
+  recordDraw(performance.now() - started);
 }
 
 // A new image size (another recording, a resampled stack) starts fitted; frames of the same size keep the view.

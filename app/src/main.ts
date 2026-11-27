@@ -25,5 +25,8 @@ if (!helpWindow) void initCpus();
 // De-rotate images asks the core for span, rotation and disc whenever its settings or the kept frames change.
 if (!helpWindow) startDerotation();
 
+// PLANETS_PREVIEW_BENCH in the environment of the app starts the measurement of the live preview (previewBench.ts).
+if (!helpWindow && "__TAURI_INTERNALS__" in window) void import("./previewBench").then((m) => m.runPreviewBench());
+
 // Dev builds can jump into any state of the window without a recording (see preview.ts); release builds drop this.
 if (import.meta.env.DEV && !helpWindow) void import("./preview").then((m) => m.applyPreview(location.search));

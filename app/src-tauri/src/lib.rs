@@ -4,6 +4,7 @@
 //! payloads are the contract with the Vue frontend (`app/src`).
 
 mod align_commands;
+mod bench_commands;
 mod color_commands;
 mod export_commands;
 mod geometry_commands;
@@ -196,6 +197,8 @@ pub fn run() {
             stack_commands::stacked_image,
             stack_commands::cancel_stacking,
             stack_commands::pause_stacking,
+            bench_commands::preview_bench_config,
+            bench_commands::preview_bench_report,
             wavelet_commands::wavelet_default_settings,
             wavelet_commands::wavelet_set_source_frame,
             wavelet_commands::wavelet_preview,

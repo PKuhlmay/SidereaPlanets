@@ -111,6 +111,7 @@ impl SourceInfo {
 pub struct WaveletPreview {
     region: Region,
     rgba: Vec<u8>,
+    mono: bool,
 }
 
 impl WaveletPreview {
@@ -126,6 +127,32 @@ impl WaveletPreview {
 
     pub fn into_rgba(self) -> Vec<u8> {
         self.rgba
+    }
+
+    /// The answer of the command `wavelet_preview`: x, y, width and height of [`Self::region`] (4 x u32 LE), then the
+    /// pixels. An image without colour sends one byte per pixel (the window repeats it for red, green and blue and
+    /// adds the alpha), any other four, as in [`Self::rgba`]. The window tells the two apart by the length.
+    pub fn wire(self) -> Vec<u8> {
+        let pixels = if self.mono {
+            self.rgba.len() / 4
+        } else {
+            self.rgba.len()
+        };
+        let mut out = Vec::with_capacity(16 + pixels);
+        for v in [
+            self.region.x,
+            self.region.y,
+            self.region.width,
+            self.region.height,
+        ] {
+            out.extend(v.to_le_bytes());
+        }
+        if self.mono {
+            out.extend(self.rgba.iter().step_by(4));
+        } else {
+            out.extend(self.rgba);
+        }
+        out
     }
 }
 
@@ -176,6 +203,7 @@ impl Session {
         Ok(WaveletPreview {
             region: preview.region,
             rgba: preview.rgba,
+            mono: preview.mono,
         })
     }
 
@@ -216,6 +244,39 @@ mod tests {
 
     fn image() -> Image {
         Image::new(4, 4, 1)
+    }
+
+    fn preview(mono: bool) -> WaveletPreview {
+        let region = Region {
+            x: 3,
+            y: 5,
+            width: 2,
+            height: 1,
+        };
+        let rgba = if mono {
+            vec![10, 10, 10, 255, 20, 20, 20, 255]
+        } else {
+            vec![10, 11, 12, 255, 20, 21, 22, 255]
+        };
+        WaveletPreview { region, rgba, mono }
+    }
+
+    #[test]
+    fn the_wire_form_of_a_colour_preview_is_the_area_and_its_rgba() {
+        let wire = preview(false).wire();
+        let header: Vec<u8> = [3u32, 5, 2, 1]
+            .iter()
+            .flat_map(|v| v.to_le_bytes())
+            .collect();
+        assert_eq!(wire[..16], header[..]);
+        assert_eq!(wire[16..], [10, 11, 12, 255, 20, 21, 22, 255]);
+    }
+
+    #[test]
+    fn the_wire_form_of_a_preview_without_colour_has_one_byte_per_pixel() {
+        let wire = preview(true).wire();
+        assert_eq!(wire.len(), 16 + 2);
+        assert_eq!(wire[16..], [10, 20]);
     }
 
     /// A state with a source image and settings that need three layers.

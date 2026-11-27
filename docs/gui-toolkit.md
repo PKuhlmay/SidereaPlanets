@@ -62,8 +62,9 @@ ein Lauf, synthetisches Graustufenbild. Je Größe 3 Aufwärm- und 15 Messläufe
 (`crates/core/tests/wavelet_preview_timing.rs`, ignoriert, Release; Werte vom 2026-11-11 in `docs/wavelets.md`, Abschnitt
 „Vorschau und Do All“): Ein Reglerschritt im 512-px-Bereich braucht dort unter 5 ms, die Rechnung ist also nicht der Engpass. Die
 Übertragung am laufenden Programm ist **nicht als Messreihe** erfasst: Die Statusleiste zeigt die Zeit jeder Vorschau (Anfrage
-bis Zeichnen, „Preview: n ms“), bisher liegt nur ein einzelner Wert vor (79 ms beim Wechsel nach Save). URI-Schema oder `Channel`
+bis Zeichnen, „Preview: n ms“), unter Windows liegt nur ein einzelner Wert vor (79 ms beim Wechsel nach Save). URI-Schema oder `Channel`
 sind nicht umgesetzt.
+Messlauf im Fenster (`PLANETS_PREVIEW_BENCH`), Messwerte vom Mac und die Änderungen am Zeichnen und an der Antwort: `docs/wavelets.md`, Abschnitt Vorschau.
 
 ### Grenzen der Messung
 - Eine Maschine, ein Lauf, ein synthetisches Bild; keine echte Verarbeitung.

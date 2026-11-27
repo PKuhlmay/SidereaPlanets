@@ -89,36 +89,53 @@ export function linkedLevels(levels: number[], index: number, level: number, lin
   return levels.map((l, i) => (i === index ? next : clamp(l + delta)));
 }
 
-/** The answer of `wavelet_preview`: the area that was rendered, then its RGBA bytes. */
+/** The answer of `wavelet_preview`: the area that was rendered, then its pixels. */
 export interface PreviewAnswer {
   x: number;
   y: number;
   width: number;
   height: number;
+  /** Four bytes per pixel, or one byte per pixel when `mono` (an image without colour). */
   rgba: Uint8ClampedArray;
+  mono: boolean;
 }
 
 const PREVIEW_HEADER = 16;
 
-/** Binary layout: x, y, width, height (u32 LE each), then width * height * 4 bytes RGBA. */
+/**
+ * Binary layout: x, y, width, height (u32 LE each), then width * height * 4 bytes RGBA, or width * height bytes when the
+ * image has no colour (`WaveletPreview::wire` in crates/session). The length tells which.
+ */
 export function parsePreview(buffer: ArrayBuffer): PreviewAnswer {
   const view = new DataView(buffer);
   const width = view.getUint32(8, true);
   const height = view.getUint32(12, true);
+  const mono = buffer.byteLength - PREVIEW_HEADER === width * height;
   return {
     x: view.getUint32(0, true),
     y: view.getUint32(4, true),
     width,
     height,
-    rgba: new Uint8ClampedArray(buffer, PREVIEW_HEADER, width * height * 4),
+    rgba: new Uint8ClampedArray(buffer, PREVIEW_HEADER, width * height * (mono ? 1 : 4)),
+    mono,
   };
 }
 
-/** Copies the preview rows into the RGBA pixels of the whole image. */
+/** Copies the preview rows into the RGBA pixels of the whole image; a preview without colour gets red, green and blue alike and full alpha. */
 export function writePreview(target: Uint8ClampedArray, imageWidth: number, preview: PreviewAnswer): void {
-  const rowBytes = preview.width * 4;
+  const { rgba, width } = preview;
   for (let row = 0; row < preview.height; row++) {
     const to = ((preview.y + row) * imageWidth + preview.x) * 4;
-    target.set(preview.rgba.subarray(row * rowBytes, (row + 1) * rowBytes), to);
+    if (!preview.mono) {
+      target.set(rgba.subarray(row * width * 4, (row + 1) * width * 4), to);
+      continue;
+    }
+    for (let i = 0, from = row * width, at = to; i < width; i++, from++, at += 4) {
+      const v = rgba[from];
+      target[at] = v;
+      target[at + 1] = v;
+      target[at + 2] = v;
+      target[at + 3] = 255;
+    }
   }
 }

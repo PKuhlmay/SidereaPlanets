@@ -103,12 +103,11 @@ pub fn jupiter_align(rec: &mut Recording) -> AlignSummary {
     )
     .unwrap();
     let order = rank_by_quality(&results).iter().map(|i| i + 1).collect();
-    let summary = AlignSummary {
+    AlignSummary {
         candidates: n_candidates,
         points: n_points,
         order,
-    };
-    summary
+    }
 }
 
 /// The wavelet settings of the stored case "Layer 1 = 10.0": everything default, the slider of layer 1 at 10.0.

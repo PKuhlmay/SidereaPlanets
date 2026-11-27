@@ -128,6 +128,8 @@ fn crop(image: &Image, region: Region) -> Image {
 pub struct Preview {
     pub region: Region,
     pub rgba: Vec<u8>,
+    /// The image has no colour (fewer than three channels), so red, green and blue of every pixel in `rgba` are the same.
+    pub mono: bool,
 }
 
 struct Cached {
@@ -165,6 +167,7 @@ impl Previewer {
         Preview {
             region,
             rgba: rgba_region(&self.source, region),
+            mono: self.source.channels < 3,
         }
     }
 
@@ -224,6 +227,7 @@ impl Previewer {
         Preview {
             region,
             rgba: rgba_region(&image, Region::full(region.width, region.height)),
+            mono: image.channels < 3,
         }
     }
 }
@@ -466,6 +470,36 @@ mod tests {
             },
         );
         assert_ne!(previewer.cache.as_ref().unwrap().outer, second);
+    }
+
+    #[test]
+    fn a_preview_without_colour_says_so() {
+        let region = Region {
+            x: 4,
+            y: 4,
+            width: 10,
+            height: 8,
+        };
+        let colour = test_image(40, 30);
+        let mono = Arc::new(colour.to_luma());
+        let settings = boosted();
+        let mut previewer = Previewer::new(colour);
+        assert!(!previewer.render(&settings, ColourMode::Colour, region).mono);
+        assert!(!previewer.render(&settings, ColourMode::Lrgb, region).mono);
+        // Gray works on the luminance, so the result has no colour whatever the source had.
+        let gray = previewer.render(&settings, ColourMode::Gray, region);
+        assert!(gray.mono);
+        assert!(
+            gray.rgba
+                .as_chunks::<4>()
+                .0
+                .iter()
+                .all(|p| p[0] == p[1] && p[1] == p[2])
+        );
+        assert!(!previewer.before(region).mono);
+        let mut previewer = Previewer::new(mono);
+        assert!(previewer.render(&settings, ColourMode::Colour, region).mono);
+        assert!(previewer.before(region).mono);
     }
 
     #[test]

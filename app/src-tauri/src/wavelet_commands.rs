@@ -26,7 +26,8 @@ pub async fn wavelet_set_source_frame(
 /// the unprocessed image (*Before*).
 ///
 /// Returns binary: x, y, width, height of the area that was rendered (4 x u32 LE; the requested area cut to
-/// the image), then width * height * 4 bytes RGBA.
+/// the image), then width * height * 4 bytes RGBA, or width * height bytes for an image without colour
+/// (`WaveletPreview::wire`).
 #[tauri::command]
 pub async fn wavelet_preview(
     settings: Option<WaveletSettings>,
@@ -34,14 +35,11 @@ pub async fn wavelet_preview(
     mode: ColourMode,
     session: State<'_, Session>,
 ) -> CommandResult<Response> {
-    let preview = session.wavelet_preview(settings.as_ref(), area, mode)?;
-    let r = preview.region();
-    let mut out = Vec::with_capacity(16 + preview.rgba().len());
-    for v in [r.x, r.y, r.width, r.height] {
-        out.extend(v.to_le_bytes());
-    }
-    out.extend(preview.into_rgba());
-    Ok(Response::new(out))
+    Ok(Response::new(
+        session
+            .wavelet_preview(settings.as_ref(), area, mode)?
+            .wire(),
+    ))
 }
 
 /// *Do All*: applies the settings to the whole image (tone curve and colour treatment included) and keeps the result

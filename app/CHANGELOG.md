@@ -11,6 +11,7 @@
 - Project files now end in .sidereaplanets. To open a project saved with an earlier build, rename its file to this ending.
 - In the installed app a right-click no longer opens the web view's browser menu (Reload, Inspect) and the keys that reload the page are switched off: F5, Ctrl+R and Ctrl+Shift+R, on the Mac Cmd+R and Cmd+Shift+R. Text fields keep their menu for Copy and Paste.
 - Updates: the app looks for a new version at the start, at most once a day (Settings > Check for updates automatically), and on request with Check for Updates… (Mac: menu Siderea Planets; Windows and Linux: Settings menu). A dialog shows what is new; Install and Restart, Later or Skip This Version. The install waits while a calculation runs. The Linux .deb package does not update itself, the AppImage does.
+- Wavelets: the live preview does less work while a slider moves, which should help most on Windows. It now redraws only the preview area instead of the whole image, and for a recording without colour (or with Color off) it sends a quarter of the data.
 
 ### Deutsch
 
@@ -21,6 +22,7 @@
 - Projektdateien enden jetzt auf .sidereaplanets. Ein mit einem früheren Stand gespeichertes Projekt öffnet sich, nachdem die Datei auf diese Endung umbenannt wurde.
 - In der installierten App öffnet ein Rechtsklick nicht mehr das Browsermenü der Webansicht (Neu laden, Untersuchen), und die Tasten, die die Seite neu laden, sind abgeschaltet: F5, Strg+R und Strg+Umschalt+R, am Mac Cmd+R und Cmd+Umschalt+R. Textfelder behalten ihr Menü für Kopieren und Einfügen.
 - Updates: Die App sucht beim Start nach einer neuen Version, höchstens einmal am Tag (Settings > Check for updates automatically), und auf Wunsch mit Check for Updates… (Mac: Menü Siderea Planets; Windows und Linux: Menü Settings). Ein Dialog zeigt, was neu ist; Install and Restart, Later oder Skip This Version. Während einer Berechnung ist das Installieren gesperrt. Das Linux-Paket .deb aktualisiert sich nicht selbst, das AppImage schon.
+- Wavelets: Die Live-Vorschau läuft beim Ziehen eines Reglers flüssiger, vor allem unter Windows. Sie zeichnet nur noch den Vorschaubereich statt des ganzen Bildes neu, und bei einer Aufnahme ohne Farbe (oder mit Color aus) schickt sie ein Viertel der Daten.
 
 ## 0.1.0 — 2026-11-13
 

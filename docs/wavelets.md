@@ -101,12 +101,43 @@ Maßnahmen aus `docs/gui-toolkit.md` (Spike):
   Filter, Initial Layer oder Step Increment ändern oder der Bereich den gespeicherten verlässt. Ein Regler, Denoise
   oder Sharpen ändern nur die Summe; Ebenen, die nichts ändern, entfallen dabei ganz.
 - **RGBA mit `rayon`**: `rgba_region` wandelt zeilenweise parallel um und schneidet dabei den Bereich aus.
-- **Übertragung**: weiter per `invoke` mit Binärantwort. Eigenes URI-Schema oder `Channel` sind **nicht umgesetzt und
-  nicht gemessen**.
-- **Messung**: `crates/core/tests/wavelet_preview_timing.rs` (ignoriert, nur im Release-Build sinnvoll) misst einen
+- **Übertragung**: per `invoke` mit Binärantwort (`tauri::ipc::Response`, kein JSON, kein Base64). Die Antwort hat 16 Byte Kopf
+  (x, y, Breite, Höhe als u32 LE), dann RGBA. Ein Bild ohne Farbe (Mono-Aufnahme oder *Color* aus) schickt nur ein Byte je Pixel
+  (`WaveletPreview::wire`); die Oberfläche erkennt das an der Länge und schreibt Rot, Grün und Blau gleich und Alpha 255, das Ergebnis
+  ist pixelgleich (Tests `wire_form`, `previewWire.test.ts`). Das spart bei 512 px 786 KB von 1 MB. Eigenes URI-Schema oder
+  `Channel` sind **nicht umgesetzt**: beide laufen in Tauri über denselben Weg wie `invoke`, ein Gewinn ist nicht zu erwarten.
+- **Zeichnen**: `ImageViewer` setzt bei einer Vorschau nur das geänderte Rechteck per `putImageData` auf die Canvas und
+  setzt Größe und Inhalt der Canvas nicht mehr zurück (vorher: `canvas.width = …` und das ganze Bild bei jeder Vorschau, also bei
+  1024×680 rund 2,8 MB statt 1 MB und jedes Mal ein neuer Zeichenpuffer). `logic/dirty.ts` sammelt die Rechtecke, bis der Viewer zeichnet
+  (zwei Vorschauen in einem Tick), und fällt auf das ganze Bild zurück, wenn ein anderes Bild, eine andere Größe oder eine andere
+  Canvas im Spiel ist.
+- **Zusammenfassen**: unverändert, es läuft immer nur eine Anfrage; Änderungen währenddessen werden zu einer weiteren mit den
+  neuesten Werten (`refreshPreview`). Veraltete Antworten werden trotzdem gezeichnet, sonst bliebe das Bild beim schnellen Ziehen stehen.
+- **Messung im Fenster** (PLANETS-15): `PLANETS_PREVIEW_BENCH=<Aufnahme> PLANETS_PREVIEW_BENCH_OUT=<datei.json> <App>` startet die App,
+  öffnet die Aufnahme (Bild 1 dient als Summenbild), rechnet Do All, bewegt den ersten Regler 100-mal nacheinander und 2 s ohne Warten
+  auf das Bild, für drei Fälle (Bereich 512, ganzes Bild, *Color* aus), dann 3 s „Ziehen“ alle 8 ms, schreibt die Zeiten
+  (`invoke`, Schreiben, Zeichnen, Bilder/s) und beendet sich (`app/src/previewBench.ts`). Gleiches Vorgehen unter Windows und Linux.
+- **Messung im Kern**: `crates/core/tests/wavelet_preview_timing.rs` (ignoriert, nur im Release-Build sinnvoll) misst einen
   Reglerschritt im 512-px-Bereich bei 1024×680 und 2048×2048 gegen 50 ms (20 Bilder/s). **Gemessen am 2026-11-11** (Release-Build, Tonkennlinie eingerechnet):
-  1024×680: erste Vorschau 31,1 ms, Reglerschritt 4,8 ms (Median aus 15); 2048×2048: 27,5 ms und 3,7 ms. Die Übertragung steckt darin nicht, sie wird in Phase 2 mit der Oberfläche gemessen (Spike:
-  rund 35 ms für 1024×680-RGBA und 20 Bilder/s, 5,3 Bilder/s bei 2048²).
+  1024×680: erste Vorschau 31,1 ms, Reglerschritt 4,8 ms (Median aus 15); 2048×2048: 27,5 ms und 3,7 ms. Auf dem Mac (M4 Pro)
+  braucht ein Schritt in der Session 0,75 ms (Median, p95 0,9 ms, `crates/session/tests/preview_timing.rs`).
+- **Gemessen am 2026-11-27, Mac (M4 Pro), Release-Build, WKWebView**, JUPITER.AVI (1024×680, Bild 1 als Summenbild) nach Do All,
+  Median aus 100 Schritten (Zeitgeber der Webview auf 1 ms gerundet):
+
+  | Fall | `invoke` | bereit (geschrieben und gezeichnet) | bis zum Bild (nächster Frame) | Vorschauen/s ohne Warten, vorher → nachher |
+  |---|---|---|---|---|
+  | Bereich 512, Farbe | 2 ms (p95 2–3) | 2 ms (p95 3) | 17 ms (ein Frame bei 60 Hz) | 545 → 590 |
+  | ganzes Bild, Farbe | 2–3 ms | 3 ms (p95 4–5) | 17 ms | 367 → 390 |
+  | Bereich 512, ohne Farbe | 1–2 ms | 2 ms | 17 ms | 636 → 694 |
+
+  Beim Ziehen (Ereignis alle 8 ms, 3 s) kommen 247 von 253 Reglerereignissen als eigene Vorschau an, 60 Bilder/s, vorher wie nachher.
+  Der Mac war schon vor den Änderungen weit unter den 50 ms; die Änderungen bringen dort rund 6–9 % mehr Durchsatz und keinen
+  Unterschied in der Latenz. Die 38/49/79 ms der Windows-Messung (Anfrage bis Schreiben) liegen damit nicht im Kern (dort 4,8 ms,
+  hier 0,75 ms) und nicht in `invoke` von WKWebView (2 ms). **Vermutung** (nicht gemessen): sie stecken in WebView2, in der
+  Übertragung von rund 1 MB über `http://ipc.localhost` und im Zeichnen der vorigen Vorschau auf die GPU-Canvas, das die
+  Hauptsache blockiert, während die nächste Antwort ankommt. Dagegen wirken die beiden Änderungen (Rechteck statt ganzes Bild und
+  keine neue Canvas-Fläche; bei Mono-Aufnahmen ein Viertel der Bytes). Eine Zahl dafür liefert erst der Messlauf unter Windows;
+  unter WebKitGTK gilt dasselbe in kleinerem Maß.
 
 **Do All** (`wavelet::do_all`) rechnet das ganze Bild im Strom (drei Puffer, nicht sieben), dann Kennlinie und Farbbehandlung
 (`output::finish`), und liefert ein auf 0…1 begrenztes Bild. Die Vorschau ruft dieselbe `finish`-Funktion auf ihrem Ausschnitt
@@ -126,7 +157,7 @@ Helligkeitssprung zu sehen.
 - Die Antwort wird in einen Puffer geschrieben, der eine Kopie des Summenbilds ist; `session.processedImage` teilt sich
   diesen Puffer, eine Vorschau kostet also nur den Bereich. Außerhalb der Processing Area bleibt das Summenbild.
 - Die Statusleiste zeigt die Zeit von Anfrage bis Zeichnen (`Preview: n ms`). Das ist die Messung der Übertragung, die
-  `docs/gui-toolkit.md` verlangt; bisher gibt es dafür **nur einen einzelnen Wert** (79 ms beim Wechsel nach Save), keine Messreihe.
+  `docs/gui-toolkit.md` verlangt; Messwerte stehen oben (Mac) beziehungsweise kommen aus dem Messlauf unter Windows.
 - **Process** und **Do All** laufen über `runJob`. Do All ersetzt `session.processedImage` durch das ganze Bild.
 - **Load Scheme / Save Scheme**: Dateidialog (Plugin `dialog`, Filter `.rwv`) in `pickSchemePath`.
 - **Realign with Processed** ist nicht angebunden (gesperrt, „Not available yet“).
@@ -145,7 +176,7 @@ Einstellungen gehen als JSON mit den Feldern von `WaveletSettings` (camelCase): 
 |---|---|
 | `wavelet_default_settings()` | Werte für *Reset Wavelets* |
 | `wavelet_set_source_frame(index)` | Ersatz: Frame der Aufnahme als Bild des Reiters; im Ablauf setzt *Stack* die Quelle (`WaveletState::set_source`) |
-| `wavelet_preview(settings \| null, area, mode)` | Vorschau mit Kennlinie und Farbbehandlung wie *Do All*; `mode` ist `"colour"`, `"lrgb"` oder `"gray"`. Antwort binär: x, y, Breite, Höhe (4 × u32 LE, der auf das Bild zugeschnittene Bereich), dann RGBA. `null` = unbearbeitet (*Before*) |
+| `wavelet_preview(settings \| null, area, mode)` | Vorschau mit Kennlinie und Farbbehandlung wie *Do All*; `mode` ist `"colour"`, `"lrgb"` oder `"gray"`. Antwort binär: x, y, Breite, Höhe (4 × u32 LE, der auf das Bild zugeschnittene Bereich), dann RGBA oder, bei einem Bild ohne Farbe, ein Byte je Pixel. `null` = unbearbeitet (*Before*) |
 | `wavelet_do_all(settings, mode)` | ganzes Bild mit Kennlinie und Farbbehandlung; Antwort binär wie `read_frame` (Breite, Höhe als u32 LE, RGBA). Das Ergebnis bleibt in `WaveletState::processed()` für *Save image* |
 | `save_wavelet_scheme(path, settings)` / `load_wavelet_scheme(path)` | `.rwv` schreiben und lesen |
 
