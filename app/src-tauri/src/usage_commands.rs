@@ -1,6 +1,6 @@
 //! CPU time and memory of the app for the readout at the left end of the status bar (SP-019). The frontend asks about once a
 //! second while the readout is shown and the window is visible, and turns two readings into the load (app/src/logic/processUsage.ts).
-//! Windows-specific measuring stays here in the shell; the core (`crates/`) does not need it.
+//! The measuring (`sysinfo`, Windows and macOS) stays here in the shell; the core (`crates/`) does not need it.
 
 use std::sync::Mutex;
 
@@ -23,7 +23,7 @@ impl Default for UsageState {
     }
 }
 
-/// One reading: CPU time used since the start (user plus system) and the memory held (Windows: working set).
+/// One reading: CPU time used since the start (user plus system) and the memory held (resident set: the working set on Windows).
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProcessUsage {
@@ -57,14 +57,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn reads_this_process_and_its_cpu_time_only_grows() {
+    fn reads_this_process_and_its_cpu_time_grows_with_work() {
         let state = UsageState::default();
         let first = read(&state).expect("a reading of the own process");
         assert!(first.memory_bytes > 0);
-        // Some work, so that the second reading has used at least as much CPU time.
-        let busy: u64 = (0..5_000_000u64).fold(0, |acc, n| acc.wrapping_add(n * n));
+        // Some work, so that the second reading has used more CPU time: guards against a platform that reports a constant 0.
+        let busy: u64 =
+            (0..50_000_000u64).fold(0, |acc, n| acc.wrapping_add(std::hint::black_box(n) * n));
         assert!(busy > 0);
         let second = read(&state).expect("a second reading");
-        assert!(second.cpu_seconds >= first.cpu_seconds);
+        assert!(second.cpu_seconds > first.cpu_seconds);
     }
 }

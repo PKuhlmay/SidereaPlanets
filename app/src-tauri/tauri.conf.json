@@ -25,7 +25,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
+    "targets": "all",
     "windows": {
       "webviewInstallMode": { "type": "offlineInstaller" },
       "nsis": { "installMode": "both" }
