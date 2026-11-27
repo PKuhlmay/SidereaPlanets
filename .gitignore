@@ -12,4 +12,6 @@ app/public/third-party-licenses.html
 app/src-tauri/gen/
 tauri-dev.log
 /build/
-/.claude/worktrees/
+# Local tooling: Claude Code setup (installed via claude-kit, PLANETS-6) and Playwright MCP captures
+.claude/
+.playwright-mcp/

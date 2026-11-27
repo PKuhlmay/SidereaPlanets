@@ -6,12 +6,12 @@ Oberfläche und eigenem Design; es ist zunächst ein Prototyp, der prüft, ob da
 
 **Name:** Die App heißt **Siderea Planets** (macOS, Windows, Linux), passend zur Suite mit Siderea. Einen abweichenden internen Namen
 gibt es nicht: Repo und Ordner `SidereaPlanets`, Rust-Crates `planets-*`, Projektdateien `.sidereaplanets`,
-Tickets `PLANETS-N` (früher `SP-NNN`, `MAC-NNN`).
+Tickets `PLANETS-N` in Jira.
 
 **Ein bestimmter Programmname steht nirgends im Repo** (Philipp, 2026-11-27): weder in sichtbaren Texten noch in Code,
 Kommentaren, Bezeichnern, Tests, `docs/`, Changelogs oder Commit-Messages, und er wird auch nicht umschrieben. Die Sperrliste
 (ein Begriff oder regulärer Ausdruck je Zeile) liegt lokal in `re-local/forbidden-terms.txt`. Vor jedem Commit, der Texte
-berührt, prüfen: `git grep -n -i -E -f re-local/forbidden-terms.txt -- . ':!tickets'` — Treffer sind nur erlaubt, wenn das englische Wort
+berührt, prüfen: `git grep -n -i -E -f re-local/forbidden-terms.txt — Treffer sind nur erlaubt, wenn das englische Wort
 im Bild-Sinn „unbearbeitetes Quellbild“ gemeint ist (z. B. in der Beschriftung einer Größenoption).
 
 ## Status
@@ -105,8 +105,7 @@ nachgezogen werden müsste, und keine Paritätslisten.
   daran). Signieren und Notarisieren für macOS: `docs/release.md`.
 - Release: `/siderea-release <version>` bereitet ihn vor (Version, Changelog, Prüfungen, Commit, Tag `v<version>` für alle Plattformen);
   der Tag lässt `release.yml` bauen, signieren und als Entwurf veröffentlichen (`docs/release.md`). Pushen nur nach Philipps OK.
-- Tickets liegen jetzt in **Jira**, Projekt **PLANETS** auf treupo.atlassian.net (Cloud-ID und Zugang siehe globale Anweisungen);
-  Commits `[TYPE] PLANETS-N - Message in English`.
+- Tickets und ihre Akzeptanzkriterien liegen in **Jira** (Abschnitt „Tickets“).
 - Worktrees: **nicht unter Windows** (Speicher, langsames Löschen), am Mac erlaubt.
 
 ## Verzeichnisstruktur
@@ -120,23 +119,18 @@ app/         Die App (Tauri): `app/src` = Vue-Frontend (hier entsteht das Design
 scripts/   Skripte, z. B. `deploy-debug.sh` für den Deploy-Hook (`.githooks/post-commit`), `changelog-section.sh` (Release-Notes), `make-icons.sh`
 .github/workflows/ `ci.yml` (Prüfungen), `release.yml` (Tag `v*` baut die Releases), `pages.yml` (Projektseite)
 site/      Projektseite (Landing und Anwenderdoku, gerendert aus `app/src/docs/pages/`), über `pages.yml` auf GitHub Pages
-tickets/   Alte Aufgaben als Markdown-Dateien (SP-NNN-kurzer-titel.md); neue Tickets in Jira (PLANETS)
 docs/      Technische Beschreibung (Ablauf, Oberfläche, Algorithmen, Formate, Design), dazu `docs/release.md`
            (Signieren und Notarisieren für macOS)
 re-local/  Lokal, nicht in Git: Beispielaufnahmen, eigene Referenzbilder, Screenshots, interne Notizen
-.claude/   Hooks, Skills und Einstellungen aus `npx github:PKuhlmay/claude-kit install` (nicht von Hand ändern). Projekteigen und nicht aus
-           dem Kit: der Skill `siderea-release` unter `.claude/skills/`
+.claude/   Lokal, nicht in Git (`.gitignore`): Hooks, Skills und Einstellungen aus `npx github:PKuhlmay/claude-kit install` (nicht von Hand
+           ändern); projekteigen und nicht aus dem Kit ist der Skill `siderea-release` unter `.claude/skills/`
 ```
 
 ## Tickets
 
-- Neue Tickets in Jira (PLANETS). Die älteren liegen im Repo unter `tickets/`, **ohne Jira**. Dateiname `SP-NNN-kurzer-titel.md`, fortlaufend nummeriert.
-- Kopf: Status (`offen` · `in Arbeit` · `erledigt`), Abhängigkeiten, dann Ziel und Akzeptanzkriterien.
-- Akzeptanzkriterien sind **Checkboxen** (`- [ ]` offen, `- [x]` erledigt). Sobald ein Kriterium wirklich erfüllt ist
-  (Test grün, Verhalten geprüft), wird es im selben Commit abgehakt. Status `erledigt` erst, wenn alle abgehakt sind;
-  bewusst gestrichene Kriterien bleiben offen und bekommen eine Begründung im Text.
-- Status-Änderung direkt in der Datei und im selben Commit wie die Umsetzung.
-- Commits: `[TYPE] SP-NNN - Message in English` (Types wie in den globalen Regeln).
+- Tickets liegen in **Jira**, Projekt **PLANETS** auf treupo.atlassian.net (MCP-Tools `mcp__treupo-jira__*`, Cloud-ID siehe globale
+  Anweisungen). Es gibt keine Ticket-Dateien im Repo; die Akzeptanzkriterien stehen im Jira-Ticket.
+- Commits: `[TYPE] PLANETS-N - Message in English` (Types wie in den globalen Regeln).
 
 ## Eigene Implementierung
 
