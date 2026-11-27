@@ -82,7 +82,7 @@ Schaltflächen, 600 für Gruppenüberschriften, die angezeigte Pille der Schritt
 
 | Bereich | Höhe | Inhalt und Regeln |
 |---|---|---|
-| Werkzeugleiste | 44 px | Drei Zonen: links Select Recording…, die Menüs Recent Recordings und Settings und die Projekt-Schaltflächen Open Project… und Save Project…, in der Mitte (im Rest zwischen links und rechts zentriert) Cancel und Pause, rechts Help, About und CPUs (Tooltip „CPU cores to use for all calculations“; die Zahl der Threads aller Berechnungen: Standard alle logischen Kerne, Bereich 1 bis dahin; das Feld klemmt Eingaben darauf). Help öffnet die Doku in der App, Open Project… und Save Project… öffnen und speichern die Projektdatei (`docs/formats.md`). About ist noch ohne Funktion und gesperrt |
+| Werkzeugleiste | 44 px | Drei Zonen: links Select Recording…, die Menüs Recent Recordings und Settings und die Projekt-Schaltflächen Open Project… und Save Project…, in der Mitte (im Rest zwischen links und rechts zentriert) Cancel und Pause, rechts Help, About und CPUs (Tooltip „CPU cores to use for all calculations“; die Zahl der Threads aller Berechnungen: Standard alle logischen Kerne, Bereich 1 bis dahin; das Feld klemmt Eingaben darauf). Help öffnet die Doku in der App, Open Project… und Save Project… öffnen und speichern die Projektdatei (`docs/formats.md`). About öffnet den About-Dialog (Version, Lizenz GPL-3.0-or-later, Link zum Quellcode, Ansicht der Lizenzen der Bestandteile; auf dem Mac öffnet ihn auch der Eintrag About Siderea Planets der Menüleiste) |
 | Schrittleiste | 40 px | Die sieben Schritte als Pillen (siehe [Schrittleiste](#schrittleiste)). Rechts Dateiname, Größe, Frame-Zahl und Codec in `--muted` („1024×680 · 10 frames · DIB“), wird bei Platzmangel mit „…“ gekürzt, die Pillen nie |
 | Arbeitsbereich | Rest | Linkes Panel fest 272 px mit dem offenen Schritt (siehe [Schrittpanel](#schrittpanel)), Bildbereich füllt den Rest, rechtes Panel 248 px nur im Schritt Wavelets. Panels scrollen senkrecht, wenn das Fenster zu niedrig ist; der Fuß des linken Panels mit der Aktion bleibt stehen |
 | Frame-Leiste | 40 px | Nur in den Schritten Alignpoints, Align und Best Frames |
@@ -778,7 +778,6 @@ dieses Dokument im selben Commit.
   `--text`; kein Dialog, kein Rot.
 - Vier der Adjustments-Schaltflächen (View Zoomed, View Stack Size, Wavelet Filter, Show Line Graph; gesperrt). Vorgabe für die Form: schwebende Karten wie Frame List.
 - Stack Graph, Stack List, Align Data und Prefilter (im Menü Show gesperrt). Vorgabe für die Form: schwebende Karten.
-- About-Dialog (die Schaltfläche About ist gesperrt; auf dem Mac zeigt der Eintrag About Siderea Planets der Menüleiste das Standardfenster mit der Version).
 - Dateidialoge sind die des Betriebssystems und brauchen kein Design.
 
 ## Zustände in der App ansehen (Dev-Build)

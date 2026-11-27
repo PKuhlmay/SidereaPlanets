@@ -5,9 +5,7 @@
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::sync::Mutex;
-use tauri::menu::{
-    AboutMetadata, Menu, MenuItem, MenuItemKind, PredefinedMenuItem, Submenu, SubmenuBuilder,
-};
+use tauri::menu::{Menu, MenuItem, MenuItemKind, Submenu, SubmenuBuilder};
 use tauri::{App, AppHandle, Emitter, Manager, Wry};
 
 /// The step ids and their names, in the order of the step bar (`viewSteps` in `app/src/logic/workflow.ts`).
@@ -48,20 +46,9 @@ pub fn install(app: &App) -> tauri::Result<()> {
             Ok(made)
         };
 
-    let about = PredefinedMenuItem::about(
-        handle,
-        Some("About Siderea Planets"),
-        Some(AboutMetadata {
-            name: Some("Siderea Planets".into()),
-            version: Some(handle.package_info().version.to_string()),
-            copyright: Some(
-                "Siderea Planets, stacking and sharpening for planetary astrophotography.".into(),
-            ),
-            ..Default::default()
-        }),
-    )?;
     let app_menu = SubmenuBuilder::new(handle, "Siderea Planets")
-        .item(&about)
+        // Opens the About dialog of the window (license, source code, third-party licenses), not the macOS about panel.
+        .item(&item("about", "About Siderea Planets", None)?)
         .separator()
         .item(&item("settings", "Settings…", Some("Cmd+,"))?)
         .separator()

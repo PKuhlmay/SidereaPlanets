@@ -1,6 +1,7 @@
 {
   "name": "siderea-planets",
   "private": true,
+  "license": "GPL-3.0-or-later",
   "version": "0.1.0",
   "type": "module",
   "scripts": {
@@ -8,11 +9,14 @@
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "test": "vitest run"
+    "test": "vitest run",
+    "check:licenses": "node scripts/check-licenses.mjs",
+    "gen:licenses": "node scripts/gen-licenses.mjs"
   },
   "dependencies": {
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-dialog": "^2.8.4",
+    "@tauri-apps/plugin-opener": "^2.7.3",
     "marked": "18.1.2",
     "vue": "^3.5.13"
   },

@@ -7,7 +7,7 @@ import { goToStep, runCommand } from "./appCommands";
 import { keyCommand } from "./logic/keys";
 import { isMac } from "./logic/platform";
 import { showNextFrame } from "./recording";
-import { session } from "./state";
+import { about, session } from "./state";
 
 /** The steps that show the frame bar (App.vue). */
 const FRAME_STEPS = ["alignpoints", "align", "limit"];
@@ -21,6 +21,8 @@ function usesArrows(target: EventTarget | null): boolean {
 
 /** Handles a key press of the main window; returns whether it was a shortcut. */
 export function handleShortcut(event: KeyboardEvent): boolean {
+  // The About dialog sits on top of the window: the keys do not reach what is behind it.
+  if (about.open) return false;
   const command = keyCommand({
     key: event.key,
     code: event.code,

@@ -8,7 +8,7 @@ import { atLeast, viewSteps, type ViewStep } from "./logic/workflow";
 import { openHelp } from "./helpWindow";
 import { chooseFiles, recent } from "./recording";
 import { openProject, saveImage, saveProject } from "./saving";
-import { session, status } from "./state";
+import { about, session, status } from "./state";
 import { states } from "./steps";
 import { viewerControl } from "./viewerControl";
 
@@ -51,6 +51,9 @@ export async function runCommand(id: CommandId): Promise<void> {
       return;
     case "help":
       return openHelp();
+    case "about":
+      about.open = true;
+      return;
     case "zoomIn":
       return viewerControl.zoom?.(1.25);
     case "zoomOut":

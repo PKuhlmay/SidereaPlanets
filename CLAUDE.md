@@ -41,9 +41,12 @@ Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens in
 cargo test --workspace                       # Rechenkern und Reader
 cargo clippy --workspace --all-targets       # soll ohne Warnungen laufen
 cargo fmt --all
+cargo deny check                             # Lizenzen, Advisories und Quellen der Rust-Abhängigkeiten (deny.toml)
 cd app && pnpm install && pnpm tauri dev     # App mit Hot-Reload starten
 cd app && pnpm build                         # Frontend bauen (vue-tsc + vite)
 cd app && pnpm test                          # Frontend-Tests (vitest), z. B. Doku-Logik
+cd app && pnpm check:licenses                # Lizenzen der npm-Abhängigkeiten gegen die GPL-Liste prüfen
+cd app && pnpm gen:licenses                  # app/public/third-party-licenses.html (cargo-about + npm), läuft auch vor tauri build
 scripts/publish-windows.sh --installer       # Release-Bau mit Inno-Setup-Installer, ZIP und SHA256SUMS (build/windows/dist/)
 ```
 
@@ -72,6 +75,12 @@ nicht in Git. „Deploy“ heißt nur lokal starten, kein Release-Build und kein
   ist die Entwicklungsumgebung.
 - Lokales Bündel am Mac: `cd app && pnpm tauri build` legt `.app` und `.dmg` unter `target/release/bundle/` ab (unsigniert);
   `tauri.conf.json` baut `all`, `tauri.windows.conf.json` beschränkt Windows auf `nsis`.
+
+## Lizenz
+
+Siderea Planets steht unter **GPL-3.0-or-later** (`LICENSE`). Neue Abhängigkeiten müssen GPL-kompatibel sein: Rust über `deny.toml`
+und `about.toml` (erlaubte Lizenzen, `cargo deny check`), npm über `app/scripts/licenses.mjs` (`pnpm check:licenses`). Die Adresse des
+Repos steht nur in `app/src/logic/about.ts` (`SOURCE_URL`); der About-Dialog zeigt sie, die Lizenz und die Lizenzen der Bestandteile.
 
 ## Doku in der App
 

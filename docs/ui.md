@@ -16,7 +16,7 @@ beginnt mit „Not available yet“; sie stehen unten in der jeweiligen Liste.
 | Bereich | Inhalt |
 |---|---|
 | Titelleiste | „Siderea Planets“, mit Aufnahme „Siderea Planets — ‹Dateiname›“, während eines Schritts „Siderea Planets · Align 40%“ |
-| Werkzeugleiste | **Select Recording…** · **Recent Recordings ▾** · **Settings ▾** · **Open Project…** · **Save Project…** · **Cancel** · **Pause** (nach dem Anhalten **Resume**) · **Help** · **About** (gesperrt) · **CPUs** (Zahl der Kerne für alle Berechnungen) |
+| Werkzeugleiste | **Select Recording…** · **Recent Recordings ▾** · **Settings ▾** · **Open Project…** · **Save Project…** · **Cancel** · **Pause** (nach dem Anhalten **Resume**) · **Help** · **About** (Dialog mit Version, Lizenz, Quellcode und den Lizenzen der Bestandteile) · **CPUs** (Zahl der Kerne für alle Berechnungen) |
 | Schrittleiste | **Open · Alignpoints · Align · Best Frames · Stack · Wavelets · Save**, rechts „1024×680 · 10 frames · DIB“ (Größe, Frame-Zahl, Codec) |
 | Schrittpanel (links) | Kopf „Step n of 7“, Name und ein Satz des offenen Schritts; die wichtigen Einstellungen; **Advanced** (n more settings) mit dem Rest; die Aktion am Fuß |
 | Bildbereich | Vorschau mit Zoom, Ziehen und Mausrad; oben links eine Kapsel („Frame 5 of 10“, „Stack of 8 frames“, „Sharpened stack“), oben rechts **Show ▾** und im Schritt Wavelets **Adjust ›**; leer: „Select a recording or drop a video or images here“ / „No image to show yet“ |

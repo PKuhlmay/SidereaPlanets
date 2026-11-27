@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "identifier": "de.kuhlmay.siderea.planets",
   "build": {
-    "beforeDevCommand": "pnpm dev",
+    "beforeDevCommand": "pnpm gen:licenses --cached && pnpm dev",
     "devUrl": "http://localhost:1420",
-    "beforeBuildCommand": "pnpm build",
+    "beforeBuildCommand": "pnpm gen:licenses && pnpm build",
     "frontendDist": "../dist"
   },
   "app": {
@@ -26,6 +26,8 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "license": "GPL-3.0-or-later",
+    "licenseFile": "../../LICENSE",
     "windows": {
       "webviewInstallMode": { "type": "offlineInstaller" },
       "nsis": { "installMode": "both" }

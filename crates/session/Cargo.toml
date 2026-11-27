@@ -2,6 +2,7 @@
 name = "planets-session"
 version.workspace = true
 edition.workspace = true
+license.workspace = true
 publish.workspace = true
 description = "GUI-free session of SidereaPlanets: the state and logic behind the workflow steps"
 

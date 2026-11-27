@@ -13,6 +13,7 @@ export type CommandId =
   | "togglePause"
   | "settings"
   | "help"
+  | "about"
   | "zoomIn"
   | "zoomOut"
   | "zoomFit"
@@ -27,6 +28,7 @@ const commandIds: readonly string[] = [
   "togglePause",
   "settings",
   "help",
+  "about",
   "zoomIn",
   "zoomOut",
   "zoomFit",
@@ -82,6 +84,7 @@ export function commandEnabled(id: CommandId, state: CommandState): boolean {
       return state.hasImage;
     case "settings":
     case "help":
+    case "about":
       return true;
   }
 }

@@ -15,6 +15,8 @@ describe("parseMenuId", () => {
   it("reads the ids the native menu sends", () => {
     expect(parseMenuId("selectRecording")).toEqual({ kind: "command", id: "selectRecording" });
     expect(parseMenuId("togglePause")).toEqual({ kind: "command", id: "togglePause" });
+    // "About Siderea Planets" opens the About dialog of the window, not the default macOS about panel.
+    expect(parseMenuId("about")).toEqual({ kind: "command", id: "about" });
     expect(parseMenuId("step:wavelets")).toEqual({ kind: "step", step: "wavelets" });
     expect(parseMenuId("recent:2")).toEqual({ kind: "recent", index: 2 });
   });
@@ -48,12 +50,14 @@ describe("commandEnabled", () => {
     expect(commandEnabled("zoomFit", { ...idle, hasImage: false })).toBe(false);
     expect(commandEnabled("settings", { ...idle, busy: true })).toBe(true);
     expect(commandEnabled("help", { ...idle, busy: true })).toBe(true);
+    expect(commandEnabled("about", { ...idle, busy: true })).toBe(true);
   });
 });
 
 describe("menuUpdate", () => {
   it("lists every item with its state, like the step bar for the steps", () => {
     const update = menuUpdate(idle);
+    expect(update.enabled["about"]).toBe(true);
     expect(update.enabled["step:align"]).toBe(true);
     expect(update.enabled["step:save"]).toBe(false);
     expect(update.enabled["saveImage"]).toBe(true);

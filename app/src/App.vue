@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, watch } from "vue";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import AlignpointsStep from "./components/AlignpointsStep.vue";
 import AlignStep from "./components/AlignStep.vue";
+import AboutDialog from "./components/AboutDialog.vue";
 import FloatingCards from "./components/FloatingCards.vue";
 import FunctionCards from "./components/FunctionCards.vue";
 import FrameBar from "./components/FrameBar.vue";
@@ -190,6 +191,7 @@ watch(
       <FrameBar v-if="withFrameBar" />
       <StatusBar />
     </div>
+    <AboutDialog />
   </div>
 </template>
 

@@ -2,6 +2,7 @@
 name = "planets-app"
 version.workspace = true
 edition.workspace = true
+license.workspace = true
 publish.workspace = true
 description = "Siderea Planets desktop app (Tauri shell)"
 
@@ -20,6 +21,7 @@ planets-session = { path = "../../crates/session" }
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 tauri-plugin-dialog = "2"
+tauri-plugin-opener = "2"
 # The orientation of Flip and Rotate comes as JSON in a header of the raw-body command `orient_preview` (SP-022).
 serde_json = "1"
 # CPU time and memory of the app for the status bar (SP-019), without unsafe code of our own.

@@ -157,6 +157,8 @@ fn queue_opened_files(app: &AppHandle, urls: &[tauri::Url]) {
 pub fn run() {
     let app = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        // Opens the source code link of About in the browser.
+        .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             // The Mac has a menu bar; Windows and Linux keep the window without one.
             if cfg!(target_os = "macos") {

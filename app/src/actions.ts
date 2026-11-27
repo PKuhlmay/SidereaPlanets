@@ -10,7 +10,7 @@
 //           darkframe/flatfield/reference menu entries are still open
 //
 // Buttons whose function does not exist (No Align, Scan Frames, Realign with Processed, the Preview button of a layer,
-// Clear List, the darkframe, flatfield and reference entries, Show MACRO/Batch Window, About) are locked and marked
+// Clear List, the darkframe, flatfield and reference entries, Show MACRO/Batch Window) are locked and marked
 // "Not available yet"; they have no action here.
 //
 // A handler normally calls runJob (jobs.ts) so that progress, Cancel and Pause work.

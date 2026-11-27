@@ -124,3 +124,6 @@ export const status = reactive({
 });
 
 export const theme = reactive({ current: "dark" as Theme });
+
+/** Whether the About dialog is open (AboutDialog.vue). */
+export const about = reactive({ open: false });

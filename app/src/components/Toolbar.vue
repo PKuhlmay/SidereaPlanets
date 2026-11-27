@@ -8,7 +8,7 @@ import { chord, isMac } from "../logic/platform";
 import { recentLabel } from "../logic/recent";
 import { applyTheme } from "../theme";
 import { chooseFiles, openRecording, recent } from "../recording";
-import { session, settings, status, theme } from "../state";
+import { about, session, settings, status, theme } from "../state";
 import { openHelp } from "../helpWindow";
 import { resourceSettings } from "../resource";
 import { openProject, saveProject } from "../saving";
@@ -148,7 +148,7 @@ const lockedSettings = [
         </svg>
         Help
       </button>
-      <button type="button" class="btn ghost" disabled title="Not available yet">About</button>
+      <button type="button" class="btn ghost" title="Version, license and source code of Siderea Planets" @click="about.open = true">About</button>
       <label class="cpus" title="CPU cores to use for all calculations">
         CPUs <NumberField v-model="settings.cpus" :min="1" :max="cpu.max" :width="52" label="CPU cores to use" />
       </label>
