@@ -15,5 +15,5 @@
 - [x] CPUs-Feld wirkt auf den Thread-Pool der Session (Standard alle Kerne)
 - [x] `mac/README.md` „Bauen und veröffentlichen“: xcodegen, `xcodebuild`, Release universal, ad-hoc signiert; Notarisierung
       beschrieben, aber offen, bis eine Developer-ID hinterlegt ist
-- [x] Skill `release` Abschnitt Mac ausgefüllt, `mac/CHANGELOG.md` angelegt
+- [x] Skill `siderea-release` Abschnitt Mac ausgefüllt, `mac/CHANGELOG.md` angelegt
 - [x] Handprobe-Punkte für den Mac in `docs/parity/Handprobe.md` aktuell

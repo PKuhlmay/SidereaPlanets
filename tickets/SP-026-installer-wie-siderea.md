@@ -19,7 +19,7 @@ des NSIS-Bündels von Tauri.
       Seite „Was ist neu“ auf Englisch und Deutsch aus dem Abschnitt der Version in `app/CHANGELOG.md`; Startmenü, Desktop-Symbol auf
       Wunsch; schließt die laufende App beim Update; Start nach der Installation; Deinstallation
 - [x] WebView2: Setup prüft die Laufzeit und startet Microsofts Bootstrapper nur, wo sie fehlt
-- [x] Release-Skill (`.claude/skills/release`, Schritt 3a) und `CLAUDE.md` beschreiben den neuen Weg
+- [x] Skill `siderea-release` (`.claude/skills/siderea-release`, Schritt 3a) und `CLAUDE.md` beschreiben den neuen Weg
 - [x] Der Installer baut durch (`Siderea-Planets-0.1.0-setup.exe`, 5,6 MB); Installieren, Starten und Deinstallieren als Probe von Hand
       unter `### SP-026` in `docs/parity/Handprobe.md` eingetragen
 

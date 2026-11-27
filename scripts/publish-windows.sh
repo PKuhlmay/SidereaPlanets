@@ -12,7 +12,7 @@
 #                                                                   git-ignored like build/
 #
 # app/CHANGELOG.md needs a section "## <version> — <date>" with "### English" and "### Deutsch": the installer shows it before it installs.
-# The release skill (.claude/skills/release) sets the version and writes that section first.
+# The siderea-release skill (.claude/skills/siderea-release) sets the version and writes that section first.
 set -euo pipefail
 
 installer=0

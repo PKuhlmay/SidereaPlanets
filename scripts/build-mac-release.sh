@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Builds the release bundle of the Mac app (MAC-010): the Rust interface for arm64 and x86_64, the app as a universal binary,
-# signed ad hoc (or with a Developer ID, see below), and a zip next to it. Nothing here is published or notarized; /release mac
+# signed ad hoc (or with a Developer ID, see below), and a zip next to it. Nothing here is published or notarized; /siderea-release mac
 # calls this script for the checks and the bundle, and mac/README.md ("Bauen und veröffentlichen") explains the rest.
 #
 #   scripts/build-mac-release.sh           build/release/Siderea Planets.app and build/release/Siderea-Planets-<version>-mac.zip

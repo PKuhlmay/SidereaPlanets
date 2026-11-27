@@ -35,7 +35,7 @@ bleiben, wo sie fachlich gemeint sind.
   Hilfe-Fensters, `windowTitle()` mit Test, Dateifilter „Siderea Planets project“ in den Projekt-Dialogen, Beschreibung im
   `Cargo.toml` der Shell. Nicht geprüft: ein echter `pnpm tauri build` und der Installer (am Mac nicht möglich).
 - **Gemeinsam:** FITS-Kopfzeile `CREATOR  = 'Siderea Planets'` (sichtbar für Nutzer in jeder gespeicherten FITS-Datei), alle Seiten
-  unter `app/src/docs/pages/` (für beide Apps), `mac/CHANGELOG.md`, `mac/README.md`, `CLAUDE.md`, Skill `release` (Installer- und
+  unter `app/src/docs/pages/` (für beide Apps), `mac/CHANGELOG.md`, `mac/README.md`, `CLAUDE.md`, Skill `siderea-release` (Installer- und
   Bündelnamen, Tag-Texte), `docs/design.md` (die Zeilen mit Fenstertitel und Menünamen; es beschreibt die Oberfläche der App),
   `docs/parity/Handprobe.md` (Dateiname des Bündels).
 - **Skripte:** `scripts/deploy-mac.sh` startet und beendet `Siderea Planets.app`; beim Neustart beendet es außerdem einmal eine noch

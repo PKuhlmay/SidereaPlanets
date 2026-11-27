@@ -136,7 +136,7 @@ Originals (`re-local/reference/`, nicht in Git) liegen nur auf dem Windows-Rechn
   ausführbar sein (`git update-index --chmod=+x`), sonst ignoriert Git sie stillschweigend. Der Hook `post-commit` ruft am Mac
   `scripts/deploy-mac.sh`, sonst `scripts/deploy-debug.sh` (Abschnitt „Deploy am Mac“).
 - **Worktrees** sind am Mac erlaubt (auf Windows nicht): Branch und Ordner mit Ticketnummer, Squash-Merge, ein Commit pro Ticket.
-- **Nachzug und Veröffentlichung:** `/nachzug` zeigt, was die jeweils andere App noch übernehmen muss; `/release mac|windows <version>`
+- **Nachzug und Veröffentlichung:** `/nachzug` zeigt, was die jeweils andere App noch übernehmen muss; `/siderea-release mac|windows <version>`
   veröffentlicht. Tags `v<version>` für den Mac, `windows-v<version>` für Windows.
 - **Aussehen:** `docs/design.md` und `docs/design/tokens.css` gelten auch für den Mac (modern, nicht der Delphi-Look); Mac-übliche
   Dinge (Menüleiste, ⌘-Kürzel, native Dateidialoge, Vollbild) folgen den Mac-Konventionen und stehen als bewusste Abweichung in
@@ -212,7 +212,7 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
      `spctl --assess --type execute -v "build/release/Siderea Planets.app"` („accepted, source=Notarized Developer ID“).
   Bis dahin ist dieser Weg nicht erprobt; er wandert in das Skript, sobald es eine Developer-ID gibt.
 - **Version:** `MARKETING_VERSION` in `project.yml` (die Build-Nummer `CURRENT_PROJECT_VERSION` zählt bei Bedarf hoch). Veröffentlicht
-  wird nur mit `/release mac <version>` (Skill `release`, Abschnitt 3b): Version setzen, `mac/CHANGELOG.md` füllen, prüfen, bauen, committen,
+  wird nur mit `/siderea-release mac <version>` (Skill `siderea-release`, Abschnitt 3b): Version setzen, `mac/CHANGELOG.md` füllen, prüfen, bauen, committen,
   taggen (`v<version>`), pushen nach Philipps OK.
 
 ## Status

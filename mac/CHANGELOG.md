@@ -1,6 +1,6 @@
 # Changelog — Siderea Planets for Mac
 
-Format: `## <version> — <date>` with `### English` and `### Deutsch`, one list each (see `.claude/skills/release/SKILL.md`, section Mac).
+Format: `## <version> — <date>` with `### English` and `### Deutsch`, one list each (see `.claude/skills/siderea-release/SKILL.md`, section Mac).
 The first release is 0.1.0 (`MAC-001`); until then everything that is done stands under Unreleased.
 
 ## Unreleased

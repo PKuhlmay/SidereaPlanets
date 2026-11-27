@@ -106,7 +106,7 @@ Umbau ohne sichtbare Wirkung). Keine Liste darf gelöscht oder umbenannt werden.
 aktiv; einmal je Klon `git config core.hooksPath .githooks`.
 
 - `/nachzug [mac]` (`scripts/parity-status.sh [liste]`) zeigt die offenen Punkte je Version und schlägt die nächste Stufe vor.
-- `/release mac|windows <version>` setzt die Version, prüft, baut (Windows: NSIS-Installer), committet und taggt. Tags: `v<version>`
+- `/siderea-release mac|windows <version>` setzt die Version, prüft, baut (Windows: NSIS-Installer), committet und taggt. Tags: `v<version>`
   für den Mac, `windows-v<version>` für Windows. Haupt- und Nebennummer heißen Funktionsumfang, Patch-Nummern zählt jede Plattform
   für sich. Pushen nur nach Philipps OK.
 - Der Rechenkern ist die einzige Kopplung. Was eine Oberfläche sonst nachbauen müsste (Sitzungszustand, Verwerfen der Ergebnisse,
@@ -131,7 +131,7 @@ docs/      Spezifikation, die beim Reverse Engineering entsteht (Workflow, UI, A
            Nachzug-Listen und der Handprobe
 re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, Mitschnitte
 .claude/   Hooks, Skills und Einstellungen aus `npx github:PKuhlmay/claude-kit install` (nicht von Hand ändern). Projekteigen und nicht aus
-           dem Kit: die Skills `nachzug` und `release` unter `.claude/skills/`
+           dem Kit: die Skills `nachzug` und `siderea-release` unter `.claude/skills/`
 ```
 
 ## Tickets

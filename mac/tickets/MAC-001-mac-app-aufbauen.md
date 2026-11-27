@@ -37,7 +37,7 @@ Gerüst
 - [x] `crates/ffi` mit Swift-Bindings und XCFramework; ein Test in Swift ruft den Rechenkern auf und prüft ein Ergebnis aus
       `docs/testdaten.md` (z. B. Stack gegen die Referenz mit PSNR-Schwelle)
 - [ ] `mac/project.yml`, `mac/README.md` Abschnitt „Bauen und veröffentlichen“ ausgefüllt (xcodegen, `xcodebuild`, Bündel,
-      Signierung und Notarisierung), `/release mac <version>` läuft durch
+      Signierung und Notarisierung), `/siderea-release mac <version>` läuft durch
 
 Oberfläche (nach `docs/design.md`, Soll-Bilder `docs/design/screenshots/`, dunkel und hell, Tokens aus `docs/design/tokens.css`)
 - [x] Fenster mit Werkzeugleiste, Schrittleiste (Open · Alignpoints · Align · Limit · Stack · Wavelets · Save), Schrittpanel,
@@ -72,7 +72,7 @@ Qualität
 3. Schnittstelle und Swift-Paket mit einem ersten Durchstich: Aufnahme öffnen, Frame anzeigen, Alignpoints setzen.
 4. Schritt für Schritt die Oberfläche, jeden Schritt mit eigenem Commit `[FEATURE] MAC-001 - …`; die Windows-Seite bekommt hier
    noch keine Punkte, denn bis zum Abschluss gilt Windows als Vorlage (`docs/parity/MAC_PARITY.md`).
-5. Prüfen, Handprobe, erster Release `v0.1.0` mit `/release mac 0.1.0`.
+5. Prüfen, Handprobe, erster Release `v0.1.0` mit `/siderea-release mac 0.1.0`.
 
 ## Hinweise
 
@@ -109,7 +109,7 @@ Alignpoints (78) und Stack 1024×680 mit n=10; ein PSNR-Vergleich gegen die Refe
 Offen:
 
 - `crates/session`: Fensterlauf der Windows-App nach dem Umzug (Handprobe Windows, MAC-003).
-- `/release mac 0.1.0` ist noch nicht gelaufen (Philipp startet ihn); `scripts/build-mac-release.sh --dmg` baut das universelle
+- `/siderea-release mac 0.1.0` ist noch nicht gelaufen (Philipp startet ihn); `scripts/build-mac-release.sh --dmg` baut das universelle
   Bündel bereits (MAC-010). Notarisierung offen bis eine Developer-ID da ist.
 - Vergleich mit der Windows-App: Alignpoints (78) und Frame-Reihenfolge (1, 3, 10, 2, 8, 9, 4, 5, 6, 7) gleichen dem Windows-Klon
   (gleicher Kern, `docs/testdaten.md`); die PSNR-Schwellen gegen das Original brauchen `re-local/reference/`.
