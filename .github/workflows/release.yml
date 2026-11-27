@@ -1,0 +1,307 @@
+name: Release
+
+# A tag v<version> builds, signs and publishes Siderea Planets for macOS, Windows and Linux as a draft release (PLANETS-12).
+# How to set up the secrets and how to release: docs/release.md. Checks of the code itself are ci.yml's job.
+on:
+  push:
+    tags: ["v*"]
+
+# Two runs for the same tag would fight over the draft release.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  # Creates the draft release once, so that the three build jobs only upload into it instead of racing to create it.
+  create-release:
+    name: Create the draft release
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      release_id: ${{ steps.release.outputs.release_id }}
+      version: ${{ steps.version.outputs.version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
+      notes: ${{ steps.notes.outputs.notes }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # One version for all platforms: the tag has to name the version that the build is going to put into the bundles.
+      - name: Check that the tag matches the version files
+        id: version
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          version="${TAG#v}"
+          package=$(node -p "require('./app/package.json').version")
+          tauri=$(node -p "require('./app/src-tauri/tauri.conf.json').version")
+          cargo=$(sed -n '/^\[workspace.package\]/,/^\[/{s/^version = "\(.*\)"/\1/p;}' Cargo.toml)
+          echo "tag $TAG, app/package.json $package, tauri.conf.json $tauri, Cargo.toml $cargo"
+          for found in "$package" "$tauri" "$cargo"; do
+            if [ "$found" != "$version" ]; then
+              echo "::error::The tag $TAG does not match the version files (package.json $package, tauri.conf.json $tauri, Cargo.toml $cargo)."
+              exit 1
+            fi
+          done
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          case "$version" in
+            *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;;
+            *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Release notes from app/CHANGELOG.md
+        id: notes
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          scripts/changelog-section.sh "$TAG" > "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md"
+          {
+            echo "notes<<RELEASE_NOTES_EOF"
+            cat "$RUNNER_TEMP/notes.md"
+            echo "RELEASE_NOTES_EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # A re-run of the workflow finds the draft of the first run and reuses it instead of creating a second one.
+      - name: Create the draft release (or reuse the existing draft)
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+        run: |
+          id=$(gh api "repos/$GITHUB_REPOSITORY/releases" --paginate \
+            --jq ".[] | select(.tag_name == \"$TAG\" and .draft) | .id" | head -n 1)
+          if [ -z "$id" ]; then
+            id=$(gh api --method POST "repos/$GITHUB_REPOSITORY/releases" \
+              -f tag_name="$TAG" -f target_commitish="$GITHUB_SHA" -f name="Siderea Planets $VERSION" \
+              -F body=@"$RUNNER_TEMP/notes.md" -F draft=true -F prerelease="$PRERELEASE" --jq .id)
+            echo "created draft release $id"
+          else
+            gh api --method PATCH "repos/$GITHUB_REPOSITORY/releases/$id" \
+              -f name="Siderea Planets $VERSION" -F body=@"$RUNNER_TEMP/notes.md" -F prerelease="$PRERELEASE" > /dev/null
+            echo "reusing draft release $id"
+          fi
+          echo "release_id=$id" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: Build (${{ matrix.name }})
+    needs: create-release
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Universal binary: one app for Apple silicon and Intel.
+          - name: macOS
+            os: macos-latest
+            args: --target universal-apple-darwin --bundles app,dmg
+          # NSIS only: tauri.windows.conf.json already restricts the targets. The portable ZIP is added below.
+          - name: Windows
+            os: windows-latest
+            args: ""
+          # The oldest runner image that is still offered: AppImage and .deb link against the glibc of the build machine,
+          # so a build on 22.04 (glibc 2.35) runs on more distributions than one on 24.04 (glibc 2.39).
+          - name: Linux
+            os: ubuntu-22.04
+            args: --bundles appimage,deb
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # The commit and date in the status bar come from `git rev-parse` in app/vite.config.ts; a normal checkout has .git for it.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Linux libraries for Tauri
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential file patchelf libssl-dev libxdo-dev \
+            libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - name: Install the pinned Rust toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+
+      - name: Add the Rust targets of the universal macOS binary
+        if: runner.os == 'macOS'
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          cache-on-failure: true
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 12
+          package_json_file: app/package.json
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - name: Install frontend dependencies
+        working-directory: app
+        run: pnpm install --frozen-lockfile
+
+      # Without these secrets Tauri would quietly build an unsigned bundle, so stop before the long build.
+      - name: Check the signing secrets
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_API_ISSUER: ${{ secrets.APPLE_API_ISSUER }}
+          APPLE_API_KEY: ${{ secrets.APPLE_API_KEY }}
+          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          required="TAURI_SIGNING_PRIVATE_KEY TAURI_SIGNING_PRIVATE_KEY_PASSWORD"
+          if [ "$RUNNER_OS" = macOS ]; then
+            required="$required APPLE_CERTIFICATE APPLE_CERTIFICATE_PASSWORD APPLE_SIGNING_IDENTITY APPLE_API_ISSUER APPLE_API_KEY APPLE_API_KEY_CONTENT"
+          fi
+          missing=""
+          for name in $required; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Missing repository secrets:$missing (see docs/release.md)"
+            exit 1
+          fi
+
+      # The App Store Connect API key (.p8) for notarisation; Tauri reads it from APPLE_API_KEY_PATH. The temp folder is wiped with the runner.
+      - name: Write the App Store Connect API key
+        if: runner.os == 'macOS'
+        env:
+          APPLE_API_KEY_CONTENT: ${{ secrets.APPLE_API_KEY_CONTENT }}
+        run: |
+          key_path="$RUNNER_TEMP/AuthKey.p8"
+          printf '%s\n' "$APPLE_API_KEY_CONTENT" > "$key_path"
+          echo "APPLE_API_KEY_PATH=$key_path" >> "$GITHUB_ENV"
+
+      # On macOS Tauri imports APPLE_CERTIFICATE into a temporary keychain itself, signs with the hardened runtime and notarises
+      # with the API key. The app needs no entitlements of its own (WKWebView runs out of process, no JIT in our process).
+      - name: Build, sign and upload
+        id: tauri
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # action-v1.0.0
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          # Updater: the bundles are signed with this key and the public half sits in tauri.conf.json (PLANETS-13).
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+          # macOS signing and notarisation; empty on the other platforms.
+          APPLE_CERTIFICATE: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ runner.os == 'macOS' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ runner.os == 'macOS' && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          APPLE_API_ISSUER: ${{ runner.os == 'macOS' && secrets.APPLE_API_ISSUER || '' }}
+          APPLE_API_KEY: ${{ runner.os == 'macOS' && secrets.APPLE_API_KEY || '' }}
+        with:
+          projectPath: app
+          args: ${{ matrix.args }}
+          releaseId: ${{ needs.create-release.outputs.release_id }}
+          tagName: ${{ github.ref_name }}
+          releaseName: Siderea Planets ${{ needs.create-release.outputs.version }}
+          releaseBody: ${{ needs.create-release.outputs.notes }}
+          releaseDraft: true
+          prerelease: ${{ needs.create-release.outputs.prerelease == 'true' }}
+          uploadUpdaterJson: true
+
+      # The bare exe in a ZIP, like the portable download of the old Windows releases; it needs the WebView2 runtime of Windows 10/11.
+      - name: Portable ZIP (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          VERSION: ${{ needs.create-release.outputs.version }}
+        run: |
+          New-Item -ItemType Directory -Path "portable/Siderea Planets" | Out-Null
+          Copy-Item target/release/planets-app.exe "portable/Siderea Planets/Siderea Planets.exe"
+          Copy-Item app/CHANGELOG.md "portable/Siderea Planets/CHANGELOG.md"
+          Compress-Archive -Path "portable/Siderea Planets" -DestinationPath "Siderea-Planets_${env:VERSION}_x64-portable.zip"
+
+      - name: Upload the portable ZIP (Windows)
+        if: runner.os == 'Windows'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ needs.create-release.outputs.version }}
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+        run: |
+          zip="Siderea-Planets_${VERSION}_x64-portable.zip"
+          gh api --method POST -H "Content-Type: application/zip" \
+            "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$zip" --input "$zip" > /dev/null
+
+  # SHA256SUMS.txt over every file of the draft, and a last look that nothing is missing.
+  checksums:
+    name: Checksums and completeness
+    needs: [create-release, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # Drafts are not reachable by tag, so the assets are listed and fetched by id.
+      - name: Download the assets of the draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+        run: |
+          mkdir assets
+          gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" --jq '.assets[] | "\(.id) \(.name)"' > assets.txt
+          while read -r id name; do
+            [ "$name" = SHA256SUMS.txt ] && continue
+            echo "downloading $name"
+            gh api -H "Accept: application/octet-stream" "repos/$GITHUB_REPOSITORY/releases/assets/$id" > "assets/$name"
+          done < assets.txt
+          ls -l assets
+
+      - name: Check that every platform delivered
+        run: |
+          missing=""
+          for pattern in '*.dmg' '*-setup.exe' '*portable.zip' '*.AppImage' '*.deb'; do
+            compgen -G "assets/$pattern" > /dev/null || missing="$missing $pattern"
+          done
+          if grep -q createUpdaterArtifacts app/src-tauri/tauri.conf.json; then
+            compgen -G "assets/*.app.tar.gz" > /dev/null || missing="$missing *.app.tar.gz"
+            # Three jobs write latest.json one after the other; a lost update shows here as a missing platform.
+            if [ -f assets/latest.json ]; then
+              for platform in darwin-aarch64 darwin-x86_64 windows-x86_64 linux-x86_64; do
+                jq -e --arg p "$platform" '.platforms | has($p)' assets/latest.json > /dev/null || missing="$missing latest.json:$platform"
+              done
+            else
+              missing="$missing latest.json"
+            fi
+          fi
+          if [ -n "$missing" ]; then
+            echo "::error::The draft is incomplete, missing:$missing. Re-run the failed or all build jobs; the draft is reused."
+            exit 1
+          fi
+
+      - name: Write and upload SHA256SUMS.txt
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
+        run: |
+          (cd assets && sha256sum -- * > ../SHA256SUMS.txt)
+          cat SHA256SUMS.txt
+          old=$(gh api "repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID" --jq '.assets[] | select(.name == "SHA256SUMS.txt") | .id')
+          if [ -n "$old" ]; then
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$old"
+          fi
+          gh api --method POST -H "Content-Type: text/plain" \
+            "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=SHA256SUMS.txt" \
+            --input SHA256SUMS.txt > /dev/null

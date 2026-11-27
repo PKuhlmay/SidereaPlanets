@@ -1,0 +1,105 @@
+name: CI
+
+# Format, lint, tests and a Tauri build on macOS, Windows and Linux for every push and pull request (PLANETS-11).
+# Releases are built by release.yml; this workflow only checks.
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+# A newer push to the same branch or pull request makes the older run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  # Incremental artifacts bloat the cache and never pay off on a fresh runner.
+  CARGO_INCREMENTAL: "0"
+
+jobs:
+  check:
+    name: Check (${{ matrix.name }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: macOS, os: macos-latest }
+          - { name: Windows, os: windows-latest }
+          - { name: Linux, os: ubuntu-24.04 }
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Install Linux libraries for Tauri
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential file patchelf libssl-dev libxdo-dev \
+            libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
+
+      # rust-toolchain.toml pins the toolchain with clippy and rustfmt. Newer rustup no longer installs it on `show`.
+      - name: Install the pinned Rust toolchain
+        run: rustup show active-toolchain || rustup toolchain install
+
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          cache-on-failure: true
+
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 12
+          package_json_file: app/package.json
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: app/pnpm-lock.yaml
+
+      - name: Format
+        run: cargo fmt --all --check
+
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      # Tests that need recordings from re-local/ (not in Git) skip themselves with a notice and pass.
+      - name: Rust tests
+        run: cargo test --workspace
+
+      - name: Install frontend dependencies
+        working-directory: app
+        run: pnpm install --frozen-lockfile
+
+      - name: Frontend build
+        working-directory: app
+        run: pnpm build
+
+      - name: Frontend tests
+        working-directory: app
+        run: pnpm test
+
+      # Debug build without bundle: proves that the Tauri shell links and the frontend embeds, without the cost of LTO or signing.
+      - name: Tauri build (smoke test)
+        working-directory: app
+        run: pnpm tauri build --debug --no-bundle
+
+      # Licence and advisory checks run once, on Linux, and only when PLANETS-7 has added deny.toml and the script.
+      - name: Cargo deny
+        if: runner.os == 'Linux' && hashFiles('deny.toml') != ''
+        uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          command: check
+
+      - name: Check licences of the frontend packages
+        if: runner.os == 'Linux'
+        working-directory: app
+        run: pnpm run --if-present check:licenses

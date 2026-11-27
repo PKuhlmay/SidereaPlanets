@@ -12,6 +12,4 @@ app/public/third-party-licenses.html
 app/src-tauri/gen/
 tauri-dev.log
 /build/
-# Windows installers copied by scripts/publish-windows.sh --installer
-/release/
 /.claude/worktrees/
