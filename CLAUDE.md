@@ -70,11 +70,12 @@ nicht in Git. „Deploy“ heißt nur lokal starten, kein Release-Build und kein
 - Testläufe waren vorübergehend aus (Philipp, 2026-11-10) und laufen seit dem Abschluss der Tickets am 2026-11-12 wieder, von Hand
   und in den Agenten. Mit `DEPLOY_TESTS=1` läuft vor dem Bau auch `cargo test --workspace`; als Standard im Skript ist das noch nicht
   gesetzt.
-- `DEPLOY_DEBUG=0` schaltet den Deploy aus (gilt für beide Skripte).
+- `DEPLOY_DEBUG=0` schaltet den Deploy aus.
 - Von Hand deployen: `scripts/deploy-debug.sh --run`
-- **Am Mac** ruft der Hook stattdessen `scripts/deploy-mac.sh`: `xcodegen generate` und `xcodebuild` (Debug, arm64) für `mac/`, bei
-  Erfolg wird die laufende Mac-App beendet und die neue gestartet, bei einem Fehler bleibt die alte unangetastet; Protokoll
-  `deploy-mac.log`. Das Debug-Bündel heißt `build/mac/Build/Products/Debug/Siderea Planets.app`. Ohne `mac/project.yml` tut es nichts. Von Hand: `scripts/deploy-mac.sh --run`; Einzelheiten in `mac/README.md`.
+- **Am Mac** läuft derselbe Hook und dasselbe Skript (bash 3.2, PATH mit Homebrew-rustup, das `rust-toolchain.toml` beachtet): die Tauri-Debug-App
+  ist die Entwicklungsumgebung. `scripts/deploy-mac.sh` (SwiftUI-App) ruft der Hook nicht mehr auf; von Hand geht es noch (`--run`).
+- Lokales Bündel am Mac: `cd app && pnpm tauri build` legt `.app` und `.dmg` unter `target/release/bundle/` ab (unsigniert);
+  `tauri.conf.json` baut `all`, `tauri.windows.conf.json` beschränkt Windows auf `nsis`.
 
 ## Doku in der App
 

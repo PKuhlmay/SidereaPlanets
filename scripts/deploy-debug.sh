@@ -5,12 +5,14 @@
 #   scripts/deploy-debug.sh          called by the hook: checks the commit, then re-runs itself detached
 #   scripts/deploy-debug.sh --run    does the deploy in the foreground (also usable by hand)
 #
-# Tests are off by default (temporary request, see CLAUDE.md); DEPLOY_TESTS=1 runs `cargo test --workspace` first.
+# Runs on Windows (Git Bash) and macOS (bash 3.2). Tests are off by default; DEPLOY_TESTS=1 runs `cargo test --workspace` first.
 # Output goes to deploy-debug.log and tauri-dev.log in the repo root (both git-ignored).
 set -u
-# DEPLOY_DEBUG=0 switches the deploy off (e.g. on the Mac, where the SwiftUI app is the one that matters).
+# DEPLOY_DEBUG=0 switches the deploy off.
 [ "${DEPLOY_DEBUG:-1}" = "0" ] && exit 0
-export PATH="$HOME/.cargo/bin:$PATH"
+# A git hook does not have the PATH of the login shell. On macOS, rustup from Homebrew is keg-only (its bin folder honours
+# rust-toolchain.toml), pnpm lives in /opt/homebrew/bin and node may sit in ~/.local/bin. Folders that do not exist are harmless.
+export PATH="/opt/homebrew/opt/rustup/bin:/opt/homebrew/bin:$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
 
 root=$(git rev-parse --show-toplevel)
 # Installs run one at a time across sessions (CLAUDE.md); the wrapper exists on Philipp's machine only.
