@@ -1,4 +1,4 @@
-# RK-016 Verständliche Texte für Einsteiger (Windows zieht nach)
+# SP-016 Verständliche Texte für Einsteiger (Windows zieht nach)
 
 - Status: erledigt
 - Abhängig von: MAC-014
@@ -14,7 +14,7 @@ Nachzugs, weil deren Parity-Punkte schon die neuen Namen benutzen (Best Frames, 
 Alle Werte, Texte und Dateien stehen in `docs/parity/WINDOWS_PARITY.md`, nicht hier:
 
 - Abschnitt „Verständliche Texte für Einsteiger (MAC-014, …)“: Regeln (1) bis (6), Tabelle 1 (Umbenennungen), Tabelle 2 (Tooltips),
-  Tabelle 3 (Bedienelemente ohne Wirkung sperren), Sachfehler der Align-Ergebniszeile, the reference program-Erwähnungen in Windows-Texten.
+  Tabelle 3 (Bedienelemente ohne Wirkung sperren), Sachfehler der Align-Ergebniszeile, Erwähnungen des Referenzprogramms in Windows-Texten.
 - Abschnitt „Knopf „Select Recording…““.
 - Abschnitt „Menü „Recent Recordings““.
 
@@ -26,14 +26,15 @@ Ergebnis kommt unter „Umsetzung“ in dieses Ticket.
 
 - [x] Alle Zeilen aus Tabelle 1, die die Windows-Oberfläche betreffen, sind umgesetzt (`app/src/components/*.vue`, `app/src/logic/*.ts`,
       `app/src/App.vue`, `app/src/wavelet.ts`); Projektdatei-Schlüssel und Bezeichner bleiben
-- [x] Tooltips aus Tabelle 2 stehen an Schritten, Aktionsknöpfen, Feldern und Optionen; kein Tooltip trägt einen „the reference program: …“-Zusatz
+- [x] Tooltips aus Tabelle 2 stehen an Schritten, Aktionsknöpfen, Feldern und Optionen; kein Tooltip trägt einen Zusatz mit dem Begriff des Referenzprogramms
 - [x] Bedienelemente aus Tabelle 3 sind gesperrt (gedimmt 45 %, nicht klickbar, Tooltip beginnt mit „Not available yet“); Show-Menü mit
       Abschnittskopf „Not available yet“
 - [x] Ergebniszeile des Schritts Align zeigt „‹n› frames rated“ (Test, der vorher an „best quality“ rot war)
 - [x] Knopf **Select Recording…** im Fuß des Schritts Open und in der Werkzeugleiste, Menü **Recent Recordings**
-- [x] `git grep -n -i "the reference program\|the original" -- app/src app/src-tauri/src` trifft nur Kommentare, Bezeichner und Tests
+- [x] Eine Suche (ohne Beachtung der Groß- und Kleinschreibung) nach dem Namen des Referenzprogramms und nach „the original“ in
+      `app/src` und `app/src-tauri/src` trifft nur Kommentare, Bezeichner und Tests
 - [x] Die drei Abschnitte sind aus `docs/parity/WINDOWS_PARITY.md` gelöscht
-- [x] Probe von Hand als `## RK-016 Texte für Einsteiger (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] Probe von Hand als `## SP-016 Texte für Einsteiger (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
 - [x] `cd app && pnpm test` und `pnpm build` grün, neue oder geänderte Tests einmal rot gesehen
 
 ## Umsetzung

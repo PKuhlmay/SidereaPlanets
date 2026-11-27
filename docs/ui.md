@@ -1,13 +1,13 @@
-# Oberfläche von the reference program
+# Oberfläche des Referenzprogramms
 
-Beobachtet an the reference program.1.0.0 unter Windows 11 (Skin „Office 2007 Silver“). Die Werte wurden aus den laufenden
+Beobachtet am Referenzprogramm, Version 6.1.0.0, unter Windows 11 (Skin „Office 2007 Silver“). Die Werte wurden aus den laufenden
 Bedienelementen ausgelesen und mit Screenshots abgeglichen. Screenshots und Steuerelement-Listen liegen nur lokal in
-`re-local/screenshots/`. Der Klon übernimmt **Aufbau und Begriffe**, nicht den Look (RK-010).
+`re-local/screenshots/`. Der Klon übernimmt **Aufbau und Begriffe**, nicht den Look (SP-010).
 
-**Namen in Siderea Planets (MAC-014).** Dieses Dokument beschreibt die Oberfläche von the reference program mit ihren Begriffen. Wo die App
-einen Bedienbegriff anders nennt, steht er in der Spalte „Name in Siderea Planets“ neben dem the reference program-Begriff, der unverändert
+**Namen in Siderea Planets (MAC-014).** Dieses Dokument beschreibt die Oberfläche des Referenzprogramms mit dessen Begriffen. Wo die App
+einen Bedienbegriff anders nennt, steht er in der Spalte „Name in Siderea Planets“ neben dem Begriff des Referenzprogramms, der unverändert
 bleibt; Listen nennen den App-Namen in „(in der App: …)“. Die App-Namen folgen MAC-014 und der Zuordnung in
-`docs/parity/WINDOWS_PARITY.md` (Abschnitt „Verständliche Texte für Einsteiger“). Regeln dort: kein „the reference program“ und kein „das
+`docs/parity/WINDOWS_PARITY.md` (Abschnitt „Verständliche Texte für Einsteiger“). Regeln dort: kein Name des Referenzprogramms und kein „das
 Original“ in sichtbaren Texten der App, US-Englisch, Title Case für Schaltflächen, Menüs und Gruppenüberschriften, Sentence case
 für Beschriftungen, Häkchen und Tooltips, Einheiten am Feld. Ein „—“ in der Spalte heißt: Name unverändert.
 
@@ -19,7 +19,7 @@ ohne zu korrigieren. Ihre Grenzen gelten deshalb als unbekannt, siehe `docs/offe
 
 | Bereich | Inhalt | Name in Siderea Planets |
 |---|---|---|
-| Titelleiste | „the reference program V6“, nach dem Laden „the reference program processing AVI: ‹Pfad›(‹Codec› vids) (‹B›x‹H›)“ | „Siderea Planets“, mit Aufnahme „Siderea Planets · ‹Dateiname›“, während eines Schritts „Siderea Planets · Align 40%“ |
+| Titelleiste | „‹Programmname› V6“, nach dem Laden „‹Programmname› processing AVI: ‹Pfad›(‹Codec› vids) (‹B›x‹H›)“ | „Siderea Planets“, mit Aufnahme „Siderea Planets · ‹Dateiname›“, während eines Schritts „Siderea Planets · Align 40%“ |
 | Werkzeugleiste | **Select** · **MRU ▾** · **Flat/Dark/Reference ▾** · **Tools ▾** · **Settings ▾** · **Cancel** · **Pause** · **About** · **CPUs:** [Zahl, Standard 1; im Klon Standard = Zahl der logischen Kerne, Bereich 1 bis dahin, siehe Abweichungen in `design.md`] | **Select Recording** · **Recent Recordings ▾** · **Flat/Dark/Reference ▾** · **Tools ▾** · **Settings ▾** · **Open Project…** · **Save Project…** · **Cancel** · **Pause** · **Help** · **About** · **CPU cores to use** |
 | Reiterleiste | **Align** · **Stack** · **Wavelet**, rechts daneben „File Version: 6.1.0.0“, Datum und „Memory Used/Free/Total: …Mb“ | Schrittleiste statt Reiter: **Open · Alignpoints · Align · Best Frames · Stack · Wavelets · Save**, rechts „1024×680 · 10 frames · DIB“ |
 | Bildbereich | Vorschau mit Scrollbalken. Je nach Reiter liegen Punkte oder Rahmen darüber | Bildbereich mit **Show ▾** und im Wavelets-Schritt **Adjust ›**; leer: „Select a recording or drop a video or images here“ / „No image to show yet“ |
@@ -60,7 +60,7 @@ ohne zu korrigieren. Ihre Grenzen gelten deshalb als unbekannt, siehe `docs/offe
 | Swap Red/Blue Channel | Häkchen | aus | — |
 | Wait when loading a single image | Häkchen | aus | — |
 | Maximize during messages | Häkchen | aus | — |
-| Check for the reference program Update | Häkchen | aus (im Klon weglassen) | fehlt |
+| Check for ‹Programmname› Update | Häkchen | aus (im Klon weglassen) | fehlt |
 | Layouts ▸ / Set Skin ▸ | Untermenü | Fensterlayout und Skin (im Klon weglassen) | fehlt; **Theme** (Dark · Light, Mac: folgt macOS) ersetzt Set Skin |
 | Save to Subdir | Textfeld | „Subdirname“ | — |
 | Bias sutract | Zahlenfeld | 0 (Schreibfehler im Original, im Klon „Bias subtract“) | — |

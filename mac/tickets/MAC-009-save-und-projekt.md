@@ -27,7 +27,7 @@
   gespeichertes geschärftes Bild setzt `progress.saved` und öffnet Save (Ergebnis: der Dateiname, „Open another recording“). Nach neuem
   Align, Limit oder Set Alignpoints ist `stacked` weg und Save image gesperrt, bis neu gestapelt ist. Save Aligned und Save Integrated
   brauchen Align und laufen als Lauf `.sequence` (Cancel ⌘., Pause, „Writing frame: n“).
-- Projektdatei wie Windows (`.rkproj`, `crates/io/src/project.rs`): Abschnitte `align` (alle Schlüssel von `settings.align` ohne `threshold`)
+- Projektdatei wie Windows (`.sidereaplanets`, `crates/io/src/project.rs`): Abschnitte `align` (alle Schlüssel von `settings.align` ohne `threshold`)
   und `stack` (die Schlüssel, die der Mac hat, einschließlich Create AVI); beim Öffnen zählt ein Wert nur, wenn der Schlüssel da ist und denselben
   Typ hat (`SectionReader`, wie `mergeKnown`). Fehlende Dateien, leere Aufnahme und neuere Version melden sich wie in Windows. Die Ergebnisse
   stehen nicht in der Datei.

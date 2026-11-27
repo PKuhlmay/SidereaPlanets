@@ -1,4 +1,4 @@
-//! GUI-free image processing for the the reference program clone.
+//! GUI-free image processing for the clone of the reference program.
 
 pub mod align;
 mod batch;

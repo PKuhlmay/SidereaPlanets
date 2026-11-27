@@ -1,7 +1,7 @@
-# RK-018 Go to Best Frame (Windows zieht nach)
+# SP-018 Go to Best Frame (Windows zieht nach)
 
 - Status: erledigt
-- Abhängig von: RK-016, MAC-011
+- Abhängig von: SP-016, MAC-011
 - Stufe: `windows-v0.1.0` (Nachzug zu Mac `v0.1.0`)
 
 ## Ziel
@@ -23,7 +23,7 @@ up on this one.“
       wird verworfen (Test)
 - [x] Hinweis über dem Threshold-Regler, bis Set Alignpoints, Align oder ein neues Öffnen ihn löscht (Test)
 - [x] Abschnitt aus `docs/parity/WINDOWS_PARITY.md` gelöscht
-- [x] Probe von Hand als `## RK-018 Go to Best Frame (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] Probe von Hand als `## SP-018 Go to Best Frame (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
 - [x] `cd app && pnpm test` und `pnpm build` grün, neue oder geänderte Tests einmal rot gesehen
 
 ## Umsetzung

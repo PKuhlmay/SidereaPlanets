@@ -1,7 +1,7 @@
-# RK-003 Original analysieren und Spezifikation anlegen
+# SP-003 Original analysieren und Spezifikation anlegen
 
 - Status: erledigt
-- Abhängig von: Installation von the reference program durch Philipp
+- Abhängig von: Installation des Referenzprogramms durch Philipp
 
 ## Ziel
 Das Original dokumentieren, damit der Klon nachprüfbar gebaut werden kann.
@@ -19,9 +19,9 @@ Das Original dokumentieren, damit der Klon nachprüfbar gebaut werden kann.
   ihre Grenzen bleiben offen (`docs/offene-fragen.md`, Punkt 1).
 - Referenzfall R1 (Jupiter, Standardwerte) mit Summenbild und zwei Wavelet-Ergebnissen liegt in `re-local/reference/`,
   Screenshots und Steuerelement-Listen in `re-local/screenshots/`.
-- Folgepunkte: Die Panels unter „Functions“ gehören zu RK-008. RK-006 erwähnt einen Optimierungsschritt, den
-  the reference program nicht mehr hat (`docs/offene-fragen.md`, Punkt 17).
-- Hinweis zur Bedienung per Skript: Ein normal gestartetes the reference program lief mit erhöhten Rechten und nahm keine
+- Folgepunkte: Die Panels unter „Functions“ gehören zu SP-008. SP-006 erwähnt einen Optimierungsschritt, den
+  Version 6 des Referenzprogramms nicht mehr hat (`docs/offene-fragen.md`, Punkt 17).
+- Hinweis zur Bedienung per Skript: Das normal gestartete Referenzprogramm lief mit erhöhten Rechten und nahm keine
   simulierten Eingaben an. Gestartet mit `__COMPAT_LAYER=RunAsInvoker` lässt es sich bedienen. Die Einstellungen
   landen dann im VirtualStore des Benutzers.
 
@@ -29,4 +29,4 @@ Das Original dokumentieren, damit der Klon nachprüfbar gebaut werden kann.
 - `re-local/testdata/astropix/` — `CLAVIUS.AVI`, `JUPITER.AVI` (je ~21 MB), `SUNSPOTS.AVI` (~9 MB), Übungsvideos aus dem Buch
   „Guide to Digital Planetary Imaging“ von astropix.com. Nur zum Lernen/Testen, nicht weitergeben und nicht committen.
   Quelle: https://www.astropix.com/books/GDPI/CHAPTERZ/Z04.HTM
-- Sind AVI, keine SER: Für den Klon braucht es dafür den AVI-Leser aus RK-004.
+- Sind AVI, keine SER: Für den Klon braucht es dafür den AVI-Leser aus SP-004.

@@ -59,7 +59,7 @@ After **Done** the image shows the rectangle with a dimmed outside, and the Save
 
 ## Saving a project
 
-A project remembers your session: the recording and the settings of the steps (alignpoint settings, stacking options, wavelet layers, color). Save it with **Save Project…** in the toolbar and open it again later with **Open Project…**. Both buttons sit to the right of the menus; **Save Project…** is locked until a recording is open, and both are locked while a calculation runs. Project files end in `.rkproj`.
+A project remembers your session: the recording and the settings of the steps (alignpoint settings, stacking options, wavelet layers, color). Save it with **Save Project…** in the toolbar and open it again later with **Open Project…**. Both buttons sit to the right of the menus; **Save Project…** is locked until a recording is open, and both are locked while a calculation runs. Project files end in `.sidereaplanets`.
 
 When you open a project and a recording file has been moved or deleted, Siderea Planets tells you which file is missing. The images themselves are not stored in the project; Align and Stack run again on the recording. The Wavelets step stays locked until Stack has run, so the layer values of the project are kept for that first stacked image, even when **Keep layer values for a new stack** is off; you see them again as soon as the Wavelets step opens. A second stacked image puts the layers back to their start values as usual.
 

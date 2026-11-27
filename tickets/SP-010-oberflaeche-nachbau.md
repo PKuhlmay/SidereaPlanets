@@ -1,12 +1,12 @@
-# RK-010 Oberfläche nach Vorbild des Originals
+# SP-010 Oberfläche nach Vorbild des Originals
 
 - Status: in Arbeit (Oberfläche umgesetzt; offen: Abgleich der Menüs und der Interaktionen im laufenden Fenster, Testlauf, Abbrechen mit echter Berechnung)
-- Abhängig von: RK-002, RK-003
+- Abhängig von: SP-002, SP-003
 
 ## Ziel
 Modernes Erscheinungsbild. Das Design ist in `docs/design.md` festgelegt (Tokens, klickbarer Entwurf und Soll-Bilder in `docs/design/`); separate Agenten setzen es im Frontend unter `app/src` um. Das Gerüst dafür (Tauri + Vue) steht, die UI ist nur ein Platzhalter.
 
-Gleicher Aufbau und gleiche Begriffe wie im Original, sodass bisherige the reference program-Nutzer sich sofort zurechtfinden.
+Gleicher Aufbau und gleiche Begriffe wie im Original, sodass sich bisherige Nutzer des Referenzprogramms sofort zurechtfinden.
 
 ## Akzeptanzkriterien
 - [x] Design festgelegt: `docs/design.md`, `docs/design/tokens.css`, klickbarer Entwurf und zwölf Soll-Bilder
@@ -23,7 +23,7 @@ Gleicher Aufbau und gleiche Begriffe wie im Original, sodass bisherige the refer
 - Reine Logik (Sperrlogik, Zahlenfelder, Zoom/Pan-Rechnung, Diagramm, MRU, Standardwerte) liegt in `app/src/logic/` mit vitest-Tests daneben.
 - Angebunden ans Backend: Select (`open_recording`), Frame-Leiste (`read_frame`), Cancel und Pause (`cancel_processing`, `pause_processing`).
 - Die Schaltflächen, deren Rechenkern fehlt, stehen im richtigen Zustand und melden „not available yet“. Die Anbindung ist eine Stelle:
-  `app/src/actions.ts` (Tabelle `handlers`, Zuordnung zu RK-005 bis RK-009 im Dateikopf). Ein Handler startet seine Rechnung mit `runJob`
+  `app/src/actions.ts` (Tabelle `handlers`, Zuordnung zu SP-005 bis SP-009 im Dateikopf). Ein Handler startet seine Rechnung mit `runJob`
   (`app/src/jobs.ts`): Fortschritt, Zeiten, Fenstertitel, Cancel und Pause laufen dann von selbst. Ergebnisse gehören in `session` und
   `status` (`app/src/state.ts`): `session.step` schaltet Schritte und Reiter, `session.alignpoints`, `session.frames`, `session.stackImage`,
   `session.processedImage` füllen Bild, Karten und Marken. Die Werte der Bedienelemente stehen in `settings`.
@@ -53,8 +53,8 @@ Gleicher Aufbau und gleiche Begriffe wie im Original, sodass bisherige the refer
   Frame lagen; (2) ein neuer Stack ließ das alte geschärfte Bild für Save image im Wavelet-Reiter stehen (`ExportState::set_stack`); (3) getippte
   Kommazahlen oder negative Werte in ganzzahligen Feldern (Abstände, Boxgröße, Anzahl, Initial Layer, Step Increment, Max shift) ließen die Befehle mit einem
   Deserialisierungsfehler scheitern; (4) die Referenztests fanden `re-local/` in einem Worktree nicht und übersprangen sich (`tests/common/mod.rs`).
-- Abgleich mit Soll-Bildern 02 und 07 (Edge ohne Fenster, Dev-Vorschau): Aufbau und Maße stimmen; Unterschiede sind die Help-Schaltfläche (RK-012),
+- Abgleich mit Soll-Bildern 02 und 07 (Edge ohne Fenster, Dev-Vorschau): Aufbau und Maße stimmen; Unterschiede sind die Help-Schaltfläche (SP-012),
   die fehlende Speicherangabe (bewusst ausgelassen) und eine Pixelzeile Höhenversatz der Werkzeugleiste.
 - Offen: Do All und Process lassen sich nicht abbrechen (kein Abbruch-Flag im Rust-Befehl, Cancel verwirft nur das Ergebnis); die Farb- und Tonkarten
-  fließen nicht in Do All und Save image ein (RK-008/RK-009); ein zweites Align ist nach dem Design nicht vorgesehen (Schaltflächen gesperrt, Zustandstabelle).
+  fließen nicht in Do All und Save image ein (SP-008/SP-009); ein zweites Align ist nach dem Design nicht vorgesehen (Schaltflächen gesperrt, Zustandstabelle).
 - UI-Prüflauf der Release-App (2026-11-12), behoben: Bild wird bei jedem Schrittwechsel neu eingepasst und ein Klick ohne Ziehen hebt das Mitfolgen der Fläche nicht mehr auf (Zoom blieb nach Wavelets bei 73 %); Fortschrittsbalken steht außerhalb einer Berechnung auf 0 % (auch nach Abbruch und Fehler); Limit meldet „Stacksize: n  Low quality: x.xx%“ (Bedeutung von Low quality ist eine Vermutung, `docs/workflow.md`); die Vorschau des Processing Area läuft nur noch im Schritt Wavelets und nicht, solange ein Do All für die Werte vorliegt (der Wechsel nach Save ersetzte das Do-All-Bild durch Summenbild plus Ausschnitt und überschrieb „Do All finished“); Save image trägt in Stack und Save den Pfeil nach unten. „Advanced 8 more settings“ im Schritt Wavelets bleibt: es zählen die Einstellungen wie in den anderen Schritten, das Soll-Bild zählt mit Load Scheme, Save Scheme, Realign und Stack Again 12; alle Felder aus `docs/ui.md` sind vorhanden.

@@ -40,8 +40,8 @@ extension Color {
     }
 }
 
-/// Colours, named like the CSS variables (`--panel` is `RK.panel`).
-enum RK {
+/// Colours, named like the CSS variables (`--panel` is `SP.panel`).
+enum SP {
     // surfaces: neutral greys without tint, so the UI does not shift the perceived image colours
     static let bg = Color(dark: RGBA(0x141518), light: RGBA(0xE9EBEF))
     static let panel = Color(dark: RGBA(0x1C1D21), light: RGBA(0xF6F7F9))
@@ -83,7 +83,7 @@ enum RK {
 }
 
 /// Sizes and radii of tokens.css and the bar heights of docs/design.md ("Fensteraufbau").
-enum RKMetrics {
+enum SPMetrics {
     static let radius: CGFloat = 6  // --r: buttons, segments
     static let radiusSmall: CGFloat = 4  // --r-s: fields, menu items
     static let radiusLarge: CGFloat = 8  // --r-l: menus, floating cards, zoom bar
@@ -105,9 +105,9 @@ enum RKMetrics {
 
 extension Font {
     /// The system font at the base size of the design (13 pt); the digits do not jump when a value changes.
-    static let rk = Font.system(size: RKMetrics.fontSize).monospacedDigit()
-    static let rkSmall = Font.system(size: RKMetrics.fontSizeSmall).monospacedDigit()
-    static func rk(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
+    static let sp = Font.system(size: SPMetrics.fontSize).monospacedDigit()
+    static let spSmall = Font.system(size: SPMetrics.fontSizeSmall).monospacedDigit()
+    static func sp(_ size: CGFloat, _ weight: Font.Weight = .regular) -> Font {
         .system(size: size, weight: weight).monospacedDigit()
     }
 }

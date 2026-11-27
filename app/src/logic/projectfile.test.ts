@@ -77,7 +77,7 @@ describe("Align by center of gravity in the project file (same keys as the Mac a
   });
 });
 
-describe("De-rotate images in the project file (RK-023, same keys as the Mac app)", () => {
+describe("De-rotate images in the project file (SP-023, same keys as the Mac app)", () => {
   it("stores the settings in the section derotation, not in the section stack, and reads them back", () => {
     const saved = createSettings();
     Object.assign(saved.stack, { derotate: true, planet: "mars", cameraAngle: 33.5, mirrored: true, startTime: 1_700_000_000.25 });
@@ -138,7 +138,7 @@ describe("Color Mixing and the refine cards in the project file (same keys as th
   });
 });
 
-describe("Flip and Rotate and Resize Image in the project file (RK-022, section geometry like the Mac app)", () => {
+describe("Flip and Rotate and Resize Image in the project file (SP-022, section geometry like the Mac app)", () => {
   it("writes the section geometry and reads it back, cut to the limits", () => {
     const saved = createSettings();
     Object.assign(saved.geometry.orientation, { flipVertical: true, angle: -12.5 });

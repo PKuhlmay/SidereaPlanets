@@ -13,17 +13,17 @@ struct SaveStepView: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("Saves the sharpened stack with your color and tone settings.")
-                    .font(.rkSmall)
-                    .foregroundStyle(RK.muted)
+                    .font(.spSmall)
+                    .foregroundStyle(SP.muted)
                 if !model.progress.waveletsDone {
                     Text("Your latest changes are applied to the whole image first (Do All).")
-                        .font(.rkSmall)
-                        .foregroundStyle(RK.muted)
+                        .font(.spSmall)
+                        .foregroundStyle(SP.muted)
                 }
             }
-            RK.line.frame(height: 1)
+            SP.line.frame(height: 1)
             CropSection(model: model)
-            RK.line.frame(height: 1)
+            SP.line.frame(height: 1)
             SizeSection(model: model)
         }
     }
@@ -50,7 +50,7 @@ struct SaveImageMenu: View {
             }
         }
         .menuStyle(.button)
-        .buttonStyle(filled ? .rkFilled : .rkWide)
+        .buttonStyle(filled ? .spFilled : .spWide)
         .disabled(!model.canSaveImage)
         .help("Saves the image as a file; choose the file type first.")
     }
@@ -63,12 +63,12 @@ struct CreateAviSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            RK.line.frame(height: 1).padding(.vertical, 4)
+            SP.line.frame(height: 1).padding(.vertical, 4)
             GroupHeading(title: "Create AVI")
                 .help("Saves the aligned frames as a video, for example for animations or other software.")
             // Locked: the video is always written uncompressed.
             HStack {
-                Text("Codec").font(.rk).foregroundStyle(RK.off)
+                Text("Codec").font(.sp).foregroundStyle(SP.off)
                 Spacer(minLength: 4)
                 Picker("Codec", selection: $model.stackOptions.codec) {
                     ForEach(aviCodecs, id: \.self) { Text($0).tag($0) }
@@ -82,13 +82,13 @@ struct CreateAviSection: View {
             wideFieldRow("Compression quality", value: $model.stackOptions.compressQuality, isLocked: true)
             wideFieldRow("Frame rate (fps)", value: $model.stackOptions.framerate)
 
-            Text("Aligned video").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 6)
+            Text("Aligned video").font(.spSmall).foregroundStyle(SP.muted).padding(.top, 6)
             VStack(alignment: .leading, spacing: 2) {
                 Button("Save Aligned Video…") { Task { await model.chooseAndSaveVideo(.aligned) } }
-                    .buttonStyle(.rk)
+                    .buttonStyle(.sp)
                     .disabled(!model.canSaveVideo)
                     .help("Saves the kept frames, aligned, as an AVI video.")
-                Text("Frame size").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 2)
+                Text("Frame size").font(.spSmall).foregroundStyle(SP.muted).padding(.top, 2)
                 VStack(alignment: .leading, spacing: 0) {
                     // Only the original size is written (docs/formats.md, "Create AVI"), so it is always the one that is on.
                     RadioRow(title: AlignedSize.original.label, isSelected: true) {}
@@ -102,10 +102,10 @@ struct CreateAviSection: View {
                 PanelCheckbox(title: "Use prefilters", isOn: .constant(false), isLocked: true)
             }
 
-            Text("Averaged video").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 6)
+            Text("Averaged video").font(.spSmall).foregroundStyle(SP.muted).padding(.top, 6)
             VStack(alignment: .leading, spacing: 2) {
                 Button("Save Averaged Video…") { Task { await model.chooseAndSaveVideo(.integrated) } }
-                    .buttonStyle(.rk)
+                    .buttonStyle(.sp)
                     .disabled(!model.canSaveVideo)
                     .help("Saves a video in which each frame is the average of several aligned frames in a row; the number is set below.")
                 VStack(alignment: .leading, spacing: 0) {
@@ -120,9 +120,9 @@ struct CreateAviSection: View {
                 }
             }
             HStack(spacing: 6) {
-                Text("Average of").font(.rk).foregroundStyle(RK.text)
+                Text("Average of").font(.sp).foregroundStyle(SP.text)
                 NumberField(label: "Average of n frames", value: $model.stackOptions.averageFrames, width: 38)
-                Text("frames").font(.rk).foregroundStyle(RK.text)
+                Text("frames").font(.sp).foregroundStyle(SP.text)
             }
         }
     }
@@ -130,7 +130,7 @@ struct CreateAviSection: View {
     /// A label with a field wide enough for four digits (Compression quality starts at 7500).
     private func wideFieldRow(_ title: String, value: Binding<Int>, isLocked: Bool = false) -> some View {
         HStack(spacing: 4) {
-            Text(title).font(.rk).foregroundStyle(isLocked ? RK.off : RK.text).lineLimit(1)
+            Text(title).font(.sp).foregroundStyle(isLocked ? SP.off : SP.text).lineLimit(1)
             Spacer(minLength: 0)
             NumberField(label: title, value: value, width: 56)
                 .disabled(isLocked)

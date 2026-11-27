@@ -1,4 +1,4 @@
-// De-rotate images in the window (RK-023), on a fake backend: what a new recording suggests, when span, rotation and disc
+// De-rotate images in the window (SP-023), on a fake backend: what a new recording suggests, when span, rotation and disc
 // are asked for again, and what the panel and the image area get from the answer. Ported from the Mac's DerotationModelTests.
 
 import { beforeEach, describe, expect, it, vi } from "vitest";

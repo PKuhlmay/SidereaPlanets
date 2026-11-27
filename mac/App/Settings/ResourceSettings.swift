@@ -20,8 +20,8 @@ struct ResourceSettingsSection: View {
         Section("Status Bar") {
             Toggle("Show CPU and memory usage", isOn: $isShown)
             Text("CPU load of this app as a share of all cores and the memory it holds, at the left end of the status bar.")
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
+                .font(.spSmall)
+                .foregroundStyle(SP.muted)
                 .fixedSize(horizontal: false, vertical: true)
         }
     }

@@ -2,11 +2,11 @@
 // locked and says "Not available yet" in its tooltip (MAC-014); should an action without a handler run anyway, it
 // reports that in the status bar. A ticket that builds a function registers its handler here.
 //
-//   RK-005  setAlignpoints, align, limit, regionOfInterest
-//   RK-006  stack
-//   RK-007  process, doAll, loadScheme, saveScheme (registered below, wavelet.ts); resetWavelets is done in the panel
-//   RK-008  functions panels, copyTo, loadTo, difference
-//   RK-009  saveImage, saveAligned, saveIntegrated (saving.ts); the
+//   SP-005  setAlignpoints, align, limit, regionOfInterest
+//   SP-006  stack
+//   SP-007  process, doAll, loadScheme, saveScheme (registered below, wavelet.ts); resetWavelets is done in the panel
+//   SP-008  functions panels, copyTo, loadTo, difference
+//   SP-009  saveImage, saveAligned, saveIntegrated (saving.ts); the
 //           darkframe/flatfield/reference menu entries are still open
 //
 // Buttons whose function does not exist (No Align, Scan Frames, Realign with Processed, the Preview button of a layer,

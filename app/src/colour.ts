@@ -1,4 +1,4 @@
-// The colour and tone cards and Copy To (RK-008): sends the base image and the card values to the engine and shows the
+// The colour and tone cards and Copy To (SP-008): sends the base image and the card values to the engine and shows the
 // result in the Wavelet tab. The values are applied to the base image, never on top of each other.
 
 import { invoke } from "@tauri-apps/api/core";

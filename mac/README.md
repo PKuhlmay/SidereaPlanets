@@ -1,7 +1,7 @@
 # Siderea Planets für den Mac
 
-Die App heißt für Nutzer **Siderea Planets** (MAC-013); „SidereaPlanets“ bleibt der interne Name von Repo, Xcode-Ziel und -Schema und
-Swift-Modul (`PRODUCT_NAME` ist „Siderea Planets“, `PRODUCT_MODULE_NAME` „SidereaPlanets“).
+Die App heißt für Nutzer **Siderea Planets** (MAC-013); Repo, Xcode-Ziel und -Schema sowie Swift-Modul heißen ohne Leerzeichen
+„SidereaPlanets“ (`PRODUCT_NAME` ist „Siderea Planets“, `PRODUCT_MODULE_NAME` „SidereaPlanets“).
 
 Native Mac-App in **SwiftUI** auf dem gemeinsamen **Rust-Kern** (`crates/`), analog zu Siderea: Die Mac-App führt, die Windows-App
 (`app/`, Tauri und Vue) zieht nach. Die Mac-App entsteht mit
@@ -18,7 +18,7 @@ mac/
     Commands/            HelpCommands (Help ⌘?, About), StepMenuItems (Process > Go to Step, ⌥⌘1 bis ⌥⌘7); weitere Menüpunkte (Save …) kommen hier oder in AppCommands dazu
     Help/                Hilfe-Fenster (MAC-010): DocPage (Kopf, Gruppen, Suche), MarkdownHTML (Renderer), DocStyle (CSS aus den Tokens), HelpModel, HelpView, DocWebView (WKWebView)
     Settings/            Einstellungen (⌘,): CpuSettings (CPUs, Klemmung, Kern), SettingsView
-    Design/              Tokens.swift (Spiegel von docs/design/tokens.css, hell und dunkel), RKButtonStyle
+    Design/              Tokens.swift (Spiegel von docs/design/tokens.css, hell und dunkel), SPButtonStyle
     Model/               AppModel (@Observable, MainActor: Sitzung, Schritt, Frame, Bild, Statustexte), AppModel+Align (Set Alignpoints, Align,
                          Limit, Cancel, Pause, Framelist), AlignLogic (Werte, Diagramm, Meldungen), AppModel+Stack (Stack, Karte
                          Alignmentpoints, Ringe), StackLogic (Werte, Anfrage, Texte, Abschnitt derotation), AppModel+Derotation (De-rotate images, MAC-020), StepLogic (Schrittzustände),
@@ -129,7 +129,7 @@ Originals (`re-local/reference/`, nicht in Git) liegen nur auf dem Windows-Rechn
 
 ## Arbeitsweise
 
-- **Commit-Regeln:** `[TYPE] MAC-NNN - Message` für Mac-Tickets, `[TYPE] RK-NNN - Message` für die Windows-App und den Kern. Der
+- **Commit-Regeln:** `[TYPE] MAC-NNN - Message` für Mac-Tickets, `[TYPE] SP-NNN - Message` für die Windows-App und den Kern. Der
   Commit-Hook `.githooks/commit-msg` verlangt bei jeder Änderung an `mac/` einen Eintrag in `docs/parity/WINDOWS_PARITY.md` (Windows
   muss es nachziehen) oder löscht einen Punkt aus `docs/parity/MAC_PARITY.md`; ohne sichtbare Wirkung trägt der Commit `[mac-only]`.
 - **Hook aktivieren:** einmal je Klon `git config core.hooksPath .githooks`. Die Dateien in `.githooks/` und `scripts/*.sh` müssen
@@ -155,9 +155,7 @@ Hook startet es im Hintergrund; nur der Haupt-Checkout auf `main` löst aus (Wor
   neue gestartet; schlägt er fehl, läuft die alte weiter und der Fehler steht im Protokoll.
 - Solange es `mac/project.yml` nicht gibt, meldet das Skript „mac/project.yml missing, nothing to deploy“ und endet ohne Fehler.
 - Protokoll: `deploy-mac.log` im Repo-Stamm (nicht in Git).
-- Das Bündel heißt `Siderea Planets.app`. Beim Neustart beendet das Skript außerdem eine noch laufende App aus dem alten Bündel
-  `SidereaPlanets.app` (Name vor MAC-013), entregistriert es bei LaunchServices (`lsregister -u`) und löscht es, damit nie zwei Apps
-  nebeneinander liegen.
+- Das Bündel heißt `Siderea Planets.app`.
 - Von Hand: `scripts/deploy-mac.sh --run`. Ausschalten: `DEPLOY_DEBUG=0`. Mit `DEPLOY_TESTS=1` läuft vorher
   `cargo test --workspace` (sonst aus, wie bei der Windows-App).
 - Läuft gerade ein Deploy, merkt sich ein weiterer Commit das und der Deploy geht danach noch einmal durch.
@@ -177,7 +175,7 @@ xcodebuild test -project mac/SidereaPlanets.xcodeproj -scheme SidereaPlanets -de
 scripts/deploy-mac.sh --run                   # alles zusammen, dann die App neu starten
 ```
 
-- Bundle-ID `de.kuhlmay.siderea.planets` (vor MAC-013 `de.kuhlmay.sidereaplanets`; die Einstellungen und die MRU-Liste liegen im neuen Bundle-ID-Bereich der UserDefaults und beginnen leer), Bündel `Siderea Planets.app`, `MARKETING_VERSION` 0.1.0, macOS 14 oder neuer, Swift 6 (strikte Nebenläufigkeit), Signierung
+- Bundle-ID `de.kuhlmay.siderea.planets` (seit MAC-013; die Einstellungen und die MRU-Liste liegen im Bereich dieser Bundle-ID in den UserDefaults und begannen mit dem Wechsel leer), Bündel `Siderea Planets.app`, `MARKETING_VERSION` 0.1.0, macOS 14 oder neuer, Swift 6 (strikte Nebenläufigkeit), Signierung
   ad-hoc („Sign to Run Locally“, `CODE_SIGN_IDENTITY: "-"`).
 - Zu jedem Commit der App gehören die Tests grün (`xcodebuild test` oben, dazu `swift test` im Paket) und ein Bau ohne Warnungen im
   eigenen Swift.
@@ -234,7 +232,7 @@ und ist nicht in Git. Es dauert einige Minuten, weil der Kern zweimal gebaut wir
 | MAC-011 | Go to best frame | erledigt |
 | MAC-012 | App-Icon (beide Apps, Debug mit DEV-Abzeichen) | erledigt |
 | MAC-013 | Name „Siderea Planets“ in beiden Apps | erledigt |
-| MAC-014 | Texte für Einsteiger (klare Namen, Tooltips, gesperrte Elemente, kein „the reference program“ in sichtbaren Texten) | erledigt |
+| MAC-014 | Texte für Einsteiger (klare Namen, Tooltips, gesperrte Elemente, kein Name des Referenzprogramms in sichtbaren Texten) | erledigt |
 | MAC-015 | CPU- und RAM-Anzeige in der Statusleiste, optimierter Kern im Debug-Build | erledigt |
 | MAC-016 | Zuschneiden vor dem Speichern (Free, 1:1, 3:2, 4:3, Fadenkreuz in der Mitte) | erledigt |
 | MAC-018 | Adjustments „Denoise/Deringing“ und „Masking“ | erledigt |

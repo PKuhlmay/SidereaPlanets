@@ -19,7 +19,7 @@ Masking“), zeigen eine Live-Vorschau wie die übrigen Karten und wirken auf Do
 ## Akzeptanzkriterien
 
 - [x] Nur diese zwei Schaltflächen sind freigeschaltet, die übrigen bleiben gesperrt; Texte nach den Regeln von MAC-014 (US-Englisch,
-      Title Case für Knöpfe, Sentence case für Felder und Tooltips, Einheiten an den Feldern, kein „the reference program“)
+      Title Case für Knöpfe, Sentence case für Felder und Tooltips, Einheiten an den Feldern, kein Name des Referenzprogramms)
 - [x] Rechenkern: Stärke 0 und Maske aus geben das Bild bitgleich zurück; Deringing macht kein Pixel dunkler und hebt nie über das lokale
       Minimum des Originals hinaus an, ändert nichts an schwachen Kanten; Maske 0 und 1 an den Extremen exakt, Feather steigt stetig und die
       Kante wird mit dem Radius breiter

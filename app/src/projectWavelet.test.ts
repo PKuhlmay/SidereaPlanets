@@ -52,7 +52,7 @@ function projectWith(hold: boolean) {
   const layers = Array.from({ length: 6 }, defaultLayer);
   layers[0].level = 100;
   return {
-    path: "C:/data/JUPITER.rkproj",
+    path: "C:/data/JUPITER.sidereaplanets",
     project: { formatVersion: 1, recording: ["C:/data/JUPITER.AVI"], sections: { wavelet: { hold, layers } } },
     missingFiles: [],
   };

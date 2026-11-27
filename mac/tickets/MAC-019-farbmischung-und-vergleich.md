@@ -32,7 +32,7 @@ Zwei weitere Knöpfe des Panels Adjustments im Schritt Wavelets (Philipp, 2026-1
       Zoom und gleiche Lage; die Linie bleibt innerhalb von 2 … 98 % der Breite; Schaltfläche stellt sich auf Gedrückt
 - [x] Before/After der Zoom-Leiste und View Compare schließen sich aus (Before beendet die Teilung, View Compare beendet Before)
 - [x] Wortlaut nach den Regeln von MAC-014 (US-Englisch, Schaltflächen in Title Case, Beschriftungen und Tooltips in Sentence case,
-      Einheiten, kein „the reference program“); nur diese zwei Knöpfe entsperrt
+      Einheiten, kein Name des Referenzprogramms); nur diese zwei Knöpfe entsperrt
 - [x] Swift-Tests: Kartenzustand, Presets, Kern-Einheiten, Projekt-Rundlauf, Teilung ein und aus, Grenzen der Linie (alle erst rot)
 - [x] Hilfeseiten (`color-and-tones.md`, `image-area.md`, `step-wavelets-save.md`, `save-and-export.md`, `glossary.md`), `docs/design.md`
       und `docs/parity/WINDOWS_PARITY.md` (Windows baut Karte und Teilung nach)

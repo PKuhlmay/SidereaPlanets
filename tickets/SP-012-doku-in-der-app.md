@@ -1,7 +1,7 @@
-# RK-012 Anwenderdoku in der App
+# SP-012 Anwenderdoku in der App
 
 - Status: erledigt
-- Abhängig von: RK-010
+- Abhängig von: SP-010
 
 ## Ziel
 Die Anwenderdoku ist in der App über die UI erreichbar, im gleichen Design wie die übrige Oberfläche. Die Regel „Doku in jedem Commit mitpflegen“ steht in der `CLAUDE.md` („Doku in der App“); dieses Ticket schafft die Grundlage dafür.
@@ -17,5 +17,5 @@ Im Design (`docs/design.md`) fehlt dafür bisher ein Einstieg: Die Werkzeugleist
 - [x] Erste Seiten geschrieben für das, was schon läuft: Aufnahme wählen (SER, AVI), Oberfläche im Überblick
 - [x] Doku bleibt auf Anwenderebene (Bedienung und Ergebnis); Reverse-Engineering-Notizen bleiben in `docs/`
 
-## Hinweis für RK-010
-Die Doku-Ansicht ist in den Platzhalter `App.vue` eingehängt (Help-Schalter, `v-show` für die Arbeitsansicht). Baut RK-010 die echte Werkzeugleiste, wandert der Help-Schalter dorthin; `app/src/docs/DocsView.vue` bleibt unverändert und meldet das Schließen per `close`.
+## Hinweis für SP-010
+Die Doku-Ansicht ist in den Platzhalter `App.vue` eingehängt (Help-Schalter, `v-show` für die Arbeitsansicht). Baut SP-010 die echte Werkzeugleiste, wandert der Help-Schalter dorthin; `app/src/docs/DocsView.vue` bleibt unverändert und meldet das Schließen per `close`.

@@ -17,7 +17,7 @@ struct ImageArea: View {
     var body: some View {
         let viewport = model.viewport
         ZStack {
-            RK.canvas
+            SP.canvas
             ImageCanvas(
                 image: model.shownImage, beforeImage: model.compareBeforeImage, divider: model.wavelet.compareDivider,
                 transform: viewport.transform, viewport: viewport,
@@ -27,8 +27,8 @@ struct ImageArea: View {
             )
             if model.shownImage == nil {
                 Text(model.hasRecording ? "No image to show yet" : "Select a recording or drop a video or images here")
-                    .font(.rk)
-                    .foregroundStyle(RK.onCanvas.opacity(0.6))
+                    .font(.sp)
+                    .foregroundStyle(SP.onCanvas.opacity(0.6))
             } else {
                 if showsFrameMarks || isStackStep || isWaveletView {
                     ImageOverlays(
@@ -82,12 +82,12 @@ struct ImageArea: View {
     private var caption: some View {
         if let text = model.imageCaption {
             Text(text)
-                .font(.rk(RKMetrics.fontSizeSmall, .medium))
-                .foregroundStyle(RK.onCanvas)
+                .font(.sp(SPMetrics.fontSizeSmall, .medium))
+                .foregroundStyle(SP.onCanvas)
                 .padding(.horizontal, 10)
                 .frame(height: 28)
-                .background(RK.canvasChrome, in: RoundedRectangle(cornerRadius: RKMetrics.radiusLarge))
-                .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusLarge).strokeBorder(RK.canvasLine, lineWidth: 1) }
+                .background(SP.canvasChrome, in: RoundedRectangle(cornerRadius: SPMetrics.radiusLarge))
+                .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusLarge).strokeBorder(SP.canvasLine, lineWidth: 1) }
                 .padding(10)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .allowsHitTesting(false)
@@ -114,12 +114,12 @@ private struct ShowMenu: View {
         let isOn = model.wavelet.functionsOpen
         return Button { model.wavelet.functionsOpen.toggle() } label: {
             Text("Adjust ›")
-                .font(.rk(RKMetrics.fontSizeSmall, .medium))
-                .foregroundStyle(isOn ? RK.accentInk : RK.onCanvas)
+                .font(.sp(SPMetrics.fontSizeSmall, .medium))
+                .foregroundStyle(isOn ? SP.accentInk : SP.onCanvas)
                 .padding(.horizontal, 10)
                 .frame(height: 28)
-                .background(isOn ? RK.accentSoft : RK.canvasChrome, in: RoundedRectangle(cornerRadius: RKMetrics.radiusLarge))
-                .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusLarge).strokeBorder(isOn ? RK.accent : RK.canvasLine, lineWidth: 1) }
+                .background(isOn ? SP.accentSoft : SP.canvasChrome, in: RoundedRectangle(cornerRadius: SPMetrics.radiusLarge))
+                .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusLarge).strokeBorder(isOn ? SP.accent : SP.canvasLine, lineWidth: 1) }
         }
         .buttonStyle(.plain)
         .help("Show or hide the panel with color, tone and other image adjustments")
@@ -161,14 +161,14 @@ private struct ShowMenu: View {
             }
         } label: {
             HStack(spacing: 5) {
-                Text("Show").font(.rk(RKMetrics.fontSizeSmall, .medium))
+                Text("Show").font(.sp(SPMetrics.fontSizeSmall, .medium))
                 Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
             }
-            .foregroundStyle(RK.onCanvas)
+            .foregroundStyle(SP.onCanvas)
             .padding(.horizontal, 10)
             .frame(height: 28)
-            .background(RK.canvasChrome, in: RoundedRectangle(cornerRadius: RKMetrics.radiusLarge))
-            .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusLarge).strokeBorder(RK.canvasLine, lineWidth: 1) }
+            .background(SP.canvasChrome, in: RoundedRectangle(cornerRadius: SPMetrics.radiusLarge))
+            .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusLarge).strokeBorder(SP.canvasLine, lineWidth: 1) }
         }
         .menuStyle(.button)
         .buttonStyle(.plain)
@@ -189,16 +189,16 @@ private struct ZoomBar: View {
             ZoomButton("−", help: "Zoom out (⌘-)", label: "Zoom out") { viewport.zoom(by: 1 / 1.25) }
             ZoomButton(viewport.transform.label, help: "Show at 100% (⌘1)", label: "Zoom, show at 100 percent") { viewport.showActualSize() }
             ZoomButton("+", help: "Zoom in (⌘+)", label: "Zoom in") { viewport.zoom(by: 1.25) }
-            RK.canvasLine.frame(width: 1, height: 16).padding(.horizontal, 3)
+            SP.canvasLine.frame(width: 1, height: 16).padding(.horizontal, 3)
             ZoomButton("Fit", help: "Fit the image into the area (⌘0)", label: "Fit") { viewport.fit() }
             if let before {
                 ZoomButton("Before/After", help: "Switch between the stack without any sharpening and the sharpened image. Turns off View Compare", label: "Before and after", isOn: before.wrappedValue) { before.wrappedValue.toggle() }
             }
         }
         .padding(3)
-        .background(RK.canvasChrome, in: RoundedRectangle(cornerRadius: RKMetrics.radiusLarge))
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: RKMetrics.radiusLarge))
-        .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusLarge).strokeBorder(RK.canvasLine, lineWidth: 1) }
+        .background(SP.canvasChrome, in: RoundedRectangle(cornerRadius: SPMetrics.radiusLarge))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: SPMetrics.radiusLarge))
+        .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusLarge).strokeBorder(SP.canvasLine, lineWidth: 1) }
         .padding(12)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
     }
@@ -223,11 +223,11 @@ private struct ZoomButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.rk)
-                .foregroundStyle(isOn ? RK.accent : RK.onCanvas)
+                .font(.sp)
+                .foregroundStyle(isOn ? SP.accent : SP.onCanvas)
                 .padding(.horizontal, 8)
                 .frame(minWidth: 26, minHeight: 24)
-                .background(isOn ? RK.accent.opacity(0.18) : (isHovering ? Color.white.opacity(0.1) : .clear), in: RoundedRectangle(cornerRadius: 5))
+                .background(isOn ? SP.accent.opacity(0.18) : (isHovering ? Color.white.opacity(0.1) : .clear), in: RoundedRectangle(cornerRadius: 5))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

@@ -1,29 +1,28 @@
-# SidereaPlanets
+# Siderea Planets
 
-Prototyp: Nachbau von **the reference program** (Planeten-/Mond-Stacking und Wavelet-Schärfung für die Astrofotografie)
-in **Rust**. Das Original (Delphi, Windows) ist kostenlos, wird aber seit 2011 nicht mehr gepflegt.
-Ziel ist ein möglichst genauer Klon in **Bedienung und Ergebnis** — gleicher Workflow, gleiche Begriffe,
+Prototyp: Planeten-/Mond-Stacking und Wavelet-Schärfung für die Astrofotografie in **Rust**, nach dem Vorbild eines älteren
+Windows-Programms (Delphi, kostenlos, seit 2011 nicht mehr gepflegt), hier und in `docs/` das **Referenzprogramm** genannt.
+Ziel ist ein möglichst genauer Nachbau in **Bedienung und Ergebnis** — gleicher Workflow, gleiche Begriffe,
 vergleichbare Resultate. Es ist zunächst nur ein Prototyp, um zu prüfen, ob das Vorhaben überhaupt aufgeht.
 
-**Name:** Für Nutzer heißt die App **Siderea Planets** (Mac und Windows; MAC-013), passend zur Suite mit Siderea. „SidereaPlanets“
-bleibt der interne Name: Repo und Ordner, Crates, Swift-Module (`SidereaPlanetsKit`, `SidereaPlanetsBindings`, `SidereaPlanetsFFI`), Xcode-Ziel und
--Schema, Tickets und die Reverse-Engineering-Doku in `docs/`. Was Nutzer sehen (Fenstertitel, Menüs, Hilfe, Bundle, Installer,
-Anwenderseiten, Changelogs), sagt „Siderea Planets“; das Original heißt weiter **the reference program**.
+**Name:** Die App heißt **Siderea Planets** (Mac und Windows), passend zur Suite mit Siderea. Einen abweichenden internen Namen
+gibt es nicht: Repo und Ordner `SidereaPlanets`, Rust-Crates `planets-*`, Swift-Module (`SidereaPlanetsKit`,
+`SidereaPlanetsBindings`, `SidereaPlanetsFFI`), Xcode-Ziel und -Schema `SidereaPlanets`, Projektdateien `.sidereaplanets`,
+Tickets `SP-NNN`.
 
-**Kein „the reference program“ in sichtbaren Texten** (Philipp, 2026-11-12, MAC-014): Siderea Planets ist ein eigenes Programm. In keinem Text, den
-Nutzer sehen, steht „the reference program“, „the reference program“ oder „das Original“: Oberfläche und Tooltips beider Apps, Dateidialoge (`.rwv` heißt
-„Wavelet scheme“), Statusmeldungen, Datei- und Projektköpfe, About, `NSHumanReadableCopyright`, Anwenderseiten
-(`app/src/docs/pages/`) und Changelogs. Auch Tooltips tragen keinen „the reference program: …“-Zusatz. Vergleiche mit dem Original gehören in die
-interne Doku (`docs/`, z. B. `docs/offene-fragen.md`), Code-Kommentare und Bezeichner dürfen es nennen. Prüfen vor jedem Commit, der
-Texte berührt: `git grep -n -i "the reference program\|the original" -- mac/App app/src app/src-tauri/src crates/*/src` darf nur Kommentare,
-Bezeichner und Tests treffen.
+**Der Name des Referenzprogramms steht nirgends im Repo** (Philipp, 2026-11-27): weder in sichtbaren Texten noch in Code,
+Kommentaren, Bezeichnern, Tests, `docs/`, Tickets oder Commit-Messages. Wo es gemeint ist, heißt es „das Referenzprogramm“
+(englisch „the reference program“). In Texten, die Nutzer sehen (Oberfläche und Tooltips beider Apps, Dateidialoge, `.rwv` heißt
+„Wavelet scheme“, Statusmeldungen, Datei- und Projektköpfe, About, Anwenderseiten unter `app/src/docs/pages/`, Changelogs), wird
+es auch nicht umschrieben erwähnt, auch nicht als „das Original“: Siderea Planets ist ein eigenes Programm. Vergleiche gehören in
+die interne Doku (`docs/`, z. B. `docs/offene-fragen.md`).
 
 ## Status
 
 Die **Windows-App** (Tauri und Vue unter `app/`) läuft den ganzen Ablauf im echten Fenster: Aufnahme laden, Alignpoints, Align,
 Limit, Stack, Wavelets mit Do All, Save image, dazu Projektdatei, Save Aligned/Integrated, Schemes, CPU-Auswahl und ein Installer
-(`scripts/publish-windows.sh --installer`, Inno Setup wie bei Siderea). Stand und offene Kriterien stehen in `tickets/`. the reference program ist unter
-`C:\Program Files (x86)\the reference program` installiert; die Spezifikation daraus steht in `docs/` (RK-003), Referenzergebnisse
+(`scripts/publish-windows.sh --installer`, Inno Setup wie bei Siderea). Stand und offene Kriterien stehen in `tickets/`. Das Referenzprogramm ist
+auf dem Windows-Rechner installiert; die Spezifikation daraus steht in `docs/` (SP-003), Referenzergebnisse
 in `re-local/reference/` (beschrieben in `docs/testdaten.md`).
 Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens, klickbarer Entwurf und Soll-Bilder in
 `docs/design/`) und für jede Arbeit an der Oberfläche verbindlich — **modern**, nicht der Delphi-Look.
@@ -75,8 +74,7 @@ nicht in Git. „Deploy“ heißt nur lokal starten, kein Release-Build und kein
 - Von Hand deployen: `scripts/deploy-debug.sh --run`
 - **Am Mac** ruft der Hook stattdessen `scripts/deploy-mac.sh`: `xcodegen generate` und `xcodebuild` (Debug, arm64) für `mac/`, bei
   Erfolg wird die laufende Mac-App beendet und die neue gestartet, bei einem Fehler bleibt die alte unangetastet; Protokoll
-  `deploy-mac.log`. Das Debug-Bündel heißt `build/mac/Build/Products/Debug/Siderea Planets.app`; ein übrig gebliebenes
-  `SidereaPlanets.app` (Name vor MAC-013) beendet, entregistriert und löscht das Skript beim Neustart. Ohne `mac/project.yml` tut es nichts. Von Hand: `scripts/deploy-mac.sh --run`; Einzelheiten in `mac/README.md`.
+  `deploy-mac.log`. Das Debug-Bündel heißt `build/mac/Build/Products/Debug/Siderea Planets.app`. Ohne `mac/project.yml` tut es nichts. Von Hand: `scripts/deploy-mac.sh --run`; Einzelheiten in `mac/README.md`.
 
 ## Doku in der App
 
@@ -128,7 +126,7 @@ crates/session/ Sitzungslogik (`Session`): offene Aufnahme, Ergebnisse je Schrit
 app/         Windows-App (Tauri): `app/src` = Vue-Frontend (hier entsteht das Design), `app/src-tauri` = Rust-Shell mit Commands
 mac/         Mac-App (SwiftUI) und ihre Tickets (`mac/tickets/MAC-NNN-…`); noch ohne Code, siehe `mac/README.md`
 scripts/   Skripte, z. B. `deploy-debug.sh` für den Deploy-Hook (`.githooks/post-commit`), `parity-status.sh` für `/nachzug`
-tickets/   Aufgaben der Windows-App und des Kerns als Markdown-Dateien (RK-NNN-kurzer-titel.md), kein Jira
+tickets/   Aufgaben der Windows-App und des Kerns als Markdown-Dateien (SP-NNN-kurzer-titel.md), kein Jira
 docs/      Spezifikation, die beim Reverse Engineering entsteht (Workflow, UI, Algorithmen, Formate), `docs/parity/` mit den
            Nachzug-Listen und der Handprobe
 re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, Mitschnitte
@@ -138,21 +136,21 @@ re-local/  Lokal, nicht in Git: Original-Binaries, Beispieldaten, Screenshots, M
 
 ## Tickets
 
-- Nur im Repo unter `tickets/`, **kein Jira**. Dateiname `RK-NNN-kurzer-titel.md`, fortlaufend nummeriert.
+- Nur im Repo unter `tickets/`, **kein Jira**. Dateiname `SP-NNN-kurzer-titel.md`, fortlaufend nummeriert.
 - Kopf: Status (`offen` · `in Arbeit` · `erledigt`), Abhängigkeiten, dann Ziel und Akzeptanzkriterien.
 - Akzeptanzkriterien sind **Checkboxen** (`- [ ]` offen, `- [x]` erledigt). Sobald ein Kriterium wirklich erfüllt ist
   (Test grün, Verhalten geprüft), wird es im selben Commit abgehakt. Status `erledigt` erst, wenn alle abgehakt sind;
   bewusst gestrichene Kriterien bleiben offen und bekommen eine Begründung im Text.
 - Status-Änderung direkt in der Datei und im selben Commit wie die Umsetzung.
-- Commits: `[TYPE] RK-NNN - Message in English` (Types wie in den globalen Regeln); Mac-Tickets `[TYPE] MAC-NNN - …`.
+- Commits: `[TYPE] SP-NNN - Message in English` (Types wie in den globalen Regeln); Mac-Tickets `[TYPE] MAC-NNN - …`.
 - Mac-Tickets liegen getrennt unter `mac/tickets/` (gleiche Regeln für Kopf, Kriterien und Status).
 
 ## Reverse Engineering
 
 - Quelle ist das **beobachtbare Verhalten** des installierten Originals: Oberfläche, Ein-/Ausgaben,
   Dateiformate, Vergleich von Ergebnisbildern. Erkenntnisse landen als Beschreibung in `docs/`.
-- Original-Binaries, Ressourcen, Icons und Texte werden **nicht** ins Repo übernommen oder kopiert
-  (`re-local/` ist gitignored). Der Klon bekommt eigene Implementierung und eigene Assets.
+- Binaries, Ressourcen, Icons und Texte des Originals werden **nicht** ins Repo übernommen oder kopiert
+  (`re-local/` ist gitignored). Der Nachbau bekommt eigene Implementierung und eigene Assets.
 - Algorithmen, die nur geraten sind, in `docs/` als **Vermutung** markieren, bis ein Vergleich mit dem
   Original sie bestätigt.
 

@@ -191,7 +191,7 @@ describe("Dropping files onto the window", () => {
   });
 });
 
-describe("Go to Best Frame (RK-018)", () => {
+describe("Go to Best Frame (SP-018)", () => {
   it("does nothing before Align", async () => {
     await runAction("setAlignpoints");
     session.view = "align";
@@ -227,7 +227,7 @@ describe("Go to Best Frame (RK-018)", () => {
   });
 });
 
-describe("Keyboard shortcuts (RK-017)", () => {
+describe("Keyboard shortcuts (SP-017)", () => {
   const press = (key: string, code = "", altKey = false) => {
     const event = { key, code, altKey, ctrlKey: false, metaKey: false, shiftKey: false, target: null, preventDefault: vi.fn() };
     const handled = handleShortcut(event as unknown as KeyboardEvent);
@@ -732,7 +732,7 @@ describe("Save image in the Save step", () => {
   });
 });
 
-// The step bar and the panel follow the runs (RK-014, docs/design.md "Zustände"): after a run the next open step opens,
+// The step bar and the panel follow the runs (SP-014, docs/design.md "Zustände"): after a run the next open step opens,
 // a run that is repeated drops what came after it and the panel falls back to the step that is open now.
 describe("The panel follows the runs", () => {
   async function toStack() {
@@ -880,7 +880,7 @@ describe("RGB Align, Auto", () => {
   });
 });
 
-describe("View Compare and the crop tool (RK-021)", () => {
+describe("View Compare and the crop tool (SP-021)", () => {
   // The fake frames are 4 × 3, below the smallest crop; the tests give the stack a size that can be cropped.
   const big = () => new FakeImageData(new Uint8ClampedArray(100 * 80 * 4), 100, 80) as unknown as ImageData;
   async function inWavelets() {
@@ -956,7 +956,7 @@ describe("View Compare and the crop tool (RK-021)", () => {
   });
 });
 
-describe("Flip and Rotate and Resize Image (RK-022)", () => {
+describe("Flip and Rotate and Resize Image (SP-022)", () => {
   const big = () => new FakeImageData(new Uint8ClampedArray(100 * 80 * 4), 100, 80) as unknown as ImageData;
   async function inWavelets() {
     await runAction("setAlignpoints");
@@ -1025,7 +1025,7 @@ describe("Flip and Rotate and Resize Image (RK-022)", () => {
   });
 });
 
-describe("Masking, Show mask (RK-020)", () => {
+describe("Masking, Show mask (SP-020)", () => {
   it("asks the engine for the mask overlay only while Show mask is on, the card is open and Wavelets is shown", async () => {
     backend.handlers.set_color_source = () => ({ width: W, height: H, channels: 3 });
     backend.handlers.refine_mask_overlay = () => imageBuffer();

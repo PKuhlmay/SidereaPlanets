@@ -20,8 +20,8 @@ planets-session = { path = "../../crates/session" }
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 tauri-plugin-dialog = "2"
-# The orientation of Flip and Rotate comes as JSON in a header of the raw-body command `orient_preview` (RK-022).
+# The orientation of Flip and Rotate comes as JSON in a header of the raw-body command `orient_preview` (SP-022).
 serde_json = "1"
-# CPU time and memory of the app for the status bar (RK-019), without unsafe code of our own.
+# CPU time and memory of the app for the status bar (SP-019), without unsafe code of our own.
 sysinfo = { version = "0.40.3", default-features = false, features = ["system"] }
 

@@ -23,7 +23,7 @@ import Testing
 
     // MARK: Defaults and what is sent
 
-    @Test func defaultsAreTheOnesOfthe reference program() {
+    @Test func defaultsAreTheOnesOfTheReferenceProgram() {
         let options = AlignOptions()
         #expect(options.minDistance == 30 && options.edgeDistance == 20)
         #expect(options.intensity == .default && options.lo == 30 && options.hi == 230)

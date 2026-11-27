@@ -1,6 +1,6 @@
 # Design der Oberfläche
 
-Verbindliche Vorgabe für alles, was im Klon sichtbar ist. Umgesetzt wird sie im Frontend unter `app/src` (RK-010) und in der
+Verbindliche Vorgabe für alles, was im Klon sichtbar ist. Umgesetzt wird sie im Frontend unter `app/src` (SP-010) und in der
 Mac-App unter `mac/App` (MAC-005, SwiftUI; ihre bewussten Abweichungen stehen in [Mac-App](#mac-app-bewusste-abweichungen));
 jedes Ticket, das Bedienelemente anfasst, hält sich daran.
 
@@ -23,11 +23,11 @@ Bei Widersprüchen gewinnt für Begriffe und Werte `docs/ui.md`, für Aussehen u
 | `docs/design/oberflaeche-entwurf.html` | Klickbarer Entwurf aller sieben Schritte, im Browser öffnen |
 | `docs/design/screenshots/` | Soll-Bilder der Zustände bei 1440×900, erzeugt aus dem Entwurf |
 | `docs/design/siderea-planets.figcraft` | Die sieben Schritte (Open, Alignpoints, Align, Limit, Stack, Wavelets, Save) als FigCraft-Datei, je dunkel und hell, dazu Limit mit geöffnetem Menü Show, Stack im erledigten Zustand und das Help-Fenster: 20 Frames, 18 davon 1440×900, die zwei Help-Fenster 1000×720. Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
-| `docs/design/vorschlag-gefuehrter-ablauf.html` | Überholt: die drei Vorschläge, aus denen die Schrittleiste (RK-014) gewählt wurde |
+| `docs/design/vorschlag-gefuehrter-ablauf.html` | Überholt: die drei Vorschläge, aus denen die Schrittleiste (SP-014) gewählt wurde |
 | `docs/design/figcraft-build.mjs` | Baut die FigCraft-Datei neu und liest die Farben dabei aus `tokens.css`. Aufruf: `node docs/design/figcraft-build.mjs` |
 | `docs/design/icon/` | App-Icon beider Apps: Icon-Composer-Dokumente `AppIcon.icon` und `AppIconDev.icon`, 1024-px-Master `AppIcon-1024.png`, Quellen in `src/` (siehe [App-Icon](#app-icon)) |
 
-Alle Frames, auch die zwei Help-Fenster (RK-012, siehe [Doku](#doku)), entstehen aus dem Skript. Ein Lauf schreibt die
+Alle Frames, auch die zwei Help-Fenster (SP-012, siehe [Doku](#doku)), entstehen aus dem Skript. Ein Lauf schreibt die
 Datei neu und verliert nichts; Änderungen gehören deshalb ins Skript, nicht von Hand in die Datei.
 
 Der Entwurf ist eine Vorlage zum Ansehen, kein Code zum Übernehmen: Er ist eine einzelne HTML-Datei ohne Vue und
@@ -35,10 +35,10 @@ ohne Rechenkern. Markup und CSS-Regeln dürfen als Orientierung dienen, die Umse
 
 ## Grundsätze
 
-1. **Gleicher Aufbau, verständliche Namen.** Jedes Bedienelement entspricht einem Element von the reference program; sein Name in der App
+1. **Gleicher Aufbau, verständliche Namen.** Jedes Bedienelement entspricht einem Element des Referenzprogramms; sein Name in der App
    folgt seit MAC-014 den Regeln unter [Texte und Schreibweise](#texte-und-schreibweise-mac-014): Wo das Original einen
    unklaren Namen hat, steht in diesem Dokument „Original-Begriff (in der App: Neuer Name)“, im Text der App und in der
-   Doku nur der neue Name. Wo es sitzt, bestimmt der Ablauf (RK-014): Der Klon führt in sieben Schritten durch die
+   Doku nur der neue Name. Wo es sitzt, bestimmt der Ablauf (SP-014): Der Klon führt in sieben Schritten durch die
    Bedienung, statt sie wie das Original auf Reiter, Aktionszeile und Panel zu verteilen. Wer das Original kennt, findet
    jedes Element über die Spalte „Name in Siderea Planets“ in `docs/ui.md`.
 2. **Das Bild ist die Hauptsache.** Die Oberfläche ist neutral grau ohne Farbstich, damit sie die Farben des Bildes
@@ -97,7 +97,7 @@ Schaltflächen, 600 für Gruppenüberschriften, die angezeigte Pille der Schritt
 
 | Bereich | Höhe | Inhalt und Regeln |
 |---|---|---|
-| Werkzeugleiste | 44 px | Drei Zonen: links Select (in der App: Select Recording), die vier Menüs (MRU: in der App Recent Recordings) und die Projekt-Schaltflächen Open und Save (in der App: Open Project… und Save Project…), in der Mitte (im Rest zwischen links und rechts zentriert) Cancel und Pause, rechts Help, About und CPUs (in der App: CPU cores to use; die Zahl der Threads aller Berechnungen: Standard alle logischen Kerne, Bereich 1 bis dahin; das Feld klemmt Eingaben darauf). Help, Open und Save gibt es im Original nicht: Help öffnet die Doku in der App (RK-012), Open und Save öffnen und speichern die Projektdatei (RK-009) |
+| Werkzeugleiste | 44 px | Drei Zonen: links Select (in der App: Select Recording), die vier Menüs (MRU: in der App Recent Recordings) und die Projekt-Schaltflächen Open und Save (in der App: Open Project… und Save Project…), in der Mitte (im Rest zwischen links und rechts zentriert) Cancel und Pause, rechts Help, About und CPUs (in der App: CPU cores to use; die Zahl der Threads aller Berechnungen: Standard alle logischen Kerne, Bereich 1 bis dahin; das Feld klemmt Eingaben darauf). Help, Open und Save gibt es im Original nicht: Help öffnet die Doku in der App (SP-012), Open und Save öffnen und speichern die Projektdatei (SP-009) |
 | Schrittleiste | 40 px | Die sieben Schritte als Pillen (siehe [Schrittleiste](#schrittleiste)). Rechts Dateiname, Größe, Frame-Zahl und Codec in `--muted` („1024×680 · 10 frames · DIB“), wird bei Platzmangel mit „…“ gekürzt, die Pillen nie |
 | Arbeitsbereich | Rest | Linkes Panel fest 272 px mit dem offenen Schritt (siehe [Schrittpanel](#schrittpanel)), Bildbereich füllt den Rest, rechtes Panel 248 px nur im Schritt Wavelets. Panels scrollen senkrecht, wenn das Fenster zu niedrig ist; der Fuß des linken Panels mit der Aktion bleibt stehen |
 | Frame-Leiste | 40 px | Nur in den Schritten Alignpoints, Align und Limit (in der App: Best Frames) |
@@ -124,7 +124,7 @@ damit der Fortschritt wie im Original in der Taskleiste lesbar ist.
 
 Icons sind Linienbilder auf 16×16 px, Strich 1,5 px mit runden Enden, Farbe `--muted` (Hover `--text`), ohne Füllung.
 Sie stehen links vom Text. Es gibt drei: Help, ein aufgeschlagenes Buch (Doku, nicht Info); Open, eine Mappe; Save, eine
-Diskette. Das Help-SVG steht im klickbaren Entwurf, dieselbe Geometrie in `figcraft-build.mjs`; Open und Save (RK-009) stehen
+Diskette. Das Help-SVG steht im klickbaren Entwurf, dieselbe Geometrie in `figcraft-build.mjs`; Open und Save (SP-009) stehen
 nur in `app/src/components/Toolbar.vue` (Pfade `M1.5 3.5h4l1.5 1.5h7.5v7.5h-13z` und `M2.5 2.5h8l3 3v8h-11zM5 2.5v3.5h5V2.5M5 13.5v-4h6v4`).
 
 Pro Zeile ist höchstens eine Schaltfläche gefüllt. Rot kommt nicht vor: „Save image“ (in der App: Save Image) ist im Original rot
@@ -251,7 +251,7 @@ Zusammenhängende Schaltflächen in einem gemeinsamen Umriss. Zwei Einsätze:
 „›“ für ein Untermenü. Zahlen- und Textfelder (Bias subtract, Save to Subdir, Faktor bei Create Darkframe) stehen
 rechts im Eintrag. Trennlinien gruppieren wie im Original. Escape und ein Klick daneben schließen.
 
-**Open** und **Save** (RK-009) sind eigene Schaltflächen ohne Rahmen in der Werkzeugleiste, rechts neben dem Menü Settings
+**Open** und **Save** (SP-009) sind eigene Schaltflächen ohne Rahmen in der Werkzeugleiste, rechts neben dem Menü Settings
 (Projektdatei, `docs/formats.md`). Das Original hat sie nicht. In der App heißen sie **Open Project…** und **Save Project…** (bis
 MAC-014 „Open“ und „Save“, weil die Werkzeugleiste bei der Mindestbreite von 1120 px sonst überläuft; der Tooltip und das Label
 für Screenreader hießen *Open project* und *Save project*). Beide sind während einer Berechnung gesperrt, Save zusätzlich ohne geladene Aufnahme. Tools enthält damit
@@ -263,7 +263,7 @@ beim Anklicken ein Menü mit der Auswahl des Dateityps (rechts steht die Endung)
 Speichern-Dialog des Betriebssystems für genau diesen Typ. Beim Original wählt man den Typ im Dialog; das Dialog-Plugin meldet
 den gewählten Filter nicht zurück, deshalb steht die Auswahl davor.
 
-Aus dem Menü Settings entfallen „Check for the reference program Update“ sowie „Layouts“ und „Set Skin“. An die Stelle von „Set Skin“
+Aus dem Menü Settings entfallen die Update-Prüfung („Check for … Update“) sowie „Layouts“ und „Set Skin“. An die Stelle von „Set Skin“
 tritt **Theme** (Dark · Light). Einträge mit „›“ öffnen ihr Untermenü als Flyout rechts neben dem Eintrag (bei Hover oder
 Fokus), gleiche Fläche wie das Menü; darin stehen Häkchen, eine Auswahl (Processing Area (in der App: Preview area), Stretch FIT/TIFF, Theme) oder
 Zahlenfelder (Luminance Setting mit Reset Luminance).
@@ -302,7 +302,7 @@ Die Zoom-Leiste unten mittig ersetzt die Scrollbalken des Originals: − · aktu
 Bildpixel (Klick setzt 100 %) · + · Fit, in den Schritten Wavelets und Save zusätzlich der Umschalter **Before** (in der App: **Before/After**), der das
 unbearbeitete Summenbild zeigt. Mausrad zoomt, Ziehen verschiebt. Das Bild folgt der Größe der Fläche, bis der Nutzer zoomt oder
 verschiebt (ein Klick ohne Bewegung zählt nicht); bei jedem Schrittwechsel wird es neu eingepasst, weil sich die Fläche mit
-Frame-Leiste und rechtem Panel ändert (RK-010-Prüflauf: Zoom blieb nach Wavelets bei 73 %).
+Frame-Leiste und rechtem Panel ändert (SP-010-Prüflauf: Zoom blieb nach Wavelets bei 73 %).
 
 **View Compare** (MAC-019, die Schaltfläche des Adjustments-Panels; im Original nicht erfasst): teilt das Bild im Schritt Wavelets
 an einer senkrechten **Trennlinie** in zwei Hälften: links das Summenbild ohne alles (**Before**), rechts das Bild mit Schärfung und
@@ -358,14 +358,14 @@ nach jedem Lauf der nächste offene Schritt (●); jede Pille mit ✓ oder ○ l
 | geschärft (Do All gelaufen) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ● |
 | gespeichert | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 
-- Save ist schon nach Stack möglich, weil Save image (in der App: Save Image) ein noch nicht angewendetes Do All selbst nachholt (RK-009).
+- Save ist schon nach Stack möglich, weil Save image (in der App: Save Image) ein noch nicht angewendetes Do All selbst nachholt (SP-009).
 - Wavelets gilt als erledigt, solange das Ergebnis von Do All zu den aktuellen Wavelet-Werten passt; ändert man danach
   eine Ebene oder eine Einstellung des Schritts, verliert die Pille den Haken und Wavelets ist wieder der nächste
   offene Schritt. Save verliert dabei ebenfalls den Haken.
 - Open bleibt immer anklickbar; Select (in der App: Select Recording) dort (oder in der Werkzeugleiste) öffnet eine neue Aufnahme und setzt alles auf
   „Aufnahme geladen“.
 
-**Erneutes Ausrichten** (Entscheidung von Philipp, RK-005): Set Alignpoints und Align bleiben nach ihrem ersten Lauf
+**Erneutes Ausrichten** (Entscheidung von Philipp, SP-005): Set Alignpoints und Align bleiben nach ihrem ersten Lauf
 bedienbar, auch nach Limit, Stack und Wavelet. Im Original sind beide ab Align gesperrt (`docs/workflow.md`,
 Abschnitt 2.2); der Klon weicht bewusst davon ab, damit man andere Punkte, eine andere Region oder eine andere
 Boxgröße ausprobieren kann, ohne die Aufnahme neu zu öffnen. Ein neuer Lauf verwirft alles, was auf der alten
@@ -382,12 +382,12 @@ Limit nach Stack verwirft den Stack. Regler, Wavelet-Einstellungen und das Bild 
 Pille ist anklickbar, Cancel ist
 gefüllt, Pause ist aktiv und heißt nach dem Anhalten „Resume“. Der Balken in der Statusleiste läuft, Feld 2 nennt
 den aktuellen Frame, Feld 5 die Zeiten. Außerhalb einer Berechnung sind Cancel und Pause gesperrt und der Balken steht auf
-0 % (auch nach einem Abbruch oder Fehler; die Soll-Bilder der fertigen Schritte zeigen noch 100 %, RK-010-Prüflauf). Das Ergebnis
+0 % (auch nach einem Abbruch oder Fehler; die Soll-Bilder der fertigen Schritte zeigen noch 100 %, SP-010-Prüflauf). Das Ergebnis
 von Limit steht im Ergebnisfeld als „8 frames will be stacked · weakest kept: 72%“ (Qualität des schwächsten behaltenen Frames; bis MAC-014 „Stacksize: 8  Low quality: 87.20%“).
 
 ## Bildschirme
 
-Je Schritt: der Satz im Kopf (Englisch wie die Oberfläche; Philipp nimmt die Sätze noch ab, RK-014), die wichtigen
+Je Schritt: der Satz im Kopf (Englisch wie die Oberfläche; Philipp nimmt die Sätze noch ab, SP-014), die wichtigen
 Einstellungen, was unter Advanced liegt, und die Aktion im Fuß. Die Gruppen und Felder sind die der früheren Reiter
 (`docs/ui.md`); die Einteilung in wichtig und Advanced ist die Vorgabe dieses Dokuments.
 
@@ -466,11 +466,11 @@ Seit MAC-014 heißt der Schritt in der App **Best Frames** (Pille, Panelkopf, Me
 - Advanced: die übrigen Stacking options; Resampling und Drizzling (aus der früheren Aktionszeile); ihre Zusatzfelder
   (Methode und Faktor bzw. Faktor) erscheinen erst mit dem Häkchen, rechts daneben in derselben Zeile. Beide sind noch nicht
   umgesetzt: die Häkchen sind gesperrt (Tooltip und Hinweis „Not available yet“ rechts in der Zeile), die Zusatzfelder
-  bleiben deshalb ausgeblendet (RK-006-Prüflauf: eingeschaltet wirkten sie nicht); die Gruppe Create AVI vollständig mit Save Aligned und Save Integrated (in der App: Save Aligned Video… und Save Averaged Video…; Compress Qual: Compression quality, Framerate: Frame rate (fps), die Radios unter der Überschrift Frame size).
+  bleiben deshalb ausgeblendet (SP-006-Prüflauf: eingeschaltet wirkten sie nicht); die Gruppe Create AVI vollständig mit Save Aligned und Save Integrated (in der App: Save Aligned Video… und Save Averaged Video…; Compress Qual: Compression quality, Framerate: Frame rate (fps), die Radios unter der Überschrift Frame size).
 - Ebenso gesperrt, weil das Backend sie nicht auswertet: StackSize Minimized, Maximized und R.of Interest (in der App: Smallest common area, Largest area, Region; Default bleibt
   wählbar) und Stretch histogram after stacking. Gleiche Behandlung wie Resampling: ausgegraut, Tooltip und
   „Not available yet“ rechts in der Zeile (bei langem Namen darunter, rechtsbündig), Wert bleibt im Datenmodell. **De-rotate images** ist frei
-  (Mac seit MAC-020, Windows seit RK-023; Abschnitt „Derotation (MAC-020)“). Es wirken:
+  (Mac seit MAC-020, Windows seit SP-023; Abschnitt „Derotation (MAC-020)“). Es wirken:
   Use Nearestby Alignpoints, Correct geometry, Normalization of frame intensity (in der App: Even out frame brightness) und Do not stack n pixels at the frameedge (in der App: Ignore edge pixels (px)).
   Seit MAC-014 sind auch Codec, Compression quality, die Frame-size-Radios außer Original size und Use prefilters gesperrt.
   Entwurf und Soll-Bilder zeigen diese Optionen noch bedienbar; sie bleiben das Ziel, bis die Funktionen gebaut sind.
@@ -529,7 +529,7 @@ Seit MAC-014 heißt der Schritt in der App **Best Frames** (Pille, Panelkopf, Me
 [Schwebende Karten](#schwebende-karten)): oben rechts über dem Bild, 236 px breit, Titel und Schließen-Kreuz, nicht
 verschiebbar. Es gibt dazu kein Soll-Bild; die Karten sind aus den vorhandenen Komponenten gebaut.
 
-Dieser Abschnitt legt die Karten fest, die RK-008 braucht: **Histogram**, **Gamma**, **RGB Align** und **RGB Balance**,
+Dieser Abschnitt legt die Karten fest, die SP-008 braucht: **Histogram**, **Gamma**, **RGB Align** und **RGB Balance**,
 dazu (MAC-019) **Color Mixing**; **View Compare** ist keine Karte, sondern eine Ansicht (Abschnitt am Ende dieses Teils).
 Contrast/Brightness bleibt das feste Panel unter dem Raster (Soll-Bild 07). **Denoise/Deringing** und **Masking** (MAC-018, Mac)
 folgen unten in Tabelle und Liste; die Verfahren dahinter stehen in `docs/wavelets.md`. Die übrigen Karten (View …,
@@ -597,11 +597,11 @@ Wavelet Filter, Show Linegraph; in der App View Zoomed, View Stack Size, Wavelet
   `docs/ui.md` über den Toggle sagt.
 - Eine Functions-Schaltfläche ohne Karte bleibt unten und meldet „‹Name›: not available yet“ in der Statusleiste. Seit MAC-014 ist sie stattdessen gesperrt (gedimmt, nicht klickbar, Tooltip „Not available yet“).
 
-**Colour und LRGB** (in der App: **Color** und **Sharpen brightness only**) sitzen im Original als Häkchen im Align- und im Stack-Reiter (`docs/ui.md`), im Klon seit RK-014
+**Colour und LRGB** (in der App: **Color** und **Sharpen brightness only**) sitzen im Original als Häkchen im Align- und im Stack-Reiter (`docs/ui.md`), im Klon seit SP-014
 im Schritt Wavelets über den Ebenen. *Colour* verarbeitet in Farbe, ohne
-das Häkchen als Graustufen. *LRGB* ist nur mit *Colour* wählbar und schärft nur die Luminanz: Die Wavelets (RK-007)
+das Häkchen als Graustufen. *LRGB* ist nur mit *Colour* wählbar und schärft nur die Luminanz: Die Wavelets (SP-007)
 rechnen auf der Luminanz, Farbton und Sättigung kommen aus dem Summenbild. Beide sind bei Graustufenbildern gesperrt.
-Umgesetzt (RK-008): Sie sind bei Graustufenaufnahmen gesperrt und LRGB zusätzlich ohne *Colour*. Umgesetzt (RK-007): Beide
+Umgesetzt (SP-008): Sie sind bei Graustufenaufnahmen gesperrt und LRGB zusätzlich ohne *Colour*. Umgesetzt (SP-007): Beide
 Werte (`settings.colour`, `settings.lrgb`) wirken auf die Live-Vorschau und auf Do All (`colourMode` in `app/src/logic/wavelet.ts`,
 Rechnung `wavelet::ColourMode` mit `color::with_luminance`, siehe `docs/wavelets.md`). Ohne *Colour* ist das Ergebnis Graustufen.
 
@@ -642,7 +642,7 @@ Seitenrand (48 px, bis 16 px) mit; es gibt keinen waagerechten Balken, auch nich
 | Blättern | unten links „‹ Vorherige“, rechts „Nächste ›“, beides `--accent-ink` |
 
 Doku-Texte sind Anwenderdoku und auf Englisch wie die Oberfläche; sie nennen, was schon geht, und markieren Fehlendes
-als „Not available yet“. Quelle der Seiten ist Markdown im Repo (RK-012).
+als „Not available yet“. Quelle der Seiten ist Markdown im Repo (SP-012).
 
 | Zustand | Soll-Bild |
 |---|---|
@@ -737,7 +737,7 @@ Zuschnitt, der auf einem bestimmten Bild liegt) und stehen als Abschnitt `geomet
 
 ## Derotation (MAC-020)
 
-**De-rotate images** (Advanced im Schritt Stack, Mac seit MAC-020, Windows seit RK-023; im Original nur als Häkchen bekannt) dreht jeden Frame vor dem Stacken auf die Mitte der
+**De-rotate images** (Advanced im Schritt Stack, Mac seit MAC-020, Windows seit SP-023; im Original nur als Häkchen bekannt) dreht jeden Frame vor dem Stacken auf die Mitte der
 Aufnahme zurück (`docs/stacking.md`, „Derotation“). Das Häkchen ist nicht mehr gesperrt, Tooltip: „Turns every frame back to the middle of the
 recording by the rotation of the planet, so that details at the edge of the disc stay sharp. Needs the date and time of the recording.“ Eingeschaltet
 erscheinen darunter, **18 px eingerückt**, in dieser Reihenfolge (alle 6 px Abstand):
@@ -764,7 +764,7 @@ zusätzlich die Außenkante des Rings gestrichelt (1 px, 70 % Deckkraft), und ei
 zoomt mit. Die Scheibe ist im Bezugsframe gemessen; sobald die Zahlen da sind, zeigt der Schritt Stack deshalb dieses Frame, nicht das zuletzt betrachtete.
 
 **Projektdatei:** optionaler Abschnitt `derotation` (`enabled`, `planet`, `cameraAngle`, `mirrored`, `startTimeUtc` in Sekunden seit 1970 UTC); fehlt er oder ein
-Schlüssel, bleiben die Werte; beide Apps schreiben und lesen ihn (Windows seit RK-023). Der Abschnitt `stack` trägt die Werte der Derotation nicht.
+Schlüssel, bleiben die Werte; beide Apps schreiben und lesen ihn (Windows seit SP-023). Der Abschnitt `stack` trägt die Werte der Derotation nicht.
 
 ## Texte und Schreibweise (MAC-014)
 
@@ -784,9 +784,9 @@ in der Spalte „Name in Siderea Planets“ in `docs/ui.md`. Dieses Dokument nen
 - **Ohne Wirkung = gesperrt:** ein Schalter, ein Feld oder ein Knopf, der nichts tut, ist gedimmt (45 %, wie alle gesperrten Elemente),
   nicht klickbar, sein Tooltip beginnt mit „Not available yet“; bei Optionen im Panel steht der Text zusätzlich rechts in der Zeile.
   Ein Knopf darf nicht klickbar sein, nur um „not available yet“ in der Statusleiste zu melden.
-- **Kein „the reference program“ und kein „das Original“ in sichtbaren Texten** (Oberfläche, Tooltips, Dateidialoge, Statusmeldungen, Datei- und
-  Projektköpfe, Hilfeseiten, About). Tooltips tragen keinen „the reference program: …“-Zusatz. Vergleiche mit dem Original gehören in die interne
-  Doku (`docs/`); dieses Dokument darf es nennen.
+- **Kein Name des Referenzprogramms und kein „das Original“ in sichtbaren Texten** (Oberfläche, Tooltips, Dateidialoge, Statusmeldungen, Datei- und
+  Projektköpfe, Hilfeseiten, About). Tooltips tragen keinen Zusatz mit dem dortigen Begriff. Vergleiche mit dem Original gehören in die
+  interne Doku (`docs/`), also auch in dieses Dokument.
 - **US-Englisch** überall (Color, Center, gray).
 - **Tooltips auf Fachbegriffen:** Schritte, Aktionsknöpfe und Felder mit Fachwort (Alignpoints, Threshold, Limit, Wavelets, Layer,
   Denoise, Do All, Correct geometry, …) erklären sich in einem Satz; Etabliertes bleibt im Namen, die Erklärung kommt in den Tooltip.
@@ -797,22 +797,22 @@ in der Spalte „Name in Siderea Planets“ in `docs/ui.md`. Dieses Dokument nen
 
 | Original | Klon | Grund |
 |---|---|---|
-| Skin „Office 2007 Silver“, hell | neutral dunkel, hell umschaltbar | RK-010; Bildbeurteilung |
+| Skin „Office 2007 Silver“, hell | neutral dunkel, hell umschaltbar | SP-010; Bildbeurteilung |
 | Framelist, Registrationgraph, Alignmentpoints als eigene Fenster | Karten über dem Bild | ein Fenster, nichts geht hinter anderen verloren |
 | Panelköpfe mit Minimieren/Maximieren | Gruppenüberschriften | Panels sind fest angeordnet |
-| Scrollbalken am Bild | Zoom-Leiste, Mausrad, Ziehen | RK-010 verlangt Zoom, Pan, Vorher/Nachher |
+| Scrollbalken am Bild | Zoom-Leiste, Mausrad, Ziehen | SP-010 verlangt Zoom, Pan, Vorher/Nachher |
 | grünes Farbfeld links unten | Statuspunkt mit Text | Bedeutung des Farbfelds ist ungeklärt, Text sagt sie |
 | „File Version“ und Datum in der Reiterleiste | Dateiname, Codec, Größe, Frame-Zahl rechts in der Schrittleiste | Version gehört in About |
-| drei Reiter Align · Stack · Wavelet, Schritt-Schaltflächen in der Aktionszeile, alle Einstellungen eines Reiters im Panel | sieben Schritte in der Schrittleiste, das Panel zeigt nur den offenen Schritt mit seiner Aktion, Seltenes unter Advanced | RK-014; Philipp wollte, dass die App durch den Ablauf führt (Vorbild Siderea) |
-| Häkchen „Show …“ in der Aktionszeile | Menü Show oben rechts am Bild | RK-014; die Aktionszeile entfällt |
-| Colour und LRGB im Align- und Stack-Reiter | im Schritt Wavelets (Color und Sharpen brightness only) | RK-014; sie wirken auf die Schärfung (RK-007) |
+| drei Reiter Align · Stack · Wavelet, Schritt-Schaltflächen in der Aktionszeile, alle Einstellungen eines Reiters im Panel | sieben Schritte in der Schrittleiste, das Panel zeigt nur den offenen Schritt mit seiner Aktion, Seltenes unter Advanced | SP-014; Philipp wollte, dass die App durch den Ablauf führt (Vorbild Siderea) |
+| Häkchen „Show …“ in der Aktionszeile | Menü Show oben rechts am Bild | SP-014; die Aktionszeile entfällt |
+| Colour und LRGB im Align- und Stack-Reiter | im Schritt Wavelets (Color und Sharpen brightness only) | SP-014; sie wirken auf die Schärfung (SP-007) |
 | „Save image“ rot beschriftet | Standard-Schaltfläche | Rot bedeutet Gefahr |
 | Radiogruppen bei zwei Möglichkeiten | Segmente | weniger Höhe, gleiche Stelle |
 | „Intensity_selection“, „Realign_with Processed“ | ohne Unterstrich | Artefakte der Delphi-Beschriftung |
 | „Step Increment“, „Initial Layer“ | Windows-Entwurf: „Step Incr.“ mit vollem Namen im Tooltip; in der App seit MAC-014 „Size step“ und „First layer size“ | Platz in einer Zeile; verständlichere Namen |
-| Set Alignpoints und Align ab Align gesperrt | bleiben bedienbar, ein neuer Lauf verwirft Limit, Stack und Wavelet-Ergebnis | RK-005; Philipp wollte ohne erneutes Öffnen neu ausrichten können, siehe [Zustände](#zustände) |
+| Set Alignpoints und Align ab Align gesperrt | bleiben bedienbar, ein neuer Lauf verwirft Limit, Stack und Wavelet-Ergebnis | SP-005; Philipp wollte ohne erneutes Öffnen neu ausrichten können, siehe [Zustände](#zustände) |
 | Dezimalkomma je nach Windows-Einstellung | Punkt | einheitlich auf allen Plattformen |
-| CPUs: Standard 1 | Standard = Zahl der logischen Kerne, Bereich 1 bis dahin; die Zahl wirkt auf alle Berechnungen (eigener Thread-Pool im Backend) und wird nicht in der Projektdatei gespeichert | RK-010; Philipp (2026-11-12): die Auswahl soll wirklich wirken und der Rechner standardmäßig ausgelastet sein; die Kernzahl gehört zum Rechner, nicht zum Projekt |
+| CPUs: Standard 1 | Standard = Zahl der logischen Kerne, Bereich 1 bis dahin; die Zahl wirkt auf alle Berechnungen (eigener Thread-Pool im Backend) und wird nicht in der Projektdatei gespeichert | SP-010; Philipp (2026-11-12): die Auswahl soll wirklich wirken und der Rechner standardmäßig ausgelastet sein; die Kernzahl gehört zum Rechner, nicht zum Projekt |
 | » klappt das Functions-Panel | „Functions »“ oben im Bildbereich (in der App seit MAC-014: „Adjust ›“) | Beschriftung sagt, was geklappt wird |
 
 ## Mac-App: bewusste Abweichungen
@@ -833,7 +833,7 @@ Dokuments. Bedienelemente und Eingaben folgen dort, wo es eine Mac-Konvention gi
 | Thema in Settings > Theme umschaltbar | folgt der Darstellung von macOS (hell und dunkel), kein Theme-Eintrag | Systemeinstellung gilt |
 | Felder, Regler, Stepper, Menüs der Oberfläche | Systemschrift (SF) in 13 und 12 pt, native Steuerelemente (`Stepper`, `Slider`, `TextField`) mit Akzent `--accent`; eigene Gestaltung nur dort, wo dieses Dokument sie festlegt (Pillen, Schaltflächen, Zoom-Leiste, Statusleiste) | Mac-Steuerelemente, Fokus und Bedienungshilfen kommen vom System |
 | – | Eine Datei aus dem Finder auf das Fenster ziehen öffnet sie | Mac-Konvention |
-| Save image nur als Schaltfläche mit Menü der Dateitypen; Open und Save (Projekt) nur in der Werkzeugleiste | zusätzlich im Menü File: **Save Image… (⌘S)** im zuletzt gewählten Dateityp (Start: TIFF 16 bit; bietet der Schritt ihn nicht an, TIFF), **Save Project…** und **Open Project…**; Speichern-Dialog `NSSavePanel` mit dem gewählten Typ, Öffnen-Dialog `NSOpenPanel` für `.rkproj`; Save Aligned Video… und Save Averaged Video… (Original: Save Aligned und Save Integrated) laufen wie Stack mit Fortschritt, Cancel (⌘.) und Pause | Mac-Konvention ⌘S und native Dateidialoge |
+| Save image nur als Schaltfläche mit Menü der Dateitypen; Open und Save (Projekt) nur in der Werkzeugleiste | zusätzlich im Menü File: **Save Image… (⌘S)** im zuletzt gewählten Dateityp (Start: TIFF 16 bit; bietet der Schritt ihn nicht an, TIFF), **Save Project…** und **Open Project…**; Speichern-Dialog `NSSavePanel` mit dem gewählten Typ, Öffnen-Dialog `NSOpenPanel` für `.sidereaplanets`; Save Aligned Video… und Save Averaged Video… (Original: Save Aligned und Save Integrated) laufen wie Stack mit Fortschritt, Cancel (⌘.) und Pause | Mac-Konvention ⌘S und native Dateidialoge |
 | Help in der Werkzeugleiste, Doku-Ansicht mit Seitenliste und Suche | Menü **Help > Siderea Planets Help (⌘?)** öffnet dasselbe Help-Fenster (1000 × 720 pt, mindestens 640 × 400, zentriert, `Window`-Szene: ein zweiter Aufruf holt es nach vorn, Escape oder Schließen beendet es). Die Seiten sind dieselben Markdown-Dateien (`app/src/docs/pages/`, beim Bau ins Bündel kopiert); die Ansicht ist eine `WKWebView` mit dem Stil aus „Doku“, die Seitenliste mit Suchfeld ist SwiftUI. Keine Schaltfläche Help in der Werkzeugleiste | Mac-Menü; die Doku bleibt gemeinsam |
 | About in der Werkzeugleiste (im Original nicht vorhanden, in Windows noch „Not available yet“) | **About Siderea Planets** im App-Menü (Standard-Infofenster mit Version aus `MARKETING_VERSION`) | Mac-Konvention |
 | CPUs-Feld in der Werkzeugleiste, Settings als Menü der Werkzeugleiste | **Siderea Planets > Settings… (⌘,)**: Fenster mit dem Feld CPUs (Zahlenfeld mit `Stepper`, 1 bis zu den logischen Kernen, Standard alle, nicht gespeichert; die Änderung gilt für die nächste Berechnung). Dazu der Abschnitt Wavelets mit **Preview area** (Original: Processing Area; 2048 bis 128, Standard 512, „512 × 512 px“) und **Load Scheme… / Save Scheme…** (`.rwv`, dasselbe Dateiformat wie Windows; die Schaltflächen im Advanced des Schritts Wavelets tun dasselbe). Die übrigen Einträge des Windows-Menüs Settings (Automatic Processing, Luminance, Stretch FIT/TIFF, …) kommen mit dem Schritt, der sie braucht; Theme entfällt (macOS-Darstellung) | Mac-Konvention |
@@ -883,9 +883,9 @@ Die Mac-App braucht keinen Schritt, `xcodegen` und `xcodebuild` bauen die `.icon
 Für diese Teile gibt es kein Soll-Bild. Wer sie braucht, baut sie aus den vorhandenen Komponenten und ergänzt
 dieses Dokument im selben Commit.
 
-- Zustand vor dem Laden (festgelegt in RK-010, angepasst in RK-014): Schritt Open ist offen, Select im Fuß des Panels
+- Zustand vor dem Laden (festgelegt in SP-010, angepasst in SP-014): Schritt Open ist offen, Select im Fuß des Panels
   gefüllt, alle anderen Pillen gesperrt, keine Frame-Leiste. Der Bildbereich zeigt mittig „Press Select Recording to open a video or a series of images“ in `--on-canvas` mit 60 % Deckkraft.
-- Fehlermeldungen (festgelegt in RK-010): Text mit Präfix „Error:“ im Ergebnisfeld der Statusleiste (Feld 3), in
+- Fehlermeldungen (festgelegt in SP-010): Text mit Präfix „Error:“ im Ergebnisfeld der Statusleiste (Feld 3), in
   `--text`; kein Dialog, kein Rot.
 - Speicherangabe („Memory used/free/total“) in der Schrittleiste: entfällt vorerst, sie braucht einen Befehl im Backend.
 - Neun der fünfzehn Panels hinter den Functions-Schaltflächen (in der App: Adjustments; die Schaltflächen sind gesperrt). Histogram, Gamma, Color Mixing, RGB Align und RGB Balance stehen unter
@@ -899,17 +899,17 @@ dieses Dokument im selben Commit.
 
 | Ticket | Betroffene Teile der Oberfläche | Soll-Bilder |
 |---|---|---|
-| RK-004 Eingabe | Select, MRU, Angaben zur Datei in der Reiterleiste, Frame-Leiste | 01 |
-| RK-005 Ausrichtung | Align-Reiter komplett, Framelist, Registrationgraph, Fortschritt | 01–04, 11 |
-| RK-006 Stacken | Stack-Reiter komplett, Karte Alignmentpoints | 05, 06 |
-| RK-007 Wavelets | linkes Panel im Wavelet-Reiter, Process, Do All, Before, Processing Area | 07, 08, 12 |
-| RK-008 Farbe und Tonwerte | rechtes Panel im Wavelet-Reiter (Functions, Contrast/Brightness), Colour/LRGB | 07, 12 |
-| RK-009 Speichern | Save image in Stack und Wavelet, Save Aligned, Save Integrated, Load/Save Scheme | 06, 07 |
-| RK-010 Oberfläche | alles in diesem Dokument außer der Doku | 01–12 |
-| RK-012 Doku in der App | Help in der Werkzeugleiste, Doku-Ansicht | 13, 14 |
+| SP-004 Eingabe | Select, MRU, Angaben zur Datei in der Reiterleiste, Frame-Leiste | 01 |
+| SP-005 Ausrichtung | Align-Reiter komplett, Framelist, Registrationgraph, Fortschritt | 01–04, 11 |
+| SP-006 Stacken | Stack-Reiter komplett, Karte Alignmentpoints | 05, 06 |
+| SP-007 Wavelets | linkes Panel im Wavelet-Reiter, Process, Do All, Before, Processing Area | 07, 08, 12 |
+| SP-008 Farbe und Tonwerte | rechtes Panel im Wavelet-Reiter (Functions, Contrast/Brightness), Colour/LRGB | 07, 12 |
+| SP-009 Speichern | Save image in Stack und Wavelet, Save Aligned, Save Integrated, Load/Save Scheme | 06, 07 |
+| SP-010 Oberfläche | alles in diesem Dokument außer der Doku | 01–12 |
+| SP-012 Doku in der App | Help in der Werkzeugleiste, Doku-Ansicht | 13, 14 |
 | MAC-017 Drehen und Größe | Karten Flip and Rotate und Resize Image, Gruppe Size im Schritt Save | – |
 | MAC-020 Derotation | De-rotate images mit Planet, Start time, Camera angle, Mirrored image im Schritt Stack, Overlay der gemessenen Scheibe | – |
-| RK-014 Geführter Ablauf | Schrittleiste, Schrittpanel, Show am Bild, Qualitätsdiagramm in Limit; ersetzt die Reiter in den Zeilen darüber (Bildnummern dort sind die alten) | 01–12, 15, 16 |
+| SP-014 Geführter Ablauf | Schrittleiste, Schrittpanel, Show am Bild, Qualitätsdiagramm in Limit; ersetzt die Reiter in den Zeilen darüber (Bildnummern dort sind die alten) | 01–12, 15, 16 |
 
 ## Zustände im Klon ansehen (Dev-Build)
 

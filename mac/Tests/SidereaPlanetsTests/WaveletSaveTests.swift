@@ -161,7 +161,7 @@ import Testing
         model.tone.shifts.red = ChannelShift(x: 0.5, y: -0.25)
         model.tone.contrast = 400
         model.tone.holdContrast = true
-        let file = folder.appendingPathComponent("w.rkproj")
+        let file = folder.appendingPathComponent("w.sidereaplanets")
         await model.saveProject(choose: Dialogs(answer: file).save)
 
         let other = AppModel(backend: FakeBackend(), defaults: try #require(UserDefaults(suiteName: "WaveletSaveTests-\(UUID().uuidString)")))
@@ -186,7 +186,7 @@ import Testing
     }
 
     @Test func aWindowsProjectFileIsReadKeyByKeyAndWrongTypesAreIgnored() async throws {
-        let file = folder.appendingPathComponent("windows.rkproj")
+        let file = folder.appendingPathComponent("windows.sidereaplanets")
         let json = """
             {"formatVersion": 1, "recording": ["\(jupiter.path)"], "sections": {
               "wavelet": {"automatic": true, "hold": "yes", "scheme": "dyadic", "filter": "nonsense", "initialLayer": 2, "stepIncrement": 1,
@@ -211,6 +211,6 @@ import Testing
         #expect(model.tone.maxShift == 7 && model.tone.red == 90 && model.tone.green == 100 && model.tone.black == 12 && model.tone.white == 240)
         #expect(model.tone.clip == 0.5 && model.tone.histogramView == .result && model.tone.gamma == 1.5)
         #expect(!model.wavelet.colour && model.wavelet.lrgb)
-        #expect(model.status.result == "Opened windows.rkproj")
+        #expect(model.status.result == "Opened windows.sidereaplanets")
     }
 }

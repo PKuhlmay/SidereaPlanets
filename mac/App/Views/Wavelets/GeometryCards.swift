@@ -16,7 +16,7 @@ struct FlipRotateCard: View {
             LinkButton("Reset", isEnabled: canEdit && values != OrientationValues(), help: "No flip, no turn.") { model.resetOrientation() }
         }, content: {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Flip").font(.rkSmall).foregroundStyle(RK.muted)
+                Text("Flip").font(.spSmall).foregroundStyle(SP.muted)
                 SegmentBar(items: [
                     SegmentItem(
                         title: "Horizontal", isOn: values.flipHorizontal, isEnabled: canEdit, help: "Mirrors the picture from left to right."
@@ -25,7 +25,7 @@ struct FlipRotateCard: View {
                         title: "Vertical", isOn: values.flipVertical, isEnabled: canEdit, help: "Mirrors the picture from top to bottom."
                     ) { model.flipVertically() },
                 ])
-                Text("Rotate").font(.rkSmall).foregroundStyle(RK.muted)
+                Text("Rotate").font(.spSmall).foregroundStyle(SP.muted)
                 SegmentBar(items: [
                     SegmentItem(title: "Left 90°", isEnabled: canEdit, help: "Turns the picture 90° counterclockwise.") { model.rotate(by: -90) },
                     SegmentItem(title: "Right 90°", isEnabled: canEdit, help: "Turns the picture 90° clockwise.") { model.rotate(by: 90) },
@@ -33,7 +33,7 @@ struct FlipRotateCard: View {
                 ])
                 angle(canEdit: canEdit)
                 HStack {
-                    Text("Interpolation").font(.rk).foregroundStyle(RK.text)
+                    Text("Interpolation").font(.sp).foregroundStyle(SP.text)
                         .help("How the pixels are calculated when the angle is not a multiple of 90°. Bicubic is sharper, Bilinear is smoother.")
                     Spacer(minLength: 4)
                     SegmentBar(items: RotationMethod.allCases.map { method in
@@ -47,12 +47,12 @@ struct FlipRotateCard: View {
                 )
                 .disabled(!canEdit)
                 HStack(spacing: 6) {
-                    Text("Picture").font(.rkSmall).foregroundStyle(RK.muted)
+                    Text("Picture").font(.spSmall).foregroundStyle(SP.muted)
                     Spacer(minLength: 0)
-                    Text(model.orientedSizeText ?? "").font(.rk).foregroundStyle(RK.text).accessibilityLabel("Size of the picture")
+                    Text(model.orientedSizeText ?? "").font(.sp).foregroundStyle(SP.text).accessibilityLabel("Size of the picture")
                 }
                 if !canEdit {
-                    Text("Finish or cancel the crop first.").font(.rkSmall).foregroundStyle(RK.muted)
+                    Text("Finish or cancel the crop first.").font(.spSmall).foregroundStyle(SP.muted)
                 }
             }
             .padding(10)
@@ -62,7 +62,7 @@ struct FlipRotateCard: View {
     private func angle(canEdit: Bool) -> some View {
         VStack(spacing: 2) {
             HStack(spacing: 6) {
-                Text("Angle (°)").font(.rk).foregroundStyle(RK.text)
+                Text("Angle (°)").font(.sp).foregroundStyle(SP.text)
                     .help("Turns the picture clockwise; a negative angle turns it counterclockwise.")
                 Spacer()
                 DecimalField(
@@ -76,7 +76,7 @@ struct FlipRotateCard: View {
                 step: OrientationLimits.angleStep
             )
             .controlSize(.small)
-            .tint(RK.accent)
+            .tint(SP.accent)
             .disabled(!canEdit)
             .accessibilityLabel("Angle")
         }
@@ -106,12 +106,12 @@ struct ResizeCard: View {
                 methodMenu
                 VStack(alignment: .leading, spacing: 3) {
                     HStack(spacing: 6) {
-                        Text("Result").font(.rkSmall).foregroundStyle(RK.muted)
+                        Text("Result").font(.spSmall).foregroundStyle(SP.muted)
                         Spacer(minLength: 0)
-                        Text(model.resultSizeText ?? "").font(.rk).foregroundStyle(RK.text).accessibilityLabel("Size of the saved picture")
+                        Text(model.resultSizeText ?? "").font(.sp).foregroundStyle(SP.text).accessibilityLabel("Size of the saved picture")
                     }
                     Text("The picture is scaled when it is saved, after flipping, turning and cropping.")
-                        .font(.rkSmall).foregroundStyle(RK.muted).fixedSize(horizontal: false, vertical: true)
+                        .font(.spSmall).foregroundStyle(SP.muted).fixedSize(horizontal: false, vertical: true)
                 }
             }
             .padding(10)
@@ -121,7 +121,7 @@ struct ResizeCard: View {
     private var percent: some View {
         VStack(spacing: 2) {
             HStack(spacing: 6) {
-                Text("Size (%)").font(.rk).foregroundStyle(RK.text)
+                Text("Size (%)").font(.sp).foregroundStyle(SP.text)
                 Spacer()
                 NumberField(
                     label: "Size percent", value: Binding(get: { values.percent }, set: { model.setResizePercent($0) }),
@@ -133,7 +133,7 @@ struct ResizeCard: View {
                 in: Double(ResizeLimits.percent.lowerBound)...Double(ResizeLimits.percent.upperBound), step: 1
             )
             .controlSize(.small)
-            .tint(RK.accent)
+            .tint(SP.accent)
             .accessibilityLabel("Size")
         }
     }
@@ -157,7 +157,7 @@ struct ResizeCard: View {
 
     private func sideRow(_ title: String, label: String, value: Binding<Int>) -> some View {
         HStack(spacing: 6) {
-            Text(title).font(.rk).foregroundStyle(RK.text)
+            Text(title).font(.sp).foregroundStyle(SP.text)
             Spacer()
             NumberField(label: label, value: value, range: ResizeLimits.side, width: 52)
         }
@@ -165,7 +165,7 @@ struct ResizeCard: View {
 
     private var methodMenu: some View {
         HStack {
-            Text("Method").font(.rk).foregroundStyle(RK.text)
+            Text("Method").font(.sp).foregroundStyle(SP.text)
                 .help("How the new pixels are calculated. Lanczos3 keeps the most detail.")
             Spacer()
             Menu {
@@ -174,14 +174,14 @@ struct ResizeCard: View {
                 }
             } label: {
                 HStack(spacing: 5) {
-                    Text(values.method.title).font(.rk)
+                    Text(values.method.title).font(.sp)
                     Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
                 }
-                .foregroundStyle(RK.text)
+                .foregroundStyle(SP.text)
                 .padding(.horizontal, 10)
-                .frame(height: RKMetrics.fieldHeight)
-                .background(RK.raised, in: RoundedRectangle(cornerRadius: RKMetrics.radius))
-                .overlay { RoundedRectangle(cornerRadius: RKMetrics.radius).strokeBorder(RK.lineStrong, lineWidth: 1) }
+                .frame(height: SPMetrics.fieldHeight)
+                .background(SP.raised, in: RoundedRectangle(cornerRadius: SPMetrics.radius))
+                .overlay { RoundedRectangle(cornerRadius: SPMetrics.radius).strokeBorder(SP.lineStrong, lineWidth: 1) }
             }
             .menuStyle(.button)
             .buttonStyle(.plain)
@@ -202,12 +202,12 @@ struct SizeSection: View {
                 GroupHeading(title: "Size")
                     .help("The size of the file that Save Image writes.")
                 Text("The picture is saved at \(size).")
-                    .font(.rkSmall).foregroundStyle(RK.muted).fixedSize(horizontal: false, vertical: true)
+                    .font(.spSmall).foregroundStyle(SP.muted).fixedSize(horizontal: false, vertical: true)
                 if let turned = model.geometry.orientation.summary {
-                    Text("It is \(turned).").font(.rkSmall).foregroundStyle(RK.muted).fixedSize(horizontal: false, vertical: true)
+                    Text("It is \(turned).").font(.spSmall).foregroundStyle(SP.muted).fixedSize(horizontal: false, vertical: true)
                 }
                 Text("Flip and Rotate and Resize Image are in the Adjustments of the step Wavelets.")
-                    .font(.rkSmall).foregroundStyle(RK.muted).fixedSize(horizontal: false, vertical: true)
+                    .font(.spSmall).foregroundStyle(SP.muted).fixedSize(horizontal: false, vertical: true)
             }
         }
     }

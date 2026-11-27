@@ -91,7 +91,7 @@ nonisolated enum ViewStep: Int, CaseIterable, Identifiable, Sendable {
     /// The step after this one in the bar, `nil` after Save.
     var next: ViewStep? { ViewStep(rawValue: rawValue + 1) }
 
-    /// The result the step needs before it can run. Save needs only Stack: Save image runs a pending Do All itself (RK-009).
+    /// The result the step needs before it can run. Save needs only Stack: Save image runs a pending Do All itself (SP-009).
     fileprivate var requires: Step {
         switch self {
         case .open: .empty

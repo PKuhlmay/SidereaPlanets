@@ -1,10 +1,10 @@
-# RK-006 Stacken
+# SP-006 Stacken
 
 - Status: erledigt
-- Abhängig von: RK-005
+- Abhängig von: SP-005
 
 ## Ziel
-Aus den ausgewählten Frames ein Summenbild berechnen wie das Original. the reference program hat keinen eigenen
+Aus den ausgewählten Frames ein Summenbild berechnen wie das Original. Version 6 des Referenzprogramms hat keinen eigenen
 Optimierungsschritt mehr (Ablauf Set Alignpoints → Align → Limit → Stack, siehe `docs/workflow.md`).
 Die lokale Ausrichtung über die Alignpoints passiert beim Stacken selbst.
 
@@ -26,4 +26,4 @@ Doku (`docs/stacking.md`) sind fertig. Vergleich mit dem Original: 54,85 dB gege
 mit dem Vertrauen in die Punktversätze: Bei R1 streuen die Zuordnungen der Alignpoints unzusammenhängend, deshalb entspricht das
 Ergebnis dort dem Stack mit Frameversatz. Die lokale Korrektur selbst ist an einer künstlichen Verzerrung geprüft; ob das
 Original bei R1 lokal korrigiert, ist offen (`docs/stacking.md`). Save Aligned und Save Integrated (Create AVI) gehören zu
-RK-009, Resampling und Drizzling sind nicht umgesetzt. Die Häkchen von Resampling und Drizzling sind in der App gesperrt und mit „Not available yet“ gekennzeichnet (UI-Prüflauf: eingeschaltet wirkten sie nicht). Ebenso gesperrt sind StackSize Minimized, Maximized und R.of Interest, Stretch histogram after stacking und De-rotate images: Sie gehen nicht in die Anfrage an das Backend ein (`StackRequest`). Es wirken Use Nearestby Alignpoints, Correct geometry, Normalization of frame intensity und Do not stack n pixels at the frameedge. Test: `app/src/docs/stack-pages.test.ts` (Panel und Doku-Seite).
+SP-009, Resampling und Drizzling sind nicht umgesetzt. Die Häkchen von Resampling und Drizzling sind in der App gesperrt und mit „Not available yet“ gekennzeichnet (UI-Prüflauf: eingeschaltet wirkten sie nicht). Ebenso gesperrt sind StackSize Minimized, Maximized und R.of Interest, Stretch histogram after stacking und De-rotate images: Sie gehen nicht in die Anfrage an das Backend ein (`StackRequest`). Es wirken Use Nearestby Alignpoints, Correct geometry, Normalization of frame intensity und Do not stack n pixels at the frameedge. Test: `app/src/docs/stack-pages.test.ts` (Panel und Doku-Seite).

@@ -1,7 +1,7 @@
 # MAC-001 Mac-App aufbauen
 
 - Status: in Arbeit
-- Abhängig von: RK-005 bis RK-010, RK-012, RK-014 (Stand der Windows-App vom 2026-11-12)
+- Abhängig von: SP-005 bis SP-010, SP-012, SP-014 (Stand der Windows-App vom 2026-11-12)
 - Rechner: Mac (Apple Silicon, Xcode, `mac/README.md` Abschnitt „Voraussetzungen am Mac“)
 
 ## Ziel
@@ -21,7 +21,7 @@ Gemeinsam bleibt nur der Rechenkern in Rust. Die Mac-App ruft ihn über eine Sch
 - **Sitzungslogik in den Kern ziehen:** Was heute in den Tauri-Befehlen steckt (`app/src-tauri/src/*_commands.rs`: Zustand je Schritt,
   Verwerfen der Ergebnisse nach neuem Set Alignpoints/Align (`discard_results`), Thread-Pool der CPU-Auswahl (`compute.rs`),
   Abbrechen und Pausieren, Fortschritt) wird in einen GUI-freien Crate (`crates/session`) verschoben, den die Tauri-Shell **und** die
-  Schnittstelle benutzen. Die Windows-App muss danach unverändert laufen (Tests und Fensterlauf wie bei RK-014).
+  Schnittstelle benutzen. Die Windows-App muss danach unverändert laufen (Tests und Fensterlauf wie bei SP-014).
 - **Swift-Paket** `mac/Packages/SidereaPlanetsKit`: dünne Swift-Schicht um die erzeugten Bindings (typisierte Aufrufe, `async`,
   Fortschritts-Streams, Abbruch), mit `swift test`.
 - **App** `mac/App` (SwiftUI, macOS 14 oder neuer), Projekt per **xcodegen** aus `mac/project.yml`.
@@ -33,7 +33,7 @@ Gerüst
 - [x] Der Kern baut und testet am Mac: `cargo test --workspace` und `cargo clippy --workspace --all-targets` ohne Warnungen; was
       Windows-spezifisch ist (Pfade, Zeilenenden, Testdaten-Suche in `crates/io/tests/common/mod.rs`), ist portabel gemacht
 - [ ] `crates/session` enthält die Sitzungslogik, die Tauri-Shell benutzt sie, alle bestehenden Tests sind grün und der
-      Fensterlauf der Windows-App ist unverändert (Auswertung: Commit `[TASK] RK-… - …` getrennt vom Mac-Teil)
+      Fensterlauf der Windows-App ist unverändert (Auswertung: Commit `[TASK] SP-… - …` getrennt vom Mac-Teil)
 - [x] `crates/ffi` mit Swift-Bindings und XCFramework; ein Test in Swift ruft den Rechenkern auf und prüft ein Ergebnis aus
       `docs/testdaten.md` (z. B. Stack gegen die Referenz mit PSNR-Schwelle)
 - [ ] `mac/project.yml`, `mac/README.md` Abschnitt „Bauen und veröffentlichen“ ausgefüllt (xcodegen, `xcodebuild`, Bündel,
@@ -44,7 +44,7 @@ Oberfläche (nach `docs/design.md`, Soll-Bilder `docs/design/screenshots/`, dunk
       Bildbereich, Frame-Leiste und Statusleiste in den Zuständen aus `docs/design.md`
 - [x] Schritt **Open**: Aufnahme öffnen (SER, AVI, Bildserien, FITS), MRU, Dateiangaben
 - [x] Schritte **Alignpoints**, **Align**, **Limit**: Set Alignpoints, Align mit Fortschritt, Pause und Cancel, Limit mit
-      Qualitätsbalken, Framelist, Registrationgraph, R.o.Interest, Frames/Apoint, erneutes Ausrichten wie in RK-005
+      Qualitätsbalken, Framelist, Registrationgraph, R.o.Interest, Frames/Apoint, erneutes Ausrichten wie in SP-005
 - [x] Schritt **Stack**: alle wirksamen Optionen (Nearestby Alignpoints, Correct geometry, Normalization, Edge pixels), die
       unwirksamen gesperrt mit „Not available yet“
 - [x] Schritt **Wavelets**: sechs Ebenen, Process, Do All, Before, Processing Area, Live-Vorschau, Colour/LRGB, Functions-Karten
@@ -78,7 +78,7 @@ Qualität
 
 - Worktrees sind am Mac erlaubt (auf Windows nicht): Branch `MAC-001-…`, Squash-Merge, ein Commit je Teil-Ticket (die Teile in
   eigene Tickets `MAC-002 …` zerlegen, sobald klar ist, wo die Schnitte liegen; dieses Ticket bleibt die Klammer).
-- Die Spezifikation des Originals steht in `docs/` (Reverse Engineering von the reference program). Original-Binaries und Beispieldaten
+- Die Spezifikation des Originals steht in `docs/` (Reverse Engineering des Referenzprogramms). Original-Binaries und Beispieldaten
   (`re-local/`) sind nicht in Git; für Referenztests den Ordner kopieren und `PLANETS_RE_LOCAL` setzen.
 - Wo die Windows-App ihre Grenzen hat (Resampling, Drizzling, StackSize, Stretch histogram, De-rotate, Realign with Processed,
   Scan Frames, Flat/Dark/Reference), baut die Mac-App sie ebenfalls als „Not available yet“, bis ein eigenes Ticket sie umsetzt.

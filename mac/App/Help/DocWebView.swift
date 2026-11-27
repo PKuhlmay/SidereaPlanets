@@ -12,7 +12,7 @@ struct DocWebView: NSViewRepresentable {
     func makeNSView(context: Context) -> WKWebView {
         let view = WKWebView(frame: .zero, configuration: WKWebViewConfiguration())
         view.navigationDelegate = context.coordinator
-        view.underPageBackgroundColor = NSColor(RK.bg)
+        view.underPageBackgroundColor = NSColor(SP.bg)
         view.setAccessibilityLabel("Documentation page")
         return view
     }

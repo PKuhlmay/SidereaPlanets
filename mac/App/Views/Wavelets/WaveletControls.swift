@@ -28,11 +28,11 @@ struct DecimalField: View {
             TextField(label, value: clamped, format: .number.locale(Locale(identifier: "en_US")).precision(.fractionLength(decimals)).grouping(.never))
                 .textFieldStyle(.plain)
                 .multilineTextAlignment(.trailing)
-                .font(.rk)
+                .font(.sp)
                 .padding(.horizontal, 6)
-                .frame(width: width, height: RKMetrics.fieldHeight)
-                .background(RK.field, in: RoundedRectangle(cornerRadius: RKMetrics.radiusSmall))
-                .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusSmall).strokeBorder(RK.lineStrong, lineWidth: 1) }
+                .frame(width: width, height: SPMetrics.fieldHeight)
+                .background(SP.field, in: RoundedRectangle(cornerRadius: SPMetrics.radiusSmall))
+                .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusSmall).strokeBorder(SP.lineStrong, lineWidth: 1) }
                 .accessibilityLabel(label)
             Stepper(label, value: clamped, in: range, step: step).labelsHidden().controlSize(.small)
         }
@@ -59,15 +59,15 @@ struct SegmentBar: View {
     var body: some View {
         HStack(spacing: 0) {
             ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                if index > 0 { RK.lineStrong.frame(width: 1) }
+                if index > 0 { SP.lineStrong.frame(width: 1) }
                 Button(action: item.action) {
                     Text(item.title)
-                        .font(.rk(RKMetrics.fontSize, .medium))
-                        .foregroundStyle(item.isEnabled ? (item.isOn ? RK.accentInk : RK.text) : RK.off)
+                        .font(.sp(SPMetrics.fontSize, .medium))
+                        .foregroundStyle(item.isEnabled ? (item.isOn ? SP.accentInk : SP.text) : SP.off)
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
-                        .frame(maxWidth: .infinity, minHeight: RKMetrics.buttonHeight)
-                        .background(item.isOn && item.isEnabled ? RK.accentSoft : RK.raised)
+                        .frame(maxWidth: .infinity, minHeight: SPMetrics.buttonHeight)
+                        .background(item.isOn && item.isEnabled ? SP.accentSoft : SP.raised)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
@@ -76,8 +76,8 @@ struct SegmentBar: View {
                 .accessibilityAddTraits(item.isOn ? .isSelected : [])
             }
         }
-        .clipShape(RoundedRectangle(cornerRadius: RKMetrics.radius))
-        .overlay { RoundedRectangle(cornerRadius: RKMetrics.radius).strokeBorder(RK.lineStrong, lineWidth: 1) }
+        .clipShape(RoundedRectangle(cornerRadius: SPMetrics.radius))
+        .overlay { RoundedRectangle(cornerRadius: SPMetrics.radius).strokeBorder(SP.lineStrong, lineWidth: 1) }
     }
 }
 
@@ -101,11 +101,11 @@ struct LinkButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.rk(RKMetrics.fontSize, isOn ? .semibold : .regular))
-                .foregroundStyle(isEnabled ? RK.accentInk : RK.off)
+                .font(.sp(SPMetrics.fontSize, isOn ? .semibold : .regular))
+                .foregroundStyle(isEnabled ? SP.accentInk : SP.off)
                 .padding(.horizontal, 4)
                 .padding(.vertical, 2)
-                .background(isHovering && isEnabled || isOn ? RK.accentSoft : .clear, in: RoundedRectangle(cornerRadius: RKMetrics.radiusSmall))
+                .background(isHovering && isEnabled || isOn ? SP.accentSoft : .clear, in: RoundedRectangle(cornerRadius: SPMetrics.radiusSmall))
                 .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

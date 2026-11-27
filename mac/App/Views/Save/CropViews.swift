@@ -19,7 +19,7 @@ struct CropCard: View {
             LinkButton("Reset", help: "Back to the whole image.") { model.resetCrop() }
         }, content: {
             VStack(alignment: .leading, spacing: 8) {
-                Text("Format").font(.rkSmall).foregroundStyle(RK.muted)
+                Text("Format").font(.spSmall).foregroundStyle(SP.muted)
                 SegmentBar(items: CropFormat.allCases.map { format in
                     SegmentItem(
                         title: format.title, isOn: model.crop.format == format,
@@ -27,23 +27,23 @@ struct CropCard: View {
                     ) { model.setCropFormat(format) }
                 })
                 HStack(spacing: 6) {
-                    Text("Size").font(.rkSmall).foregroundStyle(RK.muted)
+                    Text("Size").font(.spSmall).foregroundStyle(SP.muted)
                     Spacer(minLength: 0)
-                    Text(model.cropSizeText ?? "").font(.rk).foregroundStyle(RK.text)
+                    Text(model.cropSizeText ?? "").font(.sp).foregroundStyle(SP.text)
                         .accessibilityLabel("Size of the crop")
                 }
                 Text(isWholeImage
                     ? "Drag on the image to draw the part to keep."
                     : "Drag the rectangle to move it and its handles to resize it. Save Image writes only what is inside.")
-                    .font(.rkSmall)
-                    .foregroundStyle(RK.muted)
+                    .font(.spSmall)
+                    .foregroundStyle(SP.muted)
                     .fixedSize(horizontal: false, vertical: true)
                 HStack(spacing: 8) {
                     Button("Cancel") { model.cancelCrop() }
-                        .buttonStyle(.rk)
+                        .buttonStyle(.sp)
                         .help("Closes the crop tool and drops the changes.")
                     Button("Done") { model.finishCrop() }
-                        .buttonStyle(.rkFilled)
+                        .buttonStyle(.spFilled)
                         .help("Keeps the rectangle: Save Image writes only what is inside.")
                 }
             }
@@ -61,12 +61,12 @@ struct CropSection: View {
             GroupHeading(title: "Crop")
                 .help("Cuts the picture to a rectangle when it is saved.")
             Text(summary)
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
+                .font(.spSmall)
+                .foregroundStyle(SP.muted)
                 .fixedSize(horizontal: false, vertical: true)
             HStack(spacing: 8) {
                 Button("Crop…") { model.startCrop() }
-                    .buttonStyle(.rk)
+                    .buttonStyle(.sp)
                     .disabled(!model.canCrop || model.crop.isEditing)
                     .help("Draws the part of the picture to keep, as Free, 1:1, 3:2 or 4:3.")
                 if model.crop.applied != nil {

@@ -108,9 +108,7 @@ fn jupiter_runs_from_select_to_save_image() {
         "normalize": false, "edgeSkip": 0, "roi": null
     }))
     .unwrap();
-    let stacked = session
-        .stack(&stack, &planets_session::NoProgress)
-        .unwrap();
+    let stacked = session.stack(&stack, &planets_session::NoProgress).unwrap();
     assert_eq!(
         (stacked.width, stacked.height, stacked.frames),
         (1024, 680, 10)

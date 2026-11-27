@@ -1,7 +1,7 @@
-# RK-021 View Compare und Zuschneiden vor dem Speichern (Windows zieht nach)
+# SP-021 View Compare und Zuschneiden vor dem Speichern (Windows zieht nach)
 
 - Status: erledigt
-- Abhängig von: RK-016, MAC-016, MAC-019
+- Abhängig von: SP-016, MAC-016, MAC-019
 - Stufe: `windows-v0.1.0` (Nachzug zu Mac `v0.1.0`)
 
 ## Ziel
@@ -31,9 +31,9 @@ aus `mac/Tests/SidereaPlanetsTests/CropRectangleTests.swift` getestet. Tauri: `s
 - [x] Zuschnitt gilt für jedes Format von Save Image im Schritt Wavelets und Save, nach den Farb- und Tonwerten, bis zum nächsten Stack
       oder einer anderen Aufnahme; nicht in der Projektdatei
 - [x] Gesperrte Adjustments-Knöpfe nach diesem Ticket: View Zoomed, View Stack Size, Flip and Rotate, Resize Image, Wavelet Filter, Show Line Graph
-- [x] Punkte aus `docs/parity/WINDOWS_PARITY.md` gelöscht (View Compare, Abschnitt MAC-016; mit RK-020 auch der Punkt „Die Zahl der
+- [x] Punkte aus `docs/parity/WINDOWS_PARITY.md` gelöscht (View Compare, Abschnitt MAC-016; mit SP-020 auch der Punkt „Die Zahl der
       gesperrten Adjustments-Knöpfe“ und damit der ganze Abschnitt MAC-019)
-- [x] Probe von Hand als `## RK-021 View Compare und Zuschneiden (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] Probe von Hand als `## SP-021 View Compare und Zuschneiden (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
 - [x] `cargo test --workspace`, `clippy` ohne Warnungen, `cd app && pnpm test` und `pnpm build` grün, neue Tests einmal rot gesehen
 
 ## Umsetzung

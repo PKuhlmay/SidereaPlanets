@@ -11,8 +11,9 @@ Die Oberfläche soll für Einsteiger in die Planetenfotografie verständlich sei
 
 - **Klar benennen, erklären im Tooltip:** Unklare Begriffe bekommen einen verständlichen Namen und einen erklärenden Tooltip.
   Etablierte Fachbegriffe der Planetenfotografie (Alignpoints, Wavelets, Stack, Do All) bleiben und bekommen ebenfalls Tooltips.
-- **Kein Hinweis auf the reference program** (Philipp, 2026-11-12): Siderea Planets ist ein eigenes Programm. In keinem sichtbaren Text beider Apps
-  (Oberfläche, Tooltips, Dateidialoge, Hilfeseiten, Statusmeldungen, Dateiköpfe) steht „the reference program“, „the reference program“ oder „das Original“.
+- **Kein Hinweis auf das Referenzprogramm** (Philipp, 2026-11-12): Siderea Planets ist ein eigenes Programm. In keinem sichtbaren Text beider Apps
+  (Oberfläche, Tooltips, Dateidialoge, Hilfeseiten, Statusmeldungen, Dateiköpfe) steht der Name des Referenzprogramms (mit oder ohne
+  Versionsnummer) oder „das Original“.
   Vergleiche mit dem Original gehören nur in die interne Doku (`docs/`). Das Format `.rwv` heißt in Dialogen „Wavelet scheme“.
 - **Ohne Wirkung = gesperrt:** Schalter, Felder und Knöpfe, die nichts tun, werden gedimmt mit Tooltip „Not available yet“, wie die
   übrigen noch nicht gebauten Optionen.
@@ -33,11 +34,11 @@ Die Oberfläche soll für Einsteiger in die Planetenfotografie verständlich sei
 - [x] Sachfehler behoben: Align-Ergebnis zeigt nicht mehr immer „best quality 100 %“
 - [x] Einheitliche Schreibweise (HIG: Title Case für Knöpfe und Menüs, Sentence case für Felder und Tooltips, „…“ bei Dialogen),
       US-Englisch, Einheiten an den Feldern
-- [x] Anwenderseiten `app/src/docs/pages/` nutzen die neuen Namen, neue Seite „Glossary“ (Begriff, Name in der App, Erklärung; ohne the reference program-Namen, siehe Regel oben)
+- [x] Anwenderseiten `app/src/docs/pages/` nutzen die neuen Namen, neue Seite „Glossary“ (Begriff, Name in der App, Erklärung; ohne den Namen des Referenzprogramms, siehe Regel oben)
 - [x] `docs/design.md` und `docs/ui.md` (Spalte für den Namen in der App) nachgezogen
 - [x] Ein Sammelpunkt in `docs/parity/WINDOWS_PARITY.md` mit der vollständigen Zuordnung alt → neu, den Tooltips und den
       gesperrten Elementen, damit Windows nachziehen kann
-- [x] Keine Erwähnung von the reference program oder „original“ in sichtbaren Texten beider Apps und in `app/src/docs/pages/`; Suche im Ticket
+- [x] Keine Erwähnung des Referenzprogramms oder von „original“ in sichtbaren Texten beider Apps und in `app/src/docs/pages/`; Suche im Ticket
       dokumentiert; Regel in `CLAUDE.md` (Abschnitt „Name“) festgehalten
 - [x] Tests grün (Mac, `pnpm test` für die Doku-Seiten), Texte in Tests angepasst
 
@@ -56,8 +57,9 @@ Die Oberfläche soll für Einsteiger in die Planetenfotografie verständlich sei
   fehl). Danach implementiert, 240 Tests grün.
 - **Windows**: nur gemeinsame Dateien geändert (Anwenderseiten samt Glossary, Rechenkern-Fehlertexte „color“, die Windows-Doku-Tests);
   die Windows-Oberfläche zieht über den Sammelpunkt in `docs/parity/WINDOWS_PARITY.md` nach („Verständliche Texte für Einsteiger“).
-- **Suche** `git grep -n -i "the reference program\|the original" -- mac/App app/src/docs/pages crates/*/src` am Ende: keine Treffer in sichtbaren
+- **Suche** (ohne Beachtung der Groß- und Kleinschreibung) nach dem Namen des Referenzprogramms und nach „the original“ in `mac/App`,
+  `app/src/docs/pages` und `crates/*/src` am Ende: keine Treffer in sichtbaren
   Texten, in den Anwenderseiten und in `mac/App` nur Code-Kommentare und Bezeichner (`SidereaPlanetsKit`, `PlanetsSession`, …), in `crates/`
-  Doc-Kommentare, Bezeichner (`planets_*`) und ein Test. Sichtbare the reference program-Texte in der Mac-App waren Über-Text, Dateidialog
-  „the reference program Wavelet scheme settings“, Einstellungen (Schemes) und `NSHumanReadableCopyright` in `mac/project.yml`; alle ersetzt. Windows:
+  Doc-Kommentare, Bezeichner (`planets_*`) und ein Test. Sichtbar war der Name in der Mac-App im Über-Text, im Dateidialog (Dateityp der
+  `.rwv`-Schemata), in den Einstellungen (Schemes) und in `NSHumanReadableCopyright` in `mac/project.yml`; alle ersetzt. Windows:
   `app/src/wavelet.ts:142` (Dialogfilter) bleibt bis zum Nachzug, steht im Sammelpunkt. Regel in `CLAUDE.md`, Abschnitt „Name“.

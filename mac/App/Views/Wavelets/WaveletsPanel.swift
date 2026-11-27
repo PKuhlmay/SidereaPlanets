@@ -16,12 +16,12 @@ struct WaveletsStepView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 16) {
-                Toggle(isOn: $model.wavelet.colour) { Text("Color").font(.rk).foregroundStyle(model.isMono ? RK.off : RK.text) }
+                Toggle(isOn: $model.wavelet.colour) { Text("Color").font(.sp).foregroundStyle(model.isMono ? SP.off : SP.text) }
                     .toggleStyle(.checkbox)
                     .disabled(model.isMono)
                     .help(model.isMono ? "Needs a color image" : "Processes the channels in color; off gives grayscale.")
                 Toggle(isOn: $model.wavelet.lrgb) {
-                    Text("Sharpen brightness only").font(.rk).foregroundStyle(model.isMono || !model.wavelet.colour ? RK.off : RK.text)
+                    Text("Sharpen brightness only").font(.sp).foregroundStyle(model.isMono || !model.wavelet.colour ? SP.off : SP.text)
                 }
                 .toggleStyle(.checkbox)
                 .disabled(model.isMono || !model.wavelet.colour)
@@ -55,8 +55,8 @@ struct WaveletsStepView: View {
             Spacer(minLength: 0)
             Text("Preview").minimumScaleFactor(0.85).frame(width: columns.preview, alignment: .trailing)
         }
-        .font(.rkSmall)
-        .foregroundStyle(RK.muted)
+        .font(.spSmall)
+        .foregroundStyle(SP.muted)
         .lineLimit(1)
     }
 
@@ -65,7 +65,7 @@ struct WaveletsStepView: View {
         let number = index + 1
         return VStack(spacing: 2) {
             HStack(spacing: columns.gap) {
-                Toggle(isOn: $model.wavelet.values.layers[index].enabled) { Text("\(number)").font(.rk).foregroundStyle(RK.text) }
+                Toggle(isOn: $model.wavelet.values.layers[index].enabled) { Text("\(number)").font(.sp).foregroundStyle(SP.text) }
                     .toggleStyle(.checkbox)
                     .frame(width: columns.layer, alignment: .leading)
                     .accessibilityLabel("Layer \(number)")
@@ -79,7 +79,7 @@ struct WaveletsStepView: View {
                 )
                 Spacer(minLength: 0)
                 Button { } label: { Image(systemName: "eye") }
-                    .buttonStyle(.rkCompact)
+                    .buttonStyle(.spCompact)
                     .disabled(true)
                     .frame(width: columns.preview)
                     .help("Preview layer \(number): Not available yet")
@@ -94,13 +94,13 @@ struct WaveletsStepView: View {
                     in: Double(WaveletLimits.level.lowerBound)...Double(WaveletLimits.level.upperBound), step: 1
                 )
                 .controlSize(.small)
-                .tint(RK.accent)
+                .tint(SP.accent)
                 .help("Strength of layer \(number)")
                 .accessibilityLabel("Layer \(number)")
                 .accessibilityValue(formatPreview(model.wavelet.values.layers[index].level))
                 Text(formatPreview(model.wavelet.values.layers[index].level))
-                    .font(.rkSmall)
-                    .foregroundStyle(RK.muted)
+                    .font(.spSmall)
+                    .foregroundStyle(SP.muted)
                     .frame(width: columns.preview, alignment: .trailing)
             }
         }
@@ -121,8 +121,8 @@ struct WaveletsStepView: View {
                 help: "Keeps the layer values when a new stack is made."
             )
             Text("Layer spacing")
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
+                .font(.spSmall)
+                .foregroundStyle(SP.muted)
                 .padding(.top, 2)
                 .help("Linear: the layers grow evenly. Dyadic: each layer doubles in size.")
             SegmentBar(items: [
@@ -146,7 +146,7 @@ struct WaveletsStepView: View {
                 )
             }
             .padding(.top, 2)
-            Text("Wavelet filter").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 2)
+            Text("Wavelet filter").font(.spSmall).foregroundStyle(SP.muted).padding(.top, 2)
             SegmentBar(items: [
                 SegmentItem(title: "Default", isOn: model.wavelet.values.filter == .default, help: "The standard filter.") { model.wavelet.values.filter = .default },
                 SegmentItem(title: "Gaussian", isOn: model.wavelet.values.filter == .gaussian, help: "Smoother than Default.") { model.wavelet.values.filter = .gaussian },
@@ -157,7 +157,7 @@ struct WaveletsStepView: View {
             )
             .padding(.top, 2)
 
-            RK.line.frame(height: 1).padding(.vertical, 6)
+            SP.line.frame(height: 1).padding(.vertical, 6)
             GroupHeading(title: "Saved Schemes")
             // The list of saved schemes has no function yet; Load Scheme and Save Scheme work on a file.
             Picker("Saved schemes", selection: .constant(0)) { Text("").tag(0) }
@@ -171,16 +171,16 @@ struct WaveletsStepView: View {
             }
             .padding(.top, 2)
 
-            RK.line.frame(height: 1).padding(.vertical, 6)
+            SP.line.frame(height: 1).padding(.vertical, 6)
             VStack(alignment: .leading, spacing: 2) {
                 Button("Realign with Processed") {}
-                    .buttonStyle(.rkWide)
+                    .buttonStyle(.spWide)
                     .disabled(true)
-                Text("Not available yet").font(.rkSmall).foregroundStyle(RK.muted)
+                Text("Not available yet").font(.spSmall).foregroundStyle(SP.muted)
             }
             .help("Not available yet")
             Button("Stack Again") {}
-                .buttonStyle(.rkWide)
+                .buttonStyle(.spWide)
                 .disabled(true)
                 .help("Not available yet")
         }
@@ -191,11 +191,11 @@ extension WaveletsStepView {
     @ViewBuilder
     fileprivate var schemeButtons: some View {
         Button("Load Scheme…") { Task { await model.chooseSchemeToLoad() } }
-            .buttonStyle(.rkWide)
+            .buttonStyle(.spWide)
             .disabled(model.isBusy)
             .help("Loads the layer values from a wavelet scheme file (.rwv).")
         Button("Save Scheme…") { model.chooseSchemeToSave() }
-            .buttonStyle(.rkWide)
+            .buttonStyle(.spWide)
             .help("Saves the layer values as a wavelet scheme file (.rwv).")
     }
 }

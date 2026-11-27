@@ -1,6 +1,6 @@
-# Ein- und Ausgabeformate von the reference program
+# Ein- und Ausgabeformate des Referenzprogramms
 
-Stand: RK-003, beobachtet an the reference program.1.0.0 (Dateidatum 02-04-2011) unter Windows 11.
+Stand: SP-003, beobachtet am Referenzprogramm, Version 6.1.0.0 (Dateidatum 02-04-2011) unter Windows 11.
 
 ## Eingabe
 
@@ -15,9 +15,9 @@ Dateitypen im Dialog „Open file(s)“ (Schaltfläche **Select**), in dieser Re
 | Tiff frame(s) | `*.tif` | fertig |
 | Png frame(s) | `*.png` | fertig |
 | LuCam recorder SER | `*.ser` | fertig |
-| the reference program Framelist | _Endung unbekannt_ | offen, siehe `docs/offene-fragen.md` |
+| Eigene Framelist des Referenzprogramms | _Endung unbekannt_ | offen, siehe `docs/offene-fragen.md` |
 
-### Was der Klon liest (RK-004)
+### Was der Klon liest (SP-004)
 
 - **Einzelbilder** werden als Serie geöffnet: mehrere Dateien im Dialog wählen, jede Datei ist ein Frame, sortiert in
   natürlicher Reihenfolge (`frame2` vor `frame10`). Alle Frames brauchen die Größe und Kanalzahl des ersten.
@@ -37,7 +37,7 @@ Dateitypen im Dialog „Open file(s)“ (Schaltfläche **Select**), in dieser Re
 
 - Der Dateiname „Open file(s)“ und die Bilderfilter deuten darauf hin, dass mehrere Einzelbilder auf einmal als
   Sequenz geöffnet werden können (_Vermutung_ fürs Original, nicht ausprobiert; der Klon macht es so).
-- AVI liest the reference program über die Video-for-Windows-Schnittstelle. Die Titelleiste zeigt den Codec (`DIB vids` bei
+- AVI liest das Referenzprogramm über die Video-for-Windows-Schnittstelle. Die Titelleiste zeigt den Codec (`DIB vids` bei
   unkomprimiertem RGB). Welche Codecs gehen, hängt also von den auf dem Rechner installierten Codecs ab. Der Klon
   muss die gängigen selbst dekodieren.
 - *Settings ▸ Stretch FIT/TIFF* (Always Ask · Yes · No) legt fest, ob FIT- und TIFF-Eingaben auf den vollen
@@ -54,7 +54,7 @@ Dateitypen im Dialog „Open file(s)“ (Schaltfläche **Select**), in dieser Re
 | JPEG (RGB) | `.jpg` | 8 Bit |
 | FIT (16-bit) | `.fit` | |
 | FIT (32-bit) | `.fit` | |
-| Special the reference program Fits | `.fit` | _Inhalt unbekannt_ |
+| Eigene FITS-Variante des Referenzprogramms („Special … Fits“) | `.fit` | _Inhalt unbekannt_ |
 | TIFF (16 bit RGB) | `.tif` | geprüft: unkomprimiert, 1 Strip, RGB interleaved, 16 Bit |
 | PNG (16 bit RGB) | `.png` | |
 | FIT (32 bit Float) | `.fit` | |
@@ -70,8 +70,8 @@ Dateitypen im Dialog „Open file(s)“ (Schaltfläche **Select**), in dieser Re
 | PNG (16BIT*RGB) | |
 
 Beobachtungen:
-- Als Dateiname schlägt the reference program den Namen der Aufnahme vor (`JUPITER.BMP`) und speichert im Ordner der Aufnahme.
-  Wechselt man den Dateityp, passt the reference program die Endung selbst an.
+- Als Dateiname schlägt das Referenzprogramm den Namen der Aufnahme vor (`JUPITER.BMP`) und speichert im Ordner der Aufnahme.
+  Wechselt man den Dateityp, passt das Referenzprogramm die Endung selbst an.
 - Der gewählte **Filter bestimmt das Format**, nicht die eingetippte Endung. Ein Versuch mit Filter „BMP“ und
   Name `….tif` ergab `….bmp`.
 - 16-Bit-Ausgaben nutzen den vollen Bereich: Das 16-Bit-TIFF entspricht dem 8-Bit-BMP mal **256**
@@ -83,7 +83,7 @@ Beobachtungen:
 **Stack-Reiter, Create AVI**: Save Aligned (ausgerichtete Frames) und Save Integrated (gleitender Mittelwert über
 n Frames) schreiben AVI mit einem Video-for-Windows-Codec, Qualität und Bildrate. Nicht ausprobiert.
 
-### Was der Klon schreibt (RK-009)
+### Was der Klon schreibt (SP-009)
 
 *Save image* in beiden Reitern schreibt über `planets_io::export` (Befehl `save_image`, Dateidialog des Betriebssystems):
 
@@ -104,13 +104,14 @@ n Frames) schreiben AVI mit einem Video-for-Windows-Codec, Qualität und Bildrat
   sie, wie es das Original bei `….tif` mit Filter BMP tat.
 - FITS: nur die primäre HDU. Einkanalbilder haben `NAXIS` 2, Farbbilder `NAXIS` 3 mit den Ebenen R, G, B **in einer Datei**; die
   Datei lässt sich mit dem Leser des Klons wieder öffnen. Die Zeilen werden von unten nach oben abgelegt, wie FITS es vorsieht.
-  Die Variante „RGB separate“ (je Kanal eine Datei) und „Special the reference program Fits“ gibt es nicht, ihr Aufbau ist unbekannt.
+  Die Variante „RGB separate“ (je Kanal eine Datei) und die eigene FITS-Variante des Referenzprogramms gibt es nicht, ihr Aufbau ist
+  unbekannt.
 - **Wertebereich**: Der Klon rechnet in Fließkomma und bildet 1.0 auf den Höchstwert des Formats ab (255, 65535 …). Das Original
   liefert 16 Bit als 8 Bit × 256, also höchstens 65280 (siehe Beobachtungen oben). Die Abweichung ist **entschieden** (Philipp,
   2026-11-11): 16 Bit bleiben im vollen Bereich bis 65535, siehe `docs/offene-fragen.md`, Punkt 22. Wer gegen ein Original-TIFF
   vergleicht, rechnet dessen Werte durch 256 (so macht es `docs/stacking.md`).
 - **Farb- und Tonwerte**: *Save image* im **Wavelet-Reiter** schreibt das Bild so, wie das Fenster es zeigt: das geschärfte Bild mit
-  den Werten von RGB Align, RGB Balance, Histogram, Gamma und Contrast/Brightness (RK-008). Die Oberfläche schickt die Werte mit
+  den Werten von RGB Align, RGB Balance, Histogram, Gamma und Contrast/Brightness (SP-008). Die Oberfläche schickt die Werte mit
   (`adjustments` bei `save_image` und `save_image_as`), der Befehl rechnet `planets_core::color::adjust` auf dem
   Bild in voller Genauigkeit, nicht auf der 8-Bit-Anzeige. Sind alle Werte neutral, wird das Bild unverändert geschrieben, wie zuvor.
   Der **Stack-Reiter** zeigt das Summenbild ohne diese Werte und schreibt es auch so.
@@ -138,8 +139,8 @@ Umsetzung: Befehle `choose_video_path` (Dateidialog, Endung `.avi`), `save_align
 
 ## Wavelet-Schema (`.rwv`)
 
-*Save Scheme* speichert die Wavelet-Einstellungen als INI-Datei mit der Endung **`.rwv`** (Filter „the reference program Wavelet
-scheme settings“). Beispiel für Ebene 1 auf Reglerstellung 10.0, alles andere Standard:
+*Save Scheme* speichert die Wavelet-Einstellungen als INI-Datei mit der Endung **`.rwv`** (der Filtername im Dialog endet auf
+„Wavelet scheme settings“, davor steht der Programmname). Beispiel für Ebene 1 auf Reglerstellung 10.0, alles andere Standard:
 
 ```ini
 [scheme]
@@ -160,16 +161,16 @@ layer1=0         ; … layer6, Feld „Denoise“ × 100
 
 Die Kommentare hat TARS ergänzt, die Datei selbst enthält keine. Zeilenenden CRLF. Die Zuordnung `itemindex` → Auswahl
 ist aus dem Zustand beim Speichern geschlossen (Linear und Gaussian waren gewählt). Den Wert 0 haben wir nicht gegengeprüft.
-Der Klon liest **und** schreibt dieses Format unverändert (RK-007, `crates/core/src/wavelet/scheme.rs`), ein eigenes Format gibt es
+Der Klon liest **und** schreibt dieses Format unverändert (SP-007, `crates/core/src/wavelet/scheme.rs`), ein eigenes Format gibt es
 nicht. Zwischen Oberfläche und Rust gehen die Einstellungen als JSON, die Datei ist nur der Speicherort. Einzelheiten
 (tolerantes Lesen, Rundung, Befehle `save_wavelet_scheme`/`load_wavelet_scheme`): `docs/wavelets.md`.
 
-## Projektdatei (`.rkproj`)
+## Projektdatei (`.sidereaplanets`)
 
 Gibt es im Original nicht. Sie hält fest, was zum Wiederöffnen einer Sitzung nötig ist: die Aufnahme und die Einstellungen der Schritte.
 Umsetzung: `planets_io::project` (Befehle `project_save`, `project_save_as`, `project_load`, `project_open`).
 
-JSON, UTF-8, Endung **`.rkproj`**, Felder in camelCase:
+JSON, UTF-8, Endung **`.sidereaplanets`**, Felder in camelCase:
 
 ```json
 {
@@ -197,24 +198,24 @@ JSON, UTF-8, Endung **`.rkproj`**, Felder in camelCase:
 - Nicht in der Datei: die Bilder selbst (Ergebnis von Align und Stack). Sie werden beim Öffnen neu berechnet.
 
 Das Wavelet-Schema des Originals (`.rwv`, Abschnitt oben) bleibt ein eigenes Dateiformat. *Load Scheme* und *Save Scheme* lesen und
-schreiben es (Rechenkern `crates/core/src/wavelet/scheme.rs`, Befehle `load_wavelet_scheme` und `save_wavelet_scheme`, RK-007). Gelesen werden Schema, Filter,
+schreiben es (Rechenkern `crates/core/src/wavelet/scheme.rs`, Befehle `load_wavelet_scheme` und `save_wavelet_scheme`, SP-007). Gelesen werden Schema, Filter,
 Initial Layer, Step Increment und je Ebene Häkchen, Regler, Sharpen (÷ 100) und Denoise (÷ 100); gespeichert wird in der
 Reihenfolge des Beispiels oben mit CRLF. Die Zuordnung der Werte 0 und 1 ist bisher nur aus dem Beispiel (Linear, Gaussian)
 geschlossen. 
 
 ## Einstellungsdateien
 
-the reference program legt seine Einstellungen als INI-Dateien **neben der EXE** ab (nicht im Benutzerprofil):
+Das Referenzprogramm legt seine Einstellungen als INI-Dateien **neben der EXE** ab (nicht im Benutzerprofil):
 
 | Datei | Inhalt |
 |---|---|
-| `the reference program.ini` | Abschnitt `[Form]`: Fensterposition und die zuletzt benutzten Werte der Bedienelemente |
-| `the reference program_Layout6.ini` | Andockpositionen, Größe und Sichtbarkeit der Panels, gewählter Skin |
+| Haupt-INI | Abschnitt `[Form]`: Fensterposition und die zuletzt benutzten Werte der Bedienelemente |
+| Layout-INI | Andockpositionen, Größe und Sichtbarkeit der Panels, gewählter Skin |
 
-Läuft the reference program ohne Administratorrechte, leitet Windows Schreibzugriffe in `Program Files (x86)` in den
+Läuft das Referenzprogramm ohne Administratorrechte, leitet Windows Schreibzugriffe in `Program Files (x86)` in den
 VirtualStore des Benutzers um. Für den Klon heißt das: Einstellungen gehören ins Benutzerprofil (plattformgerecht).
 
-### `the reference program.ini`
+### Haupt-INI
 
 Ein Eintrag pro Bedienelement, Schema `<Elementname>_<Eigenschaft>=<Wert>`. Die Eigenschaft ist
 `Value` (Zahlenfeld), `Checked` (Häkchen), `ItemIndex` (Auswahlgruppe/Liste), `Caption` oder `Tag`.
@@ -236,7 +237,7 @@ Werte nach der Installation (= Standardwerte):
 | `UseAdvControls_Checked` | False | Settings: Show Advanced Controls |
 | `ProjectSounds_Checked` | False | Settings: Play Sounds |
 | `CamWhiteBalance_Checked` | False | _vermutlich_ Settings: Swap Red/Blue Channel |
-| `Checkupdates_Checked` | False | Settings: Check for the reference program Update |
+| `Checkupdates_Checked` | False | Settings: Update-Prüfung („Check for … Update“) |
 | `AutoDetectColour_Checked` | False | Settings: Autodetect Colour/BW |
 | `Colourstack_Checked` | False | Align: Colour (nach dem Test mit Farbvideo `True`) |
 | `Autoprocessbox_Checked` | False | Settings: Automatic Processing |
@@ -254,7 +255,7 @@ Werte nach der Installation (= Standardwerte):
 | `NewIntensBalance_Checked` | False | _unklar_ |
 | `VersionNo_Caption` | URL | Adresse der Update-Prüfung (Klon braucht das nicht) |
 
-### `the reference program_Layout6.ini`
+### Layout-INI
 
 Abschnitte `[LastLayout @ <Panelname>]` mit `Visible`, `DockedTo`, Größen für angedockt und schwebend.
 Die Panelnamen verraten den Funktionsumfang: `Alignmentpoints_Panel`, `Registergraph_Panel`, `Framelist_Panel`,
@@ -263,7 +264,7 @@ Die Panelnamen verraten den Funktionsumfang: `Alignmentpoints_Panel`, `Registerg
 `Linegraphpanel`, `Histogram_Panel`, `Filter_Panel`, `Layer1Filterpanel`, `Compare_Panel`, `LRGBMix_panel1`,
 `Create_Mask_Panel`, `FlipandRotate`, `MultiAlign_Panel`, `AdvAlign_panel`, `ChangelistPanel`. Skin: `Office 2007 Silver`.
 
-Den Klon betrifft das Layout nicht (eigenes, modernes Design, RK-010).
+Den Klon betrifft das Layout nicht (eigenes, modernes Design, SP-010).
 
 ## Testdaten
 

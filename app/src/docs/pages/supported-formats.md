@@ -27,4 +27,4 @@ Still frames in BMP, JPEG, TIFF, PNG and FITS format, opened as a sequence: **No
 
 ## Wavelet scheme files
 
-The settings of the wavelet layers can be stored in small `.rwv` files, see [Wavelet sharpening](wavelet-sharpening). Project files end in `.rkproj`, see [Save and export](save-and-export).
+The settings of the wavelet layers can be stored in small `.rwv` files, see [Wavelet sharpening](wavelet-sharpening). Project files end in `.sidereaplanets`, see [Save and export](save-and-export).

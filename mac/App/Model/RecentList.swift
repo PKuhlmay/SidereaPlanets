@@ -5,7 +5,7 @@ import Foundation
 /// Same rules as app/src/logic/recent.ts.
 nonisolated struct RecentList: Equatable, Sendable {
     static let maxEntries = 10
-    static let defaultsKey = "rk-recent"
+    static let defaultsKey = "sp-recent"
 
     private(set) var entries: [[String]]
 

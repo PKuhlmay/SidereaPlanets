@@ -1,6 +1,6 @@
-# Stacking (RK-006)
+# Stacking (SP-006)
 
-Was der Klon beim Stacken tut, warum, und wie weit das gegen the reference program geprüft ist. Bedienelemente und Standardwerte
+Was der Klon beim Stacken tut, warum, und wie weit das gegen das Referenzprogramm geprüft ist. Bedienelemente und Standardwerte
 stehen in `docs/ui.md` (Stack-Reiter), der Ablauf in `docs/workflow.md`, Referenzfall R1 in `docs/testdaten.md`.
 Alles, was nur geraten ist, steht als **Vermutung** da.
 
@@ -28,7 +28,7 @@ Aus `docs/workflow.md`, `docs/ui.md` und `docs/testdaten.md`:
 
 Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist **Vermutung**, solange der Vergleich fehlt.
 
-1. **Registrierung.** Jeder Frame wird mit `Reference::align_frame` (RK-005) gegen das Bezugsframe registriert. Das liefert
+1. **Registrierung.** Jeder Frame wird mit `Reference::align_frame` (SP-005) gegen das Bezugsframe registriert. Das liefert
    je Alignpoint die Verschiebung `(dx, dy)`: Dort, wo das Bezugsframe an `p` etwas zeigt, zeigt der Frame es bei
    `p + (dx, dy)`. Punkte, die nicht verfolgt werden konnten, fehlen und zählen nicht, ebenso Treffer am Rand des
    Suchbereichs (`at_limit`): Sie sagen nur, dass die Bewegung mindestens so groß ist.
@@ -60,7 +60,7 @@ Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist
   Alignpoints) und dann in der Reihenfolge der Auswahl addiert, parallel nach Bildzeilen. Das Summenbild ist deshalb bitgleich zu
   dem, das Frame für Frame entsteht, und hängt nicht von der Zahl der Threads ab (Tests in `stack.rs` und
   `crates/session/tests/parallel.rs`). Fortschritt zählt 1, 2, 3, ... und kommt je Stapel gesammelt; Abbruch und Pause greifen
-  nach einem Stapel (RK-015; vorher nach jedem Frame, aber nur mit der Arbeit eines Frames auf wenigen Kernen). Gleiches gilt für
+  nach einem Stapel (SP-015; vorher nach jedem Frame, aber nur mit der Arbeit eines Frames auf wenigen Kernen). Gleiches gilt für
   Align; Save Aligned/Integrated arbeiten weiter Frame für Frame. Im Speicher liegen höchstens zwei Stapel und die Summen.
 - Frames anderer Größe oder Kanalzahl werden ausgelassen und nicht mitgezählt (`StackResult::frames`).
 
@@ -72,7 +72,7 @@ Umgesetzt in `crates/core/src/stack.rs`. Alles darin außer „Mittelwert“ ist
   später das Ergebnis von *Align* wiederverwenden statt neu zu registrieren; `stack_sequence` registriert derzeit selbst.
 - `stack::psnr(a, b)` ist die Messgröße aus `docs/testdaten.md` (Spitzenwert 1,0, bei 16 Bit also 65535).
 - Frontend: `app/src/stack.ts` (Handler `stack` in `app/src/actions.ts`, über `runJob`), Anfrage aus dem Fensterzustand in
-  `app/src/logic/stack.ts`. Das Bezugsframe steht in `session.referenceFrame`; *Set Alignpoints* (RK-005) muss es setzen,
+  `app/src/logic/stack.ts`. Das Bezugsframe steht in `session.referenceFrame`; *Set Alignpoints* (SP-005) muss es setzen,
   bis dahin gilt Frame 0.
 - Sitzung: `planets_session::Session::stack` und `stacked_image` (`crates/session/src/stack.rs`) halten das letzte Summenbild; die
   Tauri-Befehle `stack`, `stacked_image`, `cancel_stacking`, `pause_stacking` sind dünne Hüllen darüber, Ereignis `stack-progress`.
@@ -129,7 +129,7 @@ Lauf am 2026-11-11 mit `cargo test -p planets-io --test stack_reference --releas
 liegt nahe 0). Die lokale Korrektur ist im Kern umgesetzt und an einer künstlichen, zusammenhängenden Verzerrung geprüft
 (`local_correction_follows_a_coherent_distortion`), sie wirkt aber bei R1 praktisch nicht. Ob das Original wirklich lokal
 korrigiert, ist offen: Bei R1 wäre der Unterschied zum reinen Frameversatz kleiner, als 54,85 dB zeigen können. Ein Referenzfall
-mit starker Luftunruhe (RK-011) würde das klären. Die Ursache der Streuung liegt in der Zuordnung der Punkte (RK-005: weiche
+mit starker Luftunruhe (SP-011) würde das klären. Die Ursache der Streuung liegt in der Zuordnung der Punkte (SP-005: weiche
 Strukturen, breiter Korrelationsrücken), nicht im Stacken; eine robustere Zuordnung (Punkte nach Schärfe der Korrelationsspitze
 wählen oder gewichten) würde die lokale Korrektur erst nutzbar machen.
 
@@ -207,11 +207,11 @@ Nicht Teil der Akzeptanzkriterien und nie beobachtet; jeweils nur der Name bekan
   sind sie gesperrt und mit „Not available yet“ gekennzeichnet (Default bei StackSize bleibt wählbar und ist das, was der
   Klon tut); die Einstellungen `stackSize` und `stretchHistogram` bleiben im Datenmodell, sind aber nicht Teil
   von `StackRequest` und das Backend kennt sie nicht. *De-rotate images* ist seit MAC-020 gebaut (Abschnitt „Derotation (MAC-020)“; in der
-  Windows-App seit RK-023).
+  Windows-App seit SP-023).
 - **Resampling** (Bell, Bspline, Lanczos, Mitchell, Faktor) und **Drizzling**, die das Ergebnis vergrößern. In der App sind
   beide Häkchen gesperrt und mit „Not available yet“ gekennzeichnet; die Einstellungen `resampling`/`drizzling` bleiben im
   Datenmodell, das Backend ignoriert sie.
-- **Create AVI** (*Save Aligned*, *Save Integrated*): in RK-009 gebaut, siehe `docs/formats.md`, Abschnitt „Create AVI“.
+- **Create AVI** (*Save Aligned*, *Save Integrated*): in SP-009 gebaut, siehe `docs/formats.md`, Abschnitt „Create AVI“.
 - Stackgraph und Stacklist.
 
 ## Offen

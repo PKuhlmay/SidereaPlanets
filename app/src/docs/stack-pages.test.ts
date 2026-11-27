@@ -27,7 +27,7 @@ describe("documentation of the step Stack", () => {
     }
   });
 
-  it("describes De-rotate images as working in both versions, not as a locked option (RK-023)", () => {
+  it("describes De-rotate images as working in both versions, not as a locked option (SP-023)", () => {
     const html = renderBody(page.body);
     expect(html).toMatch(/<tr>\s*<td>De-rotate images<\/td>\s*<td>off<\/td>\s*<td>Works\./);
     expect(page.body).not.toContain("locked for now");
@@ -71,7 +71,7 @@ describe("the step panel Stack", () => {
     expect(stackStep).not.toContain(`title="Not available yet. Turns the frames back against the rotation of the planet."`);
   });
 
-  it("has De-rotate images as a working check box with the settings of the Mac app (RK-023)", () => {
+  it("has De-rotate images as a working check box with the settings of the Mac app (SP-023)", () => {
     expect(line("De-rotate images")).toContain(`v-model="stack.derotate"`);
     expect(line("De-rotate images")).not.toContain("disabled");
     expect(line("Mirrored image")).toContain(`v-model="stack.mirrored"`);

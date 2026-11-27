@@ -216,7 +216,7 @@ final class AppModel {
 
     // MARK: Advanced
 
-    private static let advancedKey = "rk-advanced"
+    private static let advancedKey = "sp-advanced"
 
     private static func loadAdvanced(from defaults: UserDefaults) -> Set<ViewStep> {
         Set((defaults.array(forKey: advancedKey) as? [Int] ?? []).compactMap(ViewStep.init(rawValue:)))

@@ -50,19 +50,19 @@ struct CompareOverlay: View {
 
     private func label(_ text: String) -> some View {
         Text(text)
-            .font(.rk(RKMetrics.fontSizeSmall, .medium))
-            .foregroundStyle(RK.onCanvas)
+            .font(.sp(SPMetrics.fontSizeSmall, .medium))
+            .foregroundStyle(SP.onCanvas)
             .padding(.horizontal, 10)
             .frame(height: 24)
-            .background(RK.canvasChrome, in: RoundedRectangle(cornerRadius: RKMetrics.radiusLarge))
-            .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusLarge).strokeBorder(RK.canvasLine, lineWidth: 1) }
+            .background(SP.canvasChrome, in: RoundedRectangle(cornerRadius: SPMetrics.radiusLarge))
+            .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusLarge).strokeBorder(SP.canvasLine, lineWidth: 1) }
             .padding(12)
             .allowsHitTesting(false)
     }
 
     private func line(height: Double) -> some View {
         ZStack {
-            Rectangle().fill(RK.onCanvas.opacity(0.9)).frame(width: 2, height: height)
+            Rectangle().fill(SP.onCanvas.opacity(0.9)).frame(width: 2, height: height)
                 .shadow(color: .black.opacity(0.5), radius: 2)
             HStack(spacing: 1) {
                 Image(systemName: "chevron.left")
@@ -70,10 +70,10 @@ struct CompareOverlay: View {
             }
             .font(.system(size: 9, weight: .bold))
             // The image area stays dark in both appearances, so the grip uses the colors of the other canvas controls.
-            .foregroundStyle(RK.accent)
+            .foregroundStyle(SP.accent)
             .frame(width: gripWidth, height: 28)
             .background(Color.black.opacity(0.75), in: Capsule())
-            .overlay { Capsule().strokeBorder(RK.accent, lineWidth: 1) }
+            .overlay { Capsule().strokeBorder(SP.accent, lineWidth: 1) }
         }
         .frame(width: gripWidth)
     }

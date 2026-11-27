@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds a shippable version of the Windows app (RK-026), like Siderea's windows/scripts/publish.sh: a plain folder plus a ZIP of it,
+# Builds a shippable version of the Windows app (SP-026), like Siderea's windows/scripts/publish.sh: a plain folder plus a ZIP of it,
 # optionally an installer.
 #   scripts/publish-windows.sh               build/windows/dist/Siderea Planets/ and the ZIP
 #   scripts/publish-windows.sh --installer   also build/windows/dist/Siderea-Planets-<version>-setup.exe (Inno Setup, app/installer/SidereaPlanets.iss)

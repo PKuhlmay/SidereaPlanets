@@ -5,7 +5,7 @@ import { CROP_FORMATS, isFull, sizeText } from "../logic/crop";
 import { session } from "../state";
 import FloatCard from "./FloatCard.vue";
 
-// The card of the crop tool (RK-021, docs/design.md "Zuschneiden"): Format, the size of the rectangle, Reset, Cancel and Done. Closing
+// The card of the crop tool (SP-021, docs/design.md "Zuschneiden"): Format, the size of the rectangle, Reset, Cancel and Done. Closing
 // the card is Cancel. The rectangle itself is drawn by CropOverlay and dragged in ImageViewer.
 const wholeImage = computed(() => {
   const draft = session.crop.draft;

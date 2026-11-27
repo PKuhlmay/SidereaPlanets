@@ -1,4 +1,4 @@
-// View Compare and the crop tool of the steps Wavelets and Save (RK-021, after MAC-016 and MAC-019). View Compare splits the image at a
+// View Compare and the crop tool of the steps Wavelets and Save (SP-021, after MAC-016 and MAC-019). View Compare splits the image at a
 // divider: the stack on the left, the result on the right. The crop tool sets the rectangle Save Image cuts out; it is opened by the Crop
 // button of the Adjustments panel and by Crop… in the step Save. The two exclude each other, and View Compare excludes Before/After.
 // The geometry of the rectangle is in logic/crop.ts.
@@ -51,7 +51,7 @@ export function toggleCompare(): void {
   }
 }
 
-/** The size of the picture the rectangle is set in: the stack after Flip and Rotate (RK-022); null before there is one. */
+/** The size of the picture the rectangle is set in: the stack after Flip and Rotate (SP-022); null before there is one. */
 export function cropImageSize(): { width: number; height: number } | null {
   const stack = session.stackImage;
   return stack ? orientedSize(stack.width, stack.height, settings.geometry.orientation) : null;

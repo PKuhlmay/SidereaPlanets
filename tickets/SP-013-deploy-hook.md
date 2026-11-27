@@ -1,4 +1,4 @@
-# RK-013 Debug-App nach jedem Commit bereitstellen
+# SP-013 Debug-App nach jedem Commit bereitstellen
 
 - Status: erledigt
 - Abhängig von: —

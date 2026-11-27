@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 // The look of the windows is plain CSS; these tests pin the few rules whose absence was found in the real window
-// (RK-010): a text column wider than the window, the default Windows scrollbar and the dimming of locked fields.
+// (SP-010): a text column wider than the window, the default Windows scrollbar and the dimming of locked fields.
 // @ts-expect-error type error without @types/node package
 import { readFileSync } from "node:fs";
 

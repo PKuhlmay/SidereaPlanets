@@ -1,7 +1,7 @@
-# RK-011 Prototyp bewerten
+# SP-011 Prototyp bewerten
 
 - Status: offen
-- Abhängig von: RK-007, RK-010
+- Abhängig von: SP-007, SP-010
 
 ## Ziel
 Entscheiden, ob der Klon weiterverfolgt wird.

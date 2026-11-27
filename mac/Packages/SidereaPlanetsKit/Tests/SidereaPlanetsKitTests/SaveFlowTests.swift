@@ -54,14 +54,14 @@ struct SaveBasicsTests {
         let project = Project(
             formatVersion: 1, recording: ["/data/a.ser"], sections: ["align": #"{"boxSize":30}"#, "extra": "[1,2]"])
         let written = try projectSave(project: project, path: folder.appendingPathComponent("p").path)
-        #expect(written.hasSuffix("p.rkproj"))
+        #expect(written.hasSuffix("p.sidereaplanets"))
 
         let loaded = try projectLoad(path: written)
         #expect(loaded.project.recording == ["/data/a.ser"])
         #expect(loaded.missingFiles == ["/data/a.ser"])
         #expect(loaded.project.sections.keys.sorted() == ["align", "extra"])
 
-        let newer = folder.appendingPathComponent("newer.rkproj")
+        let newer = folder.appendingPathComponent("newer.sidereaplanets")
         try #"{"formatVersion": 9, "recording": [], "sections": {}}"#.write(to: newer, atomically: true, encoding: .utf8)
         #expect(throws: PlanetsError.self) { _ = try projectLoad(path: newer.path) }
     }

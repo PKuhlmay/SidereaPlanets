@@ -32,7 +32,7 @@ Siderea (`Stackr/App/Views/ZoomableImageView.swift` `CropOverlayView`, `SidereaC
       Save und das Speichern; verlässt man die beiden Schritte, schließt das Werkzeug
 - [x] Swift-Tests rot zuerst: Formate halten das Seitenverhältnis, Klemmen, Reset, Done, Cancel, Dauer des Zuschnitts, der Aufruf von Save
       Image mit dem Rechteck, echter Kern mit `JUPITER.AVI` (TIFF und PNG 600 × 450, ohne Zuschnitt 1024 × 680)
-- [x] Texte nach den Regeln von MAC-014 (US-Englisch, Title Case auf Knöpfen, „…“ bei Knöpfen mit Dialog, kein „the reference program“)
+- [x] Texte nach den Regeln von MAC-014 (US-Englisch, Title Case auf Knöpfen, „…“ bei Knöpfen mit Dialog, kein Name des Referenzprogramms)
 - [x] Anwenderdoku in der App (`save-and-export.md`, `step-wavelets-save.md`, `color-and-tones.md`, Glossar), `docs/design.md` und
       `docs/parity/WINDOWS_PARITY.md`
 - [x] Ein zugeschnittenes TIFF aus der echten Kette gespeichert und die Größe geprüft (600 × 450)

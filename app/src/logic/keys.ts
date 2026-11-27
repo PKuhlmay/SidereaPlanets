@@ -1,4 +1,4 @@
-// The keyboard shortcuts of the Windows app (RK-017): ← and → page through the frames, Alt+1 to Alt+7 open the steps of the
+// The keyboard shortcuts of the Windows app (SP-017): ← and → page through the frames, Alt+1 to Alt+7 open the steps of the
 // step bar. The Mac app has ⌘[ ⌘] and ⌥⌘1 to ⌥⌘7 in its menus instead.
 
 import { viewSteps, type ViewStep } from "./workflow";

@@ -34,24 +34,24 @@ struct FloatCard<Actions: View, Content: View>: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 2) {
-                Text(title).font(.rk(RKMetrics.fontSize, .semibold)).foregroundStyle(RK.text)
+                Text(title).font(.sp(SPMetrics.fontSize, .semibold)).foregroundStyle(SP.text)
                 Spacer()
                 actions()
                 Button(action: close) { Image(systemName: "xmark").font(.system(size: 9, weight: .semibold)) }
-                    .buttonStyle(.rkBorderless)
-                    .foregroundStyle(RK.muted)
+                    .buttonStyle(.spBorderless)
+                    .foregroundStyle(SP.muted)
                     .help("Close")
                     .accessibilityLabel("Close \(title)")
             }
             .padding(.leading, 10)
             .padding(.trailing, 4)
             .frame(height: 34)
-            .overlay(alignment: .bottom) { RK.line.frame(height: 1) }
+            .overlay(alignment: .bottom) { SP.line.frame(height: 1) }
             content()
         }
-        .background(RK.panel.opacity(0.94), in: RoundedRectangle(cornerRadius: RKMetrics.radiusLarge))
-        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: RKMetrics.radiusLarge))
-        .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusLarge).strokeBorder(RK.lineStrong, lineWidth: 1) }
+        .background(SP.panel.opacity(0.94), in: RoundedRectangle(cornerRadius: SPMetrics.radiusLarge))
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: SPMetrics.radiusLarge))
+        .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusLarge).strokeBorder(SP.lineStrong, lineWidth: 1) }
         .shadow(color: .black.opacity(0.45), radius: 14, y: 10)
         .accessibilityElement(children: .contain)
         .accessibilityLabel(title)
@@ -78,11 +78,11 @@ private struct FramelistCard: View {
                         .disabled(true)
                         .help("Not available yet")
                 }
-                .buttonStyle(.rkCompact)
+                .buttonStyle(.spCompact)
                 .padding(.horizontal, 8)
                 .padding(.top, 6)
                 Button("Go to Best Frame") { model.goToBestFrame() }
-                    .buttonStyle(.rkCompact)
+                    .buttonStyle(.spCompact)
                     .disabled(!model.canGoToBestFrame)
                     .help(model.progress.step >= .aligned ? goToBestFrameHelp : "Run Align first")
                     .padding(.horizontal, 8)
@@ -91,10 +91,10 @@ private struct FramelistCard: View {
                         ForEach(model.align.listed) { frame in
                             Toggle(isOn: Binding(get: { frame.checked }, set: { model.setFrameChecked(frame.index, $0) })) {
                                 HStack {
-                                    Text(frame.name).font(.rk).foregroundStyle(RK.text)
+                                    Text(frame.name).font(.sp).foregroundStyle(SP.text)
                                     Spacer()
                                     if let quality = frame.quality {
-                                        Text(String(format: "%.1f%%", quality)).font(.rk).foregroundStyle(RK.muted)
+                                        Text(String(format: "%.1f%%", quality)).font(.sp).foregroundStyle(SP.muted)
                                     }
                                 }
                             }
@@ -123,7 +123,7 @@ private struct AlignmentpointsCard: View {
                 LazyVStack(spacing: 0) {
                     ForEach(model.align.points.indices, id: \.self) { index in
                         Toggle(isOn: Binding(get: { model.align.pointsChecked[safe: index] ?? true }, set: { model.setPointChecked(index, $0) })) {
-                            Text("Alignpoint \(index + 1)").font(.rk).foregroundStyle(RK.text)
+                            Text("Alignpoint \(index + 1)").font(.sp).foregroundStyle(SP.text)
                         }
                         .toggleStyle(.checkbox)
                         .frame(maxWidth: .infinity, minHeight: 23, alignment: .leading)
@@ -153,11 +153,11 @@ private struct RegistrationgraphCard: View {
                     .accessibilityElement()
                     .accessibilityLabel("Quality and difference per frame")
                 HStack(spacing: 14) {
-                    legend("Quality", color: RK.accent, help: "How sharp a frame is, in percent of the best frame.")
-                    legend("Difference", color: RK.info, help: "How much a frame differs from the frame all the others are lined up on; higher is worse.")
+                    legend("Quality", color: SP.accent, help: "How sharp a frame is, in percent of the best frame.")
+                    legend("Difference", color: SP.info, help: "How much a frame differs from the frame all the others are lined up on; higher is worse.")
                 }
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
+                .font(.spSmall)
+                .foregroundStyle(SP.muted)
             }
             .padding(.horizontal, 10)
             .padding(.vertical, 8)
@@ -174,7 +174,7 @@ private struct RegistrationgraphCard: View {
 
     private func draw(_ context: inout GraphicsContext, size: CGSize) {
         guard model.align.isRated else {
-            let note = context.resolve(Text("Run Align to see the graph").font(.rk(11)).foregroundStyle(RK.text.opacity(0.6)))
+            let note = context.resolve(Text("Run Align to see the graph").font(.sp(11)).foregroundStyle(SP.text.opacity(0.6)))
             context.draw(note, at: CGPoint(x: size.width / 2, y: size.height / 2))
             return
         }
@@ -184,10 +184,10 @@ private struct RegistrationgraphCard: View {
         axes.move(to: CGPoint(x: 8 * k, y: 10 * k))
         axes.addLine(to: CGPoint(x: 8 * k, y: 88 * k))
         axes.addLine(to: CGPoint(x: 206 * k, y: 88 * k))
-        context.stroke(axes, with: .color(RK.text.opacity(0.25)), lineWidth: 1)
+        context.stroke(axes, with: .color(SP.text.opacity(0.25)), lineWidth: 1)
         let box = CGRect(x: 8 * k, y: 10 * k, width: 198 * k, height: 78 * k)
         let listed = model.align.listed
-        for (values, color) in [(listed.map { $0.difference ?? 0 }, RK.info), (listed.map { $0.quality ?? 0 }, RK.accent)] {
+        for (values, color) in [(listed.map { $0.difference ?? 0 }, SP.info), (listed.map { $0.quality ?? 0 }, SP.accent)] {
             let points = seriesPoints(values, in: box)
             guard let first = points.first else { continue }
             var line = Path()

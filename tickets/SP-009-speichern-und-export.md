@@ -1,19 +1,19 @@
-# RK-009 Speichern und Export
+# SP-009 Speichern und Export
 
 - Status: erledigt
-- Abhängig von: RK-006
+- Abhängig von: SP-006
 
 ## Ziel
 Ergebnisse in gängigen Formaten ausgeben.
 
 ## Akzeptanzkriterien
 - [x] Export als TIFF (16 Bit), PNG, JPEG, FITS (alle sieben Formate schreiben und lesen im Backend-Test `pipeline.rs` zurück; TIFF 16 Bit und PNG 16 Bit zusätzlich im Release-Fenster gespeichert und als Bild geöffnet, 2026-11-12)
-- [x] Projekt-/Einstellungsdatei, damit eine Sitzung wieder geöffnet werden kann (Release-Fenster, 2026-11-12: Save project schreibt `.rkproj`, Open project nach Neustart öffnet die Aufnahme und stellt die Einstellungen wieder her, fehlende Dateien werden benannt)
+- [x] Projekt-/Einstellungsdatei, damit eine Sitzung wieder geöffnet werden kann (Release-Fenster, 2026-11-12: Save project schreibt `.sidereaplanets`, Open project nach Neustart öffnet die Aufnahme und stellt die Einstellungen wieder her, fehlende Dateien werden benannt)
 
 ## Stand
 *Save image* im Wavelet-Reiter nimmt den aktuellen Reglerstand (2026-11-11): Haben sich Ebenenwerte, Colour/LRGB oder der Stack seit dem letzten
 Do All geändert, oder lief noch keins, startet `saveImage` (`app/src/saving.ts`) zuerst ein Do All mit den aktuellen Werten über `runJob`
-(Fortschritt, abbrechbar durch RK-007) und speichert danach; ein Abbruch oder Fehler speichert nichts. Änderungserkennung:
+(Fortschritt, abbrechbar durch SP-007) und speichert danach; ein Abbruch oder Fehler speichert nichts. Änderungserkennung:
 `doAllKey` und `doAllIsCurrent` in `app/src/logic/wavelet.ts`, Zustand `lastDoAll` in `app/src/wavelet.ts`. Die Processing Area gehört nicht
 in den Schlüssel, weil sie das Do-All-Ergebnis nicht beeinflusst (sie bestimmt nur die Vorschau); die Farb- und Tonkarten auch nicht, sie werden beim
 Schreiben angewendet. Tests: `app/src/flow.test.ts` („Save image in the Wavelet tab“), rot an Assertionen gesehen, dann grün. Nicht in der laufenden App geprüft.
@@ -32,7 +32,7 @@ wurde nur über Tests und Bau geprüft, die App selbst wurde nicht gestartet).
 - Oberfläche: `app/src/saving.ts` (Handler `saveImage`, `saveAligned`, `saveIntegrated`, `openProject`, `saveProject`), Formatmenü
   `SaveImageMenu.vue`, Projektabschnitte `logic/projectfile.ts`. **Open** und **Save** (Projektdatei) sind eigene Schaltflächen
   der Werkzeugleiste, nicht mehr Einträge im Menü Tools (Entscheidung Philipp, 2026-11-11).
-- *Save image* im Wavelet-Reiter schreibt das Bild mit den Farb- und Tonwerten (RK-008), wie das Fenster es zeigt; ohne Anpassung wie
+- *Save image* im Wavelet-Reiter schreibt das Bild mit den Farb- und Tonwerten (SP-008), wie das Fenster es zeigt; ohne Anpassung wie
   zuvor. Der Stack-Reiter schreibt das Summenbild unverändert.
 - *Save Aligned* und *Save Integrated*: `app/src-tauri/src/sequence_commands.rs`, Kern `planets_core::sequence`. Save Aligned schreibt die
   nach *Limit* behaltenen Frames, auf das Bezugsframe geschoben, als AVI; Save Integrated den gleitenden Mittelwert über *Average of n

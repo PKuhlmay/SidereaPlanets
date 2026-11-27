@@ -206,7 +206,7 @@ export function createSettings() {
       correctGeometry: true,
       stretchHistogram: false,
       derotate: false,
-      /** De-rotate images (RK-023): the planet, the camera angle in degrees counter-clockwise (0 = north up), a mirror image,
+      /** De-rotate images (SP-023): the planet, the camera angle in degrees counter-clockwise (0 = north up), a mirror image,
        *  and when the first frame was taken (seconds since 1970 UTC; used only when the file has no time per frame). */
       planet: "jupiter" as Planet,
       cameraAngle: 0,
@@ -244,7 +244,7 @@ export function createSettings() {
     },
     /** Denoise/Deringing and Masking: applied to the sharpened image before all other cards; the section `refine` of the project file. */
     refine: defaultRefine(),
-    /** Flip and Rotate and Resize Image (RK-022): the last steps of Save Image; the section `geometry` of the project file. */
+    /** Flip and Rotate and Resize Image (SP-022): the last steps of Save Image; the section `geometry` of the project file. */
     geometry: defaultGeometry(),
   };
 }

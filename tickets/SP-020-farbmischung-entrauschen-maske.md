@@ -1,7 +1,7 @@
-# RK-020 Color Mixing, Denoise/Deringing und Masking (Windows zieht nach)
+# SP-020 Color Mixing, Denoise/Deringing und Masking (Windows zieht nach)
 
 - Status: erledigt
-- Abhängig von: RK-016, MAC-018, MAC-019
+- Abhängig von: SP-016, MAC-018, MAC-019
 - Stufe: `windows-v0.1.0` (Nachzug zu Mac `v0.1.0`)
 
 ## Ziel
@@ -13,7 +13,7 @@ Windows baut nur Karten, Payload und Projektdatei.
 
 Werte, Reihenfolge im Kern, Projektdatei und Mac-Dateien in `docs/parity/WINDOWS_PARITY.md`:
 
-- Abschnitt „Adjustments: Color Mixing und View Compare (Mac: MAC-019)“, nur der Punkt **Color Mixing** (View Compare kommt mit RK-021)
+- Abschnitt „Adjustments: Color Mixing und View Compare (Mac: MAC-019)“, nur der Punkt **Color Mixing** (View Compare kommt mit SP-021)
 - Abschnitt „Denoise/Deringing und Masking (Mac: MAC-018)“, alle Punkte, auch **Show mask** (braucht einen Tauri-Befehl für
   `Session::refine_mask_overlay`)
 
@@ -29,7 +29,7 @@ Rechenkern liegt auf `main` (`planets_core::color::mix_channels`, `crates/core/s
 - [x] Projektdatei: `wavelet.tone.mix` und Abschnitt `refine` schreiben und lesen, fehlende Werte bleiben, Zahlen auf Grenzen gekürzt (Test)
 - [x] Die Knöpfe Color Mixing, Denoise/Deringing und Masking sind nicht mehr gesperrt
 - [x] Punkte aus `docs/parity/WINDOWS_PARITY.md` gelöscht (Color Mixing und den Abschnitt MAC-018)
-- [x] Probe von Hand als `## RK-020 Color Mixing, Denoise/Deringing und Masking (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] Probe von Hand als `## SP-020 Color Mixing, Denoise/Deringing und Masking (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
 - [x] `cargo test --workspace`, `clippy` ohne Warnungen, `cd app && pnpm test` und `pnpm build` grün, neue Tests einmal rot gesehen
 
 ## Umsetzung

@@ -40,7 +40,7 @@ struct ResourceReadout: View {
         HStack(spacing: 5) {
             Text(verbatim: label)
             Text(verbatim: value ?? "–")
-                .foregroundStyle(highlighted ? RK.accentInk : RK.text)
+                .foregroundStyle(highlighted ? SP.accentInk : SP.text)
                 // The accent colour is not the only cue for a high load: it is also bold.
                 .fontWeight(highlighted ? .bold : .regular)
                 .frame(minWidth: 50, alignment: .trailing)
@@ -73,7 +73,7 @@ struct ResourceField: View {
                 ResourceReadout(cpuPercent: monitor.cpuPercent, memoryBytes: monitor.memoryBytes)
                     .padding(.horizontal, 12)
                     .frame(maxHeight: .infinity)
-                    .overlay(alignment: .trailing) { RK.line.frame(width: 1) }
+                    .overlay(alignment: .trailing) { SP.line.frame(width: 1) }
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didChangeOcclusionStateNotification)) { _ in

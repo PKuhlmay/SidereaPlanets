@@ -1,7 +1,7 @@
 # MAC-021 Ausrichten am Helligkeitsschwerpunkt
 
 - Status: erledigt
-- Abhängig von: MAC-006, RK-005
+- Abhängig von: MAC-006, SP-005
 
 ## Ziel
 

@@ -4,7 +4,7 @@ import { keyCommand } from "./keys";
 const key = (k: string, more: Partial<Parameters<typeof keyCommand>[0]> = {}) =>
   keyCommand({ key: k, code: "", altKey: false, ctrlKey: false, metaKey: false, shiftKey: false, inField: false, ...more });
 
-describe("keyCommand (Windows shortcuts of RK-017)", () => {
+describe("keyCommand (Windows shortcuts of SP-017)", () => {
   it("pages through the frames with the left and right arrow keys", () => {
     expect(key("ArrowLeft")).toEqual({ kind: "frame", by: -1 });
     expect(key("ArrowRight")).toEqual({ kind: "frame", by: 1 });

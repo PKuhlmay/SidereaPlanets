@@ -1,7 +1,7 @@
 import { theme } from "./state";
 import type { Theme } from "./logic/settings";
 
-const KEY = "rk-theme";
+const KEY = "sp-theme";
 
 // Dark is the default (docs/design.md); the choice is remembered where the webview allows it.
 export function applyTheme(next: Theme) {

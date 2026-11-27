@@ -18,7 +18,7 @@ const fileFilters = [
   { name: "All files", extensions: ["*"] },
 ];
 
-const RECENT_KEY = "rk-recent";
+const RECENT_KEY = "sp-recent";
 
 function loadRecent(): string[][] {
   try {

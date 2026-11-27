@@ -1,12 +1,12 @@
-# RK-022 Flip and Rotate und Resize Image (Windows zieht nach)
+# SP-022 Flip and Rotate und Resize Image (Windows zieht nach)
 
 - Status: erledigt
-- Abhängig von: RK-021, MAC-017
+- Abhängig von: SP-021, MAC-017
 - Stufe: `windows-v0.1.0` (Nachzug zu Mac `v0.1.0`)
 
 ## Ziel
 
-Die Karten Flip and Rotate und Resize Image im Panel Adjustments. Braucht RK-021, weil Drehen einen Zuschnitt entfernt, das Zuschneiden
+Die Karten Flip and Rotate und Resize Image im Panel Adjustments. Braucht SP-021, weil Drehen einen Zuschnitt entfernt, das Zuschneiden
 in den Pixeln des gedrehten Bildes arbeitet und View Compare das gedrehte Bild zeigt.
 
 ## Umfang
@@ -29,14 +29,14 @@ Projektregeln einen eigenen Commit mit Hinweis, weil die Mac-App dieselben Typen
 - [x] Projektdatei-Abschnitt `geometry` schreiben und lesen, fehlende Schlüssel bleiben, Zahlen auf Grenzen gekürzt (Test)
 - [x] Gesperrt bleiben nur noch View Zoomed, View Stack Size, Wavelet Filter, Show Line Graph
 - [x] Abschnitt aus `docs/parity/WINDOWS_PARITY.md` gelöscht
-- [x] Probe von Hand als `## RK-022 Flip and Rotate und Resize Image (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] Probe von Hand als `## SP-022 Flip and Rotate und Resize Image (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
 - [x] `cargo test --workspace`, `clippy` ohne Warnungen, `cd app && pnpm test` und `pnpm build` grün, neue Tests einmal rot gesehen
 
 ## Umsetzung
 
 - **Kein Kern-Commit nötig:** Statt `Deserialize` an `Orientation`, `Resize` und `Geometry` im Kern hat die Tauri-Shell eigene
   Übergabetypen (`app/src-tauri/src/geometry_commands.rs`: `GeometryArea`, `OrientationArea`, `ResizeArea`, camelCase), die in die Typen
-  des Kerns umgewandelt werden; der gemeinsame Kern und damit die Mac-App bleiben unberührt (wie `CropArea` aus RK-021). Dort auch der Befehl
+  des Kerns umgewandelt werden; der gemeinsame Kern und damit die Mac-App bleiben unberührt (wie `CropArea` aus SP-021). Dort auch der Befehl
   `orient_preview` (rohes RGBA im Body, `width`, `height` und die Ausrichtung als JSON im Header, ruft `Session::orient_preview`);
   `save_image` und `save_image_as` nehmen `geometry`.
 - **Werte und Größen** (`app/src/logic/geometry.ts`): Port der Regeln aus `GeometryLogic.swift` (Winkel in Zehnteln auf −180 … 180,

@@ -19,7 +19,7 @@ export interface StackRequest {
   roi: { x: number; y: number; width: number; height: number } | null;
   /** Brightness threshold of Align by center of gravity, null while it is off. */
   centreOfGravity: number | null;
-  /** De-rotate images (RK-023); left out while the check box is off. */
+  /** De-rotate images (SP-023); left out while the check box is off. */
   derotation?: DerotationRequest;
 }
 

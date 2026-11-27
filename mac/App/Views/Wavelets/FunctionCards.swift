@@ -69,19 +69,19 @@ private struct HistogramCard: View {
                 ])
                 HStack(alignment: .top, spacing: 12) {
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Black point").font(.rkSmall).foregroundStyle(RK.muted)
+                        Text("Black point").font(.spSmall).foregroundStyle(SP.muted)
                         NumberField(label: "Black point", value: $model.tone.black, range: 0...max(model.tone.white - 1, 0), width: 62)
                     }
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("White point").font(.rkSmall).foregroundStyle(RK.muted)
+                        Text("White point").font(.spSmall).foregroundStyle(SP.muted)
                         NumberField(label: "White point", value: $model.tone.white, range: min(model.tone.black + 1, 255)...255, width: 62)
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 HStack(spacing: 8) {
                     Button("Auto") { Task { await model.autoLevels() } }
-                        .buttonStyle(.rk)
-                    Text("Clip (%)").font(.rkSmall).foregroundStyle(RK.muted)
+                        .buttonStyle(.sp)
+                    Text("Clip (%)").font(.spSmall).foregroundStyle(SP.muted)
                         .help("Share of the darkest and brightest pixels that Auto may cut off.")
                     DecimalField(label: "Clip percent", value: $model.tone.clip, decimals: 1, step: 0.1, range: ToneLimits.clip, width: 40)
                     Spacer(minLength: 0)
@@ -103,22 +103,22 @@ private struct HistogramCard: View {
             let k = size.width / width
             context.scaleBy(x: k, y: k)
             let plot = CGRect(x: 0, y: 0, width: width, height: height)
-            context.fill(Path(plot), with: .color(RK.field))
+            context.fill(Path(plot), with: .color(SP.field))
             if let data {
                 let maximum = histogramMax(data)
                 context.fill(
-                    outline(data.luma, maximum: maximum, closed: true), with: .color(RK.lineStrong)
+                    outline(data.luma, maximum: maximum, closed: true), with: .color(SP.lineStrong)
                 )
                 // A grayscale image has one channel; it is drawn like the luminance, in the muted text colour.
-                let colours = [RK.channelRed, RK.channelGreen, RK.channelBlue]
+                let colours = [SP.channelRed, SP.channelGreen, SP.channelBlue]
                 for (index, counts) in data.channels.enumerated() {
                     context.stroke(
                         outline(counts, maximum: maximum, closed: false),
-                        with: .color(data.channels.count == 3 ? colours[index] : RK.muted), lineWidth: 1
+                        with: .color(data.channels.count == 3 ? colours[index] : SP.muted), lineWidth: 1
                     )
                 }
             }
-            context.stroke(Path(plot), with: .color(RK.line), lineWidth: 1)
+            context.stroke(Path(plot), with: .color(SP.line), lineWidth: 1)
             for (level, marker) in [(model.tone.black, Marker.black), (model.tone.white, .white)] {
                 let x = levelToX(level, width: width)
                 var triangle = Path()
@@ -126,7 +126,7 @@ private struct HistogramCard: View {
                 triangle.addLine(to: CGPoint(x: x + 6, y: height + markerBand))
                 triangle.addLine(to: CGPoint(x: x, y: height + 2))
                 triangle.closeSubpath()
-                context.fill(triangle, with: .color(dragged == marker ? RK.accent : RK.text))
+                context.fill(triangle, with: .color(dragged == marker ? SP.accent : SP.text))
             }
         }
         .aspectRatio(width / (height + markerBand), contentMode: .fit)
@@ -190,17 +190,17 @@ private struct GammaCard: View {
                     Spacer()
                     Text("brighter")
                 }
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
+                .font(.spSmall)
+                .foregroundStyle(SP.muted)
                 Slider(
                     value: Binding(get: { (model.tone.gamma * 100).rounded() }, set: { model.tone.gamma = $0.rounded() / 100 }),
                     in: ToneLimits.gamma.lowerBound * 100...ToneLimits.gamma.upperBound * 100, step: 1
                 )
                 .controlSize(.small)
-                .tint(RK.accent)
+                .tint(SP.accent)
                 .accessibilityLabel("Gamma")
                 HStack {
-                    Text("Gamma").font(.rk).foregroundStyle(RK.text)
+                    Text("Gamma").font(.sp).foregroundStyle(SP.text)
                     Spacer()
                     DecimalField(label: "Gamma value", value: $model.tone.gamma, decimals: 2, step: 0.01, range: ToneLimits.gamma)
                 }
@@ -229,19 +229,19 @@ private struct RgbAlignCard: View {
                         Text("X (px)").frame(width: 70, alignment: .trailing)
                         Text("Y (px)").frame(width: 70, alignment: .trailing)
                     }
-                    .font(.rkSmall)
-                    .foregroundStyle(RK.muted)
+                    .font(.spSmall)
+                    .foregroundStyle(SP.muted)
                     channel("Red", x: shiftBinding(\.red, \.x), y: shiftBinding(\.red, \.y))
                     channel("Green", x: shiftBinding(\.green, \.x), y: shiftBinding(\.green, \.y))
                     channel("Blue", x: shiftBinding(\.blue, \.x), y: shiftBinding(\.blue, \.y))
                 }
                 HStack {
-                    Text("Max shift (px)").font(.rk).foregroundStyle(RK.text)
+                    Text("Max shift (px)").font(.sp).foregroundStyle(SP.text)
                     Spacer()
                     NumberField(label: "Max shift in pixels", value: $model.tone.maxShift, range: ToneLimits.maxShift, width: 40)
                 }
                 .padding(.top, 4)
-                Text("Auto moves Red and Blue onto Green").font(.rkSmall).foregroundStyle(RK.muted)
+                Text("Auto moves Red and Blue onto Green").font(.spSmall).foregroundStyle(SP.muted)
             }
             .padding(10)
             .disabled(model.isMono)
@@ -252,7 +252,7 @@ private struct RgbAlignCard: View {
 
     private func channel(_ name: String, x: Binding<Double>, y: Binding<Double>) -> some View {
         GridRow {
-            Text(name).font(.rk).foregroundStyle(RK.text).gridColumnAlignment(.leading)
+            Text(name).font(.sp).foregroundStyle(SP.text).gridColumnAlignment(.leading)
             DecimalField(label: "\(name) X", value: x, decimals: 2, step: 0.1, range: -ToneLimits.shift...ToneLimits.shift, width: 40)
             DecimalField(label: "\(name) Y", value: y, decimals: 2, step: 0.1, range: -ToneLimits.shift...ToneLimits.shift, width: 40)
         }
@@ -294,16 +294,16 @@ private struct RgbBalanceCard: View {
 
     private func channel(_ name: String, value: Binding<Int>) -> some View {
         HStack(spacing: 8) {
-            Text(name).font(.rk).foregroundStyle(RK.text).frame(width: 40, alignment: .leading)
+            Text(name).font(.sp).foregroundStyle(SP.text).frame(width: 40, alignment: .leading)
             Slider(
                 value: Binding(get: { Double(value.wrappedValue) }, set: { value.wrappedValue = Int($0.rounded()) }),
                 in: Double(ToneLimits.balance.lowerBound)...Double(ToneLimits.balance.upperBound), step: 1
             )
             .controlSize(.small)
-            .tint(RK.accent)
+            .tint(SP.accent)
             .accessibilityLabel(name)
             NumberField(label: "\(name) percent", value: value, range: ToneLimits.balance, width: 36)
-            Text("%").font(.rkSmall).foregroundStyle(RK.muted)
+            Text("%").font(.spSmall).foregroundStyle(SP.muted)
         }
         .frame(minHeight: 30)
     }

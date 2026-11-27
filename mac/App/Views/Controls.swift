@@ -20,11 +20,11 @@ struct NumberField: View {
             TextField(label, value: clamped, format: .number.grouping(.never))
                 .textFieldStyle(.plain)
                 .multilineTextAlignment(.trailing)
-                .font(.rk)
+                .font(.sp)
                 .padding(.horizontal, 6)
-                .frame(width: width, height: RKMetrics.fieldHeight)
-                .background(RK.field, in: RoundedRectangle(cornerRadius: RKMetrics.radiusSmall))
-                .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusSmall).strokeBorder(RK.lineStrong, lineWidth: 1) }
+                .frame(width: width, height: SPMetrics.fieldHeight)
+                .background(SP.field, in: RoundedRectangle(cornerRadius: SPMetrics.radiusSmall))
+                .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusSmall).strokeBorder(SP.lineStrong, lineWidth: 1) }
                 .accessibilityLabel(label)
             Stepper(label, value: clamped, in: range).labelsHidden().controlSize(.small)
         }
@@ -39,12 +39,12 @@ struct ReadOnlyField: View {
 
     var body: some View {
         Text("\(value)")
-            .font(.rk)
-            .foregroundStyle(RK.text)
+            .font(.sp)
+            .foregroundStyle(SP.text)
             .padding(.horizontal, 6)
-            .frame(width: 38, height: RKMetrics.fieldHeight, alignment: .trailing)
-            .background(RK.field, in: RoundedRectangle(cornerRadius: RKMetrics.radiusSmall))
-            .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusSmall).strokeBorder(RK.lineStrong, lineWidth: 1) }
+            .frame(width: 38, height: SPMetrics.fieldHeight, alignment: .trailing)
+            .background(SP.field, in: RoundedRectangle(cornerRadius: SPMetrics.radiusSmall))
+            .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusSmall).strokeBorder(SP.lineStrong, lineWidth: 1) }
             .padding(.trailing, 20)
             .accessibilityElement()
             .accessibilityLabel(label)
@@ -64,8 +64,8 @@ struct FieldRow: View {
     var body: some View {
         HStack(spacing: 4) {
             Text(title)
-                .font(.rk)
-                .foregroundStyle(isLocked ? RK.off : RK.text)
+                .font(.sp)
+                .foregroundStyle(isLocked ? SP.off : SP.text)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
             Spacer(minLength: 0)
@@ -91,8 +91,8 @@ struct RadioRow: View {
             HStack(spacing: 6) {
                 Image(systemName: isSelected ? "circle.inset.filled" : "circle")
                     .font(.system(size: 13))
-                    .foregroundStyle(isSelected ? RK.accent : RK.muted)
-                Text(title).font(.rk).foregroundStyle(isEnabled ? RK.text : RK.off)
+                    .foregroundStyle(isSelected ? SP.accent : SP.muted)
+                Text(title).font(.sp).foregroundStyle(isEnabled ? SP.text : SP.off)
             }
             .frame(minHeight: 23, alignment: .leading)
             .contentShape(Rectangle())
@@ -113,7 +113,7 @@ struct PanelCheckbox: View {
 
     var body: some View {
         Toggle(isOn: $isOn) {
-            Text(title).font(.rk).foregroundStyle(isLocked ? RK.off : RK.text)
+            Text(title).font(.sp).foregroundStyle(isLocked ? SP.off : SP.text)
         }
         .toggleStyle(.checkbox)
         .disabled(isLocked)
@@ -126,7 +126,7 @@ struct GroupHeading: View {
     let title: String
 
     var body: some View {
-        Text(title).font(.rk(RKMetrics.fontSize, .semibold)).foregroundStyle(RK.text)
+        Text(title).font(.sp(SPMetrics.fontSize, .semibold)).foregroundStyle(SP.text)
     }
 }
 
@@ -143,9 +143,9 @@ struct AdvancedSection<Content: View>: View {
         VStack(alignment: .leading, spacing: 8) {
             Button { model.toggleAdvanced(step) } label: {
                 HStack {
-                    Text("\(isOpen ? "▾" : "▸") Advanced").font(.rk(RKMetrics.fontSize, .medium)).foregroundStyle(RK.text)
+                    Text("\(isOpen ? "▾" : "▸") Advanced").font(.sp(SPMetrics.fontSize, .medium)).foregroundStyle(SP.text)
                     Spacer()
-                    Text("\(count) more settings").font(.rkSmall).foregroundStyle(RK.muted)
+                    Text("\(count) more settings").font(.spSmall).foregroundStyle(SP.muted)
                 }
                 .frame(minHeight: 29)
                 .contentShape(Rectangle())
@@ -156,6 +156,6 @@ struct AdvancedSection<Content: View>: View {
             if isOpen { content() }
         }
         .padding(.top, 2)
-        .overlay(alignment: .top) { RK.line.frame(height: 1) }
+        .overlay(alignment: .top) { SP.line.frame(height: 1) }
     }
 }

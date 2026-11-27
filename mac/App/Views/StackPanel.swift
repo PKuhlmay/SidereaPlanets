@@ -10,7 +10,7 @@ struct StackStepView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text("Output size").font(.rkSmall).foregroundStyle(RK.muted).help("Size of the stacked image.")
+            Text("Output size").font(.spSmall).foregroundStyle(SP.muted).help("Size of the stacked image.")
             RadioRow(title: "Default", isSelected: true) {}
             LockedOption(title: "Smallest common area", kind: .radio, hint: "Only the area that every frame covers.")
             LockedOption(title: "Largest area", kind: .radio, hint: "Everything that any frame covers.")
@@ -60,7 +60,7 @@ struct LockedOption: View {
     /// What the option would do, in the tooltip after "Not available yet".
     var hint = ""
 
-    private let note = Text("Not available yet").font(.rkSmall).foregroundStyle(RK.muted)
+    private let note = Text("Not available yet").font(.spSmall).foregroundStyle(SP.muted)
 
     var body: some View {
         ViewThatFits(in: .horizontal) {
@@ -111,7 +111,7 @@ struct DerotateOptions: View {
 
     private var settings: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Planet").font(.rkSmall).foregroundStyle(RK.muted)
+            Text("Planet").font(.spSmall).foregroundStyle(SP.muted)
             SegmentBar(items: [(DerotatePlanet.jupiter, "Jupiter"), (.saturn, "Saturn"), (.mars, "Mars")].map { planet, title in
                 SegmentItem(
                     title: title, isOn: model.stackOptions.derotatePlanet == planet,
@@ -120,7 +120,7 @@ struct DerotateOptions: View {
             })
             if !model.hasFrameTimestamps { startTimeRow }
             HStack(spacing: 4) {
-                Text("Camera angle (°)").font(.rk).foregroundStyle(RK.text)
+                Text("Camera angle (°)").font(.sp).foregroundStyle(SP.text)
                 Spacer(minLength: 0)
                 DecimalField(
                     label: "Camera angle", value: $model.stackOptions.cameraAngle, decimals: 1, step: 1, range: -360...360
@@ -133,7 +133,7 @@ struct DerotateOptions: View {
             )
             if let line = model.derotationLine { summary(line) }
             if model.hasFrameTimestamps {
-                Text("The file has a time for every frame.").font(.rkSmall).foregroundStyle(RK.muted)
+                Text("The file has a time for every frame.").font(.spSmall).foregroundStyle(SP.muted)
             }
         }
         .padding(.leading, 18)
@@ -142,28 +142,28 @@ struct DerotateOptions: View {
     private var startTimeRow: some View {
         VStack(alignment: .leading, spacing: 2) {
             HStack(spacing: 4) {
-                Text("Start time").font(.rk).foregroundStyle(RK.text)
+                Text("Start time").font(.sp).foregroundStyle(SP.text)
                 Spacer(minLength: 0)
                 DatePicker("Start time", selection: startTime, displayedComponents: [.date, .hourAndMinute])
                     .datePickerStyle(.field)
                     .labelsHidden()
-                    .font(.rk)
+                    .font(.sp)
             }
             .help("When the first frame was taken, in the time zone of this Mac. The file has no time for its frames.")
             if let date = model.stackOptions.startTime {
                 Text("\(utcText(date))\(model.startTimeIsGuess ? " · taken from the file date, check it" : "")")
-                    .font(.rkSmall).foregroundStyle(RK.muted)
+                    .font(.spSmall).foregroundStyle(SP.muted)
                     .fixedSize(horizontal: false, vertical: true)
             } else {
-                Text("Enter the time of the first frame").font(.rkSmall).foregroundStyle(RK.muted)
+                Text("Enter the time of the first frame").font(.spSmall).foregroundStyle(SP.muted)
             }
         }
     }
 
     private func summary(_ line: (text: String, hint: String?, isProblem: Bool)) -> some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(line.text).font(.rkSmall).foregroundStyle(line.isProblem ? RK.accentInk : RK.text)
-            if let hint = line.hint { Text(hint).font(.rkSmall).foregroundStyle(RK.muted) }
+            Text(line.text).font(.spSmall).foregroundStyle(line.isProblem ? SP.accentInk : SP.text)
+            if let hint = line.hint { Text(hint).font(.spSmall).foregroundStyle(SP.muted) }
         }
         .accessibilityElement(children: .combine)
     }

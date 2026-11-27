@@ -1,6 +1,6 @@
-# Ablauf in the reference program
+# Ablauf im Referenzprogramm
 
-Beobachtet an the reference program.1.0.0 (Dateidatum 02-04-2011) mit `JUPITER.AVI` (siehe `docs/testdaten.md`).
+Beobachtet am Referenzprogramm, Version 6.1.0.0 (Dateidatum 02-04-2011) mit `JUPITER.AVI` (siehe `docs/testdaten.md`).
 Bedienelemente, Werte und Bereiche stehen in `docs/ui.md`. Ungeklärtes steht in `docs/offene-fragen.md`.
 
 ## Überblick
@@ -11,7 +11,7 @@ Select ──► Align-Reiter ────────────────�
 ```
 
 Es gibt drei Reiter: **Align**, **Stack** und **Wavelet**. Stack und Wavelet lassen sich erst anwählen, wenn
-der jeweils vorige Schritt gelaufen ist. Einen eigenen Schritt „Optimize“ wie in the reference program 5 gibt es nicht mehr.
+der jeweils vorige Schritt gelaufen ist. Einen eigenen Schritt „Optimize“ wie in Version 5 des Referenzprogramms gibt es nicht mehr.
 Ebenso fehlt der frühere Reiter „Final“, dessen Funktionen im Wavelet-Reiter liegen (Panel *Functions*).
 
 ## 1. Laden (Select)
@@ -19,9 +19,9 @@ Ebenso fehlt der frühere Reiter „Final“, dessen Funktionen im Wavelet-Reite
 1. **Select** in der Werkzeugleiste öffnet einen Dateidialog mit dem Titel „Open file(s)“.
    Dateitypen siehe `docs/formats.md`.
 2. Nach dem Laden erscheint das erste Frame im Bildbereich. Die Titelleiste zeigt Pfad, Codec und Größe,
-   z. B. `the reference program processing AVI: …\JUPITER.AVI(DIB vids) (1024x680)`. Unter dem Bild stehen „Frame (1): 1/10“
+   z. B. `‹Programmname› processing AVI: …\JUPITER.AVI(DIB vids) (1024x680)`. Unter dem Bild stehen „Frame (1): 1/10“
    und ein Schieberegler über alle Frames.
-3. Bei einem Farbvideo fragt the reference program: *Image seems to be in colour, process in colour?* (Yes/No), dazu die Option
+3. Bei einem Farbvideo fragt das Referenzprogramm: *Image seems to be in colour, process in colour?* (Yes/No), dazu die Option
    „nicht mehr fragen, automatisch erkennen“. Diese Option entspricht *Settings ▸ Autodetect Colour/BW*.
    Mit **Yes** wird im Align-Reiter das Häkchen **Colour** gesetzt.
 4. Im Align-Reiter sind danach **Set Alignpoints** sowie **No Align** und **R.o.Interest** aktiv.
@@ -50,7 +50,7 @@ Ebenso fehlt der frühere Reiter „Final“, dessen Funktionen im Wavelet-Reite
 
 ### 2.3 Limit
 - Begrenzt die Frames nach *Limit Setup*. Standard: *Lowest Quality (%)* = 80.
-- the reference program wechselt danach **selbst in den Stack-Reiter**. Die Statusleiste meldet
+- Das Referenzprogramm wechselt danach **selbst in den Stack-Reiter**. Die Statusleiste meldet
   „Processing limited to 10 frames“ und „Stacksize: 10 Low quality :100,00%“.
   Der Klon zeigt „Stacksize: n  Low quality: x.xx%“ mit x = Qualität des schwächsten behaltenen Frames in Prozent des besten
   (Prozentwerte der Frameliste). Das ist eine **Vermutung**: Beim Referenzfall steht im Original bei allen zehn Frames 100,00 %,
@@ -98,11 +98,11 @@ Ebenso fehlt der frühere Reiter „Final“, dessen Funktionen im Wavelet-Reite
 ## Was der Klon daraus übernimmt
 
 - Gleiche Reihenfolge und Sperrlogik: Laden → Set Alignpoints → Align → Limit → (automatisch) Stack → Wavelet.
-  **Bewusste Abweichung (Philipp, RK-005):** Set Alignpoints und Align bleiben nach Align, Limit, Stack und Wavelet
+  **Bewusste Abweichung (Philipp, SP-005):** Set Alignpoints und Align bleiben nach Align, Limit, Stack und Wavelet
   bedienbar. Ein neuer Lauf verwirft Limit, Stack, Wavelet-Ergebnis, Farbanpassung und Frame-Auswahl, damit man ohne
   erneutes Öffnen der Aufnahme neu ausrichten kann. Das Original sperrt beide Schritte ab Align und kennt dieses
   Verhalten nicht; Einzelheiten in `docs/design.md`, Abschnitt „Zustände“.
 - Gleiche Begriffe auf Schaltflächen und Reglern (Liste in `docs/ui.md`).
-- Fortschritt und Abbrechen bei Align, Stack und Do All (RK-010).
+- Fortschritt und Abbrechen bei Align, Stack und Do All (SP-010).
 - Die Nachfrage „in Farbe verarbeiten?“ ersetzt der Klon durch die automatische Erkennung, die im Original als
   Option existiert. Das ist eine bewusste Abweichung, die Philipp bestätigen sollte (siehe `docs/offene-fragen.md`).

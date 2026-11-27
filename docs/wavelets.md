@@ -1,4 +1,4 @@
-# Wavelet-Schärfung (RK-007)
+# Wavelet-Schärfung (SP-007)
 
 Was der Rechenkern (`crates/core/src/wavelet/`) tut, was davon am Original **belegt** ist und was **geraten**.
 Bedienelemente und Standardwerte stehen in `docs/ui.md`, der Ablauf in `docs/workflow.md` (Abschnitt 4), das
@@ -90,7 +90,7 @@ Initial Layer auf 1 … 64, Step Increment auf 0 … 64 (`WaveletSettings::clamp
 beliebige Werte zu (`docs/offene-fragen.md`, Frage 1).
 
 *Automatic*, *Hold Wavelet Setting*, *Use Linked Wavelets* und die Schaltfläche *Preview* je Ebene betreffen nur
-die Bedienung und liegen nicht im Rechenkern (RK-007 Phase 2).
+die Bedienung und liegen nicht im Rechenkern (SP-007 Phase 2).
 
 ## Was am Original beobachtet wurde
 
@@ -156,17 +156,17 @@ Helligkeitssprung zu sehen.
   Gerechnet wird nur im Schritt Wavelets (`previewWanted`), nicht im Schritt Save, und nicht, solange ein Do All für diese
   Werte und dieses Summenbild vorliegt: Sonst würde das Betreten von Save oder Wavelets das Ergebnis von Do All durch
   Summenbild plus Vorschau-Ausschnitt ersetzen und „Do All finished“ in der Statusleiste überschreiben
-  (RK-010-Prüflauf: Wechsel nach Save zeigte „Preview: 79 ms“).
+  (SP-010-Prüflauf: Wechsel nach Save zeigte „Preview: 79 ms“).
 - Die Antwort wird in einen Puffer geschrieben, der eine Kopie des Summenbilds ist; `session.processedImage` teilt sich
   diesen Puffer, eine Vorschau kostet also nur den Bereich. Außerhalb der Processing Area bleibt das Summenbild.
 - Die Statusleiste zeigt die Zeit von Anfrage bis Zeichnen (`Preview: n ms`). Das ist die Messung der Übertragung, die
   `docs/gui-toolkit.md` verlangt; **es liegen noch keine Messwerte vor** (App nicht gestartet).
 - **Process** und **Do All** laufen über `runJob`. Do All ersetzt `session.processedImage` durch das ganze Bild.
 - **Load Scheme / Save Scheme**: Dateidialog (Plugin `dialog`, Filter `.rwv`) in `pickSchemePath`, das ist die Stelle, die
-  RK-009 durch `pick_scheme_path` ersetzt.
-- **Realign with Processed** ist nicht angebunden (braucht Align/Stack, RK-005/RK-006).
+  SP-009 durch `pick_scheme_path` ersetzt.
+- **Realign with Processed** ist nicht angebunden (braucht Align/Stack, SP-005/SP-006).
 - Ohne gestapeltes Bild im Backend (`WaveletState::set_source` wurde nicht aufgerufen) meldet die Statusleiste
-  „no image to sharpen“. Solange RK-006 fehlt, ist der Reiter ohnehin gesperrt.
+  „no image to sharpen“. Solange SP-006 fehlt, ist der Reiter ohnehin gesperrt.
 - Automatic, Hold und Linked: geraten, siehe `docs/offene-fragen.md`, Frage 29.
 
 ## Tauri-Befehle (`app/src-tauri/src/wavelet_commands.rs`)
@@ -179,9 +179,9 @@ Einstellungen gehen als JSON mit den Feldern von `WaveletSettings` (camelCase): 
 | Befehl | Zweck |
 |---|---|
 | `wavelet_default_settings()` | Werte für *Reset Wavelets* |
-| `wavelet_set_source_frame(index)` | Platzhalter: Frame der Aufnahme als Bild des Reiters, bis RK-006 `WaveletState::set_source` nach *Stack* aufruft |
+| `wavelet_set_source_frame(index)` | Platzhalter: Frame der Aufnahme als Bild des Reiters, bis SP-006 `WaveletState::set_source` nach *Stack* aufruft |
 | `wavelet_preview(settings \| null, area, mode)` | Vorschau mit Kennlinie und Farbbehandlung wie *Do All*; `mode` ist `"colour"`, `"lrgb"` oder `"gray"`. Antwort binär: x, y, Breite, Höhe (4 × u32 LE, der auf das Bild zugeschnittene Bereich), dann RGBA. `null` = unbearbeitet (*Before*) |
-| `wavelet_do_all(settings, mode)` | ganzes Bild mit Kennlinie und Farbbehandlung; Antwort binär wie `read_frame` (Breite, Höhe als u32 LE, RGBA). Das Ergebnis bleibt in `WaveletState::processed()` für *Save image* (RK-009) |
+| `wavelet_do_all(settings, mode)` | ganzes Bild mit Kennlinie und Farbbehandlung; Antwort binär wie `read_frame` (Breite, Höhe als u32 LE, RGBA). Das Ergebnis bleibt in `WaveletState::processed()` für *Save image* (SP-009) |
 | `save_wavelet_scheme(path, settings)` / `load_wavelet_scheme(path)` | `.rwv` schreiben und lesen |
 
 ## Denoise/Deringing und Masking (MAC-018, eigener Entwurf)
@@ -252,7 +252,7 @@ Beschränkt das Schärfen auf einen Bereich, meist die Scheibe:
 Der Klon liest und schreibt das **`.rwv`-Format des Originals** (`docs/formats.md`), damit vorhandene Schemata weiter
 gelten. Zusätzlich gilt: Groß-/Kleinschreibung egal, fehlende Schlüssel behalten ihren Standardwert, unbekannte
 werden ignoriert, Werte werden auf die Grenzen oben gekürzt, ein Fehler nennt die Zeile. Geschrieben wird mit CRLF,
-byteidentisch zu `jupiter-l1-10.rwv`. Der Klon führt kein eigenes Format ein. RK-009 muss für *Available schemes* nur
+byteidentisch zu `jupiter-l1-10.rwv`. Der Klon führt kein eigenes Format ein. SP-009 muss für *Available schemes* nur
 Ordner und Dateidialog ergänzen; Lesen und Schreiben stehen (`scheme::from_rwv`, `scheme::to_rwv`).
 Die Datei speichert Gain mit einer Nachkommastelle und Sharpen und Denoise mit zwei (ganze Zahlen ×10 bzw. ×100); beim Schreiben wird darauf gerundet.
 

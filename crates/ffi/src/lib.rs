@@ -328,7 +328,7 @@ pub fn export_formats(source: ImageSource) -> Vec<FormatInfo> {
         .collect()
 }
 
-/// Writes the project (the extension `.rkproj` is added when missing); returns the path written.
+/// Writes the project (the extension `.sidereaplanets` is added when missing); returns the path written.
 #[uniffi::export]
 pub fn project_save(project: Project, path: String) -> Result<String> {
     let project = planets_io::project::Project::try_from(project)?;

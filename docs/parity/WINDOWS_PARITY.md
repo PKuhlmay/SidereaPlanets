@@ -2,7 +2,7 @@
 
 Sammelstelle für alles, was die Mac-App (`mac/`, SwiftUI) bekommen hat und die Windows-App (`app/`, Tauri und Vue) noch
 übernehmen muss; beide liegen auf `main`, die Gegenrichtung steht in `docs/parity/MAC_PARITY.md`. **Kein eigenes Ticket pro
-Anpassung:** diese Datei ist die Liste, im Windows-Ticket (`tickets/RK-NNN-…`) genügt der Verweis darauf. Hier stehen nur
+Anpassung:** diese Datei ist die Liste, im Windows-Ticket (`tickets/SP-NNN-…`) genügt der Verweis darauf. Hier stehen nur
 offene Punkte: Der Commit, der einen Punkt in Windows umsetzt, löscht ihn (ein Abschnitt ohne Punkte fällt mit weg); was erledigt
 wurde, zeigt die Git-Historie dieser Datei.
 

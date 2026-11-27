@@ -7,6 +7,7 @@ The first release is 0.1.0 (`MAC-001`); until then everything that is done stand
 
 ### English
 
+- Project files now end in .sidereaplanets. To open a project saved with an earlier build, rename its file to this ending.
 - The app is called Siderea Planets: name in the Dock, menus, About, window titles and Help.
 - Native Mac window with step bar, step panel, image area, frame bar and status bar; follows the light and dark appearance of macOS.
 - Select a recording (⌘O, Open Recent, MRU, drag onto the window): SER, AVI and image series, with the file details.
@@ -18,6 +19,7 @@ The first release is 0.1.0 (`MAC-001`); until then everything that is done stand
 
 ### Deutsch
 
+- Projektdateien enden jetzt auf .sidereaplanets. Ein mit einem früheren Stand gespeichertes Projekt öffnet sich, nachdem die Datei auf diese Endung umbenannt wurde.
 - Die App heißt Siderea Planets: Name im Dock, in den Menüs, im Infofenster, in den Fenstertiteln und in der Hilfe.
 - Natives Mac-Fenster mit Schrittleiste, Schrittpanel, Bildbereich, Frame-Leiste und Statusleiste; folgt der hellen und dunklen Darstellung von macOS.
 - Aufnahme wählen (⌘O, Open Recent, MRU, auf das Fenster ziehen): SER, AVI und Bildserien, mit den Dateiangaben.

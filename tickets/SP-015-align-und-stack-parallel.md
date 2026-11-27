@@ -1,7 +1,7 @@
-# RK-015 Align und Stack über die Frames parallel
+# SP-015 Align und Stack über die Frames parallel
 
 - Status: erledigt
-- Abhängig von: RK-005, RK-006, MAC-003 (`crates/session`)
+- Abhängig von: SP-005, SP-006, MAC-003 (`crates/session`)
 
 ## Ziel
 

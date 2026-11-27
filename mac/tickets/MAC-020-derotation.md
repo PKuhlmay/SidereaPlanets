@@ -1,7 +1,7 @@
 # MAC-020 Derotation beim Stacken
 
 - Status: erledigt
-- Abhängig von: RK-015, MAC-007
+- Abhängig von: SP-015, MAC-007
 
 ## Ziel
 
@@ -22,7 +22,7 @@ Bezugszeit zurückgedreht. Teleskopdaten sind nicht nötig.
   (Feld „Camera angle“, Standard 0, Hinweis: Norden oben).
 - **Rechnung:** Für jeden Pixel der Scheibe Länge und Breite auf dem abgeplatteten Kugelmodell (orthografische Projektion) bestimmen, um
   Δλ = 360° · Δt / Rotationsdauer verschieben, zurückprojizieren und bilinear abtasten; außerhalb der Scheibe bleibt der Pixel. Läuft vor
-  der lokalen Ausrichtung jedes Frames im Batch (RK-015), parallel, bitgleich für Δt = 0.
+  der lokalen Ausrichtung jedes Frames im Batch (SP-015), parallel, bitgleich für Δt = 0.
 
 ## Akzeptanzkriterien
 

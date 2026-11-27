@@ -1,4 +1,4 @@
-// De-rotate images in the Stack step (RK-023): asks the core for the span, the rotation and the disc measured in the reference
+// De-rotate images in the Stack step (SP-023): asks the core for the span, the rotation and the disc measured in the reference
 // frame whenever something they depend on changes, after a short pause so that typing in a field does not measure per key.
 // The calculation is `Session::derotation_info`; stacking itself sends the settings with Stack (logic/stack.ts).
 

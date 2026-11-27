@@ -1,4 +1,4 @@
-﻿; Inno Setup script of the Siderea Planets installer (RK-026), modelled on the one of Siderea (siderea/windows/installer/Siderea.iss).
+﻿; Inno Setup script of the Siderea Planets installer (SP-026), modelled on the one of Siderea (siderea/windows/installer/Siderea.iss).
 ; Built by scripts/publish-windows.sh --installer, which passes
 ;   /DAppVersion=<version of app/package.json>  /DSourceDir=<build\windows\dist\Siderea Planets>  /DOutputDir=<build\windows\dist>
 ;   /DNotesEn=<notes-en.txt> /DNotesDe=<notes-de.txt>  /DWebView2Setup=<MicrosoftEdgeWebview2Setup.exe>

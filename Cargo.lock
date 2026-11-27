@@ -2578,6 +2578,67 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4596b6d070b27117e987119b4dac604f3c58cfb0b191112e24771b2faeac1a6"
 
 [[package]]
+name = "planets-app"
+version = "0.1.0"
+dependencies = [
+ "planets-core",
+ "planets-io",
+ "planets-session",
+ "serde",
+ "serde_json",
+ "sysinfo",
+ "tauri",
+ "tauri-build",
+ "tauri-plugin-dialog",
+]
+
+[[package]]
+name = "planets-core"
+version = "0.1.0"
+dependencies = [
+ "rayon",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "planets-ffi"
+version = "0.1.0"
+dependencies = [
+ "planets-core",
+ "planets-io",
+ "planets-session",
+ "serde_json",
+ "thiserror 2.0.21",
+ "uniffi",
+]
+
+[[package]]
+name = "planets-io"
+version = "0.1.0"
+dependencies = [
+ "image",
+ "planets-core",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+ "zune-core",
+ "zune-jpeg",
+]
+
+[[package]]
+name = "planets-session"
+version = "0.1.0"
+dependencies = [
+ "planets-core",
+ "planets-io",
+ "rayon",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.21",
+]
+
+[[package]]
 name = "plist"
 version = "1.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2836,67 +2897,6 @@ name = "regex-syntax"
 version = "0.8.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6f6ff9a378485b298a5286656da665ba74413d36db0979633275d2e708145d4"
-
-[[package]]
-name = "planets-app"
-version = "0.1.0"
-dependencies = [
- "planets-core",
- "planets-io",
- "planets-session",
- "serde",
- "serde_json",
- "sysinfo",
- "tauri",
- "tauri-build",
- "tauri-plugin-dialog",
-]
-
-[[package]]
-name = "planets-core"
-version = "0.1.0"
-dependencies = [
- "rayon",
- "serde",
- "serde_json",
-]
-
-[[package]]
-name = "planets-ffi"
-version = "0.1.0"
-dependencies = [
- "planets-core",
- "planets-io",
- "planets-session",
- "serde_json",
- "thiserror 2.0.21",
- "uniffi",
-]
-
-[[package]]
-name = "planets-io"
-version = "0.1.0"
-dependencies = [
- "image",
- "planets-core",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
- "zune-core",
- "zune-jpeg",
-]
-
-[[package]]
-name = "planets-session"
-version = "0.1.0"
-dependencies = [
- "rayon",
- "planets-core",
- "planets-io",
- "serde",
- "serde_json",
- "thiserror 2.0.21",
-]
 
 [[package]]
 name = "reqwest"

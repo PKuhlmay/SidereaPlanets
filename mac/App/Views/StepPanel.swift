@@ -15,21 +15,21 @@ struct StepPanel: View {
                 VStack(alignment: .leading, spacing: 12) {
                     if let line = previousResult {
                         Label(line, systemImage: "checkmark")
-                            .font(.rkSmall)
-                            .foregroundStyle(RK.ok)
+                            .font(.spSmall)
+                            .foregroundStyle(SP.ok)
                     }
                     header
                     content
                 }
-                .padding(RKMetrics.panelPadding)
+                .padding(SPMetrics.panelPadding)
                 .modifier(KeepPanelWidth())
             }
             .scrollIndicators(.automatic)
             foot
         }
-        .frame(width: RKMetrics.sideWidth)
-        .background(RK.panel)
-        .overlay(alignment: .trailing) { RK.line.frame(width: 1) }
+        .frame(width: SPMetrics.sideWidth)
+        .background(SP.panel)
+        .overlay(alignment: .trailing) { SP.line.frame(width: 1) }
     }
 
     /// "Open · JUPITER.AVI · 10 frames": only above the step that opens next.
@@ -40,11 +40,11 @@ struct StepPanel: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("Step \(step.number) of 7").font(.rkSmall).foregroundStyle(RK.muted)
-            Text(step.label).font(.rk(15, .semibold)).foregroundStyle(RK.text)
+            Text("Step \(step.number) of 7").font(.spSmall).foregroundStyle(SP.muted)
+            Text(step.label).font(.sp(15, .semibold)).foregroundStyle(SP.text)
             Text(step.sentence)
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
+                .font(.spSmall)
+                .foregroundStyle(SP.muted)
                 .lineSpacing(3)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 2)
@@ -73,34 +73,34 @@ struct StepPanel: View {
         VStack(spacing: 8) {
             if isFinished {
                 Text(model.result(of: step))
-                    .font(.rkSmall)
-                    .foregroundStyle(RK.ok)
+                    .font(.spSmall)
+                    .foregroundStyle(SP.ok)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Button("Select Another Recording…", action: select)
-                    .buttonStyle(.rkFilled)
+                    .buttonStyle(.spFilled)
                     .disabled(model.isBusy)
             } else if state.status == .done {
                 Text(model.result(of: step))
-                    .font(.rkSmall)
-                    .foregroundStyle(RK.ok)
+                    .font(.spSmall)
+                    .foregroundStyle(SP.ok)
                     .lineLimit(1)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 actionLine {
                     Button(step.againLabel, action: act)
-                        .buttonStyle(.rkWide)
+                        .buttonStyle(.spWide)
                         .disabled(!step.isBuilt || model.isBusy)
                         .help(step.actionExplanation)
                 }
                 if model.progress.againDiscards(step) {
                     Text("Running it again discards the results of the later steps.")
-                        .font(.rkSmall)
-                        .foregroundStyle(RK.muted)
+                        .font(.spSmall)
+                        .foregroundStyle(SP.muted)
                         .frame(maxWidth: .infinity, alignment: .leading)
                 }
                 if step == .stack { SaveImageMenu(model: model, source: .stack) }
                 Button("Continue: \(model.progress.nextOpen.label) ›") { model.show(model.progress.nextOpen) }
-                    .buttonStyle(.rkFilled)
+                    .buttonStyle(.spFilled)
                     .disabled(model.progress.nextOpen == step || model.isBusy)
             } else {
                 if step == .save {
@@ -108,19 +108,19 @@ struct StepPanel: View {
                 } else {
                     actionLine {
                         Button(step.action, action: act)
-                            .buttonStyle(.rkFilled)
+                            .buttonStyle(.spFilled)
                             .disabled(!step.isBuilt || model.isBusy)
                             .help(step.isBuilt ? step.actionExplanation : "Not available yet")
                     }
                 }
                 if let next = step.next {
-                    Text("Then: \(next.label)").font(.rkSmall).foregroundStyle(RK.muted)
+                    Text("Then: \(next.label)").font(.spSmall).foregroundStyle(SP.muted)
                 }
             }
         }
-        .padding(RKMetrics.panelPadding)
-        .background(RK.panel)
-        .overlay(alignment: .top) { RK.line.frame(height: 1) }
+        .padding(SPMetrics.panelPadding)
+        .background(SP.panel)
+        .overlay(alignment: .top) { SP.line.frame(height: 1) }
     }
 
     /// The action button; in the Wavelets step Update Preview stands at its left.
@@ -143,7 +143,7 @@ struct StepPanel: View {
     private var updatePreview: some View {
         if step == .wavelets {
             Button("Update Preview") { Task { await model.runProcess() } }
-                .buttonStyle(.rk)
+                .buttonStyle(.sp)
                 .fixedSize(horizontal: true, vertical: false)
                 .disabled(model.isBusy || model.stacked == nil)
                 .help("Calculates the preview area with the current settings.")
@@ -201,27 +201,27 @@ private struct OpenStepView: View {
     private func fileInfo(_ details: RecordingDetails) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(details.fileName)
-                .font(.rk(RKMetrics.fontSize, .semibold))
+                .font(.sp(SPMetrics.fontSize, .semibold))
                 .lineLimit(1)
                 .truncationMode(.middle)
             Grid(alignment: .leadingFirstTextBaseline, horizontalSpacing: 10, verticalSpacing: 3) {
                 ForEach(Array(details.rows.enumerated()), id: \.offset) { _, row in
                     GridRow {
-                        Text(row.label).foregroundStyle(RK.muted).help(RecordingDetails.explanation(of: row.label) ?? "")
-                        Text(row.value).foregroundStyle(RK.text).textSelection(.enabled)
+                        Text(row.label).foregroundStyle(SP.muted).help(RecordingDetails.explanation(of: row.label) ?? "")
+                        Text(row.value).foregroundStyle(SP.text).textSelection(.enabled)
                     }
-                    .font(.rkSmall)
+                    .font(.spSmall)
                 }
             }
-            RK.line.frame(height: 1).padding(.top, 6)
+            SP.line.frame(height: 1).padding(.top, 6)
         }
     }
 
     private var recent: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("Recent Recordings").font(.rkSmall).foregroundStyle(RK.muted).padding(.bottom, 2)
+            Text("Recent Recordings").font(.spSmall).foregroundStyle(SP.muted).padding(.bottom, 2)
             if model.recent.entries.isEmpty {
-                Text("No recent recordings").font(.rkSmall).foregroundStyle(RK.muted)
+                Text("No recent recordings").font(.spSmall).foregroundStyle(SP.muted)
             }
             ForEach(model.recent.entries, id: \.self) { paths in
                 RecentRow(paths: paths, isEnabled: !model.isBusy) {
@@ -241,15 +241,15 @@ private struct RecentRow: View {
     var body: some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 0) {
-                Text(RecentList.label(for: paths)).font(.rk(RKMetrics.fontSize)).foregroundStyle(isEnabled ? RK.text : RK.off)
-                Text(RecentList.folder(for: paths)).font(.rkSmall).foregroundStyle(RK.muted)
+                Text(RecentList.label(for: paths)).font(.sp(SPMetrics.fontSize)).foregroundStyle(isEnabled ? SP.text : SP.off)
+                Text(RecentList.folder(for: paths)).font(.spSmall).foregroundStyle(SP.muted)
             }
             .lineLimit(1)
             .truncationMode(.middle)
             .padding(.horizontal, 6)
             .padding(.vertical, 5)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(isHovering && isEnabled ? RK.raisedHover : .clear, in: RoundedRectangle(cornerRadius: RKMetrics.radiusSmall))
+            .background(isHovering && isEnabled ? SP.raisedHover : .clear, in: RoundedRectangle(cornerRadius: SPMetrics.radiusSmall))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)

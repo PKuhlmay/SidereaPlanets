@@ -25,8 +25,7 @@ esac
 identity="${SIGN_IDENTITY:--}"
 derived="$root/build/mac-release"
 out="$root/build/release"
-# The app is called Siderea Planets (MAC-013); the Xcode project and scheme keep the internal name SidereaPlanets. The bundle has a
-# space in its name, the zip and the disk image do not (no spaces in download file names).
+# The bundle has a space in its name, the zip and the disk image do not (no spaces in download file names).
 scheme="SidereaPlanets"
 name="Siderea Planets"
 file_name="Siderea-Planets"

@@ -22,23 +22,23 @@ struct FrameBar: View {
     var body: some View {
         HStack(spacing: 14) {
             HStack(spacing: 6) {
-                Circle().fill(RK.ok).frame(width: 9, height: 9).opacity(aligned ? 1 : 0.45)
+                Circle().fill(SP.ok).frame(width: 9, height: 9).opacity(aligned ? 1 : 0.45)
                 Text(aligned ? "Aligned" : "Loaded")
-                    .font(.rk(RKMetrics.fontSizeSmall, aligned ? .semibold : .regular))
-                    .foregroundStyle(aligned ? RK.ok : RK.muted)
+                    .font(.sp(SPMetrics.fontSizeSmall, aligned ? .semibold : .regular))
+                    .foregroundStyle(aligned ? SP.ok : SP.muted)
             }
             .frame(minWidth: 76, alignment: .leading)
 
             HStack(spacing: 8) {
-                Text("Go to frame").font(.rk)
+                Text("Go to frame").font(.sp)
                 TextField("Go to frame", value: goto, format: .number.grouping(.never))
                     .textFieldStyle(.plain)
                     .multilineTextAlignment(.trailing)
-                    .font(.rk)
+                    .font(.sp)
                     .padding(.horizontal, 6)
-                    .frame(width: 56, height: RKMetrics.fieldHeight)
-                    .background(RK.field, in: RoundedRectangle(cornerRadius: RKMetrics.radiusSmall))
-                    .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusSmall).strokeBorder(RK.lineStrong, lineWidth: 1) }
+                    .frame(width: 56, height: SPMetrics.fieldHeight)
+                    .background(SP.field, in: RoundedRectangle(cornerRadius: SPMetrics.radiusSmall))
+                    .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusSmall).strokeBorder(SP.lineStrong, lineWidth: 1) }
                     .accessibilityLabel("Go to frame")
                 Stepper("Go to frame", value: goto, in: 1...max(model.frameCount, 1)).labelsHidden()
             }
@@ -52,22 +52,22 @@ struct FrameBar: View {
                     .help("Next frame (⌘])")
                     .disabled(model.frameIndex >= model.frameCount - 1)
             }
-            .buttonStyle(.rkBorderless)
+            .buttonStyle(.spBorderless)
             .labelStyle(.iconOnly)
 
             Slider(value: frame, in: 0...Double(max(model.frameCount - 1, 1)))
                 .controlSize(.small)
-                .tint(RK.accent)
+                .tint(SP.accent)
                 .disabled(model.frameCount < 2)
                 .accessibilityLabel("Frame")
 
             Text("Frame \(model.frameIndex + 1) of \(model.frameCount)")
-                .font(.rk)
+                .font(.sp)
                 .frame(minWidth: 118, alignment: .trailing)
         }
-        .padding(.horizontal, RKMetrics.panelPadding)
-        .frame(height: RKMetrics.frameBarHeight)
-        .background(RK.panel)
-        .overlay(alignment: .top) { RK.line.frame(height: 1) }
+        .padding(.horizontal, SPMetrics.panelPadding)
+        .frame(height: SPMetrics.frameBarHeight)
+        .background(SP.panel)
+        .overlay(alignment: .top) { SP.line.frame(height: 1) }
     }
 }

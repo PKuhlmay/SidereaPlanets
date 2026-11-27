@@ -147,7 +147,7 @@ describe("step states (docs/design.md, Zustände)", () => {
     expect(nextOpenStep(at("limited", true, true))).toBe("stack");
   });
 
-  it("fall back to the step after the points when Set Alignpoints or Align runs again (RK-005)", () => {
+  it("fall back to the step after the points when Set Alignpoints or Align runs again (SP-005)", () => {
     // A new run drops Limit, Stack and the sharpened image: the state goes back to "points" or "aligned".
     expect(pills(at("points", true, true))).toBe("✓ ✓ ● – – – –");
     expect(nextOpenStep(at("aligned", true, true))).toBe("limit");

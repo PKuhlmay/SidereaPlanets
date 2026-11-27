@@ -16,7 +16,7 @@ private struct RefineSlider: View {
     var body: some View {
         VStack(spacing: 2) {
             HStack(spacing: 6) {
-                Text(title).font(.rk).foregroundStyle(RK.text)
+                Text(title).font(.sp).foregroundStyle(SP.text)
                 Spacer()
                 NumberField(label: fieldLabel, value: $value, range: range, width: 40)
             }
@@ -25,7 +25,7 @@ private struct RefineSlider: View {
                 in: Double(range.lowerBound)...Double(range.upperBound), step: 1
             )
             .controlSize(.small)
-            .tint(RK.accent)
+            .tint(SP.accent)
             .accessibilityLabel(title)
         }
         .help(help)
@@ -54,7 +54,7 @@ struct DenoiseCard: View {
                     help: "How far from an edge Deringing looks for the dark ring."
                 )
                 Text("Deringing compares the sharpened image with the stack")
-                    .font(.rkSmall).foregroundStyle(RK.muted)
+                    .font(.spSmall).foregroundStyle(SP.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(10)

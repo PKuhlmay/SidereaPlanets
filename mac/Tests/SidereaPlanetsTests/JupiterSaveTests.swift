@@ -172,14 +172,14 @@ struct JupiterSaveTests {
 
         model.options.boxSize = 41
         model.stackOptions.nearestPoints = 4
-        let file = folder.appendingPathComponent("JUPITER.rkproj")
+        let file = folder.appendingPathComponent("JUPITER.sidereaplanets")
         await model.saveProject(choose: Dialogs(answer: file).save)
-        #expect(model.status.result == "Saved JUPITER.rkproj", "\(model.status.result)")
+        #expect(model.status.result == "Saved JUPITER.sidereaplanets", "\(model.status.result)")
 
         let other = try makeModel()
         await other.openProject(choose: Dialogs(answer: file).open)
         #expect(other.fileURLs.map(\.path) == [jupiter!.path] && other.frameCount == 10)
         #expect(other.options.boxSize == 41 && other.stackOptions.nearestPoints == 4 && other.stackOptions.framerate == 10)
-        #expect(other.status.result == "Opened JUPITER.rkproj")
+        #expect(other.status.result == "Opened JUPITER.sidereaplanets")
     }
 }

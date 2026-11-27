@@ -8,12 +8,12 @@ import { resourceSettings, usage } from "../resource";
 import { status } from "../state";
 
 // Five fields: progress, current action, result, position under the pointer (Wavelets and Save steps), time. In front of them,
-// while it is switched on in Settings, the CPU load and the memory of the app (RK-019).
+// while it is switched on in Settings, the CPU load and the memory of the app (SP-019).
 const cores = computed(() => cpu.max);
 const cpuText = computed(() => cpuReading(usage.cpuPercent, cores.value) ?? "–");
 const ramText = computed(() => (usage.memoryBytes === null ? "–" : byteText(usage.memoryBytes)));
 const high = computed(() => isHigh(usage.cpuPercent, cores.value));
-// Version, commit and build time, as in Siderea (RK-025).
+// Version, commit and build time, as in Siderea (SP-025).
 const build = appBuildLabel();
 </script>
 

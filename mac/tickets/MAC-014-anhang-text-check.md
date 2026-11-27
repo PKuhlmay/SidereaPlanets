@@ -6,15 +6,15 @@ Settings, Help-Fenster). Pfade relativ zu `mac/App/`. Read-only, nichts im Repo 
 
 **Art:**
 - **umbenennen** = Text ersetzen.
-- **Tooltip** = the reference program-Begriff behalten und per `.help()` erklären, damit Anleitungen zu the reference program weiter passen.
-- **beides** = sichtbarer Text leicht entschärft, und der Original-Begriff steht im Tooltip („the reference program: …").
+- **Tooltip** = Begriff des Referenzprogramms behalten und per `.help()` erklären, damit Anleitungen zum Referenzprogramm weiter passen.
+- **beides** = sichtbarer Text leicht entschärft, und der Original-Begriff steht als Zusatz im Tooltip.
 
 **Schwere:**
 - **hoch** = Einsteiger versteht nicht, was passiert, oder wird aktiv in die Irre geführt.
 - **mittel** = unklar oder inkonsistent, lässt sich aber erschließen.
 - **niedrig** = Kosmetik (Schreibweise, Groß/klein).
 
-Faustregel für die Abwägung: **Schrittnamen und Hauptaktionen** (das, was in YouTube-Tutorials zu the reference program genannt wird: Alignpoints,
+Faustregel für die Abwägung: **Schrittnamen und Hauptaktionen** (das, was in YouTube-Tutorials zum Referenzprogramm genannt wird: Alignpoints,
 Align, Limit, Stack, Wavelets, Do All) **behalten + Tooltip**. **Feldbeschriftungen, Statustexte, Kürzel und Tippfehler**
 umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden sie selten wörtlich zitiert.
 
@@ -43,7 +43,7 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 |---|---|---|---|---|---|---|
 | S.1 | Schrittname **„Alignpoints"** | Model/StepLogic.swift:24 | Zusammengeschriebenes Kunstwort. Ein Einsteiger weiß nicht, dass es „Ankerpunkte für die Ausrichtung" sind. | Behalten (Tutorial-Begriff). Tooltip auf der Pille: „Alignpoints: reference marks on surface details that every frame is lined up on". Optional sichtbar „Align Points" (mit Leerzeichen). | Tooltip | hoch |
 | S.2 | Schrittname **„Limit"** | StepLogic.swift:26 | Ein Verb ohne Objekt; was begrenzt wird, ist unklar. | Behalten + Tooltip „Limit: choose which frames go into the stack (the sharpest ones)". Alternativ sichtbar „Pick Frames". | Tooltip | hoch |
-| S.3 | Schrittname **„Wavelets"** | StepLogic.swift:28 | Mathematischer Fachbegriff; ein Einsteiger sucht „Sharpen". | Behalten (DER the reference program-Begriff) + Tooltip „Wavelets: sharpening in layers from fine to coarse detail" | Tooltip | mittel |
+| S.3 | Schrittname **„Wavelets"** | StepLogic.swift:28 | Mathematischer Fachbegriff; ein Einsteiger sucht „Sharpen". | Behalten (DER Begriff des Referenzprogramms) + Tooltip „Wavelets: sharpening in layers from fine to coarse detail" | Tooltip | mittel |
 | S.4 | Schrittname **„Stack"** | StepLogic.swift:27 | Für Astro-Einsteiger halbwegs bekannt, aber englisch-fachlich. | Behalten + Tooltip „Stack: average the kept frames into one low-noise image" | Tooltip | niedrig |
 | S.5 | Aktion **„Set Alignpoints"** | StepLogic.swift:37 | Wie S.1. Außerdem ist unklar, dass es automatisch platziert und nicht von Hand. | Behalten + Tooltip „Place alignpoints automatically on the current frame" | Tooltip | mittel |
 | S.6 | Aktion **„Do All"** | StepLogic.swift:41 | Klingt nach „alle Schritte ausführen". Tatsächlich wendet es die Schärfung aufs ganze Bild an. | Behalten + Tooltip „Do All: apply the sharpening to the whole image (the preview shows only the Processing Area)". Alternativ sichtbar „Apply to Whole Image". | beides | hoch |
@@ -98,7 +98,7 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 | # | Aktuell | Ort | Problem | Vorschlag | Art | Schwere |
 |---|---|---|---|---|---|---|
 | 3.1 | Segmente „**No Align** · **Scan Frames**" + „Not available yet" | AlignPanels.swift:90–91 | Steht ganz oben, ist gesperrt und unverständlich. „No Align" wirkt sogar ausgewählt. | Gesperrt nach Advanced verschieben, oder Tooltip „Alignment modes of the reference program; not available yet" | Struktur + Tooltip | mittel |
-| 3.2 | „**Alignmentbox size**" | AlignPanels.swift:92 | Zusammengeschrieben; Einheit fehlt; Bedeutung (Kantenlänge der Box um jeden Punkt) unklar. | „Box size per point (px)" + Tooltip „the reference program: Alignmentbox size" | beides | hoch |
+| 3.2 | „**Alignmentbox size**" | AlignPanels.swift:92 | Zusammengeschrieben; Einheit fehlt; Bedeutung (Kantenlänge der Box um jeden Punkt) unklar. | „Box size per point (px)" + Tooltip mit dem Original-Begriff „Alignmentbox size" | beides | hoch |
 | 3.3 | „**Max Alignpoint movement**" | AlignPanels.swift:93 | Einheit fehlt, Wirkung unklar. | „Max. point shift (px)" + Tooltip „How far a point may move between frames" | beides | mittel |
 | 3.4 | Gruppe „Alignment setup" | AlignPanels.swift:97 | Ok. | — | — | niedrig |
 | 3.5 | „**Show Alignment**" (aktiv, aber ohne Wirkung) | AlignPanels.swift:98, AlignLogic.swift:41 | Wird nirgends gelesen (nur in AlignLogic deklariert). Ein Häkchen, das nichts tut, verwirrt. | Sperren + „Not available yet" | Verhalten | mittel |
@@ -110,9 +110,9 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 
 | # | Aktuell | Ort | Problem | Vorschlag | Art | Schwere |
 |---|---|---|---|---|---|---|
-| 4.1 | „**Lowest Quality (%)**" | Model/AlignLogic.swift:17 | Was „lowest" heißt, bleibt offen: Untergrenze oder schlechteste Frames? | „Min. quality (%)" + Tooltip „the reference program: Lowest Quality – keep frames at least this good (relative to the best)" | beides | mittel |
+| 4.1 | „**Lowest Quality (%)**" | Model/AlignLogic.swift:17 | Was „lowest" heißt, bleibt offen: Untergrenze oder schlechteste Frames? | „Min. quality (%)" + Tooltip „Keep frames at least this good (relative to the best)" mit dem Original-Begriff „Lowest Quality" | beides | mittel |
 | 4.2 | „**Best Frames (%)**" | AlignLogic.swift:18 | Verständlich. Das Feld dazu ist das von 4.1 (geteiltes Prozentfeld) und sitzt nicht in dieser Zeile. | „Best frames (%)" | umbenennen | niedrig |
-| 4.3 | „**Frames/Apoint**" | AlignLogic.swift:19 | Kryptisches Kürzel „Apoint". Bedeutung (jeder Punkt behält seine N besten Frames) nicht ableitbar. | „Best frames per point" + Tooltip „the reference program: Frames/Apoint" | beides | hoch |
+| 4.3 | „**Frames/Apoint**" | AlignLogic.swift:19 | Kryptisches Kürzel „Apoint". Bedeutung (jeder Punkt behält seine N besten Frames) nicht ableitbar. | „Best frames per point" + Tooltip mit dem Original-Begriff „Frames/Apoint" | beides | hoch |
 | 4.4 | „**Best Frames**" (Anzahl) | AlignLogic.swift:20 | Gleich wie 4.2, nur ohne „(%)"; leicht zu verwechseln. | „Best frames (count)" bzw. „Number of best frames" | umbenennen | mittel |
 | 4.5 | Felder ohne sichtbare Zuordnung (ein Prozentfeld bei Zeile 1, ein Zahlenfeld bei Zeile 3) | Views/AlignPanels.swift:151–154 | Einsteiger stellt in Zeile 2 um und sucht das Feld. | Feld je Modus in eigener Zeile oder Hinweis „uses the field above" | Struktur | mittel |
 | 4.6 | Diagramm-Achse „**best frame** … **weakest**" | AlignPanels.swift:231–233 | Ungleich zu „weakest … strongest" beim Threshold: dasselbe Wort, andere Richtung und andere Bedeutung. | „sharpest … blurriest" | umbenennen | mittel |
@@ -130,7 +130,7 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 | F.4 | Karte „**Framelist**" | FloatingCards.swift:72 | Zusammengeschrieben. | „Frame List" (Show-Menü: „Show Frame List") | umbenennen | niedrig |
 | F.5 | „Check all · Check none · **Empty List**" | FloatingCards.swift:75–77 | „Empty List" ist zweideutig (leer oder leeren?), tut nichts, ist aber **nicht gesperrt**; man erfährt es erst über die Statusleiste („Empty List: not available yet", AppModel+Align.swift:224). | Sperren + Tooltip „Not available yet"; Text „Clear List" | Verhalten + umbenennen | mittel |
 | F.6 | Frame-Namen „Frame00010" | AlignLogic.swift:69 | Technisch, aber Original-getreu. | „Frame 10" | umbenennen | niedrig |
-| F.7 | Karte „**Registrationgraph**" | FloatingCards.swift:147 | Fachwort, zusammengeschrieben. | „Quality Graph" + Tooltip „the reference program: Registration graph" | beides | mittel |
+| F.7 | Karte „**Registrationgraph**" | FloatingCards.swift:147 | Fachwort, zusammengeschrieben. | „Quality Graph" + Tooltip mit dem Original-Begriff „Registration graph" | beides | mittel |
 | F.8 | Legende „Quality" / „**Difference**" | FloatingCards.swift:154–155 | Was „Difference" misst (Verzerrung gegenüber Referenz), bleibt offen. | Tooltip „Difference: how much the frame is bent compared to the reference, higher = worse" | Tooltip | mittel |
 | F.9 | „Run Align to see the graph" | FloatingCards.swift:174 | Gut. | — | — | — |
 
@@ -144,7 +144,7 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 | M.4 | „**Show AlignSections**" öffnet Karte „**Alignmentpoints**" mit „Point 1…" | ImageArea.swift:117, FloatingCards.swift:119, :124 | Drei Namen für eine Sache; „AlignSections" mit Binnenmajuskel. Dass die Karte steuert, welche Punkte in den Stack gehen, ist nicht erkennbar. | Menü „Show Alignpoints", Karte „Alignpoints used for stacking" | umbenennen | mittel |
 | M.5 | „Show **AlignPoints**" (Wavelets) vs. „Show **Alignpoints**" (Schritte 2–4) | ImageArea.swift:113 vs. :123 | Inkonsistente Großschreibung. | Einheitlich (siehe G.5) | umbenennen | niedrig |
 | M.6 | „Show **ROI**" | ImageArea.swift:122 | Kürzel; siehe G.6. | „Show Region" | umbenennen | niedrig |
-| M.7 | „Show **Processing Area**" | ImageArea.swift:114 | Unklar, dass das die Vorschau-Fläche ist. | „Show Preview Area" + Tooltip „the reference program: Processing Area" | beides | mittel |
+| M.7 | „Show **Processing Area**" | ImageArea.swift:114 | Unklar, dass das die Vorschau-Fläche ist. | „Show Preview Area" + Tooltip mit dem Original-Begriff „Processing Area" | beides | mittel |
 | M.8 | Button „**Show ▾**" + Tooltip „What the image and the cards show" | ImageArea.swift:131, :144 | Ok. | — | — | niedrig |
 
 ## Zoomleiste und Bildbeschriftung
@@ -159,8 +159,8 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 
 | # | Aktuell | Ort | Problem | Vorschlag | Art | Schwere |
 |---|---|---|---|---|---|---|
-| 5.1 | „**StackSize**" + Radios „Default · Minimized · Maximized · **R.of Interest**" | Views/StackPanel.swift:12–16 | „StackSize" mit Binnenmajuskel. Gemeint ist die Größe des Ergebnisbilds; man könnte es für die Anzahl der Frames halten (vgl. Status „Stacksize: 8", 4.8, wo es genau das bedeutet!). „R.of Interest" ist eine 4. Schreibweise der ROI. | „Output size" mit „Default · Smallest common area · Largest area · Region" + Tooltip „the reference program: StackSize" | beides | hoch |
-| 5.2 | „**Use Nearestby Alignpoints**" | StackPanel.swift:17 | „Nearestby" ist ein Tippfehler bzw. Kunstwort; die Zahl (3) bleibt unklar. | „Use nearest points" (Tooltip: „How many of the nearest alignpoints decide the shift of a pixel. More = smoother, fewer = more local. the reference program: Use Nearestby Alignpoints") | beides | hoch |
+| 5.1 | „**StackSize**" + Radios „Default · Minimized · Maximized · **R.of Interest**" | Views/StackPanel.swift:12–16 | „StackSize" mit Binnenmajuskel. Gemeint ist die Größe des Ergebnisbilds; man könnte es für die Anzahl der Frames halten (vgl. Status „Stacksize: 8", 4.8, wo es genau das bedeutet!). „R.of Interest" ist eine 4. Schreibweise der ROI. | „Output size" mit „Default · Smallest common area · Largest area · Region" + Tooltip mit dem Original-Begriff „StackSize" | beides | hoch |
+| 5.2 | „**Use Nearestby Alignpoints**" | StackPanel.swift:17 | „Nearestby" ist ein Tippfehler bzw. Kunstwort; die Zahl (3) bleibt unklar. | „Use nearest points" (Tooltip: „How many of the nearest alignpoints decide the shift of a pixel. More = smoother, fewer = more local", dazu der Original-Begriff „Use Nearestby Alignpoints") | beides | hoch |
 | 5.3 | „**Correct geometry**" | StackPanel.swift:19 | Unklar, was korrigiert wird. | Behalten + Tooltip „Shift each part of the image by its own movement; off moves the whole frame as one" | Tooltip | mittel |
 | 5.4 | Gruppe „Stacking options" | StackPanel.swift:24 | Ok. | — | — | — |
 | 5.5 | „**Normalization of frame intensity**" | StackPanel.swift:25 | Fachsprachlich. | „Even out frame brightness" + Tooltip „Helps when clouds pass by" | beides | mittel |
@@ -193,7 +193,7 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 
 | # | Aktuell | Ort | Problem | Vorschlag | Art | Schwere |
 |---|---|---|---|---|---|---|
-| 6.1 | „**LRGB**" | Views/Wavelets/WaveletsPanel.swift:22 | Kürzel aus der Mono-Kamera-Welt. Ein Einsteiger mit Farbkamera hält es für eine Kanalliste. | „Sharpen brightness only" + Tooltip „the reference program: LRGB – sharpen the luminance, keep the colour of the stack" | beides | hoch |
+| 6.1 | „**LRGB**" | Views/Wavelets/WaveletsPanel.swift:22 | Kürzel aus der Mono-Kamera-Welt. Ein Einsteiger mit Farbkamera hält es für eine Kanalliste. | „Sharpen brightness only" + Tooltip „Sharpen the luminance, keep the colour of the stack" mit dem Original-Begriff „LRGB" | beides | hoch |
 | 6.2 | „**Colour**" + Tooltip „Process the channels in colour; off gives **grayscale**" | WaveletsPanel.swift:17–20 | UK „Colour" neben US „grayscale" (siehe G.4). | „…off gives greyscale" (oder alles US) | umbenennen | niedrig |
 | 6.3 | Tooltip „Needs a colour image" | WaveletsPanel.swift:20, :26, FunctionCards.swift:242, :284 | Gut. | — | — | — |
 | 6.4 | Spalten „**Layer · Denoise · Sharpen · Preview**" | WaveletsPanel.swift:49–53 | Die Slider-Zeile hat keine Spaltenüberschrift; der eigentliche Hauptregler (Stärke) ist unbeschriftet. „Sharpen" ist ein Faktor, nicht die Stärke, und das ist irreführend. | Slider-Tooltip „Strength of layer n"; „Sharpen" → Tooltip „Scales how strongly the slider acts (0.100 = as shown)" | Tooltip | hoch |
@@ -203,14 +203,14 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 | 6.8 | „**Automatic**" | WaveletsPanel.swift:104 | Löst laut Doku nach 0,5 s selbst Do All aus. Am Namen ist das nicht zu erkennen. | „Run Do All automatically" | umbenennen | hoch |
 | 6.9 | „**Hold Wavelet Setting**" | WaveletsPanel.swift:105 | Singular, unklar wann gehalten wird. | „Keep layer values for a new stack" | beides | mittel |
 | 6.10 | „**Waveletscheme**" + „Dyadic (2^n) · Linear" | WaveletsPanel.swift:106–109 | Zusammengeschrieben; „Dyadic" ist Mathe-Jargon. | „Wavelet scheme"; Tooltip „Linear: layers grow evenly. Dyadic: each layer doubles in size" | beides | mittel |
-| 6.11 | „**Initial Layer**" / „**Step Incr.**" | WaveletsPanel.swift:112–115 | Abkürzung „Incr."; Bedeutung (Größe der ersten Ebene / Zuwachs) unklar. | „First layer size" / „Size step" + Tooltip mit the reference program-Namen | beides | mittel |
+| 6.11 | „**Initial Layer**" / „**Step Incr.**" | WaveletsPanel.swift:112–115 | Abkürzung „Incr."; Bedeutung (Größe der ersten Ebene / Zuwachs) unklar. | „First layer size" / „Size step" + Tooltip mit den Namen aus dem Referenzprogramm | beides | mittel |
 | 6.12 | „Wavelet filter" „Default · Gaussian" | WaveletsPanel.swift:118–121 | „Default" sagt nichts über den Filter aus. | Tooltip „Gaussian: smoother; Default: the reference program's original filter" | Tooltip | niedrig |
-| 6.13 | „**Use Linked Wavelets**" | WaveletsPanel.swift:123 | Unklar. | „Move all sliders together" + Tooltip „the reference program: Linked Wavelets" | beides | mittel |
+| 6.13 | „**Use Linked Wavelets**" | WaveletsPanel.swift:123 | Unklar. | „Move all sliders together" + Tooltip mit dem Original-Begriff „Linked Wavelets" | beides | mittel |
 | 6.14 | „Available schemes" (gesperrt, leerer Picker) | WaveletsPanel.swift:126–131 | „scheme" ist doppelt belegt: Wavelet-Schema (6.10) und gespeicherte Voreinstellung. | „Saved presets" | umbenennen | mittel |
-| 6.15 | „**Load Scheme**" / „**Save Scheme**" | WaveletsPanel.swift:133–136 | Öffnen Dialoge, haben aber keine Ellipse (in Settings mit „…"). „Scheme" wie 6.14. | „Load Preset…" / „Save Preset…" (the reference program: Scheme) | umbenennen | mittel |
-| 6.16 | Dialogtext „the reference program Wavelet scheme settings" | WaveletsPanel.swift:159 | Ok. | — | — | niedrig |
+| 6.15 | „**Load Scheme**" / „**Save Scheme**" | WaveletsPanel.swift:133–136 | Öffnen Dialoge, haben aber keine Ellipse (in Settings mit „…"). „Scheme" wie 6.14. | „Load Preset…" / „Save Preset…" (im Referenzprogramm: Scheme) | umbenennen | mittel |
+| 6.16 | Dialogtext „… Wavelet scheme settings" (mit dem Namen des Referenzprogramms) | WaveletsPanel.swift:159 | Ok. | — | — | niedrig |
 | 6.17 | „**Realign with Processed**" (gesperrt) / „**Stack Again**" (gesperrt, **ohne** „Not available yet") | WaveletsPanel.swift:143–151 | Stack Again hat keinen Hinweis und keinen Tooltip. | Stack Again: Tooltip „Not available yet" | Tooltip | niedrig |
-| 6.18 | Fuß „**Process**" + Tooltip „Calculate the preview area with the current settings" | Views/StepPanel.swift:129–132 | „Process" ist generisch; dass es nur die Vorschau rechnet, steht nur im Tooltip. Kollidiert mit dem Menü „Process" (0.5). | „Update Preview" (Tooltip „the reference program: Process") | beides | hoch |
+| 6.18 | Fuß „**Process**" + Tooltip „Calculate the preview area with the current settings" | Views/StepPanel.swift:129–132 | „Process" ist generisch; dass es nur die Vorschau rechnet, steht nur im Tooltip. Kollidiert mit dem Menü „Process" (0.5). | „Update Preview" (Tooltip mit dem Original-Begriff „Process") | beides | hoch |
 | 6.19 | Status „**layer setting changed**" | AppModel+Wavelets.swift:217 | Klein geschrieben, vage. | „Updating preview…" | umbenennen | niedrig |
 | 6.20 | Status „**Preview: 85 ms**" / „**Calculating wavelets done**" | AppModel+Wavelets.swift:266–267 | „Calculating … done" ist holprig. | „Preview updated (85 ms)" | umbenennen | niedrig |
 | 6.21 | Status „**Do_all processing**" | AppModel+Wavelets.swift:303 | Unterstrich (Delphi-Relikt). | „Applying to whole image…" | umbenennen | mittel |
@@ -222,14 +222,14 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 
 | # | Aktuell | Ort | Problem | Vorschlag | Art | Schwere |
 |---|---|---|---|---|---|---|
-| 6b.1 | „**Functions »**" | ImageArea.swift:96 | Sagt nicht, was drin ist (Farbe/Tonwert). „»" deutet eine Navigation an. | „Adjust ›" oder „Colour & Tone" (Tooltip „the reference program: Functions") | beides | mittel |
+| 6b.1 | „**Functions »**" | ImageArea.swift:96 | Sagt nicht, was drin ist (Farbe/Tonwert). „»" deutet eine Navigation an. | „Adjust ›" oder „Colour & Tone" (Tooltip mit dem Original-Begriff „Functions") | beides | mittel |
 | 6b.2 | 15 Buttons, davon **11 ohne Funktion, aber klickbar** (Colour Mixing, View Zoomed, View Compare, View Stacksize, Flip and Rotate, Resize Image, Denoise/ Deringing, Wavelet Filter, Masking, Show Linegraph, Cropping Area) | Model/WaveletLogic.swift:153–157, FunctionsPanel.swift:128 | Sehen genauso aus wie die funktionierenden. Erst der Klick meldet „…: not available yet" in der Statusleiste (AppModel+Wavelets.swift:376). | Optisch dimmen (wie LockedOption) | Verhalten | hoch |
 | 6b.3 | „**Denoise/ Deringing**" | WaveletLogic.swift:156 | Leerzeichen nach „/". | „Denoise/Deringing" | umbenennen | niedrig |
 | 6b.4 | „**View Stacksize**", „**Show Linegraph**" | WaveletLogic.swift:154, :157 | Zusammengeschrieben. | „View Stack Size", „Show Line Graph" | umbenennen | niedrig |
 | 6b.5 | „**Wavelet Filter**" (Functions) vs. „Wavelet filter" (Advanced) | WaveletLogic.swift:156, WaveletsPanel.swift:118 | Gleicher Name für zwei verschiedene Dinge. | Tooltip am Function-Button | Tooltip | niedrig |
 | 6b.6 | „Contrast/Brightness" mit Links „**Hold**" · „Reset" | FunctionsPanel.swift:49–52 | „Hold" ohne Erklärung; Umschalter als Textlink. | Tooltip „Keep these values for the next image" | Tooltip | mittel |
 | 6b.7 | Zwei Slider ohne eigene Beschriftung, darunter die Felder Contrast/Brightness | FunctionsPanel.swift:54–80 | Welcher Slider was regelt, erkennt man nur an der Reihenfolge. | Label direkt über jedem Slider | Struktur | mittel |
-| 6b.8 | „**Copy To** · **Load to** · Difference" | FunctionsPanel.swift:91–93 | „Copy To" ohne Objekt; „Load to" mit anderer Großschreibung; Ziel ist ein interner Zwischenspeicher, nicht die Systemzwischenablage. | „Remember · Restore · Difference" oder „Copy Image · Paste Image · Show Difference" + Tooltip „the reference program: Copy To / Load to" | beides | hoch |
+| 6b.8 | „**Copy To** · **Load to** · Difference" | FunctionsPanel.swift:91–93 | „Copy To" ohne Objekt; „Load to" mit anderer Großschreibung; Ziel ist ein interner Zwischenspeicher, nicht die Systemzwischenablage. | „Remember · Restore · Difference" oder „Copy Image · Paste Image · Show Difference" + Tooltip mit den Original-Begriffen „Copy To / Load to" | beides | hoch |
 | 6b.9 | „**Toggle**" + „Current Image · **Clipboard Image**" | FunctionsPanel.swift:95–98 | „Toggle" als Überschrift ist ein Verb ohne Inhalt; „Clipboard" suggeriert die macOS-Zwischenablage. | „Show:" · „Current" · „Copied" | umbenennen | mittel |
 | 6b.10 | Status „Image copied", „Load to: nothing copied yet", „Difference: the images differ in size" | AppModel+Wavelets.swift:530–565 | Ok, sobald 6b.8 umbenannt ist, mitziehen. | — | umbenennen | niedrig |
 | 6b.11 | Histogramm: „**Input · Result**", „Black · White", „**Auto**", „**Clip %**" | Views/Wavelets/FunctionCards.swift:61–79 | „Clip %" unklar (Anteil der Pixel, die bei Auto abgeschnitten werden). | „Clip %" + Tooltip „Share of darkest/brightest pixels Auto may clip"; „Black point"/„White point" | beides | mittel |
@@ -264,7 +264,7 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 | # | Aktuell | Ort | Problem | Vorschlag | Art | Schwere |
 |---|---|---|---|---|---|---|
 | E.1 | Label „**CPUs**", Text „The number of **threads** …" | Settings/SettingsView.swift:18, :29 | Label und Erklärung sprechen von verschiedenen Dingen. | „CPU cores to use" | umbenennen | niedrig |
-| E.2 | „**Processing Area**" „512 **x** 512" + „The square in the middle of the image the live preview of the Wavelets step calculates." | SettingsView.swift:40–43 | „x" statt „×"; der Satz ist verschachtelt. | „Preview area" (Tooltip the reference program-Name); „512 × 512 px"; „Size of the square in the middle of the image that the Wavelets preview calculates. Smaller = faster." | beides | mittel |
+| E.2 | „**Processing Area**" „512 **x** 512" + „The square in the middle of the image the live preview of the Wavelets step calculates." | SettingsView.swift:40–43 | „x" statt „×"; der Satz ist verschachtelt. | „Preview area" (Tooltip mit dem Namen aus dem Referenzprogramm); „512 × 512 px"; „Size of the square in the middle of the image that the Wavelets preview calculates. Smaller = faster." | beides | mittel |
 | E.3 | „Schemes" + „Load Scheme… / Save Scheme…" + „… Initial Layer, **Step Incr.** and the six layers …" | SettingsView.swift:47–54 | Kürzel „Step Incr."; siehe 6.14/6.15. | Mitziehen | umbenennen | niedrig |
 
 ## Help-Fenster und About
@@ -273,8 +273,8 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 |---|---|---|---|---|---|---|
 | H.1 | „Search the documentation", „No page matches." | Help/HelpView.swift:38, :49 | Gut. | — | — | — |
 | H.2 | Ladefehler „The documentation is not part of this build." | Help/HelpModel.swift:25 | Ok, Entwicklerfall. | — | — | niedrig |
-| H.3 | About: „A rebuild of the workflow of the reference program for stacking and sharpening planetary and lunar recordings. Not affiliated with the original." | Commands/HelpCommands.swift:21–22 | Gut. | — | — | — |
-| H.4 | Kein Glossar | — | Bei „behalten + Tooltip" fehlt eine zentrale Stelle, an der die the reference program-Begriffe erklärt sind. | Doku-Seite „Glossary" (Alignpoint, ROI, Limit, Stack, Wavelet layer, Do All, LRGB, Processing Area, Registration graph) und verlinken | neu | mittel |
+| H.3 | About: „A rebuild of the workflow of [Name des Referenzprogramms] for stacking and sharpening planetary and lunar recordings. Not affiliated with the original." | Commands/HelpCommands.swift:21–22 | Gut. | — | — | — |
+| H.4 | Kein Glossar | — | Bei „behalten + Tooltip" fehlt eine zentrale Stelle, an der die Begriffe des Referenzprogramms erklärt sind. | Doku-Seite „Glossary" (Alignpoint, ROI, Limit, Stack, Wavelet layer, Do All, LRGB, Processing Area, Registration graph) und verlinken | neu | mittel |
 
 ---
 
@@ -291,10 +291,10 @@ umbenennen. Dort hilft der Originalbegriff niemandem, und in Tutorials werden si
 | G.7 | **Einheiten fehlen** | Abstände, Box-Größe, Max movement, Edge pixels, Max shift, RGB-Shift (px); Frame rate (fps); RGB Balance (%); Compress Qual (Skala unbekannt). | Einheit in Klammern ans Label oder als Suffix hinters Feld. | mittel |
 | G.8 | **Zahlformat** | „100 %" (Tooltip, Limit-Diagramm) vs. „100%" (Zoom, Statusleiste, Framelist); „1024x680" vs. „1024×680"; „72.00%" mit 2, Framelist mit 1 Nachkommastelle. | Einheitlich: „×" für Maße; „%" ohne Leerzeichen (US) oder mit, aber gleich; Qualität mit 0–1 Nachkommastelle. | niedrig |
 | G.9 | **Bedienelemente ohne Wirkung, aber aktiv** | Show Full Image (3×), Show Aligndata, Show Prefilter, Show Stackgraph, Show Stacklist, Show Alignment, Codec, Compress Qual, Use Prefilters, Frame size außer Original, Empty List, 11 Functions-Buttons. | Gleich behandeln wie LockedOption: gedimmt, Tooltip „Not available yet". Für Einsteiger ist ein Schalter ohne Wirkung schlimmer als ein unbekanntes Wort. | hoch |
-| G.10 | **Tooltip-Abdeckung** | Felder in Align/Stack/Wavelets haben fast keine Tooltips (nur R.o.Interest, Colour, LRGB, Process, Save). | Jedes Feld mit Fachbegriff bekommt einen Ein-Satz-Tooltip. Wo umbenannt wird, schließt er mit „the reference program: ‹Originalname›", damit Tutorials auffindbar bleiben. Optional ein „?"-Link je Gruppe auf die Doku-Seite. | hoch |
+| G.10 | **Tooltip-Abdeckung** | Felder in Align/Stack/Wavelets haben fast keine Tooltips (nur R.o.Interest, Colour, LRGB, Process, Save). | Jedes Feld mit Fachbegriff bekommt einen Ein-Satz-Tooltip. Wo umbenannt wird, schließt er mit „‹Name des Referenzprogramms›: ‹Originalname›", damit Tutorials auffindbar bleiben. Optional ein „?"-Link je Gruppe auf die Doku-Seite. | hoch |
 | G.11 | **Statustexte** | Mal mit Punkt, mal ohne; mal klein („layer setting changed"); Delphi-Relikte („Do_all", „Stacking Range : 0-255", „Stack size (n=10) - (…)"). | Stil: Großer Anfangsbuchstabe, kein Punkt, ein kurzer Satz, Einheiten mit „×"/„%". | mittel |
 | G.12 | **„reference"** | Wird in Hinweis/Tooltip zu Best frame benutzt, aber nie erklärt. | Einmal erklären („the frame all others are lined up on") oder umschreiben. | mittel |
-| G.13 | **Doku nachziehen** | `app/src/docs/pages/*.md` zitiert die heutigen Begriffe wörtlich (z. B. image-area.md:16–18, step-stack.md:56). | Jede Umbenennung im selben Commit in den Doku-Seiten und in docs/ui.md (Spalte „Mac-Text" neben „the reference program-Begriff") nachziehen. | mittel |
+| G.13 | **Doku nachziehen** | `app/src/docs/pages/*.md` zitiert die heutigen Begriffe wörtlich (z. B. image-area.md:16–18, step-stack.md:56). | Jede Umbenennung im selben Commit in den Doku-Seiten und in docs/ui.md (Spalte „Mac-Text" neben der Spalte mit dem Begriff des Referenzprogramms) nachziehen. | mittel |
 
 ---
 
@@ -315,7 +315,7 @@ Davon global: G.6, G.9, G.10 hoch · G.1, G.3, G.5, G.7, G.11, G.12, G.13 mittel
 
 Alle hohen und mittleren Befunde sind umgesetzt, mit diesen Abweichungen von den Vorschlägen:
 
-- **Kein „the reference program: …“-Tooltip-Zusatz** (Philipp): überall weggelassen (G.10, 3.2, 4.1, 4.3, 5.1, 5.2, 6.1, 6.11, 6.13, 6.15, 6b.8, E.2 u. a.).
+- **Kein Tooltip-Zusatz mit dem Begriff des Referenzprogramms** (Philipp): überall weggelassen (G.10, 3.2, 4.1, 4.3, 5.1, 5.2, 6.1, 6.11, 6.13, 6.15, 6b.8, E.2 u. a.).
 - **Schritt 4 „Limit“ → „Best Frames“, Knopf „Keep Best Frames“** (spätere Entscheidung): S.2, S.7, 4.1–4.4 und 4.8 folgen dem, nicht dem Vorschlag
   „Min. quality (%)“ usw.; Modi „At least % of the best quality“, „Best % of frames“, „Best number of frames“, „Best frames per point“.
 - **0.2**: Menü File heißt „Select Recording…“ wie die Werkzeugleiste (statt „Open Recording…“), damit eine Aktion einen Namen hat.

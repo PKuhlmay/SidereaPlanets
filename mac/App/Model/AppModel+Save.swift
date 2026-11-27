@@ -157,7 +157,7 @@ extension AppModel {
             return
         }
         guard !isBusy else { return }
-        let request = SaveRequest(name: fileStem(details?.fileName ?? ""), directory: recordingFolder, fileExtension: "rkproj")
+        let request = SaveRequest(name: fileStem(details?.fileName ?? ""), directory: recordingFolder, fileExtension: "sidereaplanets")
         guard let url = await choose(request) else {
             status.result = "Save cancelled"
             return

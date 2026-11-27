@@ -50,19 +50,18 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSMinimumSystemVersion: "14.0"
         LSApplicationCategoryType: public.app-category.photography
-        # The project file is a type of its own (JSON inside), so a saved .rkproj is recognised and selectable in Open Project.
+        # The project file is a type of its own (JSON inside), so a saved .sidereaplanets is recognised and selectable in Open Project.
         UTExportedTypeDeclarations:
           - UTTypeIdentifier: de.kuhlmay.siderea.planets.project
             UTTypeDescription: Siderea Planets project
             UTTypeConformsTo: [public.json]
             UTTypeTagSpecification:
-              public.filename-extension: [rkproj]
+              public.filename-extension: [sidereaplanets]
         NSHumanReadableCopyright: "Siderea Planets, stacking and sharpening for planetary astrophotography."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: de.kuhlmay.siderea.planets
-        # The app is called Siderea Planets (MAC-013); target, scheme and Swift module keep the internal name SidereaPlanets,
-        # so `@testable import SidereaPlanets` and the build commands stay as they are.
+        # The product name has a space; target, scheme and Swift module do not.
         PRODUCT_NAME: Siderea Planets
         PRODUCT_MODULE_NAME: SidereaPlanets
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon

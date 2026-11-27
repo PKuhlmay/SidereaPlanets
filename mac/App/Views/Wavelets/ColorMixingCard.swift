@@ -15,7 +15,7 @@ struct ColorMixingCard: View {
                 presetMenu
                 ForEach(0..<3, id: \.self) { output in
                     VStack(spacing: 3) {
-                        Text("\(channels[output]) output").font(.rkSmall).foregroundStyle(RK.muted)
+                        Text("\(channels[output]) output").font(.spSmall).foregroundStyle(SP.muted)
                             .frame(maxWidth: .infinity, alignment: .leading)
                         ForEach(0..<3, id: \.self) { input in weight(output: output, input: input) }
                     }
@@ -31,7 +31,7 @@ struct ColorMixingCard: View {
 
     private var presetMenu: some View {
         HStack {
-            Text("Preset").font(.rk).foregroundStyle(RK.text)
+            Text("Preset").font(.sp).foregroundStyle(SP.text)
             Spacer()
             Menu {
                 ForEach(mixPresets) { preset in
@@ -39,14 +39,14 @@ struct ColorMixingCard: View {
                 }
             } label: {
                 HStack(spacing: 5) {
-                    Text("Choose").font(.rk)
+                    Text("Choose").font(.sp)
                     Image(systemName: "chevron.down").font(.system(size: 9, weight: .semibold))
                 }
-                .foregroundStyle(RK.text)
+                .foregroundStyle(SP.text)
                 .padding(.horizontal, 10)
-                .frame(height: RKMetrics.fieldHeight)
-                .background(RK.raised, in: RoundedRectangle(cornerRadius: RKMetrics.radius))
-                .overlay { RoundedRectangle(cornerRadius: RKMetrics.radius).strokeBorder(RK.lineStrong, lineWidth: 1) }
+                .frame(height: SPMetrics.fieldHeight)
+                .background(SP.raised, in: RoundedRectangle(cornerRadius: SPMetrics.radius))
+                .overlay { RoundedRectangle(cornerRadius: SPMetrics.radius).strokeBorder(SP.lineStrong, lineWidth: 1) }
             }
             .menuStyle(.button)
             .buttonStyle(.plain)
@@ -59,20 +59,20 @@ struct ColorMixingCard: View {
     private func weight(output: Int, input: Int) -> some View {
         let name = "\(channels[input]) in \(channels[output].lowercased()) output"
         return HStack(spacing: 8) {
-            Text(channels[input]).font(.rk).foregroundStyle(RK.text).frame(width: 40, alignment: .leading)
+            Text(channels[input]).font(.sp).foregroundStyle(SP.text).frame(width: 40, alignment: .leading)
             Slider(
                 value: Binding(get: { Double(model.tone.mix[output, input]) }, set: { model.tone.mix[output, input] = Int($0.rounded()) }),
                 in: Double(ToneLimits.mix.lowerBound)...Double(ToneLimits.mix.upperBound), step: 1
             )
             .controlSize(.small)
-            .tint(RK.accent)
+            .tint(SP.accent)
             .accessibilityLabel(name)
             NumberField(
                 label: "\(name) percent",
                 value: Binding(get: { model.tone.mix[output, input] }, set: { model.tone.mix[output, input] = $0 }),
                 range: ToneLimits.mix, width: 36
             )
-            Text("%").font(.rkSmall).foregroundStyle(RK.muted)
+            Text("%").font(.spSmall).foregroundStyle(SP.muted)
         }
         .frame(minHeight: 26)
     }

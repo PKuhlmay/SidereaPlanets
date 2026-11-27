@@ -1,4 +1,4 @@
-//! CPU time and memory of the app for the readout at the left end of the status bar (RK-019). The frontend asks about once a
+//! CPU time and memory of the app for the readout at the left end of the status bar (SP-019). The frontend asks about once a
 //! second while the readout is shown and the window is visible, and turns two readings into the load (app/src/logic/processUsage.ts).
 //! Windows-specific measuring stays here in the shell; the core (`crates/`) does not need it.
 

@@ -1,10 +1,10 @@
-# RK-007 Wavelet-Schärfung
+# SP-007 Wavelet-Schärfung
 
 - Status: in Arbeit
-- Abhängig von: RK-006
+- Abhängig von: SP-006
 
 ## Ziel
-Das Herzstück von the reference program: mehrschichtige Wavelet-Zerlegung mit Reglern je Ebene für Schärfen und Entrauschen.
+Das Herzstück des Referenzprogramms: mehrschichtige Wavelet-Zerlegung mit Reglern je Ebene für Schärfen und Entrauschen.
 
 ## Akzeptanzkriterien
 - [x] Zerlegung in Ebenen mit Verstärkung und Rauschunterdrückung je Ebene (Anzahl und Details laut `docs/`)
@@ -59,17 +59,17 @@ soweit sie Rust-Tests und PSNR betreffen.
   `crates/core/tests/wavelet_preview_timing.rs` ist geschrieben, Messwerte fehlen; die Übertragung wird mit der Oberfläche gemessen (Phase 2).
 - Vergleich: Schwellen festgelegt (A ≥ 45 dB, B ≥ 65 dB nach Kennlinie), Test `crates/io/tests/wavelet_reference.rs`, noch nicht gelaufen.
 - Schemata: `.rwv` des Originals lesen und schreiben, Befehle `save_wavelet_scheme`/`load_wavelet_scheme`; Dateidialog und Liste
-  *Available schemes* gehören zu RK-009.
+  *Available schemes* gehören zu SP-009.
 - Anwenderdoku: `app/src/docs/pages/wavelet-sharpening.md` (Bedienung ist als „Not available yet“ markiert).
 
 ## Stand (Phase 2: Oberfläche)
 Angebunden (`app/src/wavelet.ts`, `app/src/logic/wavelet.ts`, `WaveletPanel.vue`, Handler in `actions.ts`); `pnpm build` und clippy laufen,
 Tests (`logic/wavelet.test.ts`) sind geschrieben, nicht gelaufen. Das Programm wurde nicht gestartet, es gibt keine Messwerte.
-- Live-Vorschau der Processing Area bei jeder Änderung, Process, Do All (`runJob`, Ergebnis in `session.processedImage`), Before (aus RK-010).
-- Load/Save Scheme über einen Dateidialog (`pickSchemePath`, RK-009 ersetzt ihn durch `pick_scheme_path`).
+- Live-Vorschau der Processing Area bei jeder Änderung, Process, Do All (`runJob`, Ergebnis in `session.processedImage`), Before (aus SP-010).
+- Load/Save Scheme über einen Dateidialog (`pickSchemePath`, SP-009 ersetzt ihn durch `pick_scheme_path`).
 - Automatic, Hold, Linked: geraten (`docs/offene-fragen.md`, Frage 29).
-- Nicht angebunden: Realign with Processed (braucht RK-005/RK-006), Preview-Schaltfläche je Ebene, Liste *Available schemes* (RK-009).
-- Das Summenbild liefert RK-006: nach Stack `WaveletState::set_source` aufrufen und `session.stackImage` setzen.
+- Nicht angebunden: Realign with Processed (braucht SP-005/SP-006), Preview-Schaltfläche je Ebene, Liste *Available schemes* (SP-009).
+- Das Summenbild liefert SP-006: nach Stack `WaveletState::set_source` aufrufen und `session.stackImage` setzen.
 
 ## Design
 Soweit dieses Ticket Bedienelemente anbindet oder anzeigt, gilt `docs/design.md`. Aussehen und Anordnung werden nicht neu entschieden.

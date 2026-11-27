@@ -1,7 +1,7 @@
-# RK-025 Version in der Statusleiste
+# SP-025 Version in der Statusleiste
 
 - Status: erledigt
-- Abhängig von: RK-019
+- Abhängig von: SP-019
 - Stufe: `windows-v0.1.0`
 
 ## Ziel

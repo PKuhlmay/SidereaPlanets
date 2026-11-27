@@ -55,7 +55,7 @@ watch(
   },
 );
 
-const ADVANCED_KEY = "rk-advanced";
+const ADVANCED_KEY = "sp-advanced";
 
 function loadAdvanced(): Partial<Record<ViewStep, boolean>> {
   try {

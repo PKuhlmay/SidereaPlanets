@@ -1,7 +1,7 @@
-# RK-023 De-rotate images (Windows zieht nach)
+# SP-023 De-rotate images (Windows zieht nach)
 
 - Status: erledigt
-- Abhängig von: RK-016, MAC-020
+- Abhängig von: SP-016, MAC-020
 - Stufe: `windows-v0.1.0` (Nachzug zu Mac `v0.1.0`)
 
 ## Ziel
@@ -29,7 +29,7 @@ Drehung, gemessene Scheibe für das Overlay).
 - [x] `stack-pages.test.ts` zählt sechs gesperrte Optionen; Zeile „Works in the Mac version“ in `step-stack.md` und der Test
       `describes De-rotate images as working in the Mac version` angepasst
 - [x] Abschnitt aus `docs/parity/WINDOWS_PARITY.md` gelöscht
-- [x] Probe von Hand als `## RK-023 De-rotate images (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] Probe von Hand als `## SP-023 De-rotate images (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
 - [x] `cargo test --workspace`, `clippy` ohne Warnungen, `cd app && pnpm test` und `pnpm build` grün, neue Tests einmal rot gesehen
 
 ## Umsetzung

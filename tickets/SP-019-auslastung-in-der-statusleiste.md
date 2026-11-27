@@ -1,4 +1,4 @@
-# RK-019 Auslastung in der Statusleiste (Windows zieht nach)
+# SP-019 Auslastung in der Statusleiste (Windows zieht nach)
 
 - Status: erledigt
 - Abhängig von: MAC-015
@@ -25,7 +25,7 @@ Shell, nicht im Rechenkern (`crates/` bleibt plattformunabhängig). Die Formatie
 - [x] Messung einmal pro Sekunde, nur solange das Fenster sichtbar ist (nicht minimiert)
 - [x] Settings-Schalter **Show CPU and memory usage** (Standard an); aus, verschwindet das Feld samt Trennlinie und die Messung stoppt
 - [x] Abschnitt aus `docs/parity/WINDOWS_PARITY.md` gelöscht
-- [x] Probe von Hand als `## RK-019 Auslastung in der Statusleiste (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] Probe von Hand als `## SP-019 Auslastung in der Statusleiste (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
 - [x] `cargo test --workspace`, `clippy` ohne Warnungen, `cd app && pnpm test` und `pnpm build` grün, neue Tests einmal rot gesehen
 
 ## Umsetzung

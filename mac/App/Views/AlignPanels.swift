@@ -22,12 +22,12 @@ struct AlignpointsStepView: View {
             }
             VStack(spacing: 2) {
                 Text(hasPoints ? "Threshold · \(model.align.points.count) points" : "Threshold")
-                    .font(.rk(RKMetrics.fontSizeSmall, .semibold))
-                    .foregroundStyle(RK.text)
+                    .font(.sp(SPMetrics.fontSizeSmall, .semibold))
+                    .foregroundStyle(SP.text)
                 // No range before Set Alignpoints: the slider stays at 0 and looks locked.
                 Slider(value: threshold, in: 0...Double(max(model.align.total, 1)))
                     .controlSize(.small)
-                    .tint(RK.accent)
+                    .tint(SP.accent)
                     .disabled(!model.canMoveThreshold)
                     .accessibilityLabel("Threshold")
                 HStack {
@@ -35,8 +35,8 @@ struct AlignpointsStepView: View {
                     Spacer()
                     Text("fewer points")
                 }
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
+                .font(.spSmall)
+                .foregroundStyle(SP.muted)
             }
             .help("How strong a detail must be to get an alignpoint; left keeps more points, right fewer.")
             FieldRow(
@@ -49,7 +49,7 @@ struct AlignpointsStepView: View {
                 help: "Alignpoints keep at least this distance from the edge of the image or the region, in pixels."
             )
             Button("Draw Region") { model.toggleRegionOfInterest() }
-                .buttonStyle(.rkWide(isOn: model.isDrawingRegion))
+                .buttonStyle(.spWide(isOn: model.isDrawingRegion))
                 .disabled(!model.canDrawRegion)
                 .help("Region of interest (ROI): drag a rectangle on the image so that only this area is used for placing alignpoints and aligning; press again to remove it.")
                 .accessibilityAddTraits(model.isDrawingRegion ? .isSelected : [])
@@ -59,8 +59,8 @@ struct AlignpointsStepView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     GroupHeading(title: "Point Placement")
                     Text("Brightness measure")
-                        .font(.rkSmall)
-                        .foregroundStyle(RK.muted)
+                        .font(.spSmall)
+                        .foregroundStyle(SP.muted)
                         .help("How the brightness at a point is measured when alignpoints are placed.")
                     VStack(alignment: .leading, spacing: 0) {
                         RadioRow(title: "Default", isSelected: model.options.intensity == .default, help: "The centre pixel.") {
@@ -82,7 +82,7 @@ struct AlignpointsStepView: View {
                         help: "Only pixels between Min. and Max. brightness (0–255) can get an alignpoint."
                     )
                     HStack(spacing: 8) {
-                        Text("Number of alignpoints").font(.rk).lineLimit(1)
+                        Text("Number of alignpoints").font(.sp).lineLimit(1)
                         Spacer(minLength: 4)
                         ReadOnlyField(label: "Number of alignpoints", value: model.align.points.count)
                     }
@@ -111,9 +111,9 @@ struct AlignStepView: View {
             AdvancedSection(model: model, step: .align, count: 5) {
                 VStack(alignment: .leading, spacing: 6) {
                     GroupHeading(title: "Alignment Setup")
-                    Text("Alignment mode").font(.rkSmall).foregroundStyle(RK.muted)
+                    Text("Alignment mode").font(.spSmall).foregroundStyle(SP.muted)
                     LockedSegments(first: "No Align", second: "Scan Frames")
-                    Text("Not available yet").font(.rkSmall).foregroundStyle(RK.muted)
+                    Text("Not available yet").font(.spSmall).foregroundStyle(SP.muted)
                     PanelCheckbox(title: "Show alignment", isOn: .constant(false), isLocked: true)
                     PanelCheckbox(
                         title: "Align by center of gravity", isOn: $model.options.centreOfGravity,
@@ -121,7 +121,7 @@ struct AlignStepView: View {
                     )
                     let gravityOn = model.options.centreOfGravity
                     HStack(spacing: 8) {
-                        Text("Brightness threshold").font(.rk).foregroundStyle(gravityOn ? RK.text : RK.off)
+                        Text("Brightness threshold").font(.sp).foregroundStyle(gravityOn ? SP.text : SP.off)
                         Spacer(minLength: 4)
                         NumberField(label: "Brightness threshold", value: $model.options.brightnessThreshold, range: 0...255)
                             .disabled(!gravityOn)
@@ -147,18 +147,18 @@ private struct LockedSegments: View {
     var body: some View {
         HStack(spacing: 0) {
             Text(first)
-                .font(.rk(RKMetrics.fontSize, .medium))
-                .foregroundStyle(RK.text)
-                .frame(maxWidth: .infinity, minHeight: RKMetrics.buttonHeight)
-                .background(RK.raised)
-            RK.line.frame(width: 1)
+                .font(.sp(SPMetrics.fontSize, .medium))
+                .foregroundStyle(SP.text)
+                .frame(maxWidth: .infinity, minHeight: SPMetrics.buttonHeight)
+                .background(SP.raised)
+            SP.line.frame(width: 1)
             Text(second)
-                .font(.rk)
-                .foregroundStyle(RK.off)
-                .frame(maxWidth: .infinity, minHeight: RKMetrics.buttonHeight)
+                .font(.sp)
+                .foregroundStyle(SP.off)
+                .frame(maxWidth: .infinity, minHeight: SPMetrics.buttonHeight)
         }
-        .clipShape(RoundedRectangle(cornerRadius: RKMetrics.radius))
-        .overlay { RoundedRectangle(cornerRadius: RKMetrics.radius).strokeBorder(RK.lineStrong, lineWidth: 1) }
+        .clipShape(RoundedRectangle(cornerRadius: SPMetrics.radius))
+        .overlay { RoundedRectangle(cornerRadius: SPMetrics.radius).strokeBorder(SP.lineStrong, lineWidth: 1) }
         .help("Not available yet")
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("\(first), \(second)")
@@ -195,7 +195,7 @@ struct LimitStepView: View {
                     .opacity(locked ? 0.45 : 1)
             }
         }
-        .frame(minHeight: value == nil ? 0 : RKMetrics.fieldHeight)
+        .frame(minHeight: value == nil ? 0 : SPMetrics.fieldHeight)
     }
 }
 
@@ -205,18 +205,18 @@ private struct HintNote: View {
 
     var body: some View {
         Text(text)
-            .font(.rkSmall)
-            .foregroundStyle(RK.text)
+            .font(.spSmall)
+            .foregroundStyle(SP.text)
             .lineSpacing(2)
             .fixedSize(horizontal: false, vertical: true)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.vertical, 8)
             .padding(.leading, 13)
             .padding(.trailing, 10)
-            .background(RK.accentSoft, in: RoundedRectangle(cornerRadius: RKMetrics.radius))
+            .background(SP.accentSoft, in: RoundedRectangle(cornerRadius: SPMetrics.radius))
             .overlay(alignment: .leading) {
-                UnevenRoundedRectangle(topLeadingRadius: RKMetrics.radius, bottomLeadingRadius: RKMetrics.radius)
-                    .fill(RK.accent)
+                UnevenRoundedRectangle(topLeadingRadius: SPMetrics.radius, bottomLeadingRadius: SPMetrics.radius)
+                    .fill(SP.accent)
                     .frame(width: 3)
             }
             .accessibilityElement(children: .combine)
@@ -229,7 +229,7 @@ private struct GoToBestFrameButton: View {
 
     var body: some View {
         Button("Go to Best Frame") { model.goToBestFrame() }
-            .buttonStyle(.rkWide)
+            .buttonStyle(.spWide)
             .disabled(!model.canGoToBestFrame)
             .help(model.progress.step >= .aligned ? goToBestFrameHelp : "Run Align first")
     }
@@ -248,8 +248,8 @@ struct QualityChartView: View {
         VStack(spacing: 2) {
             Canvas { context, size in draw(&context, size: size) }
                 .frame(height: height)
-                .background(RK.field, in: RoundedRectangle(cornerRadius: RKMetrics.radiusSmall))
-                .overlay { RoundedRectangle(cornerRadius: RKMetrics.radiusSmall).strokeBorder(RK.line, lineWidth: 1) }
+                .background(SP.field, in: RoundedRectangle(cornerRadius: SPMetrics.radiusSmall))
+                .overlay { RoundedRectangle(cornerRadius: SPMetrics.radiusSmall).strokeBorder(SP.line, lineWidth: 1) }
                 .accessibilityElement()
                 .accessibilityLabel(qualityChart(frames: frames, options: options, maxBars: 240).label)
             HStack {
@@ -257,8 +257,8 @@ struct QualityChartView: View {
                 Spacer()
                 Text("blurriest")
             }
-            .font(.rk(10))
-            .foregroundStyle(RK.muted)
+            .font(.sp(10))
+            .foregroundStyle(SP.muted)
         }
     }
 
@@ -273,7 +273,7 @@ struct QualityChartView: View {
         for (i, bar) in chart.bars.enumerated() {
             let h = max(1, bar.height * plotHeight)
             let rect = CGRect(x: padding.left + Double(i) * step, y: padding.top + plotHeight - h, width: max(0.5, step - gap), height: h)
-            context.fill(Path(rect), with: .color(bar.kept ? RK.accent : RK.lineStrong))
+            context.fill(Path(rect), with: .color(bar.kept ? SP.accent : SP.lineStrong))
         }
 
         guard let line = chart.line else { return }
@@ -295,8 +295,8 @@ struct QualityChartView: View {
             anchor = right ? .leading : .trailing
             at = CGPoint(x: right ? x + 4 : x - 4, y: padding.top - 8)
         }
-        context.stroke(path, with: .color(RK.text), style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
-        let value = context.resolve(Text(chart.value).font(.rk(10)).foregroundStyle(RK.muted))
+        context.stroke(path, with: .color(SP.text), style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+        let value = context.resolve(Text(chart.value).font(.sp(10)).foregroundStyle(SP.muted))
         context.draw(value, at: at, anchor: anchor == .trailing ? .trailing : .leading)
     }
 }

@@ -1,4 +1,4 @@
-// De-rotate images in the Stack step (RK-023, as the Mac app in MAC-020): what Stack and the command `derotation_info`
+// De-rotate images in the Stack step (SP-023, as the Mac app in MAC-020): what Stack and the command `derotation_info`
 // are sent, the texts of the panel, the overlay of the measured disc and the section `derotation` of the project file.
 
 import type { createSettings, Planet } from "./settings";

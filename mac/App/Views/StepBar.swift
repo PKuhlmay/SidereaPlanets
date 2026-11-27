@@ -11,7 +11,7 @@ struct StepBar: View {
                 ForEach(ViewStep.allCases) { step in
                     if step != .open {
                         Rectangle()
-                            .fill(model.stepStates[step.previous ?? .open]?.status == .done ? RK.ok : RK.lineStrong)
+                            .fill(model.stepStates[step.previous ?? .open]?.status == .done ? SP.ok : SP.lineStrong)
                             .frame(width: 14, height: 1)
                             .padding(.horizontal, 4)
                     }
@@ -28,17 +28,17 @@ struct StepBar: View {
             Spacer(minLength: 0)
             if let details = model.details {
                 Text(details.stepBarLine)
-                    .font(.rkSmall)
-                    .foregroundStyle(RK.muted)
+                    .font(.spSmall)
+                    .foregroundStyle(SP.muted)
                     .lineLimit(1)
                     .truncationMode(.tail)
                     .help(details.stepBarLine)
             }
         }
-        .padding(.horizontal, RKMetrics.panelPadding)
-        .frame(height: RKMetrics.stepBarHeight)
-        .background(RK.panel)
-        .overlay(alignment: .bottom) { RK.line.frame(height: 1) }
+        .padding(.horizontal, SPMetrics.panelPadding)
+        .frame(height: SPMetrics.stepBarHeight)
+        .background(SP.panel)
+        .overlay(alignment: .bottom) { SP.line.frame(height: 1) }
     }
 }
 
@@ -60,7 +60,7 @@ private struct StepPill: View {
             HStack(spacing: 6) {
                 circle
                 Text(step.label)
-                    .font(.rk(RKMetrics.fontSize, isShown ? .semibold : .regular))
+                    .font(.sp(SPMetrics.fontSize, isShown ? .semibold : .regular))
                     .foregroundStyle(textColor)
             }
             .padding(.leading, 4)
@@ -81,13 +81,13 @@ private struct StepPill: View {
     private var circle: some View {
         ZStack {
             Circle().fill(circleFill)
-            if !isFilledCircle { Circle().strokeBorder(isLocked ? RK.line : RK.lineStrong, lineWidth: 1) }
+            if !isFilledCircle { Circle().strokeBorder(isLocked ? SP.line : SP.lineStrong, lineWidth: 1) }
             if state.status == .done {
-                Image(systemName: "checkmark").font(.system(size: 9, weight: .bold)).foregroundStyle(RK.onAccent)
+                Image(systemName: "checkmark").font(.system(size: 9, weight: .bold)).foregroundStyle(SP.onAccent)
             } else {
                 Text("\(step.number)")
-                    .font(.rk(11, .semibold))
-                    .foregroundStyle(isShown ? RK.onAccent : (isLocked ? RK.off : RK.muted))
+                    .font(.sp(11, .semibold))
+                    .foregroundStyle(isShown ? SP.onAccent : (isLocked ? SP.off : SP.muted))
             }
         }
         .frame(width: 18, height: 18)
@@ -96,18 +96,18 @@ private struct StepPill: View {
     private var isFilledCircle: Bool { isShown || state.status == .done }
 
     private var circleFill: Color {
-        if state.status == .done { return RK.ok }
-        return isShown ? RK.accent : .clear
+        if state.status == .done { return SP.ok }
+        return isShown ? SP.accent : .clear
     }
 
     private var textColor: Color {
-        if isLocked { return RK.off }
-        return isShown ? RK.accentInk : RK.text
+        if isLocked { return SP.off }
+        return isShown ? SP.accentInk : SP.text
     }
 
     private var fill: Color {
-        if isShown { return RK.accentSoft }
-        return isHovering && isClickable ? RK.raisedHover : .clear
+        if isShown { return SP.accentSoft }
+        return isHovering && isClickable ? SP.raisedHover : .clear
     }
 
     /// What the step is; a locked pill adds the step that is missing, a done pill its result.

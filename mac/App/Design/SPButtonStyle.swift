@@ -2,7 +2,7 @@ import SwiftUI
 
 /// The buttons of docs/design.md ("Schaltflächen"): standard, filled (the one action of the open step) and borderless.
 /// Disabled buttons lose their fill and show `--off`.
-struct RKButtonStyle: ButtonStyle {
+struct SPButtonStyle: ButtonStyle {
     enum Kind {
         case standard, filled, borderless
     }
@@ -30,53 +30,53 @@ struct RKButtonStyle: ButtonStyle {
 
         var body: some View {
             configuration.label
-                .font(.rk(compact ? RKMetrics.fontSizeSmall : RKMetrics.fontSize, kind == .filled && isEnabled ? .semibold : .medium))
+                .font(.sp(compact ? SPMetrics.fontSizeSmall : SPMetrics.fontSize, kind == .filled && isEnabled ? .semibold : .medium))
                 .foregroundStyle(foreground)
                 .lineLimit(1)
                 .minimumScaleFactor(compact ? 0.85 : 1)
                 .padding(.horizontal, compact ? 4 : 12)
-                .frame(minHeight: compact ? 24 : RKMetrics.buttonHeight)
+                .frame(minHeight: compact ? 24 : SPMetrics.buttonHeight)
                 .frame(maxWidth: fullWidth ? .infinity : nil)
-                .background(background, in: RoundedRectangle(cornerRadius: RKMetrics.radius))
+                .background(background, in: RoundedRectangle(cornerRadius: SPMetrics.radius))
                 .overlay {
                     if kind != .borderless {
-                        RoundedRectangle(cornerRadius: RKMetrics.radius).strokeBorder(outline, lineWidth: 1)
+                        RoundedRectangle(cornerRadius: SPMetrics.radius).strokeBorder(outline, lineWidth: 1)
                     }
                 }
-                .contentShape(RoundedRectangle(cornerRadius: RKMetrics.radius))
+                .contentShape(RoundedRectangle(cornerRadius: SPMetrics.radius))
                 .onHover { isHovering = $0 }
         }
 
         private var foreground: Color {
-            guard isEnabled else { return RK.off }
-            if isOn { return RK.accentInk }
-            return kind == .filled ? RK.onAccent : RK.text
+            guard isEnabled else { return SP.off }
+            if isOn { return SP.accentInk }
+            return kind == .filled ? SP.onAccent : SP.text
         }
 
         private var background: Color {
             guard isEnabled else { return .clear }
-            if isOn { return RK.accentSoft }
+            if isOn { return SP.accentSoft }
             let pressed = configuration.isPressed
             switch kind {
-            case .filled: return isHovering || pressed ? RK.accentHover : RK.accent
-            case .standard: return isHovering || pressed ? RK.raisedHover : RK.raised
-            case .borderless: return isHovering || pressed ? RK.raised : .clear
+            case .filled: return isHovering || pressed ? SP.accentHover : SP.accent
+            case .standard: return isHovering || pressed ? SP.raisedHover : SP.raised
+            case .borderless: return isHovering || pressed ? SP.raised : .clear
             }
         }
 
         private var outline: Color {
-            guard isEnabled else { return RK.line }
-            if isOn { return RK.accent }
-            return kind == .filled ? .clear : RK.lineStrong
+            guard isEnabled else { return SP.line }
+            if isOn { return SP.accent }
+            return kind == .filled ? .clear : SP.lineStrong
         }
     }
 }
 
-extension ButtonStyle where Self == RKButtonStyle {
-    static var rk: RKButtonStyle { RKButtonStyle() }
-    static var rkWide: RKButtonStyle { RKButtonStyle(fullWidth: true) }
-    static var rkFilled: RKButtonStyle { RKButtonStyle(kind: .filled) }
-    static var rkBorderless: RKButtonStyle { RKButtonStyle(kind: .borderless) }
-    static var rkCompact: RKButtonStyle { RKButtonStyle(fullWidth: true, compact: true) }
-    static func rkWide(isOn: Bool) -> RKButtonStyle { RKButtonStyle(fullWidth: true, isOn: isOn) }
+extension ButtonStyle where Self == SPButtonStyle {
+    static var sp: SPButtonStyle { SPButtonStyle() }
+    static var spWide: SPButtonStyle { SPButtonStyle(fullWidth: true) }
+    static var spFilled: SPButtonStyle { SPButtonStyle(kind: .filled) }
+    static var spBorderless: SPButtonStyle { SPButtonStyle(kind: .borderless) }
+    static var spCompact: SPButtonStyle { SPButtonStyle(fullWidth: true, compact: true) }
+    static func spWide(isOn: Bool) -> SPButtonStyle { SPButtonStyle(fullWidth: true, isOn: isOn) }
 }

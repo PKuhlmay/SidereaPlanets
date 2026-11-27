@@ -107,7 +107,7 @@ pub async fn save_image_as(
     }
 }
 
-/// Writes the project. The extension `.rkproj` is added when missing; the result is the path
+/// Writes the project. The extension `.sidereaplanets` is added when missing; the result is the path
 /// that was written.
 #[tauri::command]
 pub async fn project_save(project: Project, path: String) -> CommandResult<String> {

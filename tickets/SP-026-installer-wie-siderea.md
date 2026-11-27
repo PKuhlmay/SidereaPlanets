@@ -1,7 +1,7 @@
-# RK-026 Installer wie bei Siderea
+# SP-026 Installer wie bei Siderea
 
 - Status: erledigt
-- Abhängig von: RK-025
+- Abhängig von: SP-025
 - Stufe: `windows-v0.1.0`
 
 ## Ziel
@@ -21,7 +21,7 @@ des NSIS-Bündels von Tauri.
 - [x] WebView2: Setup prüft die Laufzeit und startet Microsofts Bootstrapper nur, wo sie fehlt
 - [x] Release-Skill (`.claude/skills/release`, Schritt 3a) und `CLAUDE.md` beschreiben den neuen Weg
 - [x] Der Installer baut durch (`Siderea-Planets-0.1.0-setup.exe`, 5,6 MB); Installieren, Starten und Deinstallieren als Probe von Hand
-      unter `### RK-026` in `docs/parity/Handprobe.md` eingetragen
+      unter `### SP-026` in `docs/parity/Handprobe.md` eingetragen
 
 ## Umsetzung
 

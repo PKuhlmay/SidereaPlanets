@@ -1,4 +1,4 @@
-# RK-001 Cargo-Workspace und Gerüst
+# SP-001 Cargo-Workspace und Gerüst
 
 - Status: erledigt
 - Abhängig von: —

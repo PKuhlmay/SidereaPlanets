@@ -8,9 +8,9 @@ import { session, settings, status } from "../state";
 import { progress } from "../steps";
 import StepPanel from "./StepPanel.vue";
 
-// Step 7 Save: what Save Image writes, the group Crop that opens the crop tool (RK-021) and the group Size (RK-022). The action with the menu of file types is
+// Step 7 Save: what Save Image writes, the group Crop that opens the crop tool (SP-021) and the group Size (SP-022). The action with the menu of file types is
 // in the foot of the panel.
-// The group Size: what Save Image writes after Flip and Rotate, Crop and Resize Image (RK-022).
+// The group Size: what Save Image writes after Flip and Rotate, Crop and Resize Image (SP-022).
 const result = computed(() => resultSize());
 const turned = computed(() => orientationSummary(settings.geometry.orientation));
 const summary = computed(() => (session.crop.applied ? `Only ${sizeText(session.crop.applied)} is saved.` : "The whole picture is saved."));

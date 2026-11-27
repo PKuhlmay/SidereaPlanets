@@ -1,7 +1,7 @@
-# RK-024 Align by center of gravity (Windows zieht nach)
+# SP-024 Align by center of gravity (Windows zieht nach)
 
 - Status: erledigt
-- Abhängig von: RK-016, MAC-021
+- Abhängig von: SP-016, MAC-021
 - Stufe: `windows-v0.1.0` (Nachzug zu Mac `v0.1.0`)
 
 ## Ziel
@@ -21,7 +21,7 @@ MAC-021)“, Aufbau in `docs/design.md`, „3 Align“. Kern und Session liegen 
 - [x] Projektdatei: `align.centreOfGravity` und `align.brightnessThreshold` schreiben und lesen, fehlende Werte bleiben (Test)
 - [x] Windows-Hinweise in `align-your-frames.md`, `steps-alignpoints-align-limit.md` und `glossary.md` gestrichen
 - [x] Abschnitt aus `docs/parity/WINDOWS_PARITY.md` gelöscht
-- [x] Probe von Hand als `## RK-024 Align by center of gravity (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
+- [x] Probe von Hand als `## SP-024 Align by center of gravity (windows-v0.1.0)` in `docs/parity/Handprobe.md` eingetragen
 - [x] `cd app && pnpm test` und `pnpm build` grün, neue oder geänderte Tests einmal rot gesehen
 
 ## Umsetzung

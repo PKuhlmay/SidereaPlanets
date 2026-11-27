@@ -1,7 +1,7 @@
-# RK-002 GUI-Toolkit auswählen
+# SP-002 GUI-Toolkit auswählen
 
 - Status: erledigt
-- Abhängig von: RK-001
+- Abhängig von: SP-001
 
 ## Ziel
 Entscheiden, womit die Oberfläche gebaut wird, sodass sie dem Original in Aufbau und Bedienung nahekommt
@@ -18,5 +18,5 @@ vorankommen. Die anderen Kandidaten sind weder gebaut noch gemessen; das steht a
 
 ## Ergebnis
 Zoom, Pan und viele Regler laufen mit 60 Hz. Engpass ist die Bildübertragung (rund 20 Bilder/s bei 1024 × 680,
-5 Bilder/s bei 2048 × 2048). Maßnahmen für die Live-Vorschau stehen in RK-007.
+5 Bilder/s bei 2048 × 2048). Maßnahmen für die Live-Vorschau stehen in SP-007.
 Spike-Code liegt auf dem Branch `spike/rk-002-tauri`.

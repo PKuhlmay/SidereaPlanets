@@ -168,7 +168,7 @@ pub struct LoadedProject {
     pub missing_files: Vec<String>,
 }
 
-/// Writes the project. The extension `.rkproj` is added when missing; the result is the path
+/// Writes the project. The extension `.sidereaplanets` is added when missing; the result is the path
 /// that was written.
 pub fn project_save(project: &Project, path: &Path) -> Result<String, SessionError> {
     project

@@ -46,7 +46,7 @@ Ticket, Details im Ticket unter „Umsetzung“.
   Frame-Zähler, Meldung „cancelled“, danach läuft ein neuer Lauf), Set Alignpoints oder Align erneut (Stack und Wavelet-Bild sind weg,
   Save image meldet „there is no stacked image yet“) und das CPUs-Feld (1 Kern ist bei einem langen Align deutlich langsamer).
 
-### RK-016 Texte für Einsteiger (windows-v0.1.0)
+### SP-016 Texte für Einsteiger (windows-v0.1.0)
 
 - [ ] Ganzer Ablauf mit JUPITER.AVI in `pnpm tauri dev`: jede Pille, jeder Aktionsknopf und jedes Feld zeigt den neuen Namen und einen
   Tooltip (Stichprobe gegen die Mac-App); Statusleiste nach Align „Alignment finished“, nach Keep Best Frames „8 frames will be stacked ·
@@ -58,7 +58,7 @@ Ticket, Details im Ticket unter „Umsetzung“.
   nicht klickbar, Tooltip „Not available yet“.
 - [ ] Ein Fehler (z. B. eine Textdatei öffnen) erscheint als „Open failed: …“.
 
-### RK-017 Dateiangaben und Navigation (windows-v0.1.0)
+### SP-017 Dateiangaben und Navigation (windows-v0.1.0)
 
 - [ ] JUPITER.AVI und eine SER-Datei öffnen, dann den Schritt Open anklicken: die Liste zeigt Format, Codec, Size, Bit depth, Frames,
   Color, Frame rate (bei SER auch Observer, Instrument, Telescope, wenn die Datei sie hat); Tooltips auf Codec und Bit depth.
@@ -67,20 +67,20 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] Alt+1 bis Alt+7 öffnen die Schritte wie ein Klick; ein grauer Schritt öffnet nicht, während Align läuft öffnet keiner; das
   Fenstermenü von Windows erscheint dabei nicht.
 
-### RK-018 Go to Best Frame (windows-v0.1.0)
+### SP-018 Go to Best Frame (windows-v0.1.0)
 
 - [ ] JUPITER.AVI: vor Align ist Go to Best Frame gesperrt (Tooltip „Run Align first“). Nach Align zeigt ein Klick im Panel Best Frames
   und in der Frame List den obersten Frame der Liste, die Frame-Leiste steht auf ihm, Alignpoints öffnet mit dem Hinweis „Best frame: N. …“.
 - [ ] Danach Keep Best Frames und Stack sind noch erledigt (nichts verworfen); erst Set Alignpoints Again löscht Hinweis und Ergebnisse.
 
-### RK-019 Auslastung in der Statusleiste (windows-v0.1.0)
+### SP-019 Auslastung in der Statusleiste (windows-v0.1.0)
 
 - [ ] Links in der Statusleiste steht „CPU (n)“ mit n = Zahl der logischen Kerne und „RAM“; bei einem langen Align mit allen Kernen
   steigt die CPU auf über 90 % und wird fett und amber; der RAM-Wert passt grob zum Working Set im Task-Manager.
 - [ ] Settings > Show CPU and Memory Usage aus: das Feld verschwindet; nach einem Neustart bleibt es aus. Minimiertes Fenster: im
   Task-Manager kaum CPU-Last der App.
 
-### RK-020 Color Mixing, Denoise/Deringing und Masking (windows-v0.1.0)
+### SP-020 Color Mixing, Denoise/Deringing und Masking (windows-v0.1.0)
 
 - [ ] Nach Do All: Color Mixing mit dem Preset *Swap Red and Blue* tauscht die Farben sofort, Reset stellt zurück; Preserve brightness
   hält die Helligkeit; Save Image schreibt das gemischte Bild.
@@ -89,7 +89,7 @@ Ticket, Details im Ticket unter „Umsetzung“.
   zeigen das Bild ohne Maske; Karte schließen nimmt die Maske weg.
 - [ ] Save Project und wieder öffnen: Matrix und die Werte beider Karten stehen wieder da (Show mask nicht).
 
-### RK-021 View Compare und Zuschneiden (windows-v0.1.0)
+### SP-021 View Compare und Zuschneiden (windows-v0.1.0)
 
 - [ ] Nach Do All: View Compare teilt das Bild, der Griff zieht die Linie (auch mit ← und → nach einem Klick auf den Griff); Zoomen und
   Verschieben halten die Linie fest; Before/After beendet den Vergleich und umgekehrt.
@@ -98,7 +98,7 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] Done, dann Save Image als TIFF: die Datei hat genau die angezeigte Größe; Remove Crop schreibt wieder das ganze Bild; ein neuer Stack
   löscht den Zuschnitt.
 
-### RK-024 Align by center of gravity (windows-v0.1.0)
+### SP-024 Align by center of gravity (windows-v0.1.0)
 
 - [ ] Schritt Align, Advanced: Brightness threshold ist ohne das Häkchen gedimmt und nicht bedienbar (Tooltip „Turn on Align by center of
   gravity to use it.“), mit dem Häkchen bedienbar; Werte über 255 werden 255. Show alignment und Estimate rotation bleiben gesperrt.
@@ -106,7 +106,7 @@ Ticket, Details im Ticket unter „Umsetzung“.
   Mondaufnahme mit dem Häkchen: Align fällt nicht aus, auch wenn das Ergebnis schlechter sein darf.
 - [ ] Häkchen an, Schwelle 35, Save Project, App neu starten, Projekt öffnen: Häkchen und 35 stehen wieder da.
 
-### RK-023 De-rotate images (windows-v0.1.0)
+### SP-023 De-rotate images (windows-v0.1.0)
 
 - [ ] JUPITER.AVI bis Best Frames, dann im Schritt Stack unter Advanced De-rotate images einschalten: Planet steht auf Jupiter, Start time
   zeigt das Dateidatum mit „taken from the file date, check it“ und die UTC-Zeit darunter; nach kurzer Zeit steht die Zeile „Span … · rotation …°“
@@ -116,7 +116,7 @@ Ticket, Details im Ticket unter „Umsetzung“.
 - [ ] Eine SER-Datei mit Zeitstempeln: das Feld Start time fehlt, darunter steht „The file has a time for every frame.“
 - [ ] Stack mit De-rotate images an läuft durch; Save Project und wieder öffnen: Planet, Camera angle, Mirrored image und Start time stehen wieder da.
 
-### RK-022 Flip and Rotate und Resize Image (windows-v0.1.0)
+### SP-022 Flip and Rotate und Resize Image (windows-v0.1.0)
 
 - [ ] Nach Do All: Horizontal, Vertical, Left 90°, Right 90° und 180° drehen das Bild im Bildbereich sofort; ein freier Winkel (z. B. 15°)
   zeigt schwarze Ecken, Crop to fit schneidet sie weg; *Picture* nennt die neue Größe; die Alignpoint-Ringe verschwinden auf dem gedrehten Bild.
@@ -125,11 +125,11 @@ Ticket, Details im Ticket unter „Umsetzung“.
   TIFF hat genau diese Größe und ist gedreht wie im Fenster.
 - [ ] Save Project und wieder öffnen: beide Karten stehen wieder so da.
 
-### RK-025 Version in der Statusleiste (windows-v0.1.0)
+### SP-025 Version in der Statusleiste (windows-v0.1.0)
 
 - [ ] Im installierten Programm steht rechts unten `0.1.0 · <Commit> · <Datum Uhrzeit>`, der Tooltip erklärt es.
 
-### RK-026 Installer wie bei Siderea (windows-v0.1.0)
+### SP-026 Installer wie bei Siderea (windows-v0.1.0)
 
 - [ ] `Siderea-Planets-0.1.0-setup.exe` starten: Sprache wählen, Seite „Was ist neu“ zeigt den Changelog, Installation für den eigenen
   Benutzer ohne Adminrechte; Startmenü-Eintrag „Siderea Planets“, Desktop-Symbol nur mit Häkchen; die App startet am Ende.

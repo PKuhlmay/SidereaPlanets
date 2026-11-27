@@ -290,9 +290,9 @@ final class Dialogs {
         let dialogs = Dialogs(answer: folder.appendingPathComponent("session"))
         await model.saveProject(choose: dialogs.save)
 
-        #expect(dialogs.saveRequests == [SaveRequest(name: "JUPITER", directory: recording.deletingLastPathComponent(), fileExtension: "rkproj")])
-        #expect(model.status.result == "Saved session.rkproj", "the core adds the extension")
-        let file = folder.appendingPathComponent("session.rkproj")
+        #expect(dialogs.saveRequests == [SaveRequest(name: "JUPITER", directory: recording.deletingLastPathComponent(), fileExtension: "sidereaplanets")])
+        #expect(model.status.result == "Saved session.sidereaplanets", "the core adds the extension")
+        let file = folder.appendingPathComponent("session.sidereaplanets")
         let text = try String(contentsOf: file, encoding: .utf8)
         #expect(text.contains("\"formatVersion\": 1") && text.contains("\"align\"") && text.contains("\"stack\""))
 
@@ -304,13 +304,13 @@ final class Dialogs {
         #expect(other.options.minDistance == 44 && other.options.limitMode == .bestCount && other.options.limitCount == 4)
         #expect(other.show.framelist)
         #expect(other.stackOptions.nearestPoints == 6 && other.stackOptions.codec == "mrle" && other.stackOptions.averageFrames == 8)
-        #expect(other.status.result == "Opened session.rkproj")
+        #expect(other.status.result == "Opened session.sidereaplanets")
         #expect(other.progress.step == .loaded, "the results are not stored, only the settings")
     }
 
     @Test func aProjectOfAWindowsFileKeepsWhatItDoesNotKnow() async throws {
         let recording = try recordingFile()
-        let file = folder.appendingPathComponent("windows.rkproj")
+        let file = folder.appendingPathComponent("windows.sidereaplanets")
         let json = """
             {"formatVersion": 1, "recording": ["\(recording.path)"],
              "sections": {"align": {"boxSize": 55, "minDistance": "wrong"}, "wavelet": {"contrast": 250}, "colour": {"colour": true}}}
@@ -318,11 +318,11 @@ final class Dialogs {
         try json.write(to: file, atomically: true, encoding: .utf8)
         await model.openProject(choose: Dialogs(answer: file).open)
         #expect(model.options.boxSize == 55 && model.options.minDistance == 30)
-        #expect(model.status.result == "Opened windows.rkproj")
+        #expect(model.status.result == "Opened windows.sidereaplanets")
     }
 
     @Test func aMissingRecordingFileIsNamed() async throws {
-        let file = folder.appendingPathComponent("gone.rkproj")
+        let file = folder.appendingPathComponent("gone.sidereaplanets")
         let json = #"{"formatVersion": 1, "recording": ["/nowhere/a.ser", "/nowhere/b.ser"], "sections": {}}"#
         try json.write(to: file, atomically: true, encoding: .utf8)
         await model.openProject(choose: Dialogs(answer: file).open)
@@ -331,24 +331,24 @@ final class Dialogs {
     }
 
     @Test func aProjectWithoutARecordingAndOneFromANewerVersionAreRefused() async throws {
-        let empty = folder.appendingPathComponent("empty.rkproj")
+        let empty = folder.appendingPathComponent("empty.sidereaplanets")
         try #"{"formatVersion": 1, "recording": [], "sections": {}}"#.write(to: empty, atomically: true, encoding: .utf8)
         await model.openProject(choose: Dialogs(answer: empty).open)
         #expect(model.status.result == "Open Project: the project has no recording")
 
-        let newer = folder.appendingPathComponent("newer.rkproj")
+        let newer = folder.appendingPathComponent("newer.sidereaplanets")
         try #"{"formatVersion": 9, "recording": ["/x.ser"], "sections": {}}"#.write(to: newer, atomically: true, encoding: .utf8)
         await model.openProject(choose: Dialogs(answer: newer).open)
         #expect(model.status.result.hasPrefix("Open Project failed: ") && model.status.result.contains("newer version"))
 
-        let broken = folder.appendingPathComponent("broken.rkproj")
+        let broken = folder.appendingPathComponent("broken.sidereaplanets")
         try "not json".write(to: broken, atomically: true, encoding: .utf8)
         await model.openProject(choose: Dialogs(answer: broken).open)
         #expect(model.status.result.hasPrefix("Open Project failed: not a valid project file"))
     }
 
     @Test func saveProjectNeedsARecordingAndACancelledDialogDoesNothing() async throws {
-        let none = Dialogs(answer: folder.appendingPathComponent("x.rkproj"))
+        let none = Dialogs(answer: folder.appendingPathComponent("x.sidereaplanets"))
         await model.saveProject(choose: none.save)
         #expect(model.status.result == "Save Project: no recording is open" && none.saveRequests.isEmpty)
         #expect(!model.canSaveProject)

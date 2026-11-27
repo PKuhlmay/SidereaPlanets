@@ -44,7 +44,7 @@ describe("buildStackRequest", () => {
     expect(buildStackRequest(session(), settings).centreOfGravity).toBe(40);
   });
 
-  it("sends De-rotate images with its settings only when the check box is on (RK-023)", () => {
+  it("sends De-rotate images with its settings only when the check box is on (SP-023)", () => {
     const settings = createSettings();
     Object.assign(settings.stack, { planet: "saturn", cameraAngle: -12.5, mirrored: true, startTime: 1_700_000_000.5 });
     expect(buildStackRequest(session(), settings)).not.toHaveProperty("derotation");

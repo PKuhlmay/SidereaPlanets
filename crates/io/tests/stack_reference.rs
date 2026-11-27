@@ -94,7 +94,7 @@ fn jupiter_stack_is_close_to_the_stack_of_the_original() {
     eprintln!("channel means ours {:?}", channel_means(&local.image));
     eprintln!("channel means original {:?}", channel_means(&original));
 
-    // The threshold of RK-006 (`docs/testdaten.md`).
+    // The threshold of SP-006 (`docs/testdaten.md`).
     assert!(
         db(&local.image) >= 45.0,
         "{:.2} dB against the original, the threshold is 45 dB",

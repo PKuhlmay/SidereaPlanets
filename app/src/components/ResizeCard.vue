@@ -17,7 +17,7 @@ import FloatCard from "./FloatCard.vue";
 import MenuButton from "./MenuButton.vue";
 import NumberField from "./NumberField.vue";
 
-// Resize Image card (RK-022): scales the picture by a percentage or to a size in pixels when it is saved. It does not change the
+// Resize Image card (SP-022): scales the picture by a percentage or to a size in pixels when it is saved. It does not change the
 // preview; the card tells the size that is written.
 const r = settings.geometry.resize;
 const isDefault = computed(() => JSON.stringify(r) === JSON.stringify(defaultResize()));

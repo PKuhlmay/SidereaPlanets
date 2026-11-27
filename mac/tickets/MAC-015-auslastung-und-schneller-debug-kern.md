@@ -11,7 +11,7 @@
    sichtbar ist, Werte mit Strich, wenn es keine Messung gibt, bei Platzmangel fällt zuerst der Speicher weg statt umzubrechen;
    Schalter in Settings zum Ausblenden. Die Suite soll gleich aussehen.
 2. **Align im Debug-Build schneller:** Die Mac-App, die der Deploy startet, ist ein Debug-Build, und `scripts/build-ffi.sh` baut den
-   Rust-Kern dafür ohne Optimierung. Der Kern läuft dort ein Vielfaches langsamer als in RK-015 gemessen (Release). Der Kern soll auch
+   Rust-Kern dafür ohne Optimierung. Der Kern läuft dort ein Vielfaches langsamer als in SP-015 gemessen (Release). Der Kern soll auch
    im Debug-Build optimiert sein (eigenes Cargo-Profil, z. B. `ffi-dev`, erbt `release` ohne LTO, mit `panic = "unwind"`, schneller
    gebaut), Messung vorher und nachher mit `SaturnVideo.avi` in der App (Align, Stack).
 
@@ -62,8 +62,8 @@ wie `crates/session/tests/jupiter_flow.rs`: Öffnen, Set Alignpoints, Align, Lim
 | `scripts/build-ffi.sh` sauber, gesamt | 79 s | 108 s (ohne bindgen, s. u.) | |
 | Neu bauen nach Änderung an `crates/core` (Zeitstempel geändert) | 4,1 s | 2,9 s | |
 
-Das Stackbild ist in beiden Läufen gleich (Prüfsumme der 8-Bit-Ausgabe 135682512, wie in RK-015). Zum Vergleich der Release-Bau aus
-RK-015: Align 7,2 s, Stack 8,3 s; `ffi-dev` liegt damit bei Align gleichauf und bei Stack 28 % darüber. Zum Bau: Der saubere Kernbau
+Das Stackbild ist in beiden Läufen gleich (Prüfsumme der 8-Bit-Ausgabe 135682512, wie in SP-015). Zum Vergleich der Release-Bau aus
+SP-015: Align 7,2 s, Stack 8,3 s; `ffi-dev` liegt damit bei Align gleichauf und bei Stack 28 % darüber. Zum Bau: Der saubere Kernbau
 dauert dreimal so lange, ein Neubau nach einer Änderung nicht (der Zeitstempel-Test ändert nur die Datei, er misst also den
 Verwaltungsaufwand, nicht eine echte Änderung). Der Gesamtlauf des Skripts „vorher“ enthielt die Übersetzung von `uniffi-bindgen`
 (läuft weiter im Profil `dev`, rund 45 s); im Lauf „nachher“ lag sie schon im Cache, ein sauberer Lauf wäre also rund 150 s lang

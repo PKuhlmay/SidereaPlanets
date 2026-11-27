@@ -16,7 +16,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-/// JPEG quality (1 to 100). the reference program does not say what it uses; this is a visually lossless choice.
+/// JPEG quality (1 to 100). The reference program does not say what it uses; this is a visually lossless choice.
 const JPEG_QUALITY: u8 = 95;
 
 #[derive(Debug, thiserror::Error)]
@@ -231,7 +231,7 @@ fn to_u8(v: f32) -> u8 {
     (v.clamp(0.0, 1.0) * 255.0).round() as u8
 }
 
-/// Full range: 1.0 becomes 65535. (the reference program scales its 8 bit result by 256, see `docs/formats.md`.)
+/// Full range: 1.0 becomes 65535. (The reference program scales its 8 bit result by 256, see `docs/formats.md`.)
 fn to_u16(v: f32) -> u16 {
     (v.clamp(0.0, 1.0) * 65535.0).round() as u16
 }

@@ -1,5 +1,15 @@
 # Changelog — Siderea Planets for Windows
 
+## Unreleased
+
+### English
+
+- Project files now end in .sidereaplanets. To open a project saved with an earlier build, rename its file to this ending.
+
+### Deutsch
+
+- Projektdateien enden jetzt auf .sidereaplanets. Ein mit einem früheren Stand gespeichertes Projekt öffnet sich, nachdem die Datei auf diese Endung umbenannt wurde.
+
 ## 0.1.0 — 2026-11-13
 
 ### English

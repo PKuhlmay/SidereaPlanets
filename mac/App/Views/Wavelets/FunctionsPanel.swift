@@ -13,17 +13,17 @@ struct FunctionsPanel: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 functions
-                RK.line.frame(height: 1)
+                SP.line.frame(height: 1)
                 contrastBrightness
-                RK.line.frame(height: 1)
+                SP.line.frame(height: 1)
                 remember
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(RKMetrics.panelPadding)
+            .padding(SPMetrics.panelPadding)
         }
-        .frame(width: RKMetrics.sideWidthRight)
-        .background(RK.panel)
-        .overlay(alignment: .leading) { RK.line.frame(width: 1) }
+        .frame(width: SPMetrics.sideWidthRight)
+        .background(SP.panel)
+        .overlay(alignment: .leading) { SP.line.frame(width: 1) }
         .accessibilityElement(children: .contain)
         .accessibilityLabel("Adjustments")
     }
@@ -54,7 +54,7 @@ struct FunctionsPanel: View {
             }
             // Each slider has its label and its field right above it.
             HStack {
-                Text("Contrast").font(.rk).foregroundStyle(RK.text)
+                Text("Contrast").font(.sp).foregroundStyle(SP.text)
                 Spacer()
                 NumberField(
                     label: "Contrast",
@@ -67,10 +67,10 @@ struct FunctionsPanel: View {
                 in: Double(ToneLimits.contrast.lowerBound)...Double(ToneLimits.contrast.upperBound), step: 1
             )
             .controlSize(.small)
-            .tint(RK.accent)
+            .tint(SP.accent)
             .accessibilityLabel("Contrast")
             HStack {
-                Text("Brightness").font(.rk).foregroundStyle(RK.text)
+                Text("Brightness").font(.sp).foregroundStyle(SP.text)
                 Spacer()
                 NumberField(label: "Brightness", value: $model.tone.brightness, range: ToneLimits.brightness, width: 62)
             }
@@ -80,7 +80,7 @@ struct FunctionsPanel: View {
                 in: Double(ToneLimits.brightness.lowerBound)...Double(ToneLimits.brightness.upperBound), step: 1
             )
             .controlSize(.small)
-            .tint(RK.accent)
+            .tint(SP.accent)
             .accessibilityLabel("Brightness")
         }
     }
@@ -97,7 +97,7 @@ struct FunctionsPanel: View {
                     help: "Shows where the current image differs from the remembered one, amplified."
                 ) { model.showDifference() },
             ])
-            Text("Show").font(.rkSmall).foregroundStyle(RK.muted).padding(.top, 2)
+            Text("Show").font(.spSmall).foregroundStyle(SP.muted).padding(.top, 2)
             RadioRow(title: "Current image", isSelected: model.waveletData.toneView != .clipboard) { model.showToneView(.current) }
             RadioRow(title: "Remembered image", isSelected: model.waveletData.toneView == .clipboard, isEnabled: hasCopy) {
                 model.showToneView(.clipboard)
@@ -117,16 +117,16 @@ private struct FunctionButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.rk(RKMetrics.fontSizeSmall, .medium))
-                .foregroundStyle(isOn ? RK.accentInk : RK.text)
+                .font(.sp(SPMetrics.fontSizeSmall, .medium))
+                .foregroundStyle(isOn ? SP.accentInk : SP.text)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.horizontal, 3)
                 .frame(maxWidth: .infinity, minHeight: 38)
-                .background(isOn ? RK.accentSoft : (isHovering ? RK.raisedHover : RK.raised), in: RoundedRectangle(cornerRadius: RKMetrics.radius))
-                .overlay { RoundedRectangle(cornerRadius: RKMetrics.radius).strokeBorder(isOn ? RK.accent : RK.lineStrong, lineWidth: 1) }
-                .contentShape(RoundedRectangle(cornerRadius: RKMetrics.radius))
+                .background(isOn ? SP.accentSoft : (isHovering ? SP.raisedHover : SP.raised), in: RoundedRectangle(cornerRadius: SPMetrics.radius))
+                .overlay { RoundedRectangle(cornerRadius: SPMetrics.radius).strokeBorder(isOn ? SP.accent : SP.lineStrong, lineWidth: 1) }
+                .contentShape(RoundedRectangle(cornerRadius: SPMetrics.radius))
         }
         .buttonStyle(.plain)
         .disabled(!isFunctionBuilt(title))

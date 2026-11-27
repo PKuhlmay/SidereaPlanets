@@ -1,4 +1,4 @@
-// The keyboard shortcuts in the window (RK-017): ← and → page through the frames while the frame bar is there, Alt+1 to Alt+7 open
+// The keyboard shortcuts in the window (SP-017): ← and → page through the frames while the frame bar is there, Alt+1 to Alt+7 open
 // a step like a click on the step bar. What a key means is decided in logic/keys.ts.
 
 import { keyCommand } from "./logic/keys";

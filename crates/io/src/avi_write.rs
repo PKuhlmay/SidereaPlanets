@@ -1,7 +1,7 @@
 //! Uncompressed AVI writer (24 bit `BI_RGB`) for *Save Aligned* and *Save Integrated*.
 //!
 //! Frames are streamed one by one, so sequences with thousands of frames never have to fit in
-//! memory. the reference program offers Video-for-Windows codecs here; the clone only writes uncompressed
+//! memory. The reference program offers Video-for-Windows codecs here; the clone only writes uncompressed
 //! video, which every player and the reader in [`crate::avi`] understand. There is no OpenDML
 //! support, so a file is limited to 4 GiB (writing fails cleanly beyond that).
 

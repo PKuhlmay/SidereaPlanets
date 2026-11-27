@@ -1,4 +1,4 @@
-// The project file (.rkproj, docs/formats.md): the recording and the settings of the steps. Results of Align and Stack
+// The project file (.sidereaplanets, docs/formats.md): the recording and the settings of the steps. Results of Align and Stack
 // are not stored, they are calculated again.
 
 import { applyDerotationSection, DEROTATION_KEYS, derotationSection } from "./derotation";

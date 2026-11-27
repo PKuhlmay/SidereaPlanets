@@ -6,7 +6,7 @@ import UniformTypeIdentifiers
 /// (the menu of the button), so the panel writes exactly that type: it keeps the extension on the name.
 @MainActor
 enum SavePanels {
-    /// The project file (`.rkproj`, JSON), declared in Info.plist (`UTExportedTypeDeclarations`, mac/project.yml). A type made up
+    /// The project file (`.sidereaplanets`, JSON), declared in Info.plist (`UTExportedTypeDeclarations`, mac/project.yml). A type made up
     /// from the extension here would not match the type the system gives a saved file, and Open Project would grey it out.
     static let projectType = UTType(exportedAs: "de.kuhlmay.siderea.planets.project", conformingTo: .json)
 

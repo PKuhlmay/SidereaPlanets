@@ -8,7 +8,7 @@ import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 const host = process.env.TAURI_DEV_HOST;
 
-// The version label of the status bar (RK-025): the version of package.json (the release sets it together with tauri.conf.json), the
+// The version label of the status bar (SP-025): the version of package.json (the release sets it together with tauri.conf.json), the
 // short commit and the time of the build.
 const version = (JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as { version: string }).version;
 let commit = "";

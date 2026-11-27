@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { compareLabelFits } from "../cropTool";
 
-// The divider and the labels of View Compare over the image area (RK-021, docs/design.md "Bildbereich"); the two images are drawn by
+// The divider and the labels of View Compare over the image area (SP-021, docs/design.md "Bildbereich"); the two images are drawn by
 // ImageViewer. Only the strip around the line takes the pointer, the rest of the area keeps moving the image. The arrow keys move the
 // divider too.
 const props = defineProps<{ share: number; width: number }>();

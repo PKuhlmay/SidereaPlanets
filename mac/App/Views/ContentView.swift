@@ -18,9 +18,9 @@ struct ContentView: View {
             }
             StatusBar(status: model.status)
         }
-        .background(RK.bg)
-        .frame(minWidth: RKMetrics.minWindowSize.width, minHeight: RKMetrics.minWindowSize.height)
-        .tint(RK.accent)
+        .background(SP.bg)
+        .frame(minWidth: SPMetrics.minWindowSize.width, minHeight: SPMetrics.minWindowSize.height)
+        .tint(SP.accent)
         .navigationTitle(model.windowTitle)
         .toolbar { AppToolbar(model: model) }
         .dropDestination(for: URL.self) { urls, _ in
@@ -93,7 +93,7 @@ private struct CancelButton: View {
         if model.canCancel {
             Button("Cancel") { model.cancelRun() }
                 .buttonStyle(.borderedProminent)
-                .tint(RK.accent)
+                .tint(SP.accent)
                 .help("Stop the calculation (⌘.)")
         } else {
             Button("Cancel") {}

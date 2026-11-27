@@ -17,7 +17,7 @@ use std::{
 };
 
 /// Extension of project files, without the dot.
-pub const PROJECT_EXTENSION: &str = "rkproj";
+pub const PROJECT_EXTENSION: &str = "sidereaplanets";
 
 /// Layout version written to new files. Files with a higher number are refused.
 pub const FORMAT_VERSION: u32 = 1;
@@ -109,7 +109,7 @@ impl Project {
     }
 }
 
-/// Keeps a `.rkproj` extension (any case) and otherwise sets it.
+/// Keeps a `.sidereaplanets` extension (any case) and otherwise sets it.
 pub fn with_project_extension(path: &Path) -> PathBuf {
     let has = path
         .extension()
@@ -151,7 +151,7 @@ mod tests {
         };
         project.set_section(SECTION_WAVELET, &sample).unwrap();
 
-        let path = project.save(&dir.join("session.rkproj")).unwrap();
+        let path = project.save(&dir.join("session.sidereaplanets")).unwrap();
         let loaded = Project::load(&path).unwrap();
         assert_eq!(loaded, project);
         assert_eq!(
@@ -164,14 +164,14 @@ mod tests {
     #[test]
     fn unknown_sections_survive_a_second_save() {
         let dir = temp_dir("unknown");
-        let path = dir.join("u.rkproj");
+        let path = dir.join("u.sidereaplanets");
         fs::write(
             &path,
             r#"{"formatVersion":1,"recording":[],"sections":{"future":{"a":[1,2,3]}}}"#,
         )
         .unwrap();
         let loaded = Project::load(&path).unwrap();
-        let again = loaded.save(&dir.join("u2.rkproj")).unwrap();
+        let again = loaded.save(&dir.join("u2.sidereaplanets")).unwrap();
         let text = fs::read_to_string(again).unwrap();
         assert!(text.contains("\"future\""));
         assert!(text.contains("\"formatVersion\""));
@@ -180,7 +180,7 @@ mod tests {
     #[test]
     fn missing_sections_key_means_no_sections() {
         let dir = temp_dir("nosections");
-        let path = dir.join("n.rkproj");
+        let path = dir.join("n.sidereaplanets");
         fs::write(&path, r#"{"formatVersion":1,"recording":["a.ser"]}"#).unwrap();
         let loaded = Project::load(&path).unwrap();
         assert!(loaded.sections.is_empty());
@@ -190,7 +190,7 @@ mod tests {
     #[test]
     fn newer_format_is_refused() {
         let dir = temp_dir("newer");
-        let path = dir.join("v.rkproj");
+        let path = dir.join("v.sidereaplanets");
         fs::write(&path, r#"{"formatVersion":99,"recording":[]}"#).unwrap();
         assert!(matches!(
             Project::load(&path),
@@ -201,11 +201,11 @@ mod tests {
     #[test]
     fn foreign_files_are_rejected() {
         let dir = temp_dir("foreign");
-        let path = dir.join("f.rkproj");
+        let path = dir.join("f.sidereaplanets");
         fs::write(&path, "not json").unwrap();
         assert!(matches!(Project::load(&path), Err(ProjectError::Json(_))));
         assert!(matches!(
-            Project::load(&dir.join("absent.rkproj")),
+            Project::load(&dir.join("absent.sidereaplanets")),
             Err(ProjectError::Io(_))
         ));
     }
@@ -214,15 +214,15 @@ mod tests {
     fn extension_is_added_but_not_doubled() {
         assert_eq!(
             with_project_extension(Path::new("a/b")),
-            Path::new("a/b.rkproj")
+            Path::new("a/b.sidereaplanets")
         );
         assert_eq!(
-            with_project_extension(Path::new("a/b.RKPROJ")),
-            Path::new("a/b.RKPROJ")
+            with_project_extension(Path::new("a/b.SIDEREAPLANETS")),
+            Path::new("a/b.SIDEREAPLANETS")
         );
         assert_eq!(
             with_project_extension(Path::new("a/b.txt")),
-            Path::new("a/b.rkproj")
+            Path::new("a/b.sidereaplanets")
         );
     }
 

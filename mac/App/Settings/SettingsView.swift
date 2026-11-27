@@ -29,11 +29,11 @@ struct SettingsView: View {
                     "How many CPU cores all calculations use, from 1 to \(cpus.maximum) (all cores of this Mac). "
                         + "A change applies to the next calculation; a running one finishes with the number it started with."
                 )
-                .font(.rkSmall)
-                .foregroundStyle(RK.muted)
+                .font(.spSmall)
+                .foregroundStyle(SP.muted)
                 .fixedSize(horizontal: false, vertical: true)
                 if !cpus.error.isEmpty {
-                    Text(cpus.error).font(.rkSmall).foregroundStyle(RK.accentInk)
+                    Text(cpus.error).font(.spSmall).foregroundStyle(SP.accentInk)
                 }
             }
             Section("Wavelets") {
@@ -41,8 +41,8 @@ struct SettingsView: View {
                     ForEach([2048, 1024, 512, 256, 128], id: \.self) { side in Text("\(side) × \(side) px").tag(side) }
                 }
                 Text("Size of the square in the middle of the image that the Wavelets preview calculates. Smaller is faster.")
-                    .font(.rkSmall)
-                    .foregroundStyle(RK.muted)
+                    .font(.spSmall)
+                    .foregroundStyle(SP.muted)
                     .fixedSize(horizontal: false, vertical: true)
                 LabeledContent("Wavelet schemes") {
                     HStack(spacing: 8) {
@@ -52,8 +52,8 @@ struct SettingsView: View {
                     }
                 }
                 Text("A wavelet scheme is a .rwv file with the layer spacing, filter, first layer size, size step and the six layers of the Wavelets step.")
-                    .font(.rkSmall)
-                    .foregroundStyle(RK.muted)
+                    .font(.spSmall)
+                    .foregroundStyle(SP.muted)
                     .fixedSize(horizontal: false, vertical: true)
             }
             ResourceSettingsSection()
@@ -61,6 +61,6 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .frame(width: 440)
         .fixedSize(horizontal: false, vertical: true)
-        .tint(RK.accent)
+        .tint(SP.accent)
     }
 }

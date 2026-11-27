@@ -1,7 +1,7 @@
-# RK-014 Geführter Ablauf: Schrittleiste statt Reiter und Aktionszeile
+# SP-014 Geführter Ablauf: Schrittleiste statt Reiter und Aktionszeile
 
 - Status: erledigt
-- Abhängig von: RK-010, RK-012
+- Abhängig von: SP-010, SP-012
 
 ## Ziel
 Die Oberfläche führt durch den Ablauf, statt ihn wie das Original über Reiter, Aktionszeile und Panel zu verteilen
@@ -13,7 +13,7 @@ Panel zeigt nur den offenen Schritt: ein Satz Erklärung, die wichtigen Einstell
 Schaltfläche. Nach dem Lauf öffnet sich der nächste Schritt von selbst.
 
 Die englischen Beschriftungen des Originals bleiben (Set Alignpoints, Align, Limit, Stack, Do All, Save image und alle
-Feldnamen aus `docs/ui.md`). Sperrlogik, erneutes Ausrichten (RK-005) und der Rechenkern ändern sich nicht. Das ist eine
+Feldnamen aus `docs/ui.md`). Sperrlogik, erneutes Ausrichten (SP-005) und der Rechenkern ändern sich nicht. Das ist eine
 bewusste Abweichung vom Original: Grundsatz 1 in `docs/design.md` gilt danach nur noch für die Namen, nicht mehr für
 die Orte.
 
@@ -50,7 +50,7 @@ Panel je Schritt
 - [x] Functions bleibt im Schritt Wavelets rechts neben dem Bild, Process bleibt erreichbar
 - [x] Frame-Leiste in den Schritten Alignpoints, Align und Limit; Statusleiste, Cancel und Pause unverändert
 - [x] Nach jedem Lauf öffnet sich der nächste Schritt selbst; ein erneutes Set Alignpoints, Align oder Limit verwirft
-  wie in RK-005 festgelegt alles danach und die Leiste fällt auf den passenden Schritt zurück
+  wie in SP-005 festgelegt alles danach und die Leiste fällt auf den passenden Schritt zurück
   - Umgesetzt (`app/src/steps.ts`). Im echten Fenster am 2026-11-12 mit einer Aufnahme durchgeklickt: Select → Align →
     Limit → Stack → Wavelets → Do All → Save, Auto-Weiter und Rückfall bei Cancel gesehen. Als Test: `flow.test.ts`,
     Abschnitt „The panel follows the runs“ (siehe Stand).

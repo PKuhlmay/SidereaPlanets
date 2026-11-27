@@ -52,7 +52,7 @@ das Bild des Bildbereichs** und der Zuschnitt arbeitet in dessen Pixeln. Resize 
 - [x] Do All (Ergebnis im Bild) und Save Image in allen Formaten wenden Drehen, Zuschnitt und Resize an; TIFF, PNG, BMP und JPEG gedreht, zugeschnitten und skaliert auf 300 × 400 geprüft
 - [x] Projektdatei: optionaler Abschnitt `geometry`, tolerant gelesen (Windows ignoriert ihn); Zurücksetzen je Karte; Werte bleiben bei neuem Stack, der Zuschnitt nicht
 - [x] Gesperrte Knöpfe von sechs auf vier (View Zoomed, View Stack Size, Wavelet Filter, Show Line Graph); Tests, Hilfeseiten und `docs/design.md` angepasst
-- [x] Wortlaut nach den Regeln von MAC-014 (US-Englisch, Schaltflächen in Title Case, Beschriftungen und Tooltips in Sentence case, Einheiten, kein „the reference program“)
+- [x] Wortlaut nach den Regeln von MAC-014 (US-Englisch, Schaltflächen in Title Case, Beschriftungen und Tooltips in Sentence case, Einheiten, kein Name des Referenzprogramms)
 - [x] Swift-Tests (alle erst rot): Kartenzustand, Winkel und Spiegeln auf dem Bildschirm, Grenzen, Größen, Projekt-Rundlauf, Zurücksetzen, Größe als Text, Vorschau (Größe, Viewport,
       View Compare), Zuschnitt auf dem gedrehten Bild, Zuschnitt entfällt beim Drehen, Sperre bei offenem Zuschneiden, Aufruf von Save Image mit Zuschnitt und Geometrie, echter Kern mit `JUPITER.AVI`
 - [x] Anwenderdoku in der App (`color-and-tones.md`, `save-and-export.md`, `step-wavelets-save.md`, `image-area.md`, `glossary.md`), `docs/design.md` (Abschnitt „Drehen und Größe“) und

@@ -1,4 +1,4 @@
-//! Flip and Rotate and Resize Image (RK-022): the values as the window sends them, turned into the types of the core, and the command
+//! Flip and Rotate and Resize Image (SP-022): the values as the window sends them, turned into the types of the core, and the command
 //! that turns a picture for the image area. The geometry types of the core have no serde, so the shell has its own (camelCase, the
 //! shape of `app/src/logic/geometry.ts`).
 
