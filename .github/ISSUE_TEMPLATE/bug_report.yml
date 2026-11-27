@@ -1,0 +1,70 @@
+name: Bug report
+description: Something does not work as it should
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. The more exactly you describe the steps, the faster it can be reproduced.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options:
+        - macOS (Apple silicon)
+        - macOS (Intel)
+        - Windows
+        - Linux (AppImage)
+        - Linux (.deb)
+        - Built from source
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: System version
+      description: For example macOS 15.2, Windows 11 24H2, Ubuntu 24.04.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      description: Shown in the status bar at the bottom of the window (also under About), for example `0.1.0`.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: recording
+    attributes:
+      label: Recording format
+      description: Format, bit depth, colour or mono, frame size and number of frames, if you know them.
+      placeholder: "SER, 16 bit, colour (Bayer RGGB), 1280x960, 4000 frames"
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open a recording
+        2. Set alignpoints
+        3. Press Align
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: What happens instead. Error messages and screenshots help.
+    validations:
+      required: true
+  - type: textarea
+    id: more
+    attributes:
+      label: Anything else

@@ -1,0 +1,36 @@
+# Weekly dependency updates (PLANETS-10). Minor and patch updates arrive as one pull request per ecosystem;
+# major updates stay separate so that each gets its own review. New dependencies must stay GPL-compatible, CI checks that.
+version: 2
+updates:
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "[TASK] PLANETS-10 -"
+    groups:
+      cargo-minor-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: npm
+    directory: /app
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "[TASK] PLANETS-10 -"
+    groups:
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "[TASK] PLANETS-10 -"
+    groups:
+      actions-minor-patch:
+        update-types: ["minor", "patch"]
