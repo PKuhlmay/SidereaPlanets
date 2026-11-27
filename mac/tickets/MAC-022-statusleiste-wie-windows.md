@@ -1,6 +1,6 @@
 # MAC-022 Statusleiste wie Windows
 
-- Status: in Arbeit
+- Status: erledigt
 - Abhängig von: MAC-008, MAC-009, MAC-015, SP-025
 - Stufe: Nachzug auf `v0.1.0` (Windows: `windows-v0.1.0`)
 
@@ -22,11 +22,11 @@ der als eigener kleiner Fix kommt.
 
 ## Akzeptanzkriterien
 
-- [ ] Wavelets und Save: Position und Wert unter dem Mauszeiger wie Windows, in Bildkoordinaten auch gezoomt, verschoben, gedreht und
+- [x] Wavelets und Save: Position und Wert unter dem Mauszeiger wie Windows, in Bildkoordinaten auch gezoomt, verschoben, gedreht und
       zugeschnitten; außerhalb des Bilds und in den anderen Schritten bleibt das Feld leer
-- [ ] Rechts in der Statusleiste Version · Commit · Bauzeit mit dem Tooltip aus der Parity-Liste; Unbekanntes fällt weg; im Debug-Bündel
+- [x] Rechts in der Statusleiste Version · Commit · Bauzeit mit dem Tooltip aus der Parity-Liste; Unbekanntes fällt weg; im Debug-Bündel
       und im Release-Bündel (`scripts/build-mac-release.sh`) richtig
-- [ ] Bei Platzmangel bleibt die Statusleiste lesbar (kleinste Fenstergröße), die Reihenfolge des Wegfallens steht in `docs/design.md`
+- [x] Bei Platzmangel bleibt die Statusleiste lesbar (kleinste Fenstergröße), die Reihenfolge des Wegfallens steht in `docs/design.md`
 - [x] Beide Punkte aus `docs/parity/MAC_PARITY.md` gelöscht; `docs/design.md` (Statusleiste, Mac-Abweichungen) nachgeführt; Hilfe unter
       `app/src/docs/pages/` geprüft, wo sie die Statusleiste beschreibt
 - [x] Probe von Hand als `### MAC-022 Statusleiste wie Windows (v0.1.0)` unter `## Mac` in `docs/parity/Handprobe.md`
@@ -42,13 +42,16 @@ der als eigener kleiner Fix kommt.
 - Commit: Build-Einstellung `SP_BUILD_COMMIT` (`mac/project.yml`, leer als Standard) landet als `SPBuildCommit` in der Info.plist;
   `scripts/deploy-mac.sh` und `scripts/build-mac-release.sh` geben `git rev-parse --short=7 HEAD` mit. Bauzeit wie in Siderea das
   Änderungsdatum der ausführbaren Datei.
-- Die Statusleiste lässt am Mac nichts wegfallen: die festen Felder behalten ihre Breite, Aktion und Ergebnis werden mit „…“ gekürzt.
+- Bei Platzmangel fällt nur die Auslastung weg (erst der Speicher, dann das ganze Feld); die festen Felder behalten ihre Breite, Aktion und
+  Ergebnis werden mit „…“ gekürzt.
 
 ## Ergebnis
 
 - Tests: die fünf neuen Tests (`StatusBarTests.swift`) waren an ihren Assertions rot, das Bildgrenzen-Kriterium extra ohne die Grenzprüfung;
   danach `xcodebuild test` 426 grün.
 - Debug-Bündel per `scripts/deploy-mac.sh --run` gebaut: `SPBuildCommit` ist der Commit von `HEAD`.
-- Offen: Kriterien 1 und 3 brauchen die Handprobe (Mausverfolgung im echten Fenster, kleinste Fenstergröße). Kriterium 2 ist für das
-  Release-Bündel nicht geprüft: `scripts/build-mac-release.sh` löscht `build/release/` mit dem notarisierten 0.1.0-Installer und lief
-  deshalb nicht.
+- Handprobe am Mac (Philipp, 2026-11-27): alle drei Punkte klappen (Position unter dem Zeiger, auch gezoomt und gedreht;
+  Versionsfeld mit Tooltip; kleinste Fenstergröße). Zuschnitt: nicht eigens probiert. Nach dem Code (`AppModel+Crop.swift`) schneidet Crop
+  nur die gespeicherte Datei zu, die Koordinaten beziehen sich weiter auf das angezeigte Bild.
+- Release-Bündel (2026-11-27, `scripts/build-mac-release.sh`, universal, ad hoc signiert): `SPBuildCommit` ist `9a7d1f2` und damit der
+  Commit von `HEAD`. Die vorher in `build/release/` liegende notarisierte 0.1.0 wurde dafür gesichert und danach unverändert zurückgelegt.

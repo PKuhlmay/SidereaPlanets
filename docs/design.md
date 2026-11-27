@@ -345,6 +345,9 @@ Ganz links, vor dem Fortschrittsbalken, steht die **Auslastung** der App (wie in
 `--muted`, ein Strich statt des Werts ohne Messung, Tooltips erklären die Zahl. Bei Platzmangel fällt zuerst der Speicher weg, nie
 bricht die Zeile um. Gemessen wird nur bei sichtbarem Fenster; ein Schalter in den Settings blendet das Feld aus.
 
+Reihenfolge des Wegfallens am Mac: zuerst der Speicher, dann die ganze Auslastung. Die Felder 4 bis 6 (Position, Zeit, Version) fallen
+nicht weg und behalten ihre Breite; Aktion und Ergebnis (Felder 2 und 3) werden mit „…“ gekürzt und zeigen den ganzen Text im Tooltip.
+
 ## Zustände
 
 Die Sperrlogik stammt aus `docs/workflow.md`; hier steht, wie sie aussieht.
