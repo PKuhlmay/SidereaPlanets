@@ -61,7 +61,7 @@ Qualität
 - [ ] Vergleich mit der Windows-App an JUPITER.AVI: gleiche Anzahl Alignpoints, gleiche Frame-Reihenfolge, Stack und Do All
       innerhalb der PSNR-Schwellen aus `docs/stacking.md` und `docs/wavelets.md`
 - [x] Swift-Tests (`swift test`) und die Rust-Tests laufen grün, jeder neue Test war einmal rot (an einer Assertion)
-- [ ] Hand-Probe am Mac: Der ganze Ablauf mit JUPITER.AVI bis Save image, eingetragen und abgehakt in `docs/parity/Handprobe.md`
+- [x] Hand-Probe am Mac: Der ganze Ablauf mit JUPITER.AVI bis Save image, eingetragen und abgehakt in `docs/parity/Handprobe.md`
 - [ ] Danach: `docs/parity/MAC_PARITY.md` enthält den Stand „Mac gleich Windows“, ab hier trägt jede Änderung ihren Gegenpunkt ein
       (der Commit-Hook erzwingt es)
 
@@ -120,3 +120,11 @@ Kernen, Release-Bau des Kerns, Standardwerte): Öffnen 0,6 s, Set Alignpoints 7 
 84,5 s, Speicher höchstens 59 MB. Reines Lesen aller Frames dauert etwa 6 s; Rechenzeit 116 s bei 137 s Laufzeit zeigt, dass
 Align und Stack kaum parallel laufen. Das betrifft den gemeinsamen Kern (beide Apps) und ist ein eigenes Thema.
 
+## Stand 2026-11-27
+
+Handprobe am Mac (Philipp): alle elf Punkte unter „MAC-001“ in `docs/parity/Handprobe.md` klappen. Philipp veröffentlicht `v0.1.0`
+mit diesem Stand, das Ticket bleibt offen. Es fehlen:
+
+- Fensterlauf der Windows-App nach dem Umzug nach `crates/session` (Handprobe Windows, MAC-003), nur am Windows-PC.
+- PSNR-Vergleich gegen das Referenzprogramm: `re-local/reference/` liegt nur auf dem Windows-PC.
+- Danach `docs/parity/MAC_PARITY.md` auf „Mac gleich Windows“.
