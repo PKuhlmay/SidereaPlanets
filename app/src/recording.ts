@@ -28,7 +28,7 @@ function loadRecent(): string[][] {
   }
 }
 
-/** The files opened last, newest first (menu MRU). */
+/** The files opened last, newest first (menu Recent Recordings). */
 export const recent = reactive({ list: loadRecent() });
 
 // Where frames come from. The default asks the backend; the design preview in dev builds swaps it for a generated image.

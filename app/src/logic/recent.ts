@@ -1,4 +1,4 @@
-// MRU: the files opened last, newest first.
+// Recent recordings: the files opened last, newest first.
 
 export const MAX_RECENT = 10;
 

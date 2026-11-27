@@ -19,19 +19,7 @@ Bei Widersprüchen gewinnt für Begriffe und Werte `docs/ui.md`, für Aussehen u
 | Datei | Inhalt |
 |---|---|
 | `docs/design/tokens.css` | Farben, Schrift, Maße. Einzige Quelle für diese Werte, wird ins Frontend übernommen |
-| `docs/design/oberflaeche-entwurf.html` | Klickbarer Entwurf aller sieben Schritte, im Browser öffnen |
-| `docs/design/screenshots/` | Soll-Bilder der Zustände bei 1440×900, erzeugt aus dem Entwurf |
-| `docs/design/siderea-planets.figcraft` | Die sieben Schritte (Open, Alignpoints, Align, Limit, Stack, Wavelets, Save) als FigCraft-Datei, je dunkel und hell, dazu Limit mit geöffnetem Menü Show, Stack im erledigten Zustand und das Help-Fenster: 20 Frames, 18 davon 1440×900, die zwei Help-Fenster 1000×720. Farben sind Variablen der Collection „Theme“ mit den Modi Dark und Light |
-| `docs/design/figcraft-build.mjs` | Baut die FigCraft-Datei neu und liest die Farben dabei aus `tokens.css`. Aufruf: `node docs/design/figcraft-build.mjs` |
 | `docs/design/icon/` | App-Icon: Icon-Composer-Dokumente `AppIcon.icon` und `AppIconDev.icon`, 1024-px-Master `AppIcon-1024.png`, Quellen in `src/` (siehe [App-Icon](#app-icon)) |
-
-Alle Frames, auch die zwei Help-Fenster (siehe [Doku](#doku)), entstehen aus dem Skript. Ein Lauf schreibt die
-Datei neu und verliert nichts; Änderungen gehören deshalb ins Skript, nicht von Hand in die Datei.
-
-Der Entwurf ist eine Vorlage zum Ansehen, kein Code zum Übernehmen: Er ist eine einzelne HTML-Datei ohne Vue und
-ohne Rechenkern. Markup und CSS-Regeln dürfen als Orientierung dienen, die Umsetzung baut eigene Komponenten. Er und die
-Soll-Bilder stammen aus der Entwurfsphase: Einzelne Beschriftungen (z. B. „Functions »“ statt „Adjust ›“, „Colour“ statt „Color“,
-Werkzeugleistenmenüs, die die App nicht hat) sind dort noch Arbeitsnamen. Für Namen und Aufbau gilt dieses Dokument und das Frontend.
 
 ## Grundsätze
 
@@ -138,8 +126,7 @@ Das Fenster ist auf allen Plattformen dasselbe; der Mac bekommt zusätzlich, was
 
 Icons sind Linienbilder auf 16×16 px, Strich 1,5 px mit runden Enden, Farbe `--muted` (Hover `--text`), ohne Füllung.
 Sie stehen links vom Text. Es gibt drei: Help, ein aufgeschlagenes Buch (Doku, nicht Info); Open Project…, eine Mappe; Save Project…, eine
-Diskette. Das Help-SVG steht im klickbaren Entwurf, dieselbe Geometrie in `figcraft-build.mjs`; Open und Save stehen
-nur in `app/src/components/Toolbar.vue` (Pfade `M1.5 3.5h4l1.5 1.5h7.5v7.5h-13z` und `M2.5 2.5h8l3 3v8h-11zM5 2.5v3.5h5V2.5M5 13.5v-4h6v4`).
+Diskette. Die SVG-Pfade stehen in `app/src/components/Toolbar.vue` (Pfade für Open und Save `M1.5 3.5h4l1.5 1.5h7.5v7.5h-13z` und `M2.5 2.5h8l3 3v8h-11zM5 2.5v3.5h5V2.5M5 13.5v-4h6v4`).
 
 Pro Zeile ist höchstens eine Schaltfläche gefüllt. Rot kommt nicht vor: Save Image ist eine Standard-Schaltfläche, weil Rot Gefahr bedeutet.
 
@@ -400,7 +387,7 @@ Keep Best Frames nach Stack verwirft den Stack. Regler, Wavelet-Einstellungen un
 Pille ist anklickbar, Cancel ist
 gefüllt, Pause ist aktiv und heißt nach dem Anhalten „Resume“. Der Balken in der Statusleiste läuft, Feld 2 nennt
 den aktuellen Frame, Feld 5 die Zeiten. Außerhalb einer Berechnung sind Cancel und Pause gesperrt und der Balken steht auf
-0 % (auch nach einem Abbruch oder Fehler; die Soll-Bilder der fertigen Schritte zeigen noch 100 %). Das Ergebnis
+0 % (auch nach einem Abbruch oder Fehler). Das Ergebnis
 von Keep Best Frames steht im Ergebnisfeld als „8 frames will be stacked · weakest kept: 72%“ (Qualität des schwächsten behaltenen Frames).
 
 ## Bildschirme
@@ -485,7 +472,6 @@ Der Schritt heißt in Pille, Panelkopf und Menü Go to Step **Best Frames**, sei
   (Abschnitt [Derotation](#derotation)). Es wirken:
   Use nearest points, Correct geometry, Even out frame brightness und Ignore edge pixels (px).
   Gesperrt sind auch Codec, Compression quality, die Frame-size-Radios außer Source size und Use prefilters.
-  Entwurf und Soll-Bilder zeigen diese Optionen noch bedienbar; sie bleiben das Ziel, bis die Funktionen gebaut sind.
 - Aktion: **Stack**. Im erledigten Schritt steht unter dem Ergebnis **Save Image** als Standard-Schaltfläche für das
   Summenbild.
 
@@ -519,26 +505,11 @@ Der Schritt heißt in Pille, Panelkopf und Menü Go to Step **Best Frames**, sei
   Bild „It is turned 15.0° clockwise.“, dazu ein Hinweis, wo man Flip and Rotate und Resize Image findet); beide Gruppen mit einer Linie getrennt.
 - Aktion: **Save Image** mit dem Menü der fünf Dateitypen („TIFF 16-bit (.tif)…“). Im erledigten Schritt steht der Dateiname als Ergebnis.
 
-### Soll-Bilder der Schritte
-
-| Zustand | Soll-Bild |
-|---|---|
-| leer, Schritt Open | ![Open](design/screenshots/01-open.png) |
-| Aufnahme geladen, Schritt Alignpoints | ![Alignpoints](design/screenshots/02-alignpoints.png) |
-| Alignpoints gesetzt, Schritt Align | ![Align](design/screenshots/03-align.png) |
-| Align läuft | ![Align, läuft](design/screenshots/04-align-running.png) |
-| ausgerichtet, Schritt Best Frames, mit Frame List und Quality Graph | ![Best Frames](design/screenshots/05-limit.png) |
-| begrenzt, Schritt Stack, Show Alignpoints mit der Karte Alignpoints Used for Stacking | ![Stack](design/screenshots/06-stack.png) |
-| gestackt, Stack wieder geöffnet, Advanced offen, Resampling und Drizzling eingeschaltet | ![Stack, erledigt](design/screenshots/07-stack-done.png) |
-| gestackt, Schritt Wavelets, Standardwerte | ![Wavelets](design/screenshots/08-wavelets.png) |
-| Ebenen 1–3 angehoben, Show Preview Area | ![Wavelets, geschärft](design/screenshots/09-wavelets-sharpened.png) |
-| geschärft, Schritt Save | ![Save](design/screenshots/10-save.png) |
-
 ### Karten hinter den Adjustments-Schaltflächen
 
 Die Schaltflächen des Panels **Adjustments** öffnen Karten, die Form ist die der schwebenden Karten (Frame List, siehe
 [Schwebende Karten](#schwebende-karten)): oben rechts über dem Bild, 236 px breit, Titel und Schließen-Kreuz, nicht
-verschiebbar. Es gibt dazu kein Soll-Bild; die Karten sind aus den vorhandenen Komponenten gebaut.
+verschiebbar. Die Karten sind aus den vorhandenen Komponenten gebaut.
 
 Dieser Abschnitt legt die Karten **Histogram**, **Gamma**, **Color Mixing**, **RGB Align**, **RGB Balance**, **Denoise/Deringing** und **Masking** fest;
 die Verfahren dahinter stehen in `docs/wavelets.md`. **View Compare** ist keine Karte, sondern eine Ansicht (siehe [Bildbereich](#bildbereich)).
@@ -610,13 +581,7 @@ rechnen auf der Luminanz, Farbton und Sättigung kommen aus dem Summenbild. Beid
 Werte (`settings.colour`, `settings.lrgb`) wirken auf die Live-Vorschau und auf Do All (`colourMode` in `app/src/logic/wavelet.ts`,
 Rechnung `wavelet::ColourMode` mit `color::with_luminance`, siehe `docs/wavelets.md`). Ohne *Color* ist das Ergebnis Graustufen.
 
-### Soll-Bild des Menüs Settings
-
-| Menü | Soll-Bild |
-|---|---|
-| Settings | ![Menü Settings](design/screenshots/11-menu-settings.png) |
-
-Das Soll-Bild zeigt das Menü Settings im Entwurf; die Einträge der App stehen unter [Menüs](#menüs) bei den Komponenten. Recent Recordings zeigt die zuletzt geöffneten Dateien
+Die Einträge des Menüs Settings stehen unter [Menüs](#menüs) bei den Komponenten. Recent Recordings zeigt die zuletzt geöffneten Dateien
 als Einträge, leer den Text „No recent recordings“ in `--muted`.
 
 ### Doku
@@ -647,21 +612,6 @@ Seitenrand (48 px, bis 16 px) mit; es gibt keinen waagerechten Balken, auch nich
 
 Doku-Texte sind Anwenderdoku und auf Englisch wie die Oberfläche; sie nennen, was schon geht, und markieren Fehlendes
 als „Not available yet“. Quelle der Seiten ist Markdown im Repo (`app/src/docs/pages/`).
-
-| Zustand | Soll-Bild |
-|---|---|
-| Doku, dunkel | ![Doku](design/screenshots/13-docs.png) |
-| Doku, hell | ![Doku, hell](design/screenshots/14-docs-light.png) |
-
-Die Soll-Bilder 13 und 14 (Help-Fenster, 1000×720 px) stammen aus `docs/design/siderea-planets.figcraft` (Frames „Docs ·
-dark“ und „Docs · light“), nicht aus dem klickbaren Entwurf; der Entwurf zeigt die Doku nicht.
-
-### Helles Thema
-
-| Schritt | Soll-Bild |
-|---|---|
-| Best Frames | ![Best Frames, hell](design/screenshots/15-limit-light.png) |
-| Wavelets | ![Wavelets, hell](design/screenshots/16-wavelets-light.png) |
 
 ## Zuschneiden
 
@@ -817,16 +767,9 @@ Alle SVG-Ebenen liegen auf dem 824-Einheiten-Raster des Mac-Icons (`transform="s
 `pnpm tauri icon` den Windows-Satz nach `app/src-tauri/icons/`. Die Größen 16, 24 und 32 px der `icon.ico` (und `32x32.png`)
 kommen aus der vereinfachten `src/AppIcon-small.svg`: nur der vordere Rahmen, dicker Rand, größerer Planet, kräftigere Trennlinie.
 
-## Was im Entwurf nur Platzhalter ist
-
-- Das Jupiter-Bild ist gezeichnet. In der App steht dort das Frame bzw. das Summenbild.
-- Die Schärfung beim Bewegen der Ebenen-Regler ist ein einfacher Unscharf-Filter, nicht der Wavelet-Algorithmus.
-- Qualitätswerte, Punktpositionen, Speicherangaben und Zeiten sind erfunden.
-- Die Schaltflächen des Rasters (im Entwurf „Functions“, in der App Adjustments) schalten nur ihren gedrückten Zustand um.
-
 ## Noch nicht festgelegt
 
-Für diese Teile gibt es kein Soll-Bild. Wer sie braucht, baut sie aus den vorhandenen Komponenten und ergänzt
+Für diese Teile gibt es noch keine Vorgabe. Wer sie braucht, baut sie aus den vorhandenen Komponenten und ergänzt
 dieses Dokument im selben Commit.
 
 - Zustand vor dem Laden: Schritt Open ist offen, Select Recording… im Fuß des Panels
@@ -840,36 +783,5 @@ dieses Dokument im selben Commit.
 
 ## Zustände in der App ansehen (Dev-Build)
 
-Im Dev-Build (`pnpm tauri dev` oder `pnpm exec vite`) springt `app/src/preview.ts` mit denselben URL-Parametern wie der
-Entwurf in einen Zustand, mit erzeugten Daten statt einer Aufnahme: `step`, `view`, `theme=light`, `busy`, `show`
+Im Dev-Build (`pnpm tauri dev` oder `pnpm exec vite`) springt `app/src/preview.ts` mit URL-Parametern in einen Zustand, mit erzeugten Daten statt einer Aufnahme: `step`, `view`, `theme=light`, `busy`, `show`
 (framelist, graph, resampling, drizzling, procarea, alignpoints, nosections), `layers`, `functions`. Im Release-Build fehlt das Modul.
-
-## Soll-Bilder neu erzeugen
-
-Der Entwurf springt über URL-Parameter in einen Zustand: `step` (empty, loaded, points, aligned, limited, stacked,
-processed, saved), `view` (open, alignpoints, align, limit, stack, wavelets, save; ohne Angabe der nächste offene
-Schritt), `advanced=1` (Advanced aufgeklappt), `theme=light`, `show` (framelist, graph, resampling, drizzling, procarea,
-alignpoints, sections), `menu` (mru, flat, tools, settings, show), `layers` (sechs Reglerwerte), `busy` (Prozent),
-`chrome=0` (blendet die Leiste des Entwurfs aus). Die Bilder entstehen mit einem Browser ohne Fenster:
-
-```
-msedge --headless=new --window-size=1440,900 --hide-scrollbars   --screenshot=docs/design/screenshots/05-limit.png   "file:///…/docs/design/oberflaeche-entwurf.html?chrome=0&step=aligned&show=framelist,graph"
-```
-
-| Bild | Parameter |
-|---|---|
-| 01-open | `step=empty` |
-| 02-alignpoints | `step=loaded` |
-| 03-align | `step=points` |
-| 04-align-running | `step=points&busy=40` |
-| 05-limit | `step=aligned&show=framelist,graph` |
-| 06-stack | `step=limited&show=sections` |
-| 07-stack-done | `step=stacked&view=stack&advanced=1&show=resampling,drizzling` |
-| 08-wavelets | `step=stacked` |
-| 09-wavelets-sharpened | `step=stacked&layers=32,22,14,10,10,10&show=procarea` |
-| 10-save | `step=processed` |
-| 11-menu-settings | `step=loaded&menu=settings` |
-| 15-limit-light | `step=aligned&show=framelist,graph&theme=light` |
-| 16-wavelets-light | `step=stacked&theme=light` |
-
-13 und 14 (Doku) kommen aus der FigCraft-Datei: Frame in FigCraft auswählen und als PNG exportieren (Maßstab 1).

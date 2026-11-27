@@ -1,5 +1,5 @@
-// Dev builds only (main.ts): jumps into a state of the window with generated data, so every state of
-// docs/design/screenshots can be looked at without a recording and without the computing steps.
+// Dev builds only (main.ts): jumps into a state of the window with generated data, so every state
+// of the design can be looked at without a recording and without the computing steps.
 //
 //   ?step=empty|loaded|points|aligned|limited|stacked|processed|saved
 //   ?view=open|alignpoints|align|limit|stack|wavelets|save  (without it the next open step)  ?advanced=1
@@ -19,7 +19,7 @@ const W = 1024;
 const H = 680;
 const QUALITY = [92.1, 88.4, 97.3, 85.0, 90.6, 99.2, 83.7, 95.8, 87.2, 100.0];
 const DIFFERENCE = [31, 44, 18, 52, 37, 12, 58, 22, 47, 9];
-// The states of the design (docs/design.md, "Soll-Bilder neu erzeugen"): the steps of the calculation plus
+// The states of the design (docs/design.md, "Zustände in der App ansehen"): the steps of the calculation plus
 // "processed" (Do All ran with the values on screen) and "saved" (Save image wrote the result).
 type PreviewStep = Step | "processed" | "saved";
 const STEPS: PreviewStep[] = ["empty", "loaded", "points", "aligned", "limited", "stacked", "processed", "saved"];

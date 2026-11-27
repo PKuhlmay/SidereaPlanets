@@ -23,8 +23,8 @@ folgt dem Erscheinungsbild des Systems (PLANETS-3); für Windows gibt es einen I
 Inno Setup wie bei Siderea). Die frühere native SwiftUI-App (Mac-Release 0.1.0) und die Rust-Schnittstelle `crates/ffi` sind mit
 PLANETS-4 entfallen und stehen nur noch in der Git-Historie. Die Beschreibung von Ablauf, Oberfläche, Algorithmen und Formaten
 steht in `docs/`; eigene Referenzbilder und Aufnahmen für die Regressionstests liegen lokal in `re-local/` (nicht in Git).
-Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens, klickbarer Entwurf und Soll-Bilder in
-`docs/design/`) und für jede Arbeit an der Oberfläche verbindlich — **modern** und eigenständig.
+Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens in
+`docs/design/tokens.css`, App-Icon in `docs/design/icon/`) und für jede Arbeit an der Oberfläche verbindlich — **modern** und eigenständig.
 
 ## Tech Stack
 
