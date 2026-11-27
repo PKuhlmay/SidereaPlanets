@@ -40,6 +40,7 @@ echo "== xcodebuild Release, universal"
 rm -rf "$derived"
 xcodebuild -project mac/SidereaPlanets.xcodeproj -scheme "$scheme" -configuration Release \
   -destination 'generic/platform=macOS' ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO \
+  SP_BUILD_COMMIT="$(git rev-parse --short=7 HEAD)" \
   -derivedDataPath "$derived" build | tail -n 5
 
 built="$derived/Build/Products/Release/$name.app"

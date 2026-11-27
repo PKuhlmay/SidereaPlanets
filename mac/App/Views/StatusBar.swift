@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// The status bar (docs/design.md, "Statusleiste"): five fields separated by lines: progress, current action, result,
-/// position under the pointer (Wavelets and Save steps) and the time.
+/// The status bar (docs/design.md, "Statusleiste"): six fields separated by lines: progress, current action, result,
+/// position under the pointer (Wavelets and Save steps), the time and the build.
 struct StatusBar: View {
     let status: StatusTexts
 
@@ -27,6 +27,8 @@ struct StatusBar: View {
             field(status.result, expands: true)
             field(status.position, expands: false)
             field("Time used \(formatDuration(status.timeUsed)) · Time left \(formatDuration(status.timeLeft))", expands: false)
+            // Version, commit and build time, as in Siderea and the Windows app (SP-025).
+            field(BuildInfo.label, expands: false, help: "Version of Siderea Planets and the time this build was made.")
         }
         .font(.spSmall)
         .foregroundStyle(SP.muted)
@@ -35,7 +37,7 @@ struct StatusBar: View {
         .overlay(alignment: .top) { SP.line.frame(height: 1) }
     }
 
-    private func field(_ text: String, expands: Bool) -> some View {
+    private func field(_ text: String, expands: Bool, help: String? = nil) -> some View {
         Text(text)
             .foregroundStyle(expands ? SP.text : SP.muted)
             .lineLimit(1)
@@ -44,6 +46,6 @@ struct StatusBar: View {
             .frame(maxWidth: expands ? .infinity : nil, maxHeight: .infinity, alignment: .leading)
             .fixedSize(horizontal: !expands, vertical: false)
             .overlay(alignment: .leading) { SP.line.frame(width: 1) }
-            .help(text)
+            .help(help ?? text)
     }
 }

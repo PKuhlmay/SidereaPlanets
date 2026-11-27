@@ -30,6 +30,8 @@ struct ImageCanvas: NSViewRepresentable {
     /// The shape the rectangle keeps while it is dragged; `nil` is free.
     var cropAspect: CropAspect?
     var onCropChange: (CropRectangle) -> Void = { _ in }
+    /// The image pixel under the pointer while it moves over the area; `nil` when it leaves the image or the area.
+    var onHover: (ImagePixel?) -> Void = { _ in }
 
     func makeNSView(context: Context) -> ImageCanvasView {
         ImageCanvasView(viewport: viewport)
@@ -43,6 +45,7 @@ struct ImageCanvas: NSViewRepresentable {
         view.cropAspect = cropAspect
         view.crop = crop
         view.isCropping = isCropping
+        view.onHover = onHover
         view.show(image: image, before: beforeImage, divider: divider, transform: transform)
     }
 }
@@ -84,6 +87,7 @@ final class ImageCanvasView: NSView {
     }
     var cropAspect: CropAspect?
     var onCropChange: (CropRectangle) -> Void = { _ in }
+    var onHover: (ImagePixel?) -> Void = { _ in }
     /// The crop drag in progress: what was grabbed (`nil` = a new rectangle), where, and the rectangle then.
     private var cropDrag: (handle: CropRectangle.Handle?, start: CGPoint, rect: CropRectangle?)?
 
@@ -107,6 +111,8 @@ final class ImageCanvasView: NSView {
         beforeLayer.minificationFilter = .trilinear
         beforeClip.addSublayer(beforeLayer)
         layer?.addSublayer(beforeClip)
+        // Pointer moves for the position in the status bar; `inVisibleRect` keeps the area matching the view as it resizes.
+        addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseMoved, .mouseEnteredAndExited, .activeInKeyWindow, .inVisibleRect], owner: self))
     }
 
     @available(*, unavailable)
@@ -290,6 +296,22 @@ final class ImageCanvasView: NSView {
         }
     }
 
+    // MARK: Pointer
+
+    override func mouseMoved(with event: NSEvent) {
+        reportHover(event)
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        onHover(nil)
+    }
+
+    /// The pixel under the pointer, in the shown image as it is placed now.
+    private func reportHover(_ event: NSEvent) {
+        guard let image else { return onHover(nil) }
+        onHover(transform.pixel(at: point(of: event), image: CGSize(width: image.width, height: image.height)))
+    }
+
     /// A point of the area in image pixels, also outside the image and between pixels.
     private func imagePosition(_ point: CGPoint) -> CGPoint {
         CGPoint(x: (point.x - transform.x) / transform.scale, y: (point.y - transform.y) / transform.scale)
@@ -321,6 +343,7 @@ final class ImageCanvasView: NSView {
     }
 
     override func mouseDragged(with event: NSEvent) {
+        reportHover(event)
         if let drag = cropDrag, let image {
             let position = imagePosition(point(of: event))
             let width = image.width, height = image.height

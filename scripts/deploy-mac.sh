@@ -70,7 +70,7 @@ while :; do
   elif ! (cd mac && xcodegen generate); then
     echo "xcodegen failed, app not deployed"
   elif ! xcodebuild -quiet -project mac/SidereaPlanets.xcodeproj -scheme SidereaPlanets -configuration Debug \
-      -arch arm64 -derivedDataPath "$derived" build; then
+      -arch arm64 -derivedDataPath "$derived" SP_BUILD_COMMIT="$(git rev-parse --short=7 HEAD)" build; then
     echo "xcodebuild failed, running app left untouched"
   elif [ ! -d "$app" ]; then
     echo "build succeeded but $app is missing, running app left untouched"

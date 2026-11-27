@@ -42,6 +42,14 @@ nonisolated struct ViewTransform: Equatable, Sendable {
     /// "106%": the scale in percent of the image pixels.
     var label: String { "\(Int((scale * 100).rounded()))%" }
 
+    /// The image pixel under a point of the area, `nil` outside the image. Same maths as `imagePixel` in app/src/logic/viewport.ts.
+    func pixel(at point: CGPoint, image: CGSize) -> ImagePixel? {
+        let x = Int(((point.x - x) / scale).rounded(.down))
+        let y = Int(((point.y - y) / scale).rounded(.down))
+        guard x >= 0, y >= 0, CGFloat(x) < image.width, CGFloat(y) < image.height else { return nil }
+        return ImagePixel(x: x, y: y)
+    }
+
     /// The area the image covers.
     func frame(for image: CGSize) -> CGRect {
         CGRect(x: x, y: y, width: image.width * scale, height: image.height * scale)

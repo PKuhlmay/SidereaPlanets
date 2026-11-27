@@ -18,6 +18,9 @@ settings:
     SWIFT_STRICT_CONCURRENCY: complete
     MARKETING_VERSION: 0.1.0
     CURRENT_PROJECT_VERSION: 1
+    # The short commit for the status bar (MAC-022); scripts/deploy-mac.sh and scripts/build-mac-release.sh pass it to xcodebuild, a build
+    # from Xcode leaves it empty and the status bar shows version and build time only.
+    SP_BUILD_COMMIT: ""
     # Ad-hoc signing ("Sign to Run Locally"): no Developer ID yet, see mac/README.md.
     CODE_SIGN_STYLE: Manual
     CODE_SIGN_IDENTITY: "-"
@@ -48,6 +51,7 @@ targets:
         CFBundleDisplayName: Siderea Planets
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        SPBuildCommit: $(SP_BUILD_COMMIT)
         LSMinimumSystemVersion: "14.0"
         LSApplicationCategoryType: public.app-category.photography
         # The project file is a type of its own (JSON inside), so a saved .sidereaplanets is recognised and selectable in Open Project.

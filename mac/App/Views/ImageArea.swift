@@ -23,7 +23,8 @@ struct ImageArea: View {
                 transform: viewport.transform, viewport: viewport,
                 isSelecting: model.isDrawingRegion, onDraft: { draft = $0 }, onSelect: { model.selectRegion($0) },
                 isCropping: model.crop.isEditing, crop: model.crop.draft, cropAspect: model.cropAspect,
-                onCropChange: { model.setCropDraft($0) }
+                onCropChange: { model.setCropDraft($0) },
+                onHover: { model.pointerMoved(to: $0) }
             )
             if model.shownImage == nil {
                 Text(model.hasRecording ? "No image to show yet" : "Select a recording or drop a video or images here")

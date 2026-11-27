@@ -16,6 +16,7 @@ The first release is 0.1.0 (`MAC-001`); until then everything that is done stand
 - Help (⌘?) opens the user documentation in a window of its own, with search.
 - Menu bar: About and Settings… (⌘,) in the app menu, Process > Go to Step (⌥⌘1 to ⌥⌘7), full screen in View.
 - Settings has the CPUs field: the number of threads for all calculations, from 1 to all cores of the Mac (default: all).
+- The status bar shows the pixel under the pointer in the Wavelets and Save steps (`X=200 Y=201 Stack=10`) and, at the right, the version, commit and build time.
 
 ### Deutsch
 
@@ -28,3 +29,4 @@ The first release is 0.1.0 (`MAC-001`); until then everything that is done stand
 - Help (⌘?) öffnet die Anwenderdokumentation in einem eigenen Fenster, mit Suche.
 - Menüleiste: About und Einstellungen… (⌘,) im App-Menü, Process > Go to Step (⌥⌘1 bis ⌥⌘7), Vollbild im Menü View.
 - Die Einstellungen haben das Feld CPUs: Zahl der Threads für alle Berechnungen, von 1 bis zu allen Kernen des Macs (Standard: alle).
+- Die Statusleiste zeigt in den Schritten Wavelets und Save das Pixel unter dem Mauszeiger (`X=200 Y=201 Stack=10`) und rechts Version, Commit und Bauzeit.

@@ -325,13 +325,18 @@ Originals), Goto Frame (in der App: Go to frame) als Zahlenfeld, der Regler übe
 
 ### Statusleiste
 
-Fünf Felder, durch Linien getrennt, Schrift 12 px in `--muted`, Meldungen in `--text`:
+Sechs Felder, durch Linien getrennt, Schrift 12 px in `--muted`, Meldungen in `--text`:
 
 1. Fortschrittsbalken (6 px hoch, `--accent`) mit Prozentzahl, 210 px breit
 2. aktuelle Aktion, z. B. „Aligning frame: 4“ (bis MAC-014 „Loading frame: 4“)
 3. Ergebnis, z. B. „Alignment finished“ (bis MAC-014 mit Punkt)
-4. Position unter dem Mauszeiger in den Schritten Wavelets und Save, z. B. „X=200 Y=201 Stack=10“
+4. Position unter dem Mauszeiger in den Schritten Wavelets und Save, z. B. „X=200 Y=201 Stack=10“: das Pixel des angezeigten Bilds
+   (gedreht und gespiegelt, wie es zu sehen ist), leer außerhalb des Bilds und in den anderen Schritten
 5. „Time used … · Time left …“
+6. wie in Siderea Version · Commit · Bauzeit, z. B. `0.1.0 · a4e826b · 2026-11-13 13:38` (Ortszeit auf die Minute, Unbekanntes fällt
+   weg), Tooltip „Version of Siderea Planets and the time this build was made.“ Am Mac kommt der Commit aus `SP_BUILD_COMMIT`, das
+   `scripts/deploy-mac.sh` und `scripts/build-mac-release.sh` setzen (ein Bau aus Xcode zeigt ihn nicht), die Bauzeit ist das
+   Änderungsdatum der ausführbaren Datei
 
 Die Meldungstexte waren die des Originals (`docs/workflow.md`); seit MAC-014 gelten die Texte aus `docs/parity/WINDOWS_PARITY.md`.
 
@@ -838,7 +843,6 @@ Dokuments. Bedienelemente und Eingaben folgen dort, wo es eine Mac-Konvention gi
 | About in der Werkzeugleiste (im Original nicht vorhanden, in Windows noch „Not available yet“) | **About Siderea Planets** im App-Menü (Standard-Infofenster mit Version aus `MARKETING_VERSION`) | Mac-Konvention |
 | CPUs-Feld in der Werkzeugleiste, Settings als Menü der Werkzeugleiste | **Siderea Planets > Settings… (⌘,)**: Fenster mit dem Feld CPUs (Zahlenfeld mit `Stepper`, 1 bis zu den logischen Kernen, Standard alle, nicht gespeichert; die Änderung gilt für die nächste Berechnung). Dazu der Abschnitt Wavelets mit **Preview area** (Original: Processing Area; 2048 bis 128, Standard 512, „512 × 512 px“) und **Load Scheme… / Save Scheme…** (`.rwv`, dasselbe Dateiformat wie Windows; die Schaltflächen im Advanced des Schritts Wavelets tun dasselbe). Die übrigen Einträge des Windows-Menüs Settings (Automatic Processing, Luminance, Stretch FIT/TIFF, …) kommen mit dem Schritt, der sie braucht; Theme entfällt (macOS-Darstellung) | Mac-Konvention |
 | Regler der Ebenen, Contrast/Brightness, Gamma und RGB Balance: Spur ohne Einfärbung, Zahlenfelder mit eigenen Pfeiltasten | native `Slider` mit `Stepper`; die Spur links vom Griff ist in `--accent` gefärbt (wie beim Threshold), die Felder haben 2, 3, 1 oder 0 Nachkommastellen wie im Entwurf, der Punkt ist immer der Dezimaltrenner | Mac-Steuerelemente |
-| Position unter dem Mauszeiger in der Statusleiste der Schritte Wavelets und Save | noch nicht gebaut: das Feld bleibt leer | folgt mit dem Mausverfolgen im Bildbereich |
 | Vollbild gibt es nicht | **View > Enter Full Screen (⌃⌘F)** und die grüne Fenstertaste | Mac-Konvention |
 | Schritte nur über die Schrittleiste | zusätzlich **Run > Go to Step** (bis MAC-014 „Process > Go to Step“) mit **⌥⌘1** bis **⌥⌘7** (gesperrte Schritte und eine laufende Berechnung sperren den Eintrag wie die Schrittleiste) | Tastaturbedienung; ⌘1 ist Actual Size |
 

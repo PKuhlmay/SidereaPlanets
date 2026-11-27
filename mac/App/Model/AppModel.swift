@@ -151,6 +151,15 @@ final class AppModel {
         if let shown = shownImage { viewport.setImageSize(CGSize(width: shown.width, height: shown.height)) }
     }
 
+    /// The pointer moved over the image area (`nil`: it left the image): the status bar shows the pixel under it while the sharpened
+    /// stack is on screen (Wavelets and Save), as `onHover` in app/src/App.vue does.
+    func pointerMoved(to pixel: ImagePixel?) {
+        let sharpenedStack = stacked != nil && (viewStep == .wavelets || viewStep == .save) && shownImage != nil
+        let text = sharpenedStack ? pointerPositionText(pixel, stackFrames: stacked?.frames) : ""
+        // Every write redraws what observes the status, and the pointer moves often.
+        if status.position != text { status.position = text }
+    }
+
     /// The result of a step as the result line and the tooltip of a done pill show it. Later steps add theirs.
     func result(of step: ViewStep) -> String {
         switch step {

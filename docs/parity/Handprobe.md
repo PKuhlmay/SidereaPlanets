@@ -37,6 +37,15 @@ Ticket, Details im Ticket unter „Umsetzung“.
   Show Quality Graph und das Stackergebnis ansehen. Brightness threshold ist nur mit dem Häkchen bedienbar; der Wert steht nach Save Project und
   erneutem Öffnen wieder da. Mondaufnahme mit dem Häkchen: Align fällt nicht aus, auch wenn das Ergebnis schlechter sein darf.
 
+### MAC-022 Statusleiste wie Windows (v0.1.0)
+
+- [ ] JUPITER.AVI bis Stack, dann Wavelets: der Mauszeiger über dem Bild zeigt in der Statusleiste `X=… Y=… Stack=…`; oben links ist
+  `X=0 Y=0`, unten rechts Breite und Höhe minus 1; neben dem Bild und beim Verlassen des Bildbereichs ist das Feld leer.
+- [ ] Gezoomt (auch 800 %), verschoben und nach Right 90° stimmen die Werte mit dem Pixel unter dem Zeiger; im Schritt Save genauso, in den
+  Schritten davor bleibt das Feld leer.
+- [ ] Rechts außen steht `0.1.0 · <Commit> · <Datum Uhrzeit>` (nach einem Commit der neue Commit), der Tooltip erklärt es; bei kleinster
+  Fenstergröße (1120 pt) ist das Feld ganz zu sehen und nichts bricht um.
+
 ## Windows
 
 ### MAC-003 Sitzungslogik im Kern
