@@ -133,7 +133,7 @@ pub fn from_rwv(text: &str) -> Result<WaveletSettings, SchemeError> {
 mod tests {
     use super::*;
 
-    /// `jupiter-l1-10.rwv` of reference case R1 (Jupiter test recording).
+    /// A scheme file with Layer 1 = 10.0 in the format of `docs/formats.md`.
     const L1_10: &str = "[scheme]\r\nitemindex=1\r\ninitial=1\r\nstep=0\r\n\r\n[method]\r\nitemindex=1\r\n\r\n\
         [checkbox]\r\nlayer1=1\r\nlayer2=1\r\nlayer3=1\r\nlayer4=1\r\nlayer5=1\r\nlayer6=1\r\n\r\n\
         [slider]\r\nlayer1=100\r\nlayer2=10\r\nlayer3=10\r\nlayer4=10\r\nlayer5=10\r\nlayer6=10\r\n\r\n\

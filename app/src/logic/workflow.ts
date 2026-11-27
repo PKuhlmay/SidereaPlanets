@@ -134,7 +134,7 @@ function doneMap(p: Progress): Record<ViewStep, boolean> {
   };
 }
 
-/** The step a step needs before it can run. Save needs only Stack: Save image runs a pending Do All itself (SP-009). */
+/** The step a step needs before it can run. Save needs only Stack: Save image runs a pending Do All itself. */
 const requires: Record<ViewStep, Step> = {
   open: "empty",
   alignpoints: "loaded",

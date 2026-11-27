@@ -13,7 +13,7 @@ const busy = computed(() => status.busy !== null);
 const details = computed(() => {
   const info = session.info;
   if (!info) return "";
-  // The codec comes last: it means least to a newcomer (MAC-014).
+  // The codec comes last: it means least to a newcomer.
   return [session.fileName, `${info.width}×${info.height}`, `${info.frameCount} frames`, info.codec].filter(Boolean).join(" · ");
 });
 

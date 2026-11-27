@@ -16,7 +16,7 @@ Dateitypen im Dialog „Open file(s)“ (**Select Recording…**), in dieser Rei
 
 Aufnahmen lassen sich auch auf das Fenster ziehen.
 
-### Was gelesen wird (SP-004)
+### Was gelesen wird
 
 - **Einzelbilder** werden als Serie geöffnet: mehrere Dateien im Dialog wählen, jede Datei ist ein Frame, sortiert in
   natürlicher Reihenfolge (`frame2` vor `frame10`). Alle Frames brauchen die Größe und Kanalzahl des ersten.
@@ -63,7 +63,7 @@ Dateidialog des Betriebssystems):
 - **Wertebereich**: Gerechnet wird in Fließkomma; 1.0 wird auf den Höchstwert des Formats abgebildet (255, 65535 …). 16 Bit nutzen
   also den vollen Bereich bis 65535.
 - **Farb- und Tonwerte**: *Save Image* schreibt das Bild so, wie das Fenster es im Schritt Wavelets zeigt: das geschärfte Bild mit
-  den Werten von RGB Align, RGB Balance, Histogram, Gamma und Contrast/Brightness (SP-008). Die Oberfläche schickt die Werte mit
+  den Werten von RGB Align, RGB Balance, Histogram, Gamma und Contrast/Brightness. Die Oberfläche schickt die Werte mit
   (`adjustments` bei `save_image` und `save_image_as`), der Befehl rechnet `planets_core::color::adjust` auf dem
   Bild in voller Genauigkeit, nicht auf der 8-Bit-Anzeige. Sind alle Werte neutral, wird das Bild unverändert geschrieben.
   Das Summenbild als Quelle wird ohne diese Werte geschrieben.
@@ -116,7 +116,7 @@ layer1=0         ; … layer6, Feld „Denoise“ × 100
 
 Die Kommentare dienen hier nur der Erklärung, die Datei enthält keine. Zeilenenden CRLF. Die Zuordnung der Werte 0 und 1 von `itemindex`
 folgt dem Beispiel (Linear und Gaussian gleich 1).
-Die App liest **und** schreibt dieses Format (SP-007, `crates/core/src/wavelet/scheme.rs`). Gelesen werden Schema, Filter,
+Die App liest **und** schreibt dieses Format (`crates/core/src/wavelet/scheme.rs`). Gelesen werden Schema, Filter,
 Initial Layer, Step Increment und je Ebene Häkchen, Regler, Sharpen (÷ 100) und Denoise (÷ 100); gespeichert wird in der Reihenfolge des
 Beispiels mit CRLF. Zwischen Oberfläche und Rust gehen die Einstellungen als JSON, die Datei ist nur der Speicherort. Einzelheiten
 (tolerantes Lesen, Rundung, Befehle `save_wavelet_scheme`/`load_wavelet_scheme`): `docs/wavelets.md`.

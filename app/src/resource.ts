@@ -1,4 +1,4 @@
-// The CPU and RAM readout at the left end of the status bar (SP-019): reads the app's CPU time and memory from the backend
+// The CPU and RAM readout at the left end of the status bar: reads the app's CPU time and memory from the backend
 // (`process_usage`, src-tauri/src/usage_commands.rs) about once a second, only while the readout is shown (Settings) and the window
 // is visible. The math and the texts are in logic/processUsage.ts.
 

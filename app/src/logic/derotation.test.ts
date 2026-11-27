@@ -107,7 +107,7 @@ describe("start time", () => {
   });
 });
 
-describe("the section derotation of the project file (same keys as the Mac app)", () => {
+describe("the section derotation of the project file", () => {
   it("round-trips planet, camera angle, mirror and start time", () => {
     const saved = createSettings().stack;
     Object.assign(saved, { derotate: true, planet: "mars", cameraAngle: 33.5, mirrored: true, startTime: 1_700_000_000.25 });

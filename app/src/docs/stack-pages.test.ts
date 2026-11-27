@@ -27,7 +27,7 @@ describe("documentation of the step Stack", () => {
     }
   });
 
-  it("describes De-rotate images as working in both versions, not as a locked option (SP-023)", () => {
+  it("describes De-rotate images as working, not as a locked option", () => {
     const html = renderBody(page.body);
     expect(html).toMatch(/<tr>\s*<td>De-rotate images<\/td>\s*<td>off<\/td>\s*<td>Works\./);
     expect(page.body).not.toContain("locked for now");
@@ -62,7 +62,7 @@ describe("the step panel Stack", () => {
     }
   });
 
-  it("marks each locked option as not available yet, in its tooltip and, where the row has room, in a note (MAC-014)", () => {
+  it("marks each locked option as not available yet, in its tooltip and, where the row has room, in a note", () => {
     const count = (text: string): number => stackStep.split(text).length - 1;
     // Six locked options of Stacking, three locked frame sizes, Compressed, Use prefilters, Codec and Compression quality.
     expect(count(`title="Not available yet`)).toBe(13);
@@ -71,7 +71,7 @@ describe("the step panel Stack", () => {
     expect(stackStep).not.toContain(`title="Not available yet. Turns the frames back against the rotation of the planet."`);
   });
 
-  it("has De-rotate images as a working check box with the settings of the Mac app (SP-023)", () => {
+  it("has De-rotate images as a working check box with its settings", () => {
     expect(line("De-rotate images")).toContain(`v-model="stack.derotate"`);
     expect(line("De-rotate images")).not.toContain("disabled");
     expect(line("Mirrored image")).toContain(`v-model="stack.mirrored"`);

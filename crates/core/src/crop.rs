@@ -1,4 +1,4 @@
-//! Cropping: the rectangle that *Save image* cuts out of the finished image (MAC-016).
+//! Cropping: the rectangle that *Save image* cuts out of the finished image.
 
 use crate::Image;
 

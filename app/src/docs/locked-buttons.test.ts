@@ -32,7 +32,7 @@ describe("the step panel Wavelets", () => {
     expect(line).not.toContain("@click");
   });
 
-  it("locks Stack Again and the list of saved schemes with the tooltip Not available yet (MAC-014)", () => {
+  it("locks Stack Again and the list of saved schemes with the tooltip Not available yet", () => {
     const [stackAgain] = lines(waveletsStep, "Stack Again");
     expect(stackAgain).toContain(`title="Not available yet" disabled>`);
     expect(waveletsStep).toMatch(/<select[^>]*aria-label="Saved schemes" title="Not available yet" disabled>/);
@@ -62,14 +62,14 @@ describe("the step panel Align", () => {
     expect(alignStep).toMatch(/<\/div>\s*<span class="factor">Not available yet<\/span>/);
   });
 
-  it("locks Show alignment and Estimate rotation, each with a tooltip and a note (MAC-014)", () => {
+  it("locks Show alignment and Estimate rotation, each with a tooltip and a note", () => {
     for (const label of ["Show alignment", "Estimate rotation"]) {
       const pattern = new RegExp(`title="Not available yet">\\s*<label class="chk"><input type="checkbox" disabled />${label}</label>\\s*<span class="factor">Not available yet</span>`);
       expect(alignStep, label).toMatch(pattern);
     }
   });
 
-  it("leaves Align by center of gravity and its Brightness threshold free (MAC-021)", () => {
+  it("leaves Align by center of gravity and its Brightness threshold free", () => {
     const line = alignStep.split("\n").find((l) => l.includes("Align by center of gravity</label>"));
     expect(line).toBeDefined();
     expect(line).toContain('v-model="align.centreOfGravity"');

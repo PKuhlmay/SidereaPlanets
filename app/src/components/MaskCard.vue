@@ -5,7 +5,7 @@ import { session, settings } from "../state";
 import FloatCard from "./FloatCard.vue";
 import RefineSlider from "./RefineSlider.vue";
 
-// Masking card (MAC-018): limits the sharpening to the bright part of the stack (the planet), with a soft edge. Show mask shows the
+// Masking card: limits the sharpening to the bright part of the stack (the planet), with a soft edge. Show mask shows the
 // mask in the image area while the card is open (colour.ts); it is only a view and never saved.
 const refine = settings.refine;
 

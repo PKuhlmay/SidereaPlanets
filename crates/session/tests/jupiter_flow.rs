@@ -184,7 +184,7 @@ fn jupiter_runs_from_select_to_save_image() {
     assert_eq!((cropped.width, cropped.height), (600, 450));
     assert_eq!(Some(cropped), whole.cropped(crop));
 
-    // Turned by 90 degrees the sharpened image is 680 x 1024; the crop is set on that picture and the resize comes last (MAC-017).
+    // Turned by 90 degrees the sharpened image is 680 x 1024; the crop is set on that picture and the resize comes last.
     let geometry = Geometry {
         orientation: Orientation {
             angle: 90.0,

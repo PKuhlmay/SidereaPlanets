@@ -1,7 +1,7 @@
-// The keyboard shortcuts of the window (SP-017, PLANETS-3): ← and → page through the frames, a digit opens a step of the step
+// The keyboard shortcuts of the window (PLANETS-3): ← and → page through the frames, a digit opens a step of the step
 // bar, and the commands of the Mac menu bar have a key on every platform. "Primary" is Cmd on the Mac and Ctrl elsewhere.
 //
-//   steps    Windows and Linux: Alt+1 to Alt+7; Mac: ⌥⌘1 to ⌥⌘7 (as the menu Run ▸ Go to Step of the earlier Mac app)
+//   steps    Windows and Linux: Alt+1 to Alt+7; Mac: ⌥⌘1 to ⌥⌘7 (as the menu Run ▸ Go to Step)
 //   frames   ← →; primary+[ and primary+] (found by position of the key: a German keyboard has no bracket there)
 //   actions  primary+O select, +S save image, +, settings, +. cancel, +plus / +minus zoom, +0 fit, +1 actual size
 

@@ -1,8 +1,9 @@
 //! Runs the colour and tone functions on the colour stack of reference case R1 (Jupiter test recording). The files
 //! live in `re-local/` and are not in the repository; without them the tests are skipped.
 //!
-//! There are no stored reference results for RGB align, balance, gamma or histogram. What the tests do is check the
-//! functions on real colour data, where a synthetic scene cannot.
+//! There are no stored results for RGB align, balance, gamma or histogram. What the tests do is check the functions on
+//! real colour data, where a synthetic scene cannot. The input is the stack stored in `re-local/reference-own/`
+//! (`scripts/gen-reference.sh`); the channel means below describe that file and change with it.
 
 use planets_core::{
     Image,
@@ -12,9 +13,9 @@ use planets_core::{
 use planets_io::images::ImageSequenceReader;
 mod common;
 
-/// The stored 16-bit stack of Jupiter (reference case R1).
+/// The stored 16-bit stack of Jupiter (reference case R1), written by this program.
 fn jupiter_stack() -> Option<Image> {
-    let path = common::re_local().join("reference/jupiter-stack.tif");
+    let path = common::reference_dir().join("jupiter-stack.tif");
     path.exists().then(|| {
         ImageSequenceReader::open(vec![path])
             .unwrap()
@@ -45,13 +46,13 @@ fn binned(image: &Image) -> Image {
 #[test]
 fn reference_stack_has_the_stored_channel_means() {
     let Some(stack) = jupiter_stack() else {
-        eprintln!("jupiter-stack.tif not found in re-local/, skipped");
+        eprintln!("jupiter-stack.tif not found in re-local/reference-own, skipped");
         return;
     };
     assert_eq!((stack.width, stack.height, stack.channels), (1024, 680, 3));
-    // Channel means of the stored 16-bit file: 6674.1 / 5130.5 / 6099.5.
+    // Channel means of the stored 16-bit file: 6724.7 / 5169.5 / 6145.6.
     let pixels = (stack.width * stack.height) as f64;
-    for (c, expected) in [6674.1, 5130.5, 6099.5].into_iter().enumerate() {
+    for (c, expected) in [6724.7, 5169.5, 6145.6].into_iter().enumerate() {
         let mean = stack
             .data
             .iter()
@@ -71,7 +72,7 @@ fn reference_stack_has_the_stored_channel_means() {
 #[test]
 fn default_adjustments_leave_the_reference_stack_untouched() {
     let Some(stack) = jupiter_stack() else {
-        eprintln!("jupiter-stack.tif not found in re-local/, skipped");
+        eprintln!("jupiter-stack.tif not found in re-local/reference-own, skipped");
         return;
     };
     assert_eq!(adjust(&stack, &Adjustments::default()), stack);
@@ -80,7 +81,7 @@ fn default_adjustments_leave_the_reference_stack_untouched() {
 #[test]
 fn auto_levels_fill_the_range_and_the_histogram_counts_every_pixel() {
     let Some(stack) = jupiter_stack() else {
-        eprintln!("jupiter-stack.tif not found in re-local/, skipped");
+        eprintln!("jupiter-stack.tif not found in re-local/reference-own, skipped");
         return;
     };
     let h = histogram(&stack);
@@ -90,7 +91,7 @@ fn auto_levels_fill_the_range_and_the_histogram_counts_every_pixel() {
         assert_eq!(channel.iter().sum::<u32>(), pixels);
     }
 
-    // The brightest channel peaks at 40063 of 65535, so the stack uses well under the full range.
+    // The brightest channel peaks at 40371 of 65535, so the stack uses well under the full range.
     let peak = |image: &Image| image.data.iter().copied().fold(0.0f32, f32::max);
     assert!(peak(&stack) < 0.7);
     let levels = auto_levels(&stack, 0.0);
@@ -107,7 +108,7 @@ fn auto_levels_fill_the_range_and_the_histogram_counts_every_pixel() {
 #[test]
 fn auto_align_follows_a_known_shift_on_real_colour_data() {
     let Some(stack) = jupiter_stack() else {
-        eprintln!("jupiter-stack.tif not found in re-local/, skipped");
+        eprintln!("jupiter-stack.tif not found in re-local/reference-own, skipped");
         return;
     };
     let stack = binned(&stack);

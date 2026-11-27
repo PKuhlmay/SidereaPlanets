@@ -1,6 +1,6 @@
 // The Wavelets step: live preview of the Processing Area, Process, Do All and schemes, through the commands of
 // src-tauri/src/wavelet_commands.rs (docs/wavelets.md). The image to sharpen lives in the backend; the stack
-// step (SP-006) hands it over with `WaveletState::set_source` and puts the same image into `session.stackImage`.
+// step hands it over with `WaveletState::set_source` and puts the same image into `session.stackImage`.
 
 import { invoke } from "@tauri-apps/api/core";
 import { open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
@@ -139,7 +139,7 @@ export async function runDoAll(): Promise<boolean> {
   return finished;
 }
 
-// Load Scheme and Save Scheme. The dialog is the one place SP-009 replaces with its `pick_scheme_path` command.
+// Load Scheme and Save Scheme. The file dialog is opened here, in `pickSchemePath`.
 const schemeFilter = [{ name: "Wavelet scheme", extensions: ["rwv"] }];
 
 async function pickSchemePath(mode: "open" | "save"): Promise<string | null> {

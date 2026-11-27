@@ -1,4 +1,4 @@
-//! Align and Stack spread the frames over the pool of the *CPUs* field (SP-015): the result does not
+//! Align and Stack spread the frames over the pool of the *CPUs* field: the result does not
 //! depend on its size.
 
 mod common;

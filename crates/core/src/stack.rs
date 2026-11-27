@@ -481,7 +481,7 @@ pub fn stack_sequence<E: Send>(
     )
 }
 
-/// [`stack_sequence`] with de-rotation (MAC-020): every frame of a batch is turned back to the reference time first, in parallel,
+/// [`stack_sequence`] with de-rotation: every frame of a batch is turned back to the reference time first, in parallel,
 /// and then registered and added. `reference` and `reference_frame` must be the reference frame already turned to that time, or
 /// the alignpoints would follow features that moved.
 pub fn stack_sequence_derotated<E: Send>(

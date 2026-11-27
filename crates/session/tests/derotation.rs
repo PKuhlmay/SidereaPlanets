@@ -1,4 +1,4 @@
-//! De-rotation in the session (MAC-020): a SER recording of a rotating synthetic Jupiter whose trailer carries the time of
+//! De-rotation in the session: a SER recording of a rotating synthetic Jupiter whose trailer carries the time of
 //! every frame, and an AVI without times that needs the start time.
 
 use planets_core::{

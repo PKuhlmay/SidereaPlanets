@@ -38,7 +38,7 @@ function pills(p: Progress): string {
 }
 
 describe("the seven steps", () => {
-  it("come in the order of the step bar with the names for newcomers (MAC-014)", () => {
+  it("come in the order of the step bar with the names for newcomers", () => {
     expect(viewSteps.map((s) => s.label)).toEqual(["Open", "Alignpoints", "Align", "Best Frames", "Stack", "Wavelets", "Save"]);
     expect(viewSteps.map((s) => s.action)).toEqual([
       "Select Recording…",
@@ -147,7 +147,7 @@ describe("step states (docs/design.md, Zustände)", () => {
     expect(nextOpenStep(at("limited", true, true))).toBe("stack");
   });
 
-  it("fall back to the step after the points when Set Alignpoints or Align runs again (SP-005)", () => {
+  it("fall back to the step after the points when Set Alignpoints or Align runs again", () => {
     // A new run drops Limit, Stack and the sharpened image: the state goes back to "points" or "aligned".
     expect(pills(at("points", true, true))).toBe("✓ ✓ ● – – – –");
     expect(nextOpenStep(at("aligned", true, true))).toBe("limit");

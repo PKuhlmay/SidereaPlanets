@@ -7,7 +7,7 @@ import MenuButton from "./MenuButton.vue";
 
 // The row at the top of the image area (docs/design.md, "Show am Bild"): what the image shows at the left; Adjust ›
 // (Wavelets) and the Show menu with the check boxes of the former action row at the right. The check marks that change
-// nothing on screen yet are dimmed under "Not available yet" (MAC-014).
+// nothing on screen yet are dimmed under "Not available yet".
 defineProps<{ caption: string }>();
 
 const kind = computed(() => imageKind(session.view));

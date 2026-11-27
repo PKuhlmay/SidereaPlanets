@@ -73,8 +73,9 @@ pub fn uses_luma(source: &Image, mode: ColourMode) -> bool {
 mod tests {
     use super::*;
 
-    /// Input and output sample with neutral settings on reference case R1 (`jupiter-stack.tif` against
-    /// `jupiter-wavelet-default.tif`, 16 bit), picked over the range the stack covers (`docs/wavelets.md`).
+    /// Input and output samples (16 bit) with neutral settings, measured once on reference case R1 with a result that
+    /// did not come from this program, picked over the range the stack covers (`docs/wavelets.md`). The curve was fitted
+    /// to them; the stored results of the regression tests are this program's own output and do not check the fit.
     const MEASURED: [(u16, u16); 11] = [
         (0, 0),
         (102, 101),

@@ -1,4 +1,4 @@
-//! The preview of *Flip and Rotate* (MAC-017): the window shows the oriented image, so it asks for it as RGBA.
+//! The preview of *Flip and Rotate*: the window shows the oriented image, so it asks for it as RGBA.
 
 use crate::{RgbaImage, Session, SessionError, color::image_from_rgba};
 use planets_core::geometry::Orientation;

@@ -1,6 +1,6 @@
 # GUI-Toolkit: Tauri 2 + Vue 3
 
-Entscheidung vom 2026-11-10 (SP-002), getroffen mit Philipp. Messung am selben Tag.
+Entscheidung vom 2026-11-10, getroffen mit Philipp. Messung am selben Tag.
 
 ## Anforderungen
 - Modernes Design, von separaten Agenten gebaut
@@ -51,17 +51,19 @@ ein Lauf, synthetisches Graustufenbild. Je Größe 3 Aufwärm- und 15 Messläufe
 - Für einen Prototyp reicht das: bei Vorschaugröße um 1000 Pixel sind es rund 20 Bilder/s.
   Ganze große Bilder (2048² und mehr) lassen sich so nicht flüssig live bewegen.
 
-### Maßnahmen für die Live-Vorschau (gehören zu SP-007)
+### Maßnahmen für die Live-Vorschau
 - Vorschau auf die Größe des sichtbaren Ausschnitts begrenzen (herunterskaliert oder nur der Bildausschnitt).
 - Umwandlung in RGBA parallelisieren (`rayon`); sie ist bisher einfach und einthreadig.
 - Frames statt per `invoke` über ein eigenes URI-Schema oder `Channel` holen. **Nicht gemessen**, möglicherweise schneller.
 - Neu messen, sobald die echte Wavelet-Rechnung dabei ist; ihre Zeit steckt in den obigen Zahlen nicht drin.
 
-**Stand SP-007:** Ausschnitt mit Rand, gespeicherte Ebenen und parallele RGBA-Umwandlung sind umgesetzt
-(`crates/core/src/wavelet/preview.rs`, Beschreibung in `docs/wavelets.md`). Ein Messlauf mit der echten Rechnung
-(`crates/core/tests/wavelet_preview_timing.rs`, ignoriert, Release) ist geschrieben, aber **noch nicht gelaufen**; Messwerte
-fehlen. URI-Schema oder `Channel` sind nicht umgesetzt. Die Oberfläche zeigt die Zeit jeder Vorschau (Anfrage bis Zeichnen)
-in der Statusleiste („Preview: n ms“), damit sich die Übertragung am laufenden Programm messen lässt; ein Wert liegt noch nicht vor.
+**Stand:** Ausschnitt mit Rand, gespeicherte Ebenen und parallele RGBA-Umwandlung sind umgesetzt
+(`crates/core/src/wavelet/preview.rs`, Beschreibung in `docs/wavelets.md`). Die Rechenzeit der echten Vorschau ist gemessen
+(`crates/core/tests/wavelet_preview_timing.rs`, ignoriert, Release; Werte vom 2026-11-11 in `docs/wavelets.md`, Abschnitt
+„Vorschau und Do All“): Ein Reglerschritt im 512-px-Bereich braucht dort unter 5 ms, die Rechnung ist also nicht der Engpass. Die
+Übertragung am laufenden Programm ist **nicht als Messreihe** erfasst: Die Statusleiste zeigt die Zeit jeder Vorschau (Anfrage
+bis Zeichnen, „Preview: n ms“), bisher liegt nur ein einzelner Wert vor (79 ms beim Wechsel nach Save). URI-Schema oder `Channel`
+sind nicht umgesetzt.
 
 ### Grenzen der Messung
 - Eine Maschine, ein Lauf, ein synthetisches Bild; keine echte Verarbeitung.

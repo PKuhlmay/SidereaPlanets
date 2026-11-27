@@ -1,4 +1,4 @@
-//! Frames in batches, for the jobs that register or stack a whole recording (SP-015).
+//! Frames in batches, for the jobs that register or stack a whole recording.
 //!
 //! A recording is read in order by one thread at a time (`read` may borrow a file). The frames come in
 //! batches of about one frame per thread of the pool: while a batch is worked on, the next one is read,

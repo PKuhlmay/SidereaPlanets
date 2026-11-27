@@ -22,7 +22,7 @@ const props = defineProps<{
   selecting?: boolean;
   /** Another value (the step) fits the image into the area again, whatever zoom and position it had. */
   fitKey?: string;
-  /** View Compare: the stack, shown left of the divider at the same zoom and position (SP-021). */
+  /** View Compare: the stack, shown left of the divider at the same zoom and position. */
   beforeImage?: ImageData | null;
   /** Where the divider sits, as a share of the width of the area. */
   divider?: number;

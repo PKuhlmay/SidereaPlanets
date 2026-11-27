@@ -12,7 +12,7 @@ import StepPanel from "./StepPanel.vue";
 // (Output size other than Default, Stretch histogram, Resampling, Drizzling, and in Create AVI Codec,
 // Compression quality, the frame sizes other than Source size, Use prefilters and Compressed) are locked and marked
 // "Not available yet"; their values stay in `settings.stack` (logic/stack.ts), where nothing reads them.
-// De-rotate images (SP-023) opens its settings below the check box; derotation.ts asks the core for the line at the bottom.
+// De-rotate images opens its settings below the check box; derotation.ts asks the core for the line at the bottom.
 const stack = settings.stack;
 
 const hasTimestamps = computed(() => session.info?.hasTimestamps ?? false);
@@ -212,7 +212,7 @@ function onStartTime(event: Event) {
 .start {
   justify-content: flex-start;
 }
-/* De-rotate images: settings below the check box, indented (docs/design.md, "Derotation (MAC-020)"). */
+/* De-rotate images: settings below the check box, indented (docs/design.md, "Derotation"). */
 .derot {
   display: flex;
   flex-direction: column;

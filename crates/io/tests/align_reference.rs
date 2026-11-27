@@ -1,5 +1,6 @@
-//! Regression test of alignment against stored reference results for reference case R1 (Jupiter test recording).
-//! The recordings live in `re-local/` and are not in the repository; without them the test is skipped.
+//! Regression test of alignment against the stored results of this program for reference case R1 (Jupiter test recording).
+//! The recordings and the stored results live in `re-local/` and are not in the repository; without them the tests are
+//! skipped. Regenerate the stored results with `scripts/gen-reference.sh`, only after an intended change of the algorithms.
 
 use planets_core::align::{
     AlignParams, Control, LimitMode, PointParams, Reference, Roi, align_sequence, apply_threshold,
@@ -9,31 +10,40 @@ use planets_io::recording::Recording;
 mod common;
 
 fn jupiter() -> Option<Recording> {
-    let path = common::re_local().join("testdata/astropix/JUPITER.AVI");
-    path.exists().then(|| Recording::open(&path).unwrap())
+    common::jupiter_video().map(|path| Recording::open(&path).unwrap())
+}
+
+/// The stored candidates, alignpoints and quality order (`jupiter-align.json`).
+fn stored_summary() -> Option<common::AlignSummary> {
+    let path = common::reference_dir().join("jupiter-align.json");
+    let text = std::fs::read_to_string(path).ok()?;
+    Some(serde_json::from_str(&text).unwrap())
 }
 
 #[test]
-fn jupiter_with_default_settings_matches_the_stored_reference_results() {
-    let Some(mut rec) = jupiter() else {
-        eprintln!("JUPITER.AVI not found in re-local/, skipped");
+fn jupiter_with_default_settings_matches_the_stored_results() {
+    let (Some(mut rec), Some(stored)) = (jupiter(), stored_summary()) else {
+        eprintln!("JUPITER.AVI or re-local/reference-own not found, skipped");
         return;
     };
     let count = rec.info().frame_count;
     let first = rec.read_frame(0).unwrap();
 
-    // Set Alignpoints: the reference results hold 91 candidates and 82 points after the default threshold.
+    // Set Alignpoints. The counts depend on thresholds on float values, so another platform may move a point or two
+    // across a threshold; any change of the search moves far more.
     let candidates = find_alignpoints(&first, &PointParams::default());
     assert!(
-        (82..=100).contains(&candidates.len()),
-        "{} candidates, the reference has 91",
-        candidates.len()
+        candidates.len().abs_diff(stored.candidates) <= 2,
+        "{} candidates, the stored result has {}",
+        candidates.len(),
+        stored.candidates
     );
     let points = apply_threshold(&candidates, default_threshold(candidates.len()));
     assert!(
-        (74..=90).contains(&points.len()),
-        "{} alignpoints, the reference has 82",
-        points.len()
+        points.len().abs_diff(stored.points) <= 2,
+        "{} alignpoints, the stored result has {}",
+        points.len(),
+        stored.points
     );
 
     // Align, then Limit with the default 80 %: all 10 frames stay.
@@ -51,16 +61,13 @@ fn jupiter_with_default_settings_matches_the_stored_reference_results() {
         10
     );
 
-    // The reference order of the frames is 1, 4, 3, 2, 10, 9, 8, 5, 6, 7. Ours differs in the middle;
-    // what both agree on is the best and the two worst frames.
+    // The quality order is the stored one; near-ties may swap on another platform, so the check is the best frame
+    // plus a rank correlation (one swapped neighbour pair is 0.988), not equality.
     let order: Vec<usize> = rank_by_quality(&results).iter().map(|i| i + 1).collect();
-    eprintln!("quality order {order:?}");
-    assert_eq!(order[0], 1);
-    assert_eq!(&order[8..], &[6, 7]);
-    // Rank correlation with the reference order, 0.79 when measured; the three best frames are not the same.
-    let reference_order = [1usize, 4, 3, 2, 10, 9, 8, 5, 6, 7];
-    let rho = spearman(&order, &reference_order);
-    assert!(rho > 0.7, "Spearman correlation {rho}");
+    eprintln!("quality order {order:?}, stored {:?}", stored.order);
+    assert_eq!(order[0], stored.order[0]);
+    let rho = spearman(&order, &stored.order);
+    assert!(rho > 0.95, "Spearman correlation {rho}");
 
     // Frames/Apoint keeps a subset of the frames, ordered like the ranking.
     let per_point = limit_frames(&results, LimitMode::FramesPerPoint(1));

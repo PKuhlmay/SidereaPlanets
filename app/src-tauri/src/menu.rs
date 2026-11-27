@@ -1,4 +1,4 @@
-//! The native menu bar of the Mac app. The window stays the one place where actions live: a menu item only sends its id to
+//! The native menu bar on macOS. The window stays the one place where actions live: a menu item only sends its id to
 //! the frontend (`menu-action` event, ids in `app/src/logic/commands.ts`), and the frontend reports back which items are
 //! enabled (`update_menu`). Windows and Linux keep the window without a menu bar; nothing here runs there.
 

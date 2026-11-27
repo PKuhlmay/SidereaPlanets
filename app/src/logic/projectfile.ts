@@ -18,7 +18,7 @@ const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "obj
 /** A copy that no longer shares anything with the reactive settings. */
 const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
-/** The Stack settings without De-rotate images, which has a section of its own (`derotation`, as in the Mac app). */
+/** The Stack settings without De-rotate images, which has a section of its own (`derotation`). */
 const withoutDerotation = (stack: Record<string, unknown>): Record<string, unknown> =>
   Object.fromEntries(Object.entries(stack).filter(([key]) => !(DEROTATION_KEYS as readonly string[]).includes(key)));
 

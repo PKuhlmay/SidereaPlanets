@@ -1,4 +1,4 @@
-// What the step Open says about a loaded recording (MAC-005): the rows of the file info, with tooltips on the technical labels.
+// What the step Open says about a loaded recording: the rows of the file info, with tooltips on the technical labels.
 
 import type { RecordingInfo } from "../state";
 

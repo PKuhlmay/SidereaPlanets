@@ -68,7 +68,7 @@ export function alignArgs(align: AlignSettings, roi: Rect | null) {
   };
 }
 
-/** The Brightness threshold of Align by center of gravity, held to 0–255; null while the option is off (MAC-021). */
+/** The Brightness threshold of Align by center of gravity, held to 0–255; null while the option is off. */
 export function centreOfGravityThreshold(align: Pick<AlignSettings, "centreOfGravity" | "brightnessThreshold">): number | null {
   return align.centreOfGravity ? Math.min(255, wholeNumber(align.brightnessThreshold, 0)) : null;
 }

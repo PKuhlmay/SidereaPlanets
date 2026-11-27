@@ -1,5 +1,5 @@
 //! De-rotation: a planet turns while a video is recorded (Jupiter by 36 degrees an hour), so the details towards the edge of the disc
-//! smear in a long stack. Every frame is turned back to one reference time before it is stacked (MAC-020).
+//! smear in a long stack. Every frame is turned back to one reference time before it is stacked.
 //!
 //! Own design; `docs/stacking.md` describes the model and its limits.
 //!

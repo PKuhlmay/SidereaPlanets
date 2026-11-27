@@ -1,4 +1,4 @@
-// Flip and Rotate and Resize Image in the window (SP-022, after the earlier SwiftUI app). The steps Wavelets and Save show
+// Flip and Rotate and Resize Image in the window. The steps Wavelets and Save show
 // the flipped and turned picture, so the crop rectangle is set on exactly what is on screen; Resize Image does not change the preview,
 // its card and the step Save tell the size that is written. The core turns the pictures (`orient_preview`) and writes the file; the
 // values and the sizes are in logic/geometry.ts.

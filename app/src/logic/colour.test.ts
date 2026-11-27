@@ -62,7 +62,7 @@ describe("colourPayload", () => {
   });
 });
 
-describe("Color Mixing, Denoise/Deringing and Masking in the payload (MAC-018, MAC-019)", () => {
+describe("Color Mixing, Denoise/Deringing and Masking in the payload", () => {
   it("sends the mixing matrix and the refine values in the shape of ColorSettings", () => {
     const s = createSettings();
     s.wavelet.tone.mix.matrix = [0, 0, 100, 0, 100, 0, 100, 0, 0];
@@ -92,7 +92,7 @@ describe("Color Mixing, Denoise/Deringing and Masking in the payload (MAC-018, M
     expect(histogramKey(refined, false)).not.toBe(histogramKey(a, false));
   });
 
-  it("offers the presets of the Mac app and holds every weight to -200 … 200", () => {
+  it("offers the presets and holds every weight to -200 … 200", () => {
     expect(mixPresets.map((p) => p.name)).toEqual(["Neutral", "Swap Red and Blue", "Luminance Gray", "Red to All Channels"]);
     expect(mixPresets[2].matrix).toEqual([30, 59, 11, 30, 59, 11, 30, 59, 11]);
     expect(clampWeight(250)).toBe(200);

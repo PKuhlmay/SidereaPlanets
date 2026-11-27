@@ -81,7 +81,7 @@ export type WheelIntent = { kind: "zoom"; factor: number } | { kind: "pan"; dx: 
 /**
  * What a wheel event does to the view. Windows and Linux: the wheel zooms in steps. Mac: scrolling moves the image (two fingers
  * on the trackpad), Option or Cmd and scrolling zoom smoothly around the pointer, and so does a pinch where the engine sends it
- * as Ctrl and wheel; the mouse wheel on its own does not zoom there (the convention of the earlier SwiftUI app).
+ * as Ctrl and wheel; the mouse wheel on its own does not zoom there (the Mac convention).
  */
 export function wheelIntent(event: WheelInput, mac: boolean): WheelIntent {
   if (!mac) return { kind: "zoom", factor: event.deltaY < 0 ? 1.15 : 1 / 1.15 };

@@ -1,4 +1,4 @@
-//! Geometry: flipping, rotating and resizing the finished image (MAC-017).
+//! Geometry: flipping, rotating and resizing the finished image.
 //!
 //! These are the last steps of *Save image*, after the colour and tone values and the crop: refine, colours, [`Orientation`], crop
 //! ([`crate::crop`]), [`Resize`]. The crop rectangle is therefore set on the oriented picture, which is the one the window shows.

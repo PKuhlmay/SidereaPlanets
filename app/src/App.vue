@@ -38,7 +38,7 @@ import "./steps";
 // "Before/After" in the zoom bar of the Wavelets and Save steps (`session.before`): the unprocessed stack instead of the sharpened
 // image. It and View Compare exclude each other (cropTool.ts).
 const before = computed(() => session.before);
-// View Compare: the stack left of the divider; the crop tool and its rectangle (SP-021).
+// View Compare: the stack left of the divider; the crop tool and its rectangle.
 const comparing = computed(() => isComparing());
 const cropShown = computed(() =>
   session.view === "wavelets" || session.view === "save" ? (session.crop.editing ? session.crop.draft : session.crop.applied) : null,
@@ -74,7 +74,7 @@ const plainShown = computed(() => {
     difference: session.differenceImage,
   });
 });
-// Flip and Rotate (SP-022): the steps Wavelets and Save show the picture turned by the core; until the turned copy is there, the plain one.
+// Flip and Rotate: the steps Wavelets and Save show the picture turned by the core; until the turned copy is there, the plain one.
 const turned = computed(() => wavelet.value && orientationApplies());
 const shown = computed(() => (turned.value ? (session.oriented.shown ?? plainShown.value) : plainShown.value));
 const compareImage = computed(() => (comparing.value ? session.stackImage : null));

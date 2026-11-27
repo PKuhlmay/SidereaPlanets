@@ -12,7 +12,7 @@ const props = defineProps<{ width: number; height: number }>();
 
 const kind = computed(() => imageKind(session.view));
 const dots = computed(() => kind.value === "frame" && settings.align.showAlignpoints && atLeast(session.step, "points"));
-// The marks of the stack are not drawn on a flipped or turned picture: they would sit in the wrong place (SP-022).
+// The marks of the stack are not drawn on a flipped or turned picture: they would sit in the wrong place.
 const turned = computed(() => kind.value === "wavelet" && orientationApplies());
 const rings = computed(
   () =>
@@ -24,7 +24,7 @@ const region = computed(() => (kind.value === "frame" && settings.align.showRoi 
 const area = computed(() =>
   kind.value === "wavelet" && !turned.value && settings.wavelet.showProcessingArea ? processingArea({ w: props.width, h: props.height }, settings.menu.processingArea) : null,
 );
-// De-rotate images (SP-023): the disc measured in the reference frame, Saturn's ring edge and N over the north pole.
+// De-rotate images: the disc measured in the reference frame, Saturn's ring edge and N over the north pole.
 const disc = computed(() =>
   kind.value === "stack" && settings.stack.derotate && session.derotation?.disc ? discOverlay(session.derotation.disc) : null,
 );

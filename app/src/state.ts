@@ -69,10 +69,10 @@ export const session = reactive({
   savedName: "",
   frame: 0,
   frameImage: null as ImageData | null,
-  /** The stacked image (SP-006) and the sharpened one (SP-007). */
+  /** The stacked image and the sharpened one. */
   stackImage: null as ImageData | null,
   processedImage: null as ImageData | null,
-  /** The base image with the Functions cards and Contrast/Brightness applied (SP-008); null while they are all neutral. */
+  /** The base image with the Functions cards and Contrast/Brightness applied; null while they are all neutral. */
   adjustedImage: null as ImageData | null,
   /** Copy To: the image kept for comparison, and the difference to it. */
   clipboardImage: null as ImageData | null,
@@ -101,13 +101,13 @@ export const session = reactive({
   /** View Compare: where the divider sits, as a share of the width of the image area. Not stored in the project file. */
   compareDivider: 0.5,
   /**
-   * The crop tool (MAC-016): the rectangle Save Image cuts out (`applied`) and, while the tool is open, the one being edited (`draft`),
+   * The crop tool: the rectangle Save Image cuts out (`applied`) and, while the tool is open, the one being edited (`draft`),
    * both in pixels of the stack. Not stored in the project file; a new stack or another recording drops it.
    */
   crop: { format: "free" as CropFormat, editing: false, applied: null as CropRectangle | null, draft: null as CropRectangle | null },
-  /** Flip and Rotate: the pictures of the image area turned by the core, the shown one and the left half of View Compare (SP-022). */
+  /** Flip and Rotate: the pictures of the image area turned by the core, the shown one and the left half of View Compare. */
   oriented: { shown: null as ImageData | null, before: null as ImageData | null },
-  /** De-rotate images (SP-023): span, rotation and the disc measured in the reference frame; null while off or before Limit. */
+  /** De-rotate images: span, rotation and the disc measured in the reference frame; null while off or before Limit. */
   derotation: null as DerotationInfo | null,
 });
 

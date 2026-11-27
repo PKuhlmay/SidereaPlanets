@@ -1,4 +1,4 @@
-// De-rotate images in the Stack step (SP-023, as the Mac app in MAC-020): what Stack and the command `derotation_info`
+// De-rotate images in the Stack step: what Stack and the command `derotation_info`
 // are sent, the texts of the panel, the overlay of the measured disc and the section `derotation` of the project file.
 
 import type { createSettings, Planet } from "./settings";
@@ -148,7 +148,7 @@ export function discOverlay(disc: DiscShape): {
 /** The keys of `settings.stack` that belong to the section `derotation`, not to the section `stack`. */
 export const DEROTATION_KEYS = ["derotate", "planet", "cameraAngle", "mirrored", "startTime"] as const;
 
-/** The section `derotation` of the project file, with the keys of the Mac app; `startTimeUtc` only when there is a time. */
+/** The section `derotation` of the project file; `startTimeUtc` only when there is a time. */
 export function derotationSection(stack: Stack): Record<string, unknown> {
   const section: Record<string, unknown> = {
     enabled: stack.derotate,

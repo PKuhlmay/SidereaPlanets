@@ -9,7 +9,7 @@ describe("openerClass", () => {
   });
 });
 
-describe("showItems (Show menu at the top right of the image, MAC-014)", () => {
+describe("showItems (Show menu at the top right of the image)", () => {
   const titles = (kind: Parameters<typeof showItems>[0], available: boolean) =>
     showItems(kind)
       .filter((item) => item.available === available)

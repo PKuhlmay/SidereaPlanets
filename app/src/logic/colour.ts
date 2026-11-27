@@ -1,4 +1,4 @@
-// Pure helpers of the colour and tone cards (SP-008): the values sent to the engine, the histogram graph and the
+// Pure helpers of the colour and tone cards: the values sent to the engine, the histogram graph and the
 // Copy To views. Talking to the backend is in ../colour.ts.
 
 import { contrastField, IDENTITY_MIX, TONE_LIMITS, type ChannelShifts, type RefineValues, type ToneSettings } from "./settings";
@@ -176,10 +176,10 @@ export function differencePixels(a: Pixels, b: Pixels): Pixels | null {
   return { width: a.width, height: a.height, data };
 }
 
-/** The Adjustments buttons that switch a view or open a tool instead of a card (SP-021). */
+/** The Adjustments buttons that switch a view or open a tool instead of a card. */
 const viewFunctions = ["View Compare", "Crop"];
 
-/** Whether an Adjustments button does something; the others are dimmed and locked (MAC-014). */
+/** Whether an Adjustments button does something; the others are dimmed and locked. */
 export const isFunctionBuilt = (name: string): boolean => isToneCard(name) || viewFunctions.includes(name);
 
 const functionHelps: Record<ToneCard, string> = {

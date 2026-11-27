@@ -19,8 +19,7 @@ im Bild-Sinn „unbearbeitetes Quellbild“ gemeint ist (z. B. in der Beschriftu
 Es gibt **eine App**: Tauri 2 und Vue unter `app/`. Sie läuft den ganzen Ablauf im echten Fenster: Aufnahme laden, Alignpoints, Align,
 Best Frames (Limit), Stack mit Derotation, Wavelets mit Do All und den Adjustments, Save image mit Crop, Flip and Rotate und Resize,
 dazu Projektdatei, Save Aligned/Integrated, Schemes, CPU-Auswahl. Auf dem Mac hat sie Menüleiste, Cmd-Kürzel, Dateizuordnung und
-folgt dem Erscheinungsbild des Systems (PLANETS-3). Die frühere native SwiftUI-App (Mac-Release 0.1.0) und die Rust-Schnittstelle `crates/ffi` sind mit
-PLANETS-4 entfallen und stehen nur noch in der Git-Historie. Die Beschreibung von Ablauf, Oberfläche, Algorithmen und Formaten
+folgt dem Erscheinungsbild des Systems (PLANETS-3). Die Beschreibung von Ablauf, Oberfläche, Algorithmen und Formaten
 steht in `docs/`; eigene Referenzbilder und Aufnahmen für die Regressionstests liegen lokal in `re-local/` (nicht in Git).
 Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens in
 `docs/design/tokens.css`, App-Icon in `docs/design/icon/`) und für jede Arbeit an der Oberfläche verbindlich — **modern** und eigenständig.
@@ -40,6 +39,7 @@ Das Design der Oberfläche ist in `docs/design.md` festgelegt (Tokens in
 cargo test --workspace                       # Rechenkern und Reader
 cargo clippy --workspace --all-targets       # soll ohne Warnungen laufen
 cargo fmt --all
+scripts/gen-reference.sh                     # Referenzergebnisse der Regressionstests neu erzeugen (re-local/reference-own/), nur nach gewollter Algorithmus-Änderung
 cargo deny check                             # Lizenzen, Advisories und Quellen der Rust-Abhängigkeiten (deny.toml)
 cd app && pnpm install && pnpm tauri dev     # App mit Hot-Reload starten
 cd app && pnpm build                         # Frontend bauen (vue-tsc + vite)

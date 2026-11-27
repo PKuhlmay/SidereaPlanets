@@ -20,7 +20,7 @@ const info = (more: Partial<RecordingInfo> = {}): RecordingInfo => ({
   ...more,
 });
 
-describe("recordingRows (file info in the step Open, MAC-005)", () => {
+describe("recordingRows (file info in the step Open)", () => {
   it("lists format, codec, size, bit depth, frames, color and frame rate", () => {
     expect(recordingRows(info())).toEqual([
       { label: "Format", value: "AVI" },

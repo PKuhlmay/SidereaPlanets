@@ -1,5 +1,5 @@
 //! The three planets whose rotation shows within a video (Jupiter, Saturn, Mars): how fast they turn, how flattened they
-//! are, and how their axis is tilted towards the camera at a given time (MAC-020).
+//! are, and how their axis is tilted towards the camera at a given time.
 //!
 //! The tilt comes from a simplified ephemeris after Meeus, "Astronomical Algorithms", 2nd ed.: the mean orbital elements of
 //! Earth and the planet (table 31.A, referred to the equinox of the date) give the geocentric direction of the planet, with the

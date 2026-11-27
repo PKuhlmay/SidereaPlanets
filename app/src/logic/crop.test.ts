@@ -20,8 +20,8 @@ import {
   thirdsLines,
 } from "./crop";
 
-// The geometry of the crop rectangle, the cases of the earlier SwiftUI app (MAC-016): drag, reshape and clamp
-// the rectangle the same way.
+// The geometry of the crop rectangle, the cases that drag, reshape and clamp
+// the rectangle.
 const W = 1000;
 const H = 800;
 const { square, threeByTwo, fourByThree } = ASPECTS;

@@ -1,4 +1,4 @@
-// Version, commit and build time of the running app, for the status bar (SP-025), like Siderea's BuildInfo: "0.1.0 · 3801a70 ·
+// Version, commit and build time of the running app, for the status bar, like Siderea's BuildInfo: "0.1.0 · 3801a70 ·
 // 2026-11-02 14:32". The values are written into the bundle when it is built (vite.config.ts: __APP_VERSION__, __APP_COMMIT__,
 // __APP_BUILT__).
 

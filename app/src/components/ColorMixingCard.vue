@@ -8,7 +8,7 @@ import FloatCard from "./FloatCard.vue";
 import MenuButton from "./MenuButton.vue";
 import NumberField from "./NumberField.vue";
 
-// Color Mixing card (MAC-019): every output channel is the sum of red, green and blue times three weights, in percent. Neutral is
+// Color Mixing card: every output channel is the sum of red, green and blue times three weights, in percent. Neutral is
 // 100 on the diagonal. It works on gray images too, where all three input channels are equal.
 const mix = settings.wavelet.tone.mix;
 const { min, max } = TONE_LIMITS.mix;

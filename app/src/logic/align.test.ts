@@ -53,7 +53,7 @@ describe("alignArgs", () => {
     expect(alignArgs(align(), roi)).toEqual({ settings: { boxSize: 30, maxMovement: 5, roi, centreOfGravity: null } });
   });
 
-  it("sends the Brightness threshold while Align by center of gravity is on, held to 0–255 (MAC-021)", () => {
+  it("sends the Brightness threshold while Align by center of gravity is on, held to 0–255", () => {
     const a = align();
     expect([a.centreOfGravity, a.brightnessThreshold]).toEqual([false, 20]);
     a.centreOfGravity = true;
@@ -171,7 +171,7 @@ describe("imagePosition", () => {
   });
 });
 
-describe("Go to Best Frame (MAC-011)", () => {
+describe("Go to Best Frame", () => {
   const frame = (index: number, quality: number | null) => ({ index, quality });
 
   it("ranks the frames best first, equal quality by the smaller number, and keeps the order before Align", () => {

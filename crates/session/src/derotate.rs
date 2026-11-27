@@ -1,4 +1,4 @@
-//! De-rotation for the Stack step (MAC-020): which planet, when each frame was taken, and the numbers the Stack panel shows
+//! De-rotation for the Stack step: which planet, when each frame was taken, and the numbers the Stack panel shows
 //! (span of the recording, how far the planet turns, the measured disc).
 
 use crate::{Session, SessionError, error::lock};

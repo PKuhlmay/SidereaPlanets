@@ -1,8 +1,8 @@
-# Wavelet-Schärfung (SP-007)
+# Wavelet-Schärfung
 
 Was der Rechenkern (`crates/core/src/wavelet/`) tut und warum. Bedienelemente und Standardwerte stehen in `docs/ui.md`, der Ablauf in
 `docs/workflow.md` (Abschnitt 4), das Schemaformat in `docs/formats.md`. Was gegen gespeicherte eigene Referenzergebnisse geprüft ist
-und was nicht, steht im letzten Abschnitt „Regressionsprüfung und PSNR-Schwellen“; alles andere ist Entwurfsentscheidung.
+und was nicht, steht im letzten Abschnitt „Regressionsprüfung und PSNR-Schwelle“; alles andere ist Entwurfsentscheidung.
 
 ## Modell
 
@@ -87,7 +87,7 @@ Initial Layer auf 1 … 64, Step Increment auf 0 … 64 (`WaveletSettings::clamp
 auf diese Grenzen gekürzt.
 
 *Automatic*, *Hold Wavelet Setting*, *Use Linked Wavelets* und die Schaltfläche *Preview* je Ebene betreffen nur
-die Bedienung und liegen nicht im Rechenkern (SP-007 Phase 2).
+die Bedienung und liegen nicht im Rechenkern.
 
 ## Vorschau und Do All
 
@@ -122,17 +122,16 @@ Helligkeitssprung zu sehen.
   Gerechnet wird nur im Schritt Wavelets (`previewWanted`), nicht im Schritt Save, und nicht, solange ein Do All für diese
   Werte und dieses Summenbild vorliegt: Sonst würde das Betreten von Save oder Wavelets das Ergebnis von Do All durch
   Summenbild plus Vorschau-Ausschnitt ersetzen und „Do All finished“ in der Statusleiste überschreiben
-  (SP-010-Prüflauf: Wechsel nach Save zeigte „Preview: 79 ms“).
+  (ein Prüflauf der App: Wechsel nach Save zeigte „Preview: 79 ms“).
 - Die Antwort wird in einen Puffer geschrieben, der eine Kopie des Summenbilds ist; `session.processedImage` teilt sich
   diesen Puffer, eine Vorschau kostet also nur den Bereich. Außerhalb der Processing Area bleibt das Summenbild.
 - Die Statusleiste zeigt die Zeit von Anfrage bis Zeichnen (`Preview: n ms`). Das ist die Messung der Übertragung, die
-  `docs/gui-toolkit.md` verlangt; **es liegen noch keine Messwerte vor** (App nicht gestartet).
+  `docs/gui-toolkit.md` verlangt; bisher gibt es dafür **nur einen einzelnen Wert** (79 ms beim Wechsel nach Save), keine Messreihe.
 - **Process** und **Do All** laufen über `runJob`. Do All ersetzt `session.processedImage` durch das ganze Bild.
-- **Load Scheme / Save Scheme**: Dateidialog (Plugin `dialog`, Filter `.rwv`) in `pickSchemePath`, das ist die Stelle, die
-  SP-009 durch `pick_scheme_path` ersetzt.
-- **Realign with Processed** ist nicht angebunden (braucht Align/Stack, SP-005/SP-006).
+- **Load Scheme / Save Scheme**: Dateidialog (Plugin `dialog`, Filter `.rwv`) in `pickSchemePath`.
+- **Realign with Processed** ist nicht angebunden (gesperrt, „Not available yet“).
 - Ohne gestapeltes Bild im Backend (`WaveletState::set_source` wurde nicht aufgerufen) meldet die Statusleiste
-  „no image to sharpen“. Solange SP-006 fehlt, ist der Reiter ohnehin gesperrt.
+  „no image to sharpen“. Der Reiter ist ohne Stack ohnehin gesperrt.
 - Automatic, Hold und Linked sind Entwurfsentscheidungen der Bedienung.
 
 ## Tauri-Befehle (`app/src-tauri/src/wavelet_commands.rs`)
@@ -145,12 +144,12 @@ Einstellungen gehen als JSON mit den Feldern von `WaveletSettings` (camelCase): 
 | Befehl | Zweck |
 |---|---|
 | `wavelet_default_settings()` | Werte für *Reset Wavelets* |
-| `wavelet_set_source_frame(index)` | Platzhalter: Frame der Aufnahme als Bild des Reiters, bis SP-006 `WaveletState::set_source` nach *Stack* aufruft |
+| `wavelet_set_source_frame(index)` | Ersatz: Frame der Aufnahme als Bild des Reiters; im Ablauf setzt *Stack* die Quelle (`WaveletState::set_source`) |
 | `wavelet_preview(settings \| null, area, mode)` | Vorschau mit Kennlinie und Farbbehandlung wie *Do All*; `mode` ist `"colour"`, `"lrgb"` oder `"gray"`. Antwort binär: x, y, Breite, Höhe (4 × u32 LE, der auf das Bild zugeschnittene Bereich), dann RGBA. `null` = unbearbeitet (*Before*) |
-| `wavelet_do_all(settings, mode)` | ganzes Bild mit Kennlinie und Farbbehandlung; Antwort binär wie `read_frame` (Breite, Höhe als u32 LE, RGBA). Das Ergebnis bleibt in `WaveletState::processed()` für *Save image* (SP-009) |
+| `wavelet_do_all(settings, mode)` | ganzes Bild mit Kennlinie und Farbbehandlung; Antwort binär wie `read_frame` (Breite, Höhe als u32 LE, RGBA). Das Ergebnis bleibt in `WaveletState::processed()` für *Save image* |
 | `save_wavelet_scheme(path, settings)` / `load_wavelet_scheme(path)` | `.rwv` schreiben und lesen |
 
-## Denoise/Deringing und Masking (MAC-018, eigener Entwurf)
+## Denoise/Deringing und Masking (eigener Entwurf)
 
 Die Karten **Denoise/Deringing** und **Masking** des Adjustments-Panels sind ein eigener Entwurf, einfach gehalten und im Rechenkern
 (`crates/core/src/refine.rs`) umgesetzt. Sie arbeiten auf zwei Bildern: dem **geschärften Bild** *S* (Ergebnis von Do All, in der Vorschau das
@@ -215,34 +214,36 @@ Beschränkt das Schärfen auf einen Bereich, meist die Scheibe:
 
 Wavelet-Schemata liegen im **`.rwv`-Format** (INI-Datei, `docs/formats.md`). Es gilt: Groß-/Kleinschreibung egal, fehlende Schlüssel
 behalten ihren Standardwert, unbekannte werden ignoriert, Werte werden auf die Grenzen oben gekürzt, ein Fehler nennt die Zeile.
-Geschrieben wird mit CRLF, byteidentisch zur gespeicherten Referenzdatei `jupiter-l1-10.rwv`. Für *Available schemes* fehlen nur
-Ordner und Dateidialog (SP-009); Lesen und Schreiben stehen (`scheme::from_rwv`, `scheme::to_rwv`).
+Geschrieben wird mit CRLF, byteidentisch zu einer Schemadatei im Format von `docs/formats.md` (Test `writes_the_reference_scheme_file`). Für *Available schemes* fehlen nur
+Ordner und Dateidialog; Lesen und Schreiben stehen (`scheme::from_rwv`, `scheme::to_rwv`).
 Die Datei speichert Gain mit einer Nachkommastelle und Sharpen und Denoise mit zwei (ganze Zahlen ×10 bzw. ×100); beim Schreiben wird darauf gerundet.
 
-## Regressionsprüfung und PSNR-Schwellen
+## Regressionsprüfung und PSNR-Schwelle
 
-Die Tests in `crates/io/tests/wavelet_reference.rs` vergleichen das Ergebnis von *Do All* mit gespeicherten eigenen Referenzergebnissen
-für Referenzfall R1 (Jupiter-Testaufnahme) in `re-local/reference/` (`jupiter-stack.tif` als Eingabe, `jupiter-wavelet-default.tif` und
-`jupiter-wavelet-l1-10.tif` als Ergebnisse, `jupiter-l1-10.rwv` als Schema). `re-local/` ist nicht in Git; fehlt `re-local/reference`, werden
-die Tests übersprungen (`PLANETS_RE_LOCAL` zeigt auf ein anderes `re-local/`, etwa aus einem Worktree). Gerechnet wird mit dem
-16-Bit-Spitzenwert 65535; Eingabe ist das gespeicherte Summenbild, damit das Stacking nicht mitzählt.
+Die Tests in `crates/io/tests/wavelet_reference.rs` vergleichen das Ergebnis von *Do All* mit gespeicherten Ergebnissen **dieses Programms**
+für Referenzfall R1 (Jupiter-Testaufnahme). Sie liegen in `re-local/reference-own/` (`jupiter-stack.tif` als Eingabe,
+`jupiter-wavelet-default.tif` und `jupiter-wavelet-l1-10.tif` als Ergebnisse, `jupiter-l1-10.rwv` als Schema) und sind mit
+`scripts/gen-reference.sh` erzeugt (Vorgehen und Zeitpunkt: `docs/stacking.md`, „Regressionsprüfung“). `re-local/` ist nicht in Git; fehlt
+`re-local/reference-own`, werden die Tests übersprungen (`PLANETS_RE_LOCAL` zeigt auf ein anderes `re-local/`, etwa aus einem
+Worktree). Gerechnet wird mit dem 16-Bit-Spitzenwert 65535; Eingabe ist das gespeicherte Summenbild, damit das Stacking nicht mitzählt.
 
-| Schwelle | Was sie prüft | Wert |
+Die Tests fangen **Änderungen am Verhalten** ab, sie sagen nichts darüber, ob das Verhalten richtig ist; der Vergleich mit einem fremden
+Programm ist kein Teil der Prüfung mehr.
+
+| Test | Was er prüft | Schwelle |
 |---|---|---|
-| A | Ergebnis gegen die Referenz bei gleichen Reglerwerten (Standard und Ebene 1 = 10.0) | **≥ 45 dB** |
-| B, streng | Ebene 1 = 10.0, direkt gegen die Referenz (zusätzlich muss das Ergebnis näher liegen als das ungeschärfte Summenbild) | **≥ 65 dB** |
-| C, Kennlinie | Standardwerte direkt gegen die Referenz. Die Kennlinie ist an genau diesem Bild angepasst, die Schwelle schützt sie, nicht die Schärfung | **≥ 85 dB** |
+| `default_settings_match_the_stored_reference` | Standardwerte (mit Kennlinie) gegen das gespeicherte Ergebnis | **≥ 60 dB** |
+| `layer_one_at_ten_matches_the_stored_reference` | Ebene 1 = 10.0 gegen das gespeicherte Ergebnis; das gespeicherte Schema muss als dieselben Werte gelesen werden; das gespeicherte Ergebnis muss mehr als die Schwelle vom ungeschärften Summenbild entfernt sein (sonst prüfte der Test die Schärfung nicht) | **≥ 60 dB** |
 
-Warum mehr als eine Schwelle: Das ungeschärfte Summenbild liegt schon bei 55,6 dB zur Referenz der Standardwerte und bei 52,8 dB zur
-Referenz von Ebene 1 = 10.0, A besteht also auch ohne Schärfung. B liegt klar darüber und zeigt damit, dass die Schärfung wirkt.
+Warum 60 dB: Bei gleichem Code und gleicher Eingabe ist das Ergebnis bitgleich (unendlich dB; gemessen im Debug- und im Release-Bau am Mac).
+Zwischen Plattformen können Gleitkomma-Rundungen (FMA, Bibliotheksmathematik, Summenreihenfolge) einzelne Proben um wenige Einheiten von
+65535 verschieben, das liegt weit über 90 dB. Jede am Bild sichtbare Änderung der Algorithmen kostet viel mehr: ein Prozent Helligkeit sind
+54 dB, ein Graustufenwert von 255 über das ganze Bild 48 dB. 60 dB liegt dazwischen. Ebene 1 = 10.0 liegt beim ungeschärften Summenbild
+bei 53,98 dB, also unter der Schwelle: Eine Schärfung, die nicht wirkt, fiele durch.
 
-Letzter Lauf (2026-11-11), Ergebnis auf 16 Bit gerundet:
-
-| Fall | Gemessen | Schwelle |
-|---|---|---|
-| Standardwerte gegen `jupiter-wavelet-default.tif` | **98,81 dB** (ohne Kennlinie 55,62 dB) | A 45, C 85 |
-| Ebene 1 = 10.0 gegen `jupiter-wavelet-l1-10.tif` | **84,73 dB** (ohne Kennlinie 55,61 dB, das Summenbild allein 52,84 dB) | A 45, B 65 |
+Die Kennlinie (`output_curve`) wurde an einem Ergebnis eines anderen Programms angepasst (Tabelle im Unit-Test in `output.rs`). Die
+Regressionstests schützen sie nur noch gegen Änderungen, nicht gegen das fremde Ergebnis.
 
 Für die Ebenen 2 bis 6, Dyadic, den Filter Default, Denoise, Sharpen ungleich 0.100, Initial Layer und Step Increment ungleich 1 und 0
-sowie abgeschaltete Häkchen gibt es keine Referenz; dort prüfen nur Unit-Tests die Eigenschaften (Bitgleichheit bei neutralen Reglern,
-Vorschau gleich *Do All*, Skalierung durch Sharpen).
+sowie abgeschaltete Häkchen gibt es kein gespeichertes Ergebnis; dort prüfen nur Unit-Tests die Eigenschaften (Bitgleichheit bei neutralen
+Reglern, Vorschau gleich *Do All*, Skalierung durch Sharpen).

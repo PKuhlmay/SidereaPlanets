@@ -649,8 +649,8 @@ impl Reference {
     ///
     /// The quality of a point is the mean gradient magnitude (central differences) inside its box at
     /// the position where it was found, relative to the mean brightness of the frame so that
-    /// exposure does not matter. On reference case R1 the resulting frame order correlates with the stored
-    /// reference order at Spearman 0.79; the squared gradient used before gave 0.54.
+    /// exposure does not matter. On reference case R1 the resulting frame order correlated at Spearman 0.79
+    /// with an order obtained independently of this program; the squared gradient used before gave 0.54.
     fn rate_points(&self, luma: &Image, matches: &mut [Option<PointShift>]) -> f32 {
         let (w, h) = (luma.width as isize, luma.height as isize);
         let half = (self.params.box_size / 2) as isize;

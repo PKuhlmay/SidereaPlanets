@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Rebuilds the app icon files of the app from the Icon Composer layers in docs/design/icon (MAC-012).
+# Rebuilds the app icon files of the app from the Icon Composer layers in docs/design/icon.
 #
 #   scripts/make-icons.sh            everything below
 #   scripts/make-icons.sh --check    only render the master PNG into the build folder (no changes in the repo)

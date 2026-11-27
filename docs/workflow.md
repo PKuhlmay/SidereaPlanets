@@ -101,4 +101,4 @@ Funktion *Limit* des Rechenkerns (`crates/session/src/align.rs`); die Namen im C
   Usage*. Einträge ohne Funktion sind gesperrt und unter „Not available yet“ zusammengefasst.
 - **Cancel** und **Pause** unterbrechen laufende Berechnungen (Align, Stack, Update Preview, Do All, AVI-Speichern). **CPUs** legt die
   Zahl der Threads fest; Standard ist die Zahl der logischen Kerne.
-- Fortschritt und Abbrechen gelten für Align, Stack, Do All und die AVI-Läufe (SP-010).
+- Fortschritt und Abbrechen gelten für Align, Stack, Do All und die AVI-Läufe.

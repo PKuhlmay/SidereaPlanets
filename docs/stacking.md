@@ -1,4 +1,4 @@
-# Stacking (SP-006)
+# Stacking
 
 Was Siderea Planets beim Stacken tut und warum. Bedienelemente und Standardwerte stehen in `docs/ui.md` (Stack-Reiter), der Ablauf
 in `docs/workflow.md`. Die Regressionsprüfung gegen gespeicherte eigene Referenzergebnisse steht am Ende des Verfahrens.
@@ -7,7 +7,7 @@ Parameter, die gewählt und nicht hergeleitet sind, stehen als Entwurfsentscheid
 ## Stand
 
 Rechenkern, Tauri-Befehle und Anbindung an den Stack-Reiter sind fertig. Die Tests in `stack.rs` (18) laufen grün; der
-Regressionstest gegen die gespeicherte Referenz erreicht **54,85 dB** (Schwelle 45 dB), siehe „Regressionsprüfung“. Die beiden Tests
+Regressionstest gegen die gespeicherten eigenen Ergebnisse ist bitgleich (Schwelle 60 dB), siehe „Regressionsprüfung“. Die beiden Tests
 der Untersuchung (`scatter_of_the_points_does_not_distort_the_frame`, `matches_at_the_limit_of_the_search_range_are_not_followed`)
 waren gegen den Stand davor rot.
 
@@ -27,7 +27,7 @@ Aus `docs/workflow.md` und `docs/ui.md`:
 
 Umgesetzt in `crates/core/src/stack.rs`.
 
-1. **Registrierung.** Jeder Frame wird mit `Reference::align_frame` (SP-005) gegen das Bezugsframe registriert. Das liefert
+1. **Registrierung.** Jeder Frame wird mit `Reference::align_frame` gegen das Bezugsframe registriert. Das liefert
    je Alignpoint die Verschiebung `(dx, dy)`: Dort, wo das Bezugsframe an `p` etwas zeigt, zeigt der Frame es bei
    `p + (dx, dy)`. Punkte, die nicht verfolgt werden konnten, fehlen und zählen nicht, ebenso Treffer am Rand des
    Suchbereichs (`at_limit`): Sie sagen nur, dass die Bewegung mindestens so groß ist.
@@ -59,7 +59,7 @@ Umgesetzt in `crates/core/src/stack.rs`.
   Alignpoints) und dann in der Reihenfolge der Auswahl addiert, parallel nach Bildzeilen. Das Summenbild ist deshalb bitgleich zu
   dem, das Frame für Frame entsteht, und hängt nicht von der Zahl der Threads ab (Tests in `stack.rs` und
   `crates/session/tests/parallel.rs`). Fortschritt zählt 1, 2, 3, ... und kommt je Stapel gesammelt; Abbruch und Pause greifen
-  nach einem Stapel (SP-015; vorher nach jedem Frame, aber nur mit der Arbeit eines Frames auf wenigen Kernen). Gleiches gilt für
+  nach einem Stapel (vorher nach jedem Frame, aber nur mit der Arbeit eines Frames auf wenigen Kernen). Gleiches gilt für
   Align; Save Aligned/Integrated arbeiten weiter Frame für Frame. Im Speicher liegen höchstens zwei Stapel und die Summen.
 - Frames anderer Größe oder Kanalzahl werden ausgelassen und nicht mitgezählt (`StackResult::frames`).
 
@@ -71,7 +71,7 @@ Umgesetzt in `crates/core/src/stack.rs`.
   später das Ergebnis von *Align* wiederverwenden statt neu zu registrieren; `stack_sequence` registriert derzeit selbst.
 - `stack::psnr(a, b)` ist die Messgröße der Regressionstests (Spitzenwert 1,0, bei 16 Bit also 65535).
 - Frontend: `app/src/stack.ts` (Handler `stack` in `app/src/actions.ts`, über `runJob`), Anfrage aus dem Fensterzustand in
-  `app/src/logic/stack.ts`. Das Bezugsframe steht in `session.referenceFrame`; *Set Alignpoints* (SP-005) muss es setzen,
+  `app/src/logic/stack.ts`. Das Bezugsframe steht in `session.referenceFrame`; *Set Alignpoints* muss es setzen,
   bis dahin gilt Frame 0.
 - Sitzung: `planets_session::Session::stack` und `stacked_image` (`crates/session/src/stack.rs`) halten das letzte Summenbild; die
   Tauri-Befehle `stack`, `stacked_image`, `cancel_stacking`, `pause_stacking` sind dünne Hüllen darüber, Ereignis `stack-progress`.
@@ -91,26 +91,37 @@ kann. Bei R1 ändert das am Ergebnis fast nichts.
 
 **Was das für weiche Aufnahmen heißt:** Die Standardeinstellung liefert dort praktisch den Frameversatz-Stack (das Vertrauen liegt
 nahe 0). Die lokale Korrektur wirkt bei einer Aufnahme mit starker Luftunruhe. Die Ursache der Streuung liegt in der Zuordnung der Punkte
-(SP-005: weiche Strukturen, breiter Korrelationsrücken), nicht im Stacken; eine robustere Zuordnung (Punkte nach Schärfe der
+(*Set Alignpoints*/*Align*: weiche Strukturen, breiter Korrelationsrücken), nicht im Stacken; eine robustere Zuordnung (Punkte nach Schärfe der
 Korrelationsspitze wählen oder gewichten) würde die lokale Korrektur auch bei weichen Aufnahmen nutzbar machen.
 
 ### Regressionsprüfung
 
-Test: `crates/io/tests/stack_reference.rs`. Er vergleicht das Stack-Ergebnis mit einem gespeicherten eigenen Referenzergebnis
-(`re-local/reference/jupiter-stack.tif`) für Referenzfall R1 (Jupiter-Testaufnahme `re-local/testdata/astropix/JUPITER.AVI`).
-`re-local/` ist nicht in Git; fehlt eine der beiden Dateien, wird der Test übersprungen (in einem Worktree fehlt `re-local/`, also im
-Haupt-Checkout laufen lassen, oder `PLANETS_RE_LOCAL` auf ein anderes `re-local/` zeigen lassen).
+Tests: `crates/io/tests/stack_reference.rs` (Stack), `align_reference.rs` (Alignpoints, Qualitätsreihenfolge), `wavelet_reference.rs` und
+`color_reference.rs` (`docs/wavelets.md`). Sie vergleichen das Ergebnis mit gespeicherten Ergebnissen **dieses Programms** für Referenzfall R1
+(Jupiter-Testaufnahme `re-local/testdata/astropix/JUPITER.AVI`), die in `re-local/reference-own/` liegen. `re-local/` ist nicht in Git; fehlt
+die Aufnahme oder `reference-own`, werden die Tests übersprungen (in einem Worktree findet der Test das `re-local/` des Haupt-Checkouts selbst,
+sonst zeigt `PLANETS_RE_LOCAL` darauf). Die Tests fangen Änderungen am Verhalten ab; ob das Verhalten richtig ist, sagen sie nicht.
 
 1. Alignpoints auf Frame 1 mit Standardwerten setzen und Standard-Schwelle, registrieren, alle 10 Frames stacken (Limit behält bei R1 alle).
-2. Das Referenz-TIFF laden (Werte ÷ 256 ÷ 255 auf die Skala 0..1; 16 Bit = 8 Bit × 256).
-3. PSNR des Ergebnisses gegen das TIFF, Spitzenwert 1,0. Schwelle, die der Test prüft: **≥ 45 dB**.
-4. Zur Einordnung werden mitgemessen und ausgegeben: PSNR bei *Correct geometry* aus (nur Frameversatz), PSNR von Frame 1 gegen das
-   TIFF und die Kanalmittel beider Bilder.
+2. Das Ergebnis auf 16 Bit runden (wie *Save image*) und gegen `jupiter-stack.tif` vergleichen: PSNR mit Spitzenwert 65535.
+3. Schwelle: **≥ 60 dB**. Bei gleichem Code ist das Ergebnis bitgleich (unendlich dB; im Debug- und im Release-Bau am Mac gemessen).
+   Gleitkomma-Unterschiede zwischen Plattformen (FMA, Bibliotheksmathematik, Summenreihenfolge) liegen weit über 90 dB, ein Prozent
+   Helligkeit sind 54 dB, ein Graustufenwert von 255 über das ganze Bild 48 dB: 60 dB trennt beides.
+4. Alignment: `jupiter-align.json` hält Zahl der Kandidaten und der Alignpoints (Toleranz ±2, weil Schwellen auf Gleitkommawerten sitzen) und
+   die Qualitätsreihenfolge der Frames (bester Frame gleich, Spearman-Korrelation > 0,95).
 
-Letzter Lauf (2026-11-11, `cargo test -p planets-io --test stack_reference --release -- --nocapture`): **54,85 dB** mit Standardwerten,
-ebenso mit nur Frameversatz.
+**Erzeugen der Referenzen.** `scripts/gen-reference.sh` führt den `#[ignore]`-Test `generate_the_reference_results`
+(`crates/io/tests/reference_gen.rs`) im Release-Bau aus. Er rechnet die aktuelle Pipeline über `JUPITER.AVI` und schreibt `jupiter-stack.tif`,
+`jupiter-wavelet-default.tif`, `jupiter-wavelet-l1-10.tif`, `jupiter-l1-10.rwv` und `jupiter-align.json` nach `re-local/reference-own/`
+(Pipeline und Vergleich benutzen dieselben Funktionen in `crates/io/tests/common/mod.rs`). Das Skript nur **nach einer gewollten, geprüften
+Änderung an den Algorithmen** aufrufen, danach die Abweichung ansehen (`cargo test -p planets-io --release --test stack_reference --test
+wavelet_reference --test align_reference -- --nocapture` vor dem Erzeugen zeigt, wie weit sie ist) und die Kanalmittel in
+`color_reference.rs` nachziehen, falls sich der Stack ändert. Nie neu erzeugen, um einen roten Test grün zu machen, dessen Ursache man nicht kennt.
 
-## Derotation (MAC-020)
+Letzter Lauf (2026-11-27, Referenzen frisch erzeugt): Stack und beide Wavelet-Ergebnisse **unendlich dB** (bitgleich), Qualitätsreihenfolge
+1, 3, 10, 2, 8, 9, 4, 5, 6, 7, 87 Kandidaten und 78 Alignpoints.
+
+## Derotation
 
 Planeten drehen sich während der Aufnahme: Jupiter in 9 h 55 min 40,6 s (System II), Saturn in 10 h 33 min 38 s (System III), Mars in
 24 h 37 min 22,7 s. *De-rotate images* ist ein Häkchen im Stack-Reiter; die Rechnung ist ein eigener Entwurf, geprüft gegen JPL Horizons und gegen
@@ -183,12 +194,12 @@ Nicht Teil der Akzeptanzkriterien; jeweils nur der Name ist vorgesehen:
 - *StackSize* (Minimized, Maximized, R.of Interest), *Stretch histogram after stacking*. In der App
   sind sie gesperrt und mit „Not available yet“ gekennzeichnet (Default bei StackSize bleibt wählbar und ist das, was der
   Stack tut); die Einstellungen `stackSize` und `stretchHistogram` bleiben im Datenmodell, sind aber nicht Teil
-  von `StackRequest` und das Backend kennt sie nicht. *De-rotate images* ist gebaut (Abschnitt „Derotation (MAC-020)“; im
-  Stack-Reiter seit SP-023).
+  von `StackRequest` und das Backend kennt sie nicht. *De-rotate images* ist gebaut (Abschnitt „Derotation“; im
+  Stack-Reiter wählbar).
 - **Resampling** (Bell, Bspline, Lanczos, Mitchell, Faktor) und **Drizzling**, die das Ergebnis vergrößern. In der App sind
   beide Häkchen gesperrt und mit „Not available yet“ gekennzeichnet; die Einstellungen `resampling`/`drizzling` bleiben im
   Datenmodell, das Backend ignoriert sie.
-- **Create AVI** (*Save Aligned*, *Save Integrated*): in SP-009 gebaut, siehe `docs/formats.md`, Abschnitt „Create AVI“.
+- **Create AVI** (*Save Aligned*, *Save Integrated*): gebaut, siehe `docs/formats.md`, Abschnitt „Create AVI“.
 - Stackgraph und Stacklist.
 
 ## Offene Punkte

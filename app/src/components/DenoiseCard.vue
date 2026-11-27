@@ -5,7 +5,7 @@ import { settings } from "../state";
 import FloatCard from "./FloatCard.vue";
 import RefineSlider from "./RefineSlider.vue";
 
-// Denoise/Deringing card (MAC-018): edge-preserving smoothing, and the dark ring next to bright edges lifted back to the level of the
+// Denoise/Deringing card: edge-preserving smoothing, and the dark ring next to bright edges lifted back to the level of the
 // stack. Both start from the sharpened image and the stack it was made from (crates/core/src/refine.rs).
 const refine = settings.refine;
 

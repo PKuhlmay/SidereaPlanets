@@ -5,7 +5,7 @@ const key = (k: string, more: Partial<Parameters<typeof keyCommand>[0]> = {}) =>
   keyCommand({ key: k, code: "", altKey: false, ctrlKey: false, metaKey: false, shiftKey: false, inField: false, mac: false, ...more });
 const mac = (k: string, more: Partial<Parameters<typeof keyCommand>[0]> = {}) => key(k, { mac: true, ...more });
 
-describe("keyCommand on Windows and Linux (SP-017)", () => {
+describe("keyCommand on Windows and Linux", () => {
   it("pages through the frames with the left and right arrow keys", () => {
     expect(key("ArrowLeft")).toEqual({ kind: "frame", by: -1 });
     expect(key("ArrowRight")).toEqual({ kind: "frame", by: 1 });

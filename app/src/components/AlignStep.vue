@@ -4,7 +4,7 @@ import NumberField from "./NumberField.vue";
 import StepPanel from "./StepPanel.vue";
 
 // Step 3 Align: the two sizes; under Advanced the locked alignment modes and the rest of Alignment Setup with Align by
-// center of gravity (MAC-021).
+// center of gravity.
 const align = settings.align;
 const gravityHelp =
   "Follows the planet by the centre of its brightness, however far it jumps between frames. For a whole planet against a dark sky; leave it off for the Moon or the Sun in close-up.";

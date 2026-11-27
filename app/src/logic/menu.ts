@@ -19,7 +19,7 @@ export interface ShowItem {
 const item = (title: string, key: string, available = true): ShowItem => ({ title, key, available });
 
 /**
- * The entries of the Show menu at the top right of the image, per kind of image, in menu order (MAC-014). The ones
+ * The entries of the Show menu at the top right of the image, per kind of image, in menu order. The ones
  * without an effect are dimmed under "Not available yet" at the end of the menu.
  */
 export function showItems(kind: "frame" | "stack" | "wavelet"): ShowItem[] {

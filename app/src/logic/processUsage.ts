@@ -1,5 +1,5 @@
-// CPU load and memory of the app for the left end of the status bar (SP-019). The same rules and texts as the earlier SwiftUI app,
-// which took them from Siderea, so the readout looks the same across the suite.
+// CPU load and memory of the app for the left end of the status bar. The same rules and texts as Siderea,
+// so the readout looks the same across the suite.
 
 /** One reading of the process: CPU time used so far, memory held, and when the reading was taken. */
 export interface ProcessSample {

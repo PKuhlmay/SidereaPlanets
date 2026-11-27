@@ -23,7 +23,7 @@ import {
   wrapAngle,
 } from "./geometry";
 
-// Flip and Rotate and Resize Image (SP-022): the cases of the earlier SwiftUI app and, for the sizes, the
+// Flip and Rotate and Resize Image: the cases of the cards and, for the sizes, the
 // values of the tests in crates/core/src/geometry.rs, so that the window shows the size the core writes.
 const source = { width: 1200, height: 900 };
 

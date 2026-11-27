@@ -1,4 +1,4 @@
-// The keyboard shortcuts in the window (SP-017): ← and → page through the frames while the frame bar is there, a digit with Alt
+// The keyboard shortcuts in the window: ← and → page through the frames while the frame bar is there, a digit with Alt
 // (on the Mac with ⌥⌘) opens a step like a click on the step bar, and the commands of the Mac menu bar have keys on every platform.
 // What a key means is decided in logic/keys.ts. On the Mac the menu bar knows the same keys; whichever of the two sees the key
 // first takes it (a handled key calls preventDefault), so a key never does its job twice.

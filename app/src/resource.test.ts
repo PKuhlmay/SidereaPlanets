@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { createMonitor } from "./resource";
 import type { ProcessSample } from "./logic/processUsage";
 
-// The monitor behind the CPU and RAM readout of the status bar (SP-019), with readings handed in by the test.
+// The monitor behind the CPU and RAM readout of the status bar, with readings handed in by the test.
 function fake(readings: (ProcessSample | null)[]) {
   return createMonitor(async () => readings.shift() ?? null);
 }
