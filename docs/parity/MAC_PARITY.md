@@ -31,9 +31,3 @@ als Checkbox-Liste hier, sondern in den Spezifikationen und Tickets, die das Mac
 
 Erst wenn `MAC-001` abgehakt ist, gilt die Regel „ein Punkt je Verhalten“: Von da an trägt jede Windows-Änderung hier ihren Mac-Punkt
 ein.
-
-## Tooltip von Show mask (Windows: SP-020, 2026-11-13)
-
-- [ ] Der Tooltip des Häkchens **Show mask** in der Karte Masking sagt am Mac „Tints the part that is sharpened red.“, die Maske ist aber
-      blau (`mask_overlay` im Kern, Hilfeseite `color-and-tones.md`). Windows schreibt „Tints the part that is sharpened blue. This only
-      changes what you see here, not the image.“ (`app/src/components/MaskCard.vue`). Mac: `mac/App/Views/Wavelets/RefineCards.swift` (`MaskCard`).

@@ -87,7 +87,7 @@ struct MaskCard: View {
                     PanelCheckbox(title: "Invert", isOn: $model.tone.refine.invert, help: "Sharpens the dark part instead of the bright part.")
                     PanelCheckbox(
                         title: "Show mask", isOn: $model.tone.refine.showMask,
-                        help: "Tints the part that is sharpened red. This only changes what you see here, not the image."
+                        help: "Tints the part that is sharpened blue. This only changes what you see here, not the image."
                     )
                 }
             }
