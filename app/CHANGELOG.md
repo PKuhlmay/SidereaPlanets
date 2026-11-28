@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.0.0-rc.1 — 2026-11-28
+
 ### English
 
 - The app has a new internal identifier (de.kuhlmay.siderea.planets). Once after this update the list of recent recordings, the theme and the panels you had opened start over; your recordings, project files and results are not affected.
