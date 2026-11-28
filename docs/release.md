@@ -9,12 +9,12 @@ Plattformen und nur Tags `v<version>` (die früheren `windows-v<version>`-Tags e
 
 | Plattform | Dateien | Gebaut auf |
 |---|---|---|
-| macOS | `.dmg` (universal, Apple Silicon und Intel), signiert und notarisiert; dazu `.app.tar.gz` und `.sig` für den Updater | `macos-latest` |
-| Windows | `…-setup.exe` (NSIS), `…_x64-portable.zip` (die bloße Exe mit `CHANGELOG.md`) | `windows-latest` |
-| Linux | `.AppImage` und `.deb` | `ubuntu-22.04` |
+| macOS | `…_macOS-universal.dmg` (Apple Silicon und Intel), signiert und notarisiert; dazu `.app.tar.gz` und `.sig` für den Updater | `macos-latest` |
+| Windows | `…_Windows-x64-setup.exe` (NSIS), `…_Windows-x64-portable.zip` (die bloße Exe mit `CHANGELOG.md`) | `windows-latest` |
+| Linux | `…_Linux-x64.AppImage` und `…_Linux-x64.deb` | `ubuntu-22.04` |
 | alle | `latest.json` (Updater), `SHA256SUMS.txt` über alle Dateien | |
 
-GitHub ersetzt Leerzeichen in Dateinamen durch Punkte (`Siderea.Planets_1.0.0_universal.dmg`). Linux baut auf 22.04, weil AppImage
+Die Namen setzt `releaseAssetNamePattern` in `release.yml` je Plattform, etwa `Siderea-Planets_1.0.0_macOS-universal.dmg`; `latest.json` übernimmt sie. Linux baut auf 22.04, weil AppImage
 und `.deb` gegen die glibc der Build-Maschine linken: ein Bau auf 22.04 (glibc 2.35) läuft auf mehr Distributionen als einer auf 24.04
 (glibc 2.39). Windows-Exe und Installer sind **nicht signiert** (SmartScreen warnt beim ersten Start); eine Windows-Signatur gibt es
 noch nicht.

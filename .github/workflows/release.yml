@@ -108,15 +108,18 @@ jobs:
           - name: macOS
             os: macos-latest
             args: --target universal-apple-darwin --bundles app,dmg
+            asset: Siderea-Planets_[version]_macOS-universal[ext]
           # NSIS only: tauri.windows.conf.json already restricts the targets. The portable ZIP is added below.
           - name: Windows
             os: windows-latest
             args: ""
+            asset: Siderea-Planets_[version]_Windows-x64[setup][ext]
           # The oldest runner image that is still offered: AppImage and .deb link against the glibc of the build machine,
           # so a build on 22.04 (glibc 2.35) runs on more distributions than one on 24.04 (glibc 2.39).
           - name: Linux
             os: ubuntu-22.04
             args: --bundles appimage,deb
+            asset: Siderea-Planets_[version]_Linux-x64[ext]
     defaults:
       run:
         shell: bash
@@ -228,6 +231,8 @@ jobs:
           releaseDraft: true
           prerelease: ${{ needs.create-release.outputs.prerelease == 'true' }}
           uploadUpdaterJson: true
+          # Names that say the platform at a glance, e.g. Siderea-Planets_1.0.0_macOS-universal.dmg; latest.json follows them.
+          releaseAssetNamePattern: ${{ matrix.asset }}
 
       # The bare exe in a ZIP, like the portable download of the old Windows releases; it needs the WebView2 runtime of Windows 10/11.
       - name: Portable ZIP (Windows)
@@ -239,7 +244,7 @@ jobs:
           New-Item -ItemType Directory -Path "portable/Siderea Planets" | Out-Null
           Copy-Item target/release/planets-app.exe "portable/Siderea Planets/Siderea Planets.exe"
           Copy-Item app/CHANGELOG.md "portable/Siderea Planets/CHANGELOG.md"
-          Compress-Archive -Path "portable/Siderea Planets" -DestinationPath "Siderea-Planets_${env:VERSION}_x64-portable.zip"
+          Compress-Archive -Path "portable/Siderea Planets" -DestinationPath "Siderea-Planets_${env:VERSION}_Windows-x64-portable.zip"
 
       - name: Upload the portable ZIP (Windows)
         if: runner.os == 'Windows'
@@ -248,7 +253,7 @@ jobs:
           VERSION: ${{ needs.create-release.outputs.version }}
           RELEASE_ID: ${{ needs.create-release.outputs.release_id }}
         run: |
-          zip="Siderea-Planets_${VERSION}_x64-portable.zip"
+          zip="Siderea-Planets_${VERSION}_Windows-x64-portable.zip"
           gh api --method POST -H "Content-Type: application/zip" \
             "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/$RELEASE_ID/assets?name=$zip" --input "$zip" > /dev/null
 
