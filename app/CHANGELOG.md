@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### English
+
+- The Windows installer is about 6 MB instead of 300 MB. Where the Microsoft Edge WebView2 runtime is missing, it downloads it during the installation (this needs an internet connection).
+- The Mac disk image opens without a license dialog. The license is shown under About.
+
+### Deutsch
+
+- Der Windows-Installer ist etwa 6 MB statt 300 MB groß. Fehlt die Microsoft-Edge-WebView2-Laufzeit, lädt er sie beim Installieren herunter (dafür braucht es eine Internetverbindung).
+- Das Mac-Disk-Image öffnet sich ohne Lizenzdialog. Die Lizenz steht unter About.
+
 ## 1.0.0-rc.1 — 2026-11-28
 
 ### English

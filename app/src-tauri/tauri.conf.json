@@ -27,9 +27,8 @@
     "active": true,
     "targets": "all",
     "license": "GPL-3.0-or-later",
-    "licenseFile": "../../LICENSE",
     "windows": {
-      "webviewInstallMode": { "type": "offlineInstaller" },
+      "webviewInstallMode": { "type": "embedBootstrapper" },
       "nsis": { "installMode": "both" }
     },
     "icon": [
