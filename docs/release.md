@@ -136,7 +136,7 @@ Entwurf löschen, `git push origin :refs/tags/v<version>`, lokal `git tag -d v<v
 
 ## Hintergrund: von Hand signieren und notarisieren
 
-Das Folgende hat beim Mac-Release 0.1.0 (PKG-Installer, Tag `v0.1.0`) von Hand funktioniert. Die Skripte dazu
+Das Folgende hat beim Mac-Release 0.1.0 (PKG-Installer, ohne Tag im heutigen Repo) von Hand funktioniert. Die Skripte dazu
 (`package-mac.sh`, `build-mac-release.sh`) sind mit PLANETS-4 entfallen und stehen in der Git-Historie. Heute macht Tauri die
 Schritte 3, 4 und 7 im CI; das Wissen hilft, wenn ein Lauf scheitert oder ein Bündel lokal geprüft werden soll.
 
