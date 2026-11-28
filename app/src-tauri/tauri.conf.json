@@ -43,7 +43,7 @@
   "plugins": {
     "updater": {
       "endpoints": ["https://github.com/PKuhlmay/SidereaPlanets/releases/latest/download/latest.json"],
-      "pubkey": "PLACEHOLDER-REPLACE-WITH-THE-CONTENT-OF-siderea-planets.key.pub"
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEE2ODk1NDJGMERDMEUzODQKUldTRTQ4QU5MMVNKcHBrWFZSYTU2b0dmYWJvS0g4aC9Vck5IKzhyQUkwUWxSMkdIR3FFSGxOYTMK"
     }
   }
 }
