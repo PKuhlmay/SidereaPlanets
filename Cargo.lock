@@ -2827,7 +2827,7 @@ checksum = "f6b464fbc74e149a392436b17d523f769e057cb6877f6a5c4618bc6f11800548"
 
 [[package]]
 name = "planets-app"
-version = "1.0.0-rc.1"
+version = "1.0.0-rc.2"
 dependencies = [
  "planets-core",
  "planets-io",
@@ -2845,7 +2845,7 @@ dependencies = [
 
 [[package]]
 name = "planets-core"
-version = "1.0.0-rc.1"
+version = "1.0.0-rc.2"
 dependencies = [
  "rayon",
  "serde",
@@ -2854,7 +2854,7 @@ dependencies = [
 
 [[package]]
 name = "planets-io"
-version = "1.0.0-rc.1"
+version = "1.0.0-rc.2"
 dependencies = [
  "image",
  "planets-core",
@@ -2867,7 +2867,7 @@ dependencies = [
 
 [[package]]
 name = "planets-session"
-version = "1.0.0-rc.1"
+version = "1.0.0-rc.2"
 dependencies = [
  "planets-core",
  "planets-io",

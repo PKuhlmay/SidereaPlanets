@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.0.0-rc.2 — 2026-11-28
+
 ### English
 
 - The Windows installer is about 6 MB instead of 300 MB. Where the Microsoft Edge WebView2 runtime is missing, it downloads it during the installation (this needs an internet connection).
