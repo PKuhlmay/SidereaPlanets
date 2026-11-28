@@ -2,22 +2,12 @@
 
 ## Unreleased
 
-## 1.0.0-rc.2 — 2026-11-28
+## 1.0.0 — 2026-11-28
 
 ### English
 
-- The Windows installer is about 6 MB instead of 300 MB. Where the Microsoft Edge WebView2 runtime is missing, it downloads it during the installation (this needs an internet connection).
-- The Mac disk image opens without a license dialog. The license is shown under About.
-
-### Deutsch
-
-- Der Windows-Installer ist etwa 6 MB statt 300 MB groß. Fehlt die Microsoft-Edge-WebView2-Laufzeit, lädt er sie beim Installieren herunter (dafür braucht es eine Internetverbindung).
-- Das Mac-Disk-Image öffnet sich ohne Lizenzdialog. Die Lizenz steht unter About.
-
-## 1.0.0-rc.1 — 2026-11-28
-
-### English
-
+- Siderea Planets 1.0 is one app for macOS, Windows and Linux. On the Mac it replaces the earlier Mac version 0.1.0; on Linux this is the first version (AppImage and .deb).
+- The Mac app is one universal download for Apple silicon and Intel Macs, signed and notarised by Apple. The Windows installer is about 5 MB; where the Microsoft Edge WebView2 runtime is missing, it downloads it during the installation (this needs an internet connection). The Windows installer is not code-signed yet, so Windows SmartScreen may warn on the first start.
 - The app has a new internal identifier (de.kuhlmay.siderea.planets). Once after this update the list of recent recordings, the theme and the panels you had opened start over; your recordings, project files and results are not affected.
 - Mac: the app has a menu bar (File, Edit, View, Run, Window, Help) and uses Cmd instead of Ctrl for its shortcuts: Cmd+O select a recording, Cmd+S save the image, Cmd+. cancel, Cmd+, settings, Option+Cmd+1 to 7 open a step. The window follows the light or dark appearance of macOS, a double-click on a project file in Finder opens it, and a pinch on the trackpad zooms the image.
 - Windows and Linux: Ctrl+O, Ctrl+S, Ctrl+. and Ctrl+, do the same; Ctrl+plus, Ctrl+minus, Ctrl+0 and Ctrl+1 zoom the image; Alt+1 to Alt+7 still open the steps.
@@ -29,6 +19,8 @@
 
 ### Deutsch
 
+- Siderea Planets 1.0 ist eine App für macOS, Windows und Linux. Am Mac ersetzt sie die frühere Mac-Version 0.1.0; unter Linux ist es die erste Version (AppImage und .deb).
+- Die Mac-App ist ein universeller Download für Macs mit Apple-Chip und mit Intel, von Apple signiert und notarisiert. Der Windows-Installer ist etwa 5 MB groß; fehlt die Microsoft-Edge-WebView2-Laufzeit, lädt er sie beim Installieren herunter (dafür braucht es eine Internetverbindung). Der Windows-Installer ist noch nicht signiert, deshalb kann Windows SmartScreen beim ersten Start warnen.
 - Die App hat eine neue interne Kennung (de.kuhlmay.siderea.planets). Einmalig nach diesem Update beginnen die Liste der zuletzt geöffneten Aufnahmen, das Thema und die geöffneten Panels von vorn; Aufnahmen, Projektdateien und Ergebnisse sind nicht betroffen.
 - Mac: Die App hat eine Menüleiste (Ablage, Bearbeiten, Darstellung, Run, Fenster, Hilfe) und nutzt Cmd statt Ctrl: Cmd+O Aufnahme wählen, Cmd+S Bild speichern, Cmd+. abbrechen, Cmd+, Einstellungen, Option+Cmd+1 bis 7 öffnen einen Schritt. Das Fenster folgt dem hellen oder dunklen Erscheinungsbild von macOS, ein Doppelklick auf eine Projektdatei im Finder öffnet sie, und ein Pinch auf dem Trackpad zoomt das Bild.
 - Windows und Linux: Strg+O, Strg+S, Strg+. und Strg+, tun dasselbe; Strg+Plus, Strg+Minus, Strg+0 und Strg+1 zoomen das Bild; Alt+1 bis Alt+7 öffnen weiter die Schritte.
